@@ -1,0 +1,3 @@
+import test from "node:test";import assert from "node:assert/strict";import { CanonicalUrl } from "../src/domain/value-objects/CanonicalUrl.js";
+test("canonical URL removes fragments, default ports, tracking parameters, and sorts the query",()=>{const result=new CanonicalUrl("HTTPS://Example.COM:443/posts/?utm_source=email&b=2&a=1#section");assert.equal(result.value,"https://example.com/posts?a=1&b=2");assert.match(result.hash,/^[a-f0-9]{64}$/);});
+test("canonical URL preserves meaningful query parameters",()=>{assert.equal(new CanonicalUrl("https://example.com/search?q=fastify&page=2").value,"https://example.com/search?page=2&q=fastify");});

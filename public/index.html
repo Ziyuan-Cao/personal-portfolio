@@ -16,6 +16,7 @@
     - custom css link
   -->
   <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/information.css">
 
   <!--
     - google font link
@@ -183,6 +184,10 @@
 
           <li class="navbar-item">
             <button class="navbar-link" data-nav-link>Blog</button>
+          </li>
+
+          <li class="navbar-item">
+            <button class="navbar-link" data-nav-link>Information</button>
           </li>
 
           <li class="navbar-item">
@@ -490,6 +495,54 @@
 
         </section>-->
 
+      </article>
+
+
+
+
+
+      <!--
+        - #INFORMATION
+      -->
+
+      <article class="information" data-page="information">
+
+        <header class="information-header">
+          <div>
+            <h2 class="h2 article-title">Information</h2>
+            <p class="information-intro">A quiet reading desk for updates from the sources I follow.</p>
+          </div>
+
+          <div class="information-actions">
+            <button class="info-button info-button-secondary" type="button" data-information-refresh>
+              <ion-icon name="refresh-outline"></ion-icon><span>Refresh</span>
+            </button>
+            <button class="info-button" type="button" data-manage-sources>
+              <ion-icon name="options-outline"></ion-icon><span>Manage sources</span>
+            </button>
+          </div>
+        </header>
+
+        <p class="information-updated" data-information-updated>Not loaded yet</p>
+
+        <section class="information-filters" aria-label="Information filters">
+          <label>
+            <span>Source</span>
+            <select data-information-source><option value="">All sources</option></select>
+          </label>
+          <label class="information-search">
+            <span>Search</span>
+            <div><ion-icon name="search-outline"></ion-icon><input type="search" placeholder="Search titles and summaries" data-information-search></div>
+          </label>
+          <label>
+            <span>Order</span>
+            <select data-information-sort><option value="newest">Newest first</option><option value="oldest">Oldest first</option></select>
+          </label>
+        </section>
+
+        <div class="information-state" role="status" data-information-state>Loading information…</div>
+        <section class="information-grid" aria-live="polite" data-information-grid></section>
+        <button class="info-button information-load-more" type="button" data-information-more hidden>Load more</button>
       </article>
 
 
@@ -1165,6 +1218,61 @@
 
   </main>
 
+  <dialog class="source-dialog" data-source-dialog>
+    <div class="source-dialog-shell">
+      <header class="source-dialog-header">
+        <div><p class="eyebrow">Collection desk</p><h2>Manage sources</h2></div>
+        <button type="button" class="dialog-close" aria-label="Close source settings" data-source-close><ion-icon name="close-outline"></ion-icon></button>
+      </header>
+
+      <div class="source-dialog-body">
+        <section class="source-list-panel">
+          <div class="source-panel-heading"><h3>Sources</h3><button type="button" class="text-button" data-new-source>+ New source</button></div>
+          <div class="source-list" data-source-list></div>
+          <div class="collection-history">
+            <h3>Recent collection history</h3>
+            <div data-collection-history></div>
+          </div>
+        </section>
+
+        <form class="source-form" data-source-form>
+          <input type="hidden" name="id">
+          <h3 data-source-form-title>Add a source</h3>
+          <div class="source-form-grid">
+            <label class="field-wide"><span>Source name</span><input name="name" required maxlength="120" placeholder="Engineering notes"></label>
+            <label><span>Website URL</span><input name="baseUrl" type="url" required placeholder="https://example.com"></label>
+            <label><span>Collection URL</span><input name="collectionUrl" type="url" required placeholder="https://example.com/news"></label>
+            <label><span>Collection mode</span><select name="adapterType"><option value="AUTO">Auto discover</option><option value="FEED">RSS / Atom / JSON Feed</option><option value="HTML">HTML selectors</option></select></label>
+            <label><span>Feed URL <small>optional</small></span><input name="feedUrl" type="url" placeholder="https://example.com/feed.xml"></label>
+            <label><span>Interval</span><select name="intervalMinutes"><option value="30">Every 30 minutes</option><option value="60" selected>Every hour</option><option value="360">Every 6 hours</option><option value="1440">Daily</option><option value="10080">Weekly</option></select></label>
+            <label><span>Maximum items</span><input name="maxItemsPerRun" type="number" min="1" max="200" value="30" required></label>
+            <label class="toggle-field"><input name="enabled" type="checkbox" checked><span>Enable scheduled collection</span></label>
+          </div>
+
+          <details class="advanced-fields" data-html-fields>
+            <summary>Advanced HTML selectors</summary>
+            <div class="source-form-grid">
+              <label><span>Item selector</span><input name="itemSelector" placeholder=".news-card"></label>
+              <label><span>Link selector</span><input name="linkSelector" placeholder="a"></label>
+              <label><span>Title selector</span><input name="titleSelector" placeholder=".news-title"></label>
+              <label><span>Subtitle selector</span><input name="subtitleSelector" placeholder=".description"></label>
+              <label><span>Image selector</span><input name="imageSelector" placeholder="img"></label>
+              <label><span>Date selector</span><input name="dateSelector" placeholder="time"></label>
+              <label><span>Next-page selector</span><input name="nextPageSelector" placeholder="a.next"></label>
+            </div>
+          </details>
+
+          <div class="source-test-result" data-source-test-result>Test the source to preview its first items before enabling it.</div>
+          <div class="source-form-actions">
+            <button type="button" class="info-button info-button-secondary" data-test-source>Test source</button>
+            <button type="button" class="info-button info-button-secondary" data-preview-source disabled>Preview results</button>
+            <button type="submit" class="info-button" data-save-source>Save source</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </dialog>
+
 
 
 
@@ -1174,6 +1282,7 @@
     - custom js link
   -->
   <script src="./assets/js/script.js"></script>
+  <script type="module" src="./assets/js/information/information-controller.js"></script>
 
   <!--
     - ionicon link
