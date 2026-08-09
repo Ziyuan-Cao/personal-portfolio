@@ -1,5 +1,1000 @@
 [
   {
+    "slug": "ue4-skeletal-mesh-rendering-data-path",
+    "title": "The UE4 Skeletal-Mesh Rendering Data Path",
+    "abstract": "A practical map from component state to a section-level mesh batch, vertex factory, skinning path, and draw command—with the ownership boundaries that matter when extending the renderer.",
+    "category": "Unreal rendering",
+    "publishedAt": "2026-08-09",
+    "readingTime": "12 min read",
+    "image": "/content/blog/images/ue-skeletal-render-path.svg",
+    "imageAlt": "Diagram of the Unreal Engine skeletal mesh rendering path from component to draw",
+    "lede": "The difficult part of modifying skeletal rendering is rarely one shader. It is knowing which object owns the data, when that data crosses from game thread to render thread, and which vertex factory a mesh batch actually selects. This article builds that map for a UE4.26-era prototype and checks the durable concepts against current Unreal documentation.",
+    "sections": [
+      {
+        "heading": "Start with two different kinds of state",
+        "paragraphs": [
+          "A skeletal mesh asset owns durable resources: reference geometry, LODs, section layouts, index buffers, skin weights, and the skeleton-to-mesh binding. A skeletal mesh component owns an instance: its transform, selected LOD, material overrides, animation state, visibility, and other per-instance settings.",
+          "That distinction prevents an early design mistake. Runtime deformation output belongs to the instance, while topology and reusable GPU resources usually belong to the asset or its render data. Putting animated positions into shared asset state makes two characters fight over the same buffer."
+        ],
+        "callouts": [
+          { "tone": "note", "title": "Version scope", "text": "Names and scheduling details can move between UE4.26 and UE5, but the component → scene proxy → mesh batch → vertex factory → draw-command model remains the useful mental model." }
+        ]
+      },
+      {
+        "heading": "The data path, in order",
+        "paragraphs": [
+          "On the game thread, the component updates animation and produces dynamic state. Unreal transfers a render-safe snapshot instead of letting the render thread read mutable gameplay objects directly. The scene proxy represents the component in the renderer, and the skeletal mesh render object owns the instance-specific GPU-side machinery.",
+          "During visibility and pass setup, the proxy emits one or more mesh batches. A batch points at an index buffer, describes a primitive range, selects a material render proxy, and—most importantly—selects a vertex factory. Later, draw-command construction combines that batch with the material shader permutation and render-pass state."
+        ],
+        "flow": {
+          "label": "Skeletal mesh submission",
+          "steps": [
+            { "icon": "body-outline", "title": "Component", "text": "Animation, transform, LOD choice, and material overrides" },
+            { "icon": "copy-outline", "title": "Render snapshot", "text": "Thread-safe dynamic data crosses to the render thread" },
+            { "icon": "cube-outline", "title": "Scene proxy", "text": "Participates in visibility and emits section-level batches" },
+            { "icon": "albums-outline", "title": "Mesh batch", "text": "Geometry range, material, primitive count, and vertex factory" },
+            { "icon": "hardware-chip-outline", "title": "Draw command", "text": "Shaders and fixed state consume the selected buffers" }
+          ]
+        }
+      },
+      {
+        "heading": "Sections are the practical unit of rendering",
+        "paragraphs": [
+          "A skeletal LOD is divided into render sections, commonly along material and bone-palette boundaries. Each section submits its own primitive range and material. A logical vertex on a UV seam may therefore exist more than once in the render buffers, even if those copies share the same object-space position.",
+          "This matters for runtime subdivision. If a prototype independently refines every material section, it is not refining one watertight mesh—it is refining several neighboring meshes that merely appear connected. Any scheme that ignores shared-edge identity will eventually expose cracks, mismatched normals, or discontinuous texture coordinates."
+        ],
+        "technicalTables": [
+          {
+            "columns": ["Object", "Typical responsibility", "Lifetime"],
+            "rows": [
+              ["Mesh asset/render data", "LOD topology, sections, static vertex and index resources", "Shared by instances"],
+              ["Component", "Animation and per-instance choices", "Game-world instance"],
+              ["Scene proxy/render object", "Renderer-facing instance state", "Render-thread lifetime"],
+              ["Mesh batch", "One submitted geometry/material range", "Per view/pass submission"],
+              ["Vertex factory", "Declares how shaders fetch or receive vertex attributes", "GPU resource/configuration" ]
+            ],
+            "caption": "Ownership is more important than memorizing a particular call stack."
+          }
+        ]
+      },
+      {
+        "heading": "The vertex factory is the fork in the road",
+        "paragraphs": [
+          "A vertex factory is the renderer’s contract for supplying vertex attributes to material shaders. In the ordinary GPU-skin path, the shader receives source position, weights, bone indices, and bone transforms, then computes the animated vertex. With Skin Cache enabled, a compute pass performs skinning first and a pass-through factory reads the already-skinned stream.",
+          "A mesh batch does not simply mean ‘draw this mesh.’ Its chosen factory determines whether later shaders see bind-pose attributes, inputs required for vertex-shader skinning, or a previously computed position/tangent buffer. That is why a custom subdivision stage must decide exactly where it sits relative to skinning before it changes any buffers."
+        ],
+        "bullets": [
+          "Subdivide before skinning: new vertices need valid skin weights and bone influences.",
+          "Subdivide after skinning: topology stencils can operate on final animated positions, but tangents and motion history still need a plan.",
+          "Change only the index buffer: new indices cannot refer to vertices that the selected factory never exposes.",
+          "Replace the factory: every material pass using the mesh must support that factory and its shader permutation."
+        ]
+      },
+      {
+        "heading": "A reliable way to trace an unfamiliar mesh path",
+        "paragraphs": [
+          "Begin at the emitted mesh batch and work backward. Record its vertex factory, index buffer, first index, primitive count, material proxy, and section identifier. Then trace who filled each field and when its resource was initialized. This produces a smaller, testable graph than reading the renderer from the component downward.",
+          "At runtime, use one mesh, one LOD, one material, and a frozen pose. Capture a frame, identify the draw, and verify the bound buffers. Add one variable at a time: a second section, a moving pose, velocity output, then shadows. A feature is not integrated merely because it appears in the base pass."
+        ],
+        "callouts": [
+          { "tone": "warning", "title": "Common integration gap", "text": "Depth, shadow, velocity, selection, and ray-tracing paths may consume the mesh differently. List the required passes before calling the feature complete." }
+        ]
+      },
+      {
+        "heading": "What this work demonstrates",
+        "paragraphs": [
+          "The engineering skill here is systems tracing: separating shared and per-instance state, respecting the game/render-thread boundary, following GPU resource ownership, and reducing a large renderer to the exact batch and factory that control one draw. That same method transfers to morph targets, mesh deformers, procedural geometry, and custom vertex streams."
+        ]
+      }
+    ],
+    "references": [
+      { "label": "Epic Games: Skeletal Mesh Rendering Paths", "url": "https://dev.epicgames.com/documentation/unreal-engine/skeletal-mesh-rendering-paths-in-unreal-engine" },
+      { "label": "Epic Games: Rendering settings and Support Compute Skin Cache", "url": "https://dev.epicgames.com/documentation/unreal-engine/rendering-settings-in-the-unreal-engine-project-settings?lang=en-US" }
+    ],
+    "closing": "A renderer extension becomes manageable when every buffer has an owner, every transition has a thread, and every draw has a known vertex factory."
+  },
+  {
+    "slug": "post-skinning-vertices-gpu-skin-cache",
+    "title": "Obtaining Post-Skinning Vertices from GPU Skin Cache",
+    "abstract": "How to consume animated skeletal positions after compute skinning without reading them back to the CPU—and how to reason about scheduling, buffer lifetime, tangents, and motion history.",
+    "category": "GPU skinning",
+    "publishedAt": "2026-08-09",
+    "readingTime": "11 min read",
+    "image": "/content/blog/images/gpu-skin-cache.svg",
+    "imageAlt": "Compute skinning writes animated vertices that subdivision and draw passes consume on the GPU",
+    "lede": "If a compute shader needs the final animated surface, the useful answer is not a CPU readback. It is to consume the same GPU Skin Cache output that Unreal already produces for later rendering work. The hard parts are ordering and ownership, not the stencil arithmetic that comes afterward.",
+    "sections": [
+      {
+        "heading": "What ‘post-skinning’ means",
+        "paragraphs": [
+          "Source skeletal vertices are stored in a reference pose with bone indices and weights. Skinning transforms each source position and direction by a weighted combination of the current bone transforms. The resulting stream is instance-specific and changes with the pose.",
+          "In the traditional path that computation happens inside the vertex shader, so there may be no reusable buffer containing every final vertex. The GPU Skin Cache changes the architecture: a compute pass skins the mesh into cached GPU buffers, and later passes read those results through a pass-through vertex factory."
+        ],
+        "equations": [
+          {
+            "label": "Linear-blend skinning, conceptually",
+            "expression": "p_skin = sum_j w_j (M_j p_bind)",
+            "terms": ["w_j is a normalized bone influence.", "M_j maps the bind-pose vertex through the current bone transform.", "Direction vectors require the appropriate linear/normal transform, not the position translation."]
+          }
+        ]
+      },
+      {
+        "heading": "The zero-readback strategy",
+        "paragraphs": [
+          "Enable compute skinning for the target platform and material configuration, let the Skin Cache allocate and write its position stream, then schedule the custom compute work after that write. Bind the cached stream as a shader resource and write subdivision output into a separate unordered-access buffer. Finally, make the draw’s vertex factory consume the refined stream.",
+          "This keeps animation, refinement, and rendering on the GPU. A readback would add synchronization, latency, bandwidth, and a second upload before the data could be drawn again. It is useful for debugging a handful of values, not as the production data path."
+        ],
+        "flow": {
+          "label": "GPU-only animated refinement",
+          "steps": [
+            { "icon": "git-branch-outline", "title": "Bone transforms", "text": "Current pose and source skin weights" },
+            { "icon": "hardware-chip-outline", "title": "Skin Cache pass", "text": "Writes current animated positions and related streams" },
+            { "icon": "grid-outline", "title": "Subdivision pass", "text": "Reads cached positions and applies topology stencils" },
+            { "icon": "layers-outline", "title": "Refined buffer", "text": "Stores the generated per-instance vertices" },
+            { "icon": "color-palette-outline", "title": "Material draw", "text": "Consumes the refined result without CPU round-trip" }
+          ]
+        },
+        "figures": [
+          { "src": "/content/blog/images/material-opensubdiv-pipeline.png", "alt": "Original project architecture diagram connecting OpenSubdiv preprocessing, stencil shader resources, and compute evaluation", "caption": "Project material: the prototype architecture builds topology and stencil resources on the CPU, uploads four stencil arrays, and evaluates changing vertex data in compute. The exact engine integration still needs explicit pass dependencies." }
+        ]
+      },
+      {
+        "heading": "Synchronization is part of correctness",
+        "paragraphs": [
+          "A pointer to a GPU buffer is not proof that its current-frame contents are ready. The custom pass must be ordered after Skin Cache writes and before any draw that consumes refinement output. It also needs correct resource-state transitions between unordered access, shader-resource access, and vertex-buffer access.",
+          "In a render-graph implementation, express these dependencies as pass inputs and outputs so the graph can place transitions and retain resources. In older manual command-list code, the same dependencies still exist; they are merely easier to omit. Never rely on the fact that two commands happened to execute in the desired order in one capture."
+        ],
+        "codeBlocks": [
+          {
+            "file": "Conceptual render-graph pseudocode",
+            "language": "cpp",
+            "code": "Skinned = AddSkinCachePass(SourceVertices, BoneTransforms);\n\nRefined = CreateBuffer(RefinedVertexCount);\nAddComputePass(\n    /* reads  */ Skinned.Positions, StencilOffsets,\n                 StencilSizes, StencilIndices, StencilWeights,\n    /* writes */ Refined.Positions);\n\nSubmitMeshBatch(/* vertex stream */ Refined.Positions);"
+          }
+        ]
+      },
+      {
+        "heading": "Position alone is not a renderable surface",
+        "paragraphs": [
+          "A convincing prototype can stop at positions; a production path cannot. Lighting needs normals and tangents, textured materials need UVs, motion blur needs previous positions, and ray tracing or distance fields may need separate updates. Decide whether each attribute is stencil-evaluated, recomputed from refined triangles, preserved as face-varying data, or intentionally unsupported.",
+          "Motion history deserves special attention. If the current frame is refined from current skinned positions, velocity requires the equivalent previous-frame refined position—or a consistent way to reconstruct it. Mixing a refined current stream with an unrefined previous stream produces false motion."
+        ],
+        "technicalTables": [
+          {
+            "columns": ["Stream", "Possible treatment", "Failure if omitted"],
+            "rows": [
+              ["Position", "Stencil current and previous skinned buffers", "Wrong shape or velocity"],
+              ["Normal/tangent", "Stencil then normalize, or recompute", "Broken lighting and normal maps"],
+              ["UV", "Use face-varying topology at seams", "Texture smearing across charts"],
+              ["Skin weights", "Not needed after skinning unless further deformation expects them", "Pipeline-order mismatch"],
+              ["Section/material ID", "Preserve draw partition or build a deliberate atlas", "Wrong material assignment"]
+            ],
+            "caption": "The correct choice depends on whether refinement occurs before or after skinning."
+          }
+        ]
+      },
+      {
+        "heading": "A focused validation sequence",
+        "paragraphs": [
+          "First render cached positions as points or a flat unlit mesh and compare a frozen pose with the normal Skin Cache draw. Then animate one bone and verify that the refined output changes in the same frame. Next inspect two consecutive frames and validate motion vectors. Only after these tests should materials, shadows, and multiple LODs be added.",
+          "Measure the GPU result without stalling the CPU. Timestamp the skinning and refinement passes, inspect barriers in a frame capture, and verify that the output allocation is reused rather than recreated each frame. A correct result with an accidental readback or per-frame resource churn is not a finished GPU path."
+        ],
+        "callouts": [
+          { "tone": "warning", "title": "Do not keep transient internals forever", "text": "Skin Cache implementation details can change across engine versions. Encapsulate access behind a small engine integration point and revalidate it when upgrading." }
+        ]
+      },
+      {
+        "heading": "What this work demonstrates",
+        "paragraphs": [
+          "This problem exercises GPU pipeline integration: locating producer and consumer passes, preserving frame-to-frame state, declaring resource hazards, avoiding CPU synchronization, and defining a complete vertex contract rather than a position-only demo."
+        ]
+      }
+    ],
+    "references": [
+      { "label": "Epic Games: Skeletal Mesh Rendering Paths", "url": "https://dev.epicgames.com/documentation/unreal-engine/skeletal-mesh-rendering-paths-in-unreal-engine" },
+      { "label": "Epic Games: Support Compute Skin Cache setting", "url": "https://dev.epicgames.com/documentation/unreal-engine/rendering-settings-in-the-unreal-engine-project-settings?lang=en-US" }
+    ],
+    "closing": "The Skin Cache is valuable because it turns skinning from an isolated vertex-shader calculation into a reusable GPU data product—provided the next pass joins its dependency chain correctly."
+  },
+  {
+    "slug": "opensubdiv-stencil-tables-explained",
+    "title": "OpenSubdiv Stencil Tables, Explained",
+    "abstract": "A compact mental model for offsets, sizes, indices, and weights—and why OpenSubdiv can turn recursive subdivision into a sparse linear evaluation over coarse control vertices.",
+    "category": "Subdivision surfaces",
+    "publishedAt": "2026-08-09",
+    "readingTime": "10 min read",
+    "image": "/content/blog/images/opensubdiv-stencils.svg",
+    "imageAlt": "Sparse subdivision stencil rows mapping coarse control vertices to refined output vertices",
+    "lede": "OpenSubdiv’s stencil table looks like four plain arrays. Together they encode a powerful result: once topology is fixed, every selected refined vertex can be evaluated directly from coarse control data without replaying every intermediate subdivision level.",
+    "sections": [
+      {
+        "heading": "A stencil is one sparse row",
+        "paragraphs": [
+          "Subdivision rules are linear combinations. A newly created edge point, face point, or updated vertex is a weighted sum of vertices from the previous level. Recursively substitute those previous-level expressions and the final refined vertex becomes a weighted sum of the original coarse controls.",
+          "OpenSubdiv stores that accumulated expression as a stencil. The row contains only controls with non-zero influence, so it behaves like one row of a sparse matrix without paying for a dense matrix full of zeros."
+        ],
+        "equations": [
+          {
+            "label": "One refined output",
+            "expression": "v_out[i] = sum_(k=0)^(size[i]-1) weight[offset[i]+k] * v_control[index[offset[i]+k]]",
+            "terms": ["offset[i] starts row i in the flattened index and weight arrays.", "size[i] is the number of non-zero influences in that row.", "index and weight have matching entries."]
+          }
+        ]
+      },
+      {
+        "heading": "Why there are four arrays",
+        "paragraphs": [
+          "Variable-length rows are awkward on the GPU. OpenSubdiv flattens all row entries into parallel index and weight arrays, then stores a per-output offset and size. Output 0 may use four controls, output 1 six, and output 2 three; no padding is required.",
+          "The essential invariant is that offsets and sizes address both flattened arrays identically. If row i begins at offset 12 and has size 5, entries 12 through 16 in both the control-index and weight arrays belong to that output."
+        ],
+        "technicalTables": [
+          {
+            "columns": ["Array", "One value means", "Count"],
+            "rows": [
+              ["sizes", "Number of contributing controls for one output", "One per stencil"],
+              ["offsets", "First flattened contribution for one output", "One per stencil"],
+              ["indices", "Coarse-control vertex to read", "One per non-zero contribution"],
+              ["weights", "Multiplier paired with that control index", "One per non-zero contribution"]
+            ],
+            "caption": "This is compressed sparse row storage specialized for subdivision evaluation."
+          }
+        ]
+      },
+      {
+        "heading": "A numeric example",
+        "paragraphs": [
+          "Suppose an output stencil starts at offset 3 and has size 3. Its flattened indices are [1, 4, 7] and its weights are [0.25, 0.50, 0.25]. The output is one quarter of control 1, one half of control 4, and one quarter of control 7. The weights sum to one, so translating all controls by the same vector translates the output by that vector.",
+          "Weight-sum checks are a valuable diagnostic for positional stencils, but not a complete proof. Incorrect indices can still sum to a plausible point, and derivative stencils intentionally obey different constraints."
+        ],
+        "codeBlocks": [
+          {
+            "file": "CPU reference evaluator",
+            "language": "cpp",
+            "code": "for (uint32 i = 0; i < stencilCount; ++i) {\n    Vec3 value = Vec3(0);\n    const uint32 begin = offsets[i];\n    const uint32 end = begin + sizes[i];\n\n    for (uint32 k = begin; k < end; ++k)\n        value += weights[k] * control[indices[k]];\n\n    output[i] = value;\n}"
+          }
+        ]
+      },
+      {
+        "heading": "Topology is compiled; attributes are evaluated",
+        "paragraphs": [
+          "OpenSubdiv’s topology refiner constructs refinement relationships from the coarse mesh and subdivision options. A stencil-table factory then accumulates the chosen refined vertices back to the coarse level. That is the expensive conceptual step; it depends on connectivity, crease rules, boundary interpolation, and requested refinement—not on the current animated coordinates.",
+          "For a mesh whose topology is stable, build and upload stencils once. Evaluate them repeatedly as positions change. The same linear structure can also evaluate compatible attributes, but only when those attributes share the same topology and interpolation semantics. UVs at seams usually do not."
+        ],
+        "callouts": [
+          { "tone": "note", "title": "Stencil table versus patch table", "text": "Stencil tables evaluate refined data. Patch tables organize limit-surface patches for feature-adaptive evaluation and tessellation. Creating both does not mean they are interchangeable or that a patch table has been used." }
+        ],
+        "figures": [
+          { "src": "/content/blog/images/material-opensubdiv-pipeline.png", "alt": "Original project diagram of OpenSubdiv topology refinement and stencil SRV creation", "caption": "Project material: a useful historical map of topology construction, stencil-table creation, and SRV upload. Patch-table creation is shown separately; it should only be claimed as used when the render path actually consumes it." }
+        ]
+      },
+      {
+        "heading": "What to validate before moving to a shader",
+        "paragraphs": [
+          "Evaluate a tiny mesh on the CPU and print every row. Confirm that all offsets and ranges stay within the flattened arrays, every control index is valid, and expected positional rows approximately sum to one. Compare selected output vertices with OpenSubdiv’s reference evaluator before introducing GPU packing or synchronization.",
+          "Also define output ordering. A stencil table may contain only generated vertices, or include coarse vertices depending on factory options. If the renderer expects a combined coarse-plus-refined buffer, write the base offset explicitly rather than assuming stencil i maps to render vertex i."
+        ],
+        "bullets": [
+          "Check subdivision scheme and boundary/crease options.",
+          "Record whether intermediate levels or only the final level are included.",
+          "Record whether the output buffer begins with coarse controls.",
+          "Keep CPU and GPU evaluators on the same precision and indexing convention during tests."
+        ]
+      },
+      {
+        "heading": "What this work demonstrates",
+        "paragraphs": [
+          "Stencil tables are a useful bridge between geometry processing and GPU engineering. Understanding them demonstrates sparse-data representation, separation of topology from animation, construction of a reference implementation, and the discipline to validate indexing before optimizing execution."
+        ]
+      }
+    ],
+    "references": [
+      { "label": "Pixar OpenSubdiv: Far Overview", "url": "https://graphics.pixar.com/opensubdiv/docs_3x_alpha/far_overview.html" },
+      { "label": "Pixar OpenSubdiv: Project Overview", "url": "https://graphics.pixar.com/opensubdiv/overview.html" },
+      { "label": "Pixar OpenSubdiv: CLStencilTable API", "url": "https://graphics.pixar.com/opensubdiv/docs/doxy_html/a00008.html" }
+    ],
+    "closing": "The four arrays are not mysterious once read as sparse rows: locate the row, gather its controls, apply its weights, and write exactly one output."
+  },
+  {
+    "slug": "subdivision-stencils-compute-shader",
+    "title": "Evaluating Subdivision Stencils in a Compute Shader",
+    "abstract": "A production-minded compute path for OpenSubdiv stencil data: buffer packing, dispatch shape, output offsets, synchronization, attribute handling, and validation against a CPU reference.",
+    "category": "Compute shaders",
+    "publishedAt": "2026-08-09",
+    "readingTime": "12 min read",
+    "image": "/content/blog/images/stencil-compute-shader.svg",
+    "imageAlt": "A compute shader gathers indexed control vertices and writes one refined vertex per stencil",
+    "lede": "Stencil evaluation is an unusually clean compute workload: one output row gathers a small set of control vertices, accumulates weighted values, and writes one result. The arithmetic is easy. Correct buffer layout, output mapping, lifetime, and synchronization are the real implementation.",
+    "sections": [
+      {
+        "heading": "Split setup from per-frame evaluation",
+        "paragraphs": [
+          "Topology refinement and stencil construction depend on connectivity and subdivision options, so they should run when the mesh or refinement configuration changes. Upload sizes, offsets, indices, weights, and any refined index data at that time. The per-frame path should only bind the current control attributes and dispatch evaluation.",
+          "This separation is especially important for animation. Rebuilding OpenSubdiv topology every pose discards the central advantage of stencils: stable topology has already been compiled into reusable linear weights."
+        ],
+        "figures": [
+          { "src": "/content/blog/images/material-gpu-subdivision-schedule.png", "alt": "Original project diagram separating one-time refinement setup from the recurring GPU vertex evaluation", "caption": "Project material: the original GPU-path design already separates one-time topology/index work from recurring stencil evaluation. The article tightens that idea into explicit resource lifetimes." }
+        ]
+      },
+      {
+        "heading": "Use one thread per output stencil",
+        "paragraphs": [
+          "Dispatch enough threads to cover the stencil count. Thread i reads sizes[i] and offsets[i], walks its flattened contribution range, gathers control positions by index, and writes one output. Rows are independent, so no atomics or group synchronization are required.",
+          "A bounds check is mandatory because the dispatch is normally rounded up to a whole thread group. Choose group size after profiling; 64 threads is a sensible starting point, not a universal optimum. Irregular row lengths create some divergence, but the workload is usually dominated by scattered reads and the number of contributions."
+        ],
+        "codeBlocks": [
+          {
+            "file": "StencilEvaluate.usf (engine-neutral HLSL)",
+            "language": "hlsl",
+            "code": "StructuredBuffer<uint>   Sizes;\nStructuredBuffer<uint>   Offsets;\nStructuredBuffer<uint>   ControlIndices;\nStructuredBuffer<float>  Weights;\nStructuredBuffer<float3> ControlPositions;\nRWStructuredBuffer<float3> OutputPositions;\n\ncbuffer Params { uint StencilCount; uint OutputBase; };\n\n[numthreads(64, 1, 1)]\nvoid MainCS(uint3 dispatchId : SV_DispatchThreadID)\n{\n    uint i = dispatchId.x;\n    if (i >= StencilCount) return;\n\n    uint begin = Offsets[i];\n    uint end = begin + Sizes[i];\n    float3 p = 0.0;\n    for (uint k = begin; k < end; ++k)\n        p += Weights[k] * ControlPositions[ControlIndices[k]];\n\n    OutputPositions[OutputBase + i] = p;\n}"
+          }
+        ]
+      },
+      {
+        "heading": "Make buffer contracts explicit",
+        "paragraphs": [
+          "Use unsigned integer buffers for counts, offsets, and indices, and a floating-point buffer for weights. The source and destination position layout must match the shader declaration exactly; a packed engine vertex structure is not automatically a StructuredBuffer<float3>. When layouts differ, expose a raw/byte-address view with explicit loads or stage positions into a simple structured stream.",
+          "OutputBase resolves a common ambiguity. Some render buffers retain coarse controls at the beginning and append stencil-generated vertices. Others contain only evaluated outputs. Encoding the base in a parameter prevents a hidden assumption from becoming an out-of-bounds write or a one-vertex shift."
+        ],
+        "technicalTables": [
+          {
+            "columns": ["Resource", "Access", "Update frequency"],
+            "rows": [
+              ["Sizes/offsets/indices/weights", "Shader resource", "When topology/options change"],
+              ["Control positions", "Shader resource", "Every animated frame"],
+              ["Output positions", "Unordered access, then vertex/shader resource", "Every animated frame"],
+              ["Refined index buffer", "Index-buffer access", "When topology/options change"]
+            ],
+            "caption": "Treat topology data as cached configuration and positions as dynamic instance data."
+          }
+        ]
+      },
+      {
+        "heading": "The output needs a rendering consumer",
+        "paragraphs": [
+          "Writing a UAV does not change what an existing mesh batch draws. The batch must use an index buffer describing refined triangles and a vertex factory whose position stream points at the evaluated buffer. If UV, tangent, color, or other streams are still sourced from the coarse mesh, every refined index must have a valid corresponding element in those streams.",
+          "A prototype may use a local-style factory over fully materialized refined buffers. Another design may evaluate patches in tessellation or mesh shaders. Either way, the producer’s output layout and the consumer’s fetch contract must be designed together."
+        ],
+        "callouts": [
+          { "tone": "warning", "title": "Patch-table trap", "text": "Building an OpenSubdiv patch table while manually triangulating a refined level does not mean patch evaluation is implemented. Verify which data structure actually supplies the rendered indices and vertices." }
+        ]
+      },
+      {
+        "heading": "Validate in layers",
+        "paragraphs": [
+          "Start with a triangle or tetrahedron and compare every GPU output against the CPU reference evaluator. Then test a cube with boundaries, a mesh containing an extraordinary vertex, and a mesh with creases. Use a tolerance appropriate for floating-point accumulation order rather than bitwise equality.",
+          "Next validate scheduling: animate the controls, capture the compute pass and subsequent draw, and confirm the expected state transition. Finally measure. Count total stencil contributions, bytes read and written, dispatches per section, and buffer allocations. Dispatch overhead can dominate if every small material section launches its own pass."
+        ],
+        "bullets": [
+          "Assert offset + size never exceeds the contribution arrays.",
+          "Assert every control index is inside the bound source stream.",
+          "Fill the output with a sentinel before dispatch to expose unwritten rows.",
+          "Test outputBase = 0 and a non-zero appended-output layout.",
+          "Keep a slow CPU oracle in debug tooling even after the GPU path ships."
+        ]
+      },
+      {
+        "heading": "What this work demonstrates",
+        "paragraphs": [
+          "This implementation combines GPU data-oriented design, sparse gather evaluation, immutable-versus-dynamic resource planning, shader/host layout discipline, and reference-based verification. Those skills generalize to blend-shape evaluation, graph deformation, particle constraints, and many other sparse compute workloads."
+        ]
+      }
+    ],
+    "references": [
+      { "label": "Pixar OpenSubdiv: CLStencilTable", "url": "https://graphics.pixar.com/opensubdiv/docs/doxy_html/a00008.html" },
+      { "label": "Pixar OpenSubdiv: Far Overview", "url": "https://graphics.pixar.com/opensubdiv/docs_3x_alpha/far_overview.html" }
+    ],
+    "closing": "The optimized shader is the last step. First make the row mapping, buffer layout, dependency order, and CPU comparison impossible to misunderstand."
+  },
+  {
+    "slug": "runtime-subdivision-uv-seams-material-boundaries",
+    "title": "UV Seams and Material Boundaries in Runtime Subdivision",
+    "abstract": "Why a position-continuous refined mesh can still crack visually—and how geometric topology, face-varying UV topology, tangent discontinuities, and section ownership should be represented.",
+    "category": "Mesh topology",
+    "publishedAt": "2026-08-09",
+    "readingTime": "11 min read",
+    "image": "/content/blog/images/subdivision-seams.svg",
+    "imageAlt": "A shared geometric edge is split into UV and material-side vertices during runtime subdivision",
+    "lede": "A render vertex is not the same thing as a geometric vertex. Importers duplicate vertices at UV seams, hard normals, tangent discontinuities, and material boundaries. Runtime subdivision that treats those duplicates as unrelated geometry can create cracks; subdivision that welds them indiscriminately can destroy intentional discontinuities.",
+    "sections": [
+      {
+        "heading": "One surface carries several topologies",
+        "paragraphs": [
+          "Geometric topology answers which faces share a point or edge in object space. Texture topology answers which face-corners share one UV value. Normal and tangent topology may split again at hard edges or mirrored UV charts. Material topology partitions faces into draws. These relationships overlap, but they are not identical.",
+          "A typical indexed render mesh resolves that complexity by duplicating complete vertex records. The GPU receives simple arrays, but the original equivalence information is partly lost unless the runtime system reconstructs or stores it."
+        ],
+        "technicalTables": [
+          {
+            "columns": ["Boundary type", "Position continuity", "Attribute continuity"],
+            "rows": [
+              ["UV seam", "Usually continuous", "UV is intentionally discontinuous"],
+              ["Hard normal edge", "Continuous", "Normal/tangent is intentionally discontinuous"],
+              ["Material boundary", "Usually continuous", "Material identity and sometimes UV set differ"],
+              ["Actual open boundary", "No neighboring face", "Boundary interpolation rule applies"]
+            ],
+            "caption": "Welding should be decided per domain, not once for the entire packed vertex."
+          }
+        ]
+      },
+      {
+        "heading": "Why per-section subdivision cracks",
+        "paragraphs": [
+          "Unreal submits skeletal LOD sections independently. If each material section is converted into a separate OpenSubdiv mesh, the shared material edge becomes a boundary in both refiners. Each side now applies a boundary rule using only its local neighborhood instead of the original two-sided surface neighborhood.",
+          "Even when both sides coincidentally produce the same positions, their refined normals, tangents, and UVs can differ. Animation and floating-point order can make the position mismatch visible later. The root issue is not ‘bad weights’; it is that an implementation boundary was mistaken for a geometric boundary."
+        ],
+        "figures": [
+          { "src": "/content/blog/images/material-subdivision-wireframe-before.png", "alt": "Original project capture of the skeletal mesh wireframe before runtime subdivision", "caption": "Project material: the pre-subdivision render mesh already contains section and attribute splits that are not obvious from the silhouette." }
+        ]
+      },
+      {
+        "heading": "A robust representation",
+        "paragraphs": [
+          "Build one positional control mesh for the whole logical surface, or at least for each truly disconnected component. Preserve a mapping from packed render vertices to logical position vertices. Faces retain their material IDs so refined triangles can still be grouped into material draws.",
+          "Represent UVs as face-varying data: values are attached to face corners and may have a different index topology from positions. OpenSubdiv provides face-varying interpolation specifically for this case. Normal and tangent handling should be explicit—either interpolate appropriate data, evaluate limit derivatives, or recompute a tangent basis from refined geometry and face-varying UVs."
+        ],
+        "flow": {
+          "label": "Discontinuity-aware refinement",
+          "steps": [
+            { "icon": "git-merge-outline", "title": "Logical position mesh", "text": "Weld only vertices that represent the same geometric point" },
+            { "icon": "map-outline", "title": "Face-varying UVs", "text": "Keep separate values on opposite sides of a chart seam" },
+            { "icon": "pricetag-outline", "title": "Face material IDs", "text": "Carry ownership through topology refinement" },
+            { "icon": "analytics-outline", "title": "Derived tangents", "text": "Evaluate or rebuild the shading frame consistently" },
+            { "icon": "albums-outline", "title": "Section draws", "text": "Partition refined triangles after the surface is refined" }
+          ]
+        }
+      },
+      {
+        "heading": "Material assignment after refinement",
+        "paragraphs": [
+          "A child face inherits its parent face’s material ID. After uniform refinement, group the generated triangles by that ID and create section index ranges. Shared refined positions may be referenced by indices from multiple material draws; there is no requirement to duplicate position storage merely because draw calls are separate.",
+          "If the vertex factory requires interleaved attributes with one index, generate packed render vertices from tuples such as (position vertex, face-varying UV vertex, normal region, material-side requirements). This final expansion happens after logical refinement, not before it."
+        ],
+        "equations": [
+          {
+            "label": "Render-vertex identity",
+            "expression": "renderVertex = unique(positionID, uvID, normalRegion, other discontinuous attributes)",
+            "terms": ["Material ID usually belongs to the face/draw, but may affect which packed tuples are needed.", "Two render vertices can share positionID while intentionally differing in uvID."]
+          }
+        ]
+      },
+      {
+        "heading": "Test the boundaries, not only the center",
+        "paragraphs": [
+          "Create a two-quad strip whose shared edge is a material boundary and a UV seam. Animate or deform it, refine it, and inspect both wireframe position and a checker texture. Then add a mirrored chart and a hard-normal edge. These tiny meshes expose domain mistakes more clearly than a complex character.",
+          "Use debug colors for logical position ID, UV chart, parent material, and normal region. Draw lines between packed vertices that map to the same logical position. If two material sides generate different refined geometric IDs for what should be one edge, the architecture is wrong before any shading bug is investigated."
+        ],
+        "figures": [
+          { "src": "/content/blog/images/material-subdivision-normal-before.png", "alt": "Project normal visualization before subdivision", "caption": "Project material: normal visualization before subdivision." },
+          { "src": "/content/blog/images/material-subdivision-normal-after.png", "alt": "Project normal visualization after subdivision", "caption": "Project material: the refined result is smoother, but a production review must still inspect seams, tangent continuity, and every material section." }
+        ]
+      },
+      {
+        "heading": "What this work demonstrates",
+        "paragraphs": [
+          "This is topology-domain reasoning: distinguishing geometric identity from packed GPU identity, preserving face-varying data, carrying semantic labels through refinement, and constructing minimal adversarial meshes. It is equally relevant to mesh importers, baking pipelines, virtualized geometry, and procedural modeling tools."
+        ]
+      }
+    ],
+    "references": [
+      { "label": "Pixar OpenSubdiv: Far Overview", "url": "https://graphics.pixar.com/opensubdiv/docs_3x_alpha/far_overview.html" },
+      { "label": "Epic Games: Skeletal Mesh Rendering Paths", "url": "https://dev.epicgames.com/documentation/unreal-engine/skeletal-mesh-rendering-paths-in-unreal-engine" }
+    ],
+    "closing": "Refine the logical surface first. Expand it into render vertices and material sections only where the attribute discontinuities actually require a split."
+  },
+  {
+    "slug": "what-an-ies-file-stores",
+    "title": "What an IES File Stores",
+    "abstract": "A careful reading of LM-63 photometric data: metadata, lamp and multiplier fields, vertical and horizontal angles, candela tables, symmetry, and the distinction between a measured distribution and an engine texture.",
+    "category": "Photometry",
+    "publishedAt": "2026-08-09",
+    "readingTime": "10 min read",
+    "image": "/content/blog/images/ies-file-anatomy.svg",
+    "imageAlt": "An IES photometric file is parsed into angle arrays and a candela intensity table",
+    "lede": "An IES file is not a picture of a light beam and not a PSF. In the common LM-63 family, it is an electronic description of measured photometric intensity around a luminaire, plus metadata and test configuration. A renderer turns those irregular angular samples into a representation convenient for its own light shader.",
+    "sections": [
+      {
+        "heading": "The physical quantity is luminous intensity",
+        "paragraphs": [
+          "The central table contains luminous intensity samples, normally interpreted in candelas after the file’s candela multiplier is applied. One candela is one lumen per steradian. The distribution answers: in this measured direction, how much luminous intensity does the luminaire emit?",
+          "It does not directly store illuminance on a wall, radiance along a camera ray, or a grayscale cookie image. Distance, orientation, fixture placement, and the renderer’s lighting model are applied later."
+        ],
+        "equations": [
+          {
+            "label": "Intensity sample after file scaling",
+            "expression": "I(theta, phi) = table(theta, phi) * candelaMultiplier * ballastFactor",
+            "terms": ["The exact use of lamp and ballast-related fields depends on the LM-63 revision and consuming application.", "Do not silently multiply an engine light-intensity control a second time without defining the intended calibration."]
+          }
+        ]
+      },
+      {
+        "heading": "The file is angles plus a rectangular table",
+        "paragraphs": [
+          "After the header and luminaire/test fields, the file declares counts for vertical and horizontal angles. It then lists the vertical-angle array, the horizontal-angle array, and candela values for each horizontal plane across all vertical angles. The angular spacing may be non-uniform, so sample number is not itself an angle.",
+          "To evaluate an arbitrary direction, convert that direction into the file’s photometric coordinate system, find the surrounding vertical and horizontal samples, and interpolate. The photometric type field determines how the coordinate system is interpreted."
+        ],
+        "technicalTables": [
+          {
+            "columns": ["Data group", "What it contributes"],
+            "rows": [
+              ["Version and keywords", "Format identity, laboratory/manufacturer metadata, catalog and test information"],
+              ["TILT section", "Optional lamp-tilt correction data or an external reference"],
+              ["Lamp/luminaire fields", "Counts, lumens, multiplier, dimensions, ballast and input-power context"],
+              ["Angle arrays", "The sampled directions; not necessarily uniformly spaced"],
+              ["Candela table", "Measured relative/angular luminous-intensity distribution after scaling"]
+            ],
+            "caption": "Exact fields vary by LM-63 revision; a robust parser identifies the revision instead of assuming one fixed header."
+          }
+        ]
+      },
+      {
+        "heading": "Symmetry is encoded by coverage",
+        "paragraphs": [
+          "Many luminaires do not list a full 0–360-degree horizontal sweep. A restricted set of horizontal planes can imply rotational, bilateral, or quadrant symmetry under the standard’s conventions. A loader should reconstruct the intended domain before resampling, not clamp every missing direction to the nearest listed plane.",
+          "Vertical coverage also matters. Some measurements cover only the downward hemisphere; others include uplight. Validate monotonic angles, declared counts, table length, and expected coverage before generating a texture."
+        ],
+        "callouts": [
+          { "tone": "warning", "title": "Parser rule", "text": "Do not assume 1-degree samples, a 256×256 grid, or a full sphere. Those are possible runtime representations, not properties guaranteed by LM-63 data." }
+        ]
+      },
+      {
+        "heading": "File data and Unreal’s runtime representation are different",
+        "paragraphs": [
+          "Unreal imports an IES profile and builds a texture used by the light. Epic’s documentation describes its representation as a one-dimensional texture swept around an axis. That is an engine choice suited to the supported profile behavior; it is not a claim that the source file contains one-dimensional pixels.",
+          "A custom implementation may instead resample intensity into a 2D angular texture—for example, u from vertical angle and v from azimuth. That can preserve asymmetric distributions, but it must define axis orientation, seam wrapping, pole behavior, interpolation, normalization, and the relationship between stored candelas and the light component’s own intensity controls."
+        ],
+        "flow": {
+          "label": "IES ingestion",
+          "steps": [
+            { "icon": "document-text-outline", "title": "LM-63 text", "text": "Revision, metadata, test fields, angles, and candela values" },
+            { "icon": "checkmark-done-outline", "title": "Validated model", "text": "Counts, coordinate type, symmetry, units, and multipliers" },
+            { "icon": "repeat-outline", "title": "Angular resampling", "text": "Interpolate the irregular measured grid" },
+            { "icon": "grid-outline", "title": "Engine texture", "text": "A documented 1D or 2D runtime encoding" },
+            { "icon": "flashlight-outline", "title": "Light evaluation", "text": "Direction lookup combines with distance and surface response" }
+          ]
+        }
+      },
+      {
+        "heading": "A small validation suite",
+        "paragraphs": [
+          "Test a rotationally symmetric profile, an asymmetric profile, a profile with incomplete horizontal coverage, and a file with a non-trivial candela multiplier. Compare original tabulated directions exactly before judging interpolated directions. Plot polar slices at several horizontal planes so swapped axes and mirrored azimuth become obvious.",
+          "Keep raw parsed values alongside the generated texture in debug builds. When the rendered beam looks wrong, this lets the investigation distinguish parser error, coordinate error, resampling error, and lighting-model error."
+        ],
+        "bullets": [
+          "Declared angle counts equal parsed angle counts.",
+          "Candela-value count equals verticalCount × horizontalCount.",
+          "Angles are monotonic and within the expected photometric domain.",
+          "Texture samples at listed directions reproduce scaled source values within tolerance.",
+          "Integrated or peak intensity behavior is documented when normalization is applied."
+        ]
+      },
+      {
+        "heading": "What this work demonstrates",
+        "paragraphs": [
+          "IES ingestion combines standards reading, defensive parsing, coordinate-system conversion, irregular-grid interpolation, photometric unit discipline, and engine-facing data design. The transferable skill is knowing where source semantics end and a runtime encoding begins."
+        ]
+      }
+    ],
+    "references": [
+      { "label": "Illuminating Engineering Society: ANSI/IES LM-63 standard listing", "url": "https://store.ies.org/product/approved-method-ies-standard-file-format-for-the-electronic-transfer-of-photometric-data-and-related-information/" },
+      { "label": "Epic Games: Using IES Light Profiles", "url": "https://dev.epicgames.com/documentation/unreal-engine/using-ies-light-profiles-in-unreal-engine?lang=en-US" }
+    ],
+    "closing": "Preserve the measured angular meaning first; only then choose the texture layout and normalization that make sense for the renderer."
+  },
+  {
+    "slug": "building-angular-human-eye-psf-texture",
+    "title": "Building an Angular Human-Eye PSF Texture",
+    "abstract": "How to turn a glare model expressed in visual angle into a normalized, field-of-view-aware kernel—without confusing an angular density, a screen image, and an artist-authored bloom shape.",
+    "category": "Perceptual rendering",
+    "publishedAt": "2026-08-09",
+    "readingTime": "13 min read",
+    "image": "/content/blog/images/angular-psf.svg",
+    "imageAlt": "An angular human-eye point spread function is sampled into a normalized radial texture",
+    "lede": "A human-eye point spread function describes how light arriving from one direction contributes glare to nearby perceived directions. If the source model is parameterized by degrees, the texture generator must preserve that angular domain. A fixed image-space radius is not the same model when field of view or resolution changes.",
+    "sections": [
+      {
+        "heading": "Begin with a declared PSF model",
+        "paragraphs": [
+          "Spencer, Shirley, Zimmerman, and Greenberg modeled disability glare with several radial components: a narrow core, broader inverse-power scattering terms, and a wavelength-dependent halo. The component balance changes between photopic, mesopic, and scotopic vision. It is a perceptual rendering model, not a complete individualized optical measurement of every eye.",
+          "Write down the model version, angle unit, wavelength handling, adaptation state, and any modifications before generating a texture. A circular fade, hand-authored streak, or artist gain may be useful, but it should be labeled as an extension rather than silently folded into the cited PSF."
+        ],
+        "technicalTables": [
+          {
+            "columns": ["Component", "Qualitative role", "Implementation concern"],
+            "rows": [
+              ["Narrow Gaussian core", "Very small-angle spread", "Easy to undersample"],
+              ["Inverse-cubic term", "Broad scatter with a long tail", "Needs wide angular support"],
+              ["Inverse-square term", "Still broader halo energy", "Truncation changes normalization"],
+              ["Spectral halo", "Wavelength-dependent ring", "Requires spectral or RGB approximation"]
+            ],
+            "caption": "The original paper supplies explicit functions and adaptation-state weights; a generator should preserve those separately for auditability."
+          }
+        ]
+      },
+      {
+        "heading": "Map texels to visual angle",
+        "paragraphs": [
+          "For a radial lookup texture, the cleanest coordinate is angle itself: texel x represents theta between zero and a declared thetaMax. For a 2D screen-shaped kernel, map each texel center through the same projection used by the camera. With a pinhole projection, theta is atan(r/f), where r is distance from the optical axis in image-plane units and f is focal length in those same units.",
+          "Do not map radius linearly to angle except as an explicitly measured approximation. The atan relationship matters at wide fields of view. It also means a texture baked for one projection and angular support cannot be interpreted as the same PSF under an arbitrary FOV without remapping."
+        ],
+        "equations": [
+          {
+            "label": "Pinhole angle map",
+            "expression": "theta(x,y) = atan(sqrt(x^2 + y^2) / f),    f = h / tan(thetaMax)",
+            "terms": ["x, y, f, and half-height h use the same image-plane units.", "thetaMax is the angle from the optical axis to the chosen image-plane boundary, not automatically the full camera FOV."]
+          }
+        ]
+      },
+      {
+        "heading": "Choose what each texel stores",
+        "paragraphs": [
+          "The most portable convention is an angular density P(theta) with units inverse steradian. Normalize its integral over the supported solid angle to one. The runtime convolution then multiplies source luminance by source-sample solid angle and the PSF density. The result remains luminance.",
+          "A second convention stores discrete per-texel weights whose solid-angle-weighted sum is already one. That can be efficient for a fixed projection, but it embeds sampling and support in the asset. Mixing a density texture with discrete-weight math is a common source of resolution-dependent brightness."
+        ],
+        "equations": [
+          {
+            "label": "Continuous normalization",
+            "expression": "integral_over_Omega P(theta) dOmega = 1; for a radial PSF, dOmega = 2 pi sin(theta) dtheta",
+            "terms": ["P has units 1/sr.", "Normalize over the finite angular support actually stored; record the excluded tail energy before renormalizing."]
+          },
+          {
+            "label": "Discrete normalization on a projected grid",
+            "expression": "P_i = raw_i / sum_j(raw_j * deltaOmega_j)",
+            "terms": ["deltaOmega varies across a perspective image.", "After normalization, sum_i(P_i * deltaOmega_i) is approximately one."]
+          }
+        ]
+      },
+      {
+        "heading": "Compute solid angle correctly",
+        "paragraphs": [
+          "For equal angular bins on a sphere, solid-angle weights follow spherical geometry. For a pinhole image plane, equal-area pixels do not subtend equal solid angles. The Jacobian is f divided by (f² + x² + y²)^(3/2), multiplied by the texel’s image-plane area.",
+          "A constant center-pixel solid-angle approximation may be acceptable for a small kernel near the optical axis. It should not be used to normalize a wide-FOV, full-screen kernel without quantifying the error."
+        ],
+        "equations": [
+          {
+            "label": "Perspective image-plane solid angle",
+            "expression": "dOmega = f / (f^2 + x^2 + y^2)^(3/2) * dx dy",
+            "terms": ["At the image center this approaches dx dy / f².", "Toward the image edge the same pixel covers less solid angle under the pinhole mapping."]
+          }
+        ]
+      },
+      {
+        "heading": "Sampling the sharp core and long tail",
+        "paragraphs": [
+          "A uniform 257×257 texture may spend many samples on a smooth tail while missing a very narrow central lobe. Supersample each texel in angle space, analytically integrate components where possible, or use a non-uniform radial table with finer sampling near zero. Store enough precision to preserve the tail after normalization.",
+          "If the runtime texture is 2D, generate a radial value first, then add any directional streak structure as a separate normalized modulation. Spencer’s paper describes random radial lines for lenticular effects and normalizes those filters; deterministic seeds make assets reproducible."
+        ],
+        "bullets": [
+          "Evaluate texel integrals, not only values at texel centers, around the singular-looking core.",
+          "Record thetaMax and unnormalized captured energy in asset metadata.",
+          "Use deterministic seeds for stochastic starburst structure.",
+          "Normalize after every structural modification that is intended to redistribute energy.",
+          "Generate diagnostic radial plots in addition to the texture image."
+        ]
+      },
+      {
+        "heading": "Validation assets",
+        "paragraphs": [
+          "First test a single angular impulse. Its output should reproduce the kernel, with integrated energy matching the chosen convention. Then test two impulses at different screen positions to reveal projection mistakes. Rebuild or remap for two FOVs and confirm that the glare has the same angular size rather than the same pixel size.",
+          "Finally compare photopic, mesopic, and scotopic settings at equal input. The change should come from documented component weights, not an accidental global exposure shift. Keep an artist gain outside the normalized kernel so calibration and creative control remain separable."
+        ],
+        "callouts": [
+          { "tone": "note", "title": "What normalization guarantees", "text": "A unit-integral kernel conserves the quantity used by the convolution model. It does not prove that scene luminance, exposure, display mapping, or the selected human-eye model is calibrated." }
+        ]
+      },
+      {
+        "heading": "What this work demonstrates",
+        "paragraphs": [
+          "This generator requires paper-to-code translation, projection geometry, numerical quadrature, solid-angle weighting, high-dynamic-range asset design, and reproducible validation. The key professional habit is attaching units and assumptions to every intermediate representation."
+        ]
+      }
+    ],
+    "references": [
+      { "label": "Spencer et al., Physically-Based Glare Effects for Digital Images (1995)", "url": "https://www.graphics.cornell.edu/pubs/1995/SSZG95.pdf" },
+      { "label": "DOI: Physically-Based Glare Effects for Digital Images", "url": "https://doi.org/10.1145/218380.218466" }
+    ],
+    "closing": "An angular PSF texture is trustworthy when changing resolution or FOV changes only its sampling—not the visual angle, energy convention, or meaning of the model."
+  },
+  {
+    "slug": "unreal-bloom-vs-psf-glare",
+    "title": "Unreal Mip-Chain Bloom vs PSF Glare",
+    "abstract": "A fair comparison between Unreal’s standard multi-resolution Gaussian bloom and a calibrated human-eye PSF convolution, including what each approximates, costs, controls, and validates.",
+    "category": "Post processing",
+    "publishedAt": "2026-08-09",
+    "readingTime": "11 min read",
+    "image": "/content/blog/images/bloom-vs-psf.svg",
+    "imageAlt": "Standard multi-resolution bloom is compared with an angular point spread function glare path",
+    "lede": "Bloom and human-eye glare can both turn a bright point into a halo, but they are not automatically the same model. Unreal’s standard bloom is a practical multi-resolution blend of Gaussian blurs. A PSF approach starts from an angular light-spread kernel and can be calibrated for energy and field of view. Unreal also offers Convolution Bloom, which is a separate kernel-based option and should not be confused with Standard Bloom.",
+    "sections": [
+      {
+        "heading": "What Standard Bloom does",
+        "paragraphs": [
+          "Epic documents Standard Bloom as several Gaussian blurs computed at progressively lower resolutions, from one-half down to one-thirty-second of the screen. The lower-resolution levels create wide halos cheaply; their contributions are tinted and combined. Threshold and exposure determine which scene values feed the effect.",
+          "This design is fast, stable, and art-directable. It creates a convincing camera/display cue without claiming to reproduce a particular human eye’s angular PSF. Because each blur level is screen-resolution based, its behavior must be tested when resolution, dynamic resolution, and FOV change."
+        ],
+        "flow": {
+          "label": "Standard Bloom path",
+          "steps": [
+            { "icon": "sunny-outline", "title": "HDR scene", "text": "Bright scene-referred values after exposure decisions" },
+            { "icon": "funnel-outline", "title": "Threshold", "text": "Select or weight values that contribute" },
+            { "icon": "contract-outline", "title": "Downsample chain", "text": "Half to very low resolution levels" },
+            { "icon": "water-outline", "title": "Gaussian blurs", "text": "Different effective screen-space widths" },
+            { "icon": "layers-outline", "title": "Weighted combine", "text": "Blend levels back into the post-process image" }
+          ]
+        }
+      },
+      {
+        "heading": "What a PSF glare path does",
+        "paragraphs": [
+          "A PSF path extracts or otherwise identifies glare-producing luminance, then convolves it with a kernel expressed as angular spread. If the kernel is a density per steradian, projected source samples must be weighted by their source solid angle. The output is composited within a declared exposure and tone-mapping pipeline.",
+          "The approach can represent narrow cores, long scattering tails, wavelength-dependent halos, and directional streaks. It can also be much more expensive. A large direct convolution is rarely practical, so implementations use separability when available, FFT convolution, hierarchical approximations, sparse bright-source methods, or hybrid kernels."
+        ]
+      },
+      {
+        "heading": "A fair feature comparison",
+        "paragraphs": [
+          "The choice is not ‘fake versus physical.’ It is a choice of objective. Standard Bloom is often the right renderer feature when the goal is robust artistic response at real-time cost. A calibrated PSF is useful when angular consistency, glare research, optical matching, or explicit energy accounting matters. A poorly normalized PSF texture can be less defensible than a well-characterized bloom chain.",
+          "Unreal’s Convolution Bloom deserves its own row: it convolves the image with a supplied kernel and can produce custom bloom shapes. Kernel convolution is a mechanism; it becomes a human-eye model only when the kernel, input quantity, projection mapping, and normalization support that interpretation."
+        ],
+        "technicalTables": [
+          {
+            "columns": ["Question", "Standard Bloom", "Angular PSF glare", "Convolution Bloom"],
+            "rows": [
+              ["Primary goal", "Fast, art-directed halo", "Model a declared angular spread", "Custom image-space kernel"],
+              ["Kernel", "Several Gaussian scales", "Measured or paper-derived PSF", "Artist/imported kernel image"],
+              ["FOV behavior", "Must be characterized", "Built around visual angle", "Depends on kernel mapping"],
+              ["Energy meaning", "Implementation/control dependent", "Can be unit-integral by construction", "Depends on kernel normalization"],
+              ["Cost strategy", "Multi-resolution separable blur", "Direct, FFT, sparse, or hybrid", "Engine convolution implementation"]
+            ],
+            "caption": "A mechanism does not acquire physical meaning merely because it is called convolution."
+          }
+        ]
+      },
+      {
+        "heading": "Integration order changes the result",
+        "paragraphs": [
+          "Glare is driven by scene brightness, but the renderer operates through pre-exposure, exposure, thresholding, tone mapping, and display encoding. Applying a kernel to tone-mapped display RGB is not equivalent to spreading scene-referred luminance before tone mapping. Document the color space and exposure state at the extraction and composite points.",
+          "Spencer’s original display-oriented method applies glare to intensity exceeding the display maximum, which is a particular simulation setup. A modern HDR renderer may choose a different source-selection rule. That is a design change, not something the PSF equation decides."
+        ],
+        "callouts": [
+          { "tone": "warning", "title": "Avoid double bloom", "text": "When comparing a PSF path, disable or isolate Standard Bloom and Convolution Bloom. Otherwise the reference and test effects are stacked, and neither energy nor shape comparisons are interpretable." }
+        ]
+      },
+      {
+        "heading": "Benchmark with controlled stimuli",
+        "paragraphs": [
+          "Use an HDR impulse, a thin bright line, a grid of equal-luminance points, and an extended bright disk. Sweep intensity without moving the source, then sweep FOV and output resolution without changing its angular position. Compare radial profiles, integrated output, temporal stability, and GPU time—not only screenshots.",
+          "For performance, report resolution, kernel support, pass count, and hardware. A low-resolution mip chain and a full-resolution direct convolution solve very different workloads. Quality comparisons should give both methods comparable source selection and compositing conditions."
+        ],
+        "bullets": [
+          "Impulse test: kernel shape and normalization.",
+          "FOV test: angular versus pixel-space size.",
+          "Resolution test: brightness and profile stability.",
+          "Extended source: linearity and halo overlap.",
+          "Temporal test: shimmer, history dependence, and dynamic-resolution transitions."
+        ]
+      },
+      {
+        "heading": "What this work demonstrates",
+        "paragraphs": [
+          "The comparison demonstrates renderer feature analysis: separating algorithms from claims, locating both effects in the exposure pipeline, designing controlled benchmarks, and balancing perceptual targets against GPU cost. It also shows the judgment to improve an existing bloom system only when the product objective requires a stricter model."
+        ]
+      }
+    ],
+    "references": [
+      { "label": "Epic Games: Bloom in Unreal Engine", "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/bloom-in-unreal-engine" },
+      { "label": "Epic Games: Post Process Effects", "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/post-process-effects-in-unreal-engine" },
+      { "label": "Spencer et al., Physically-Based Glare Effects for Digital Images", "url": "https://www.graphics.cornell.edu/pubs/1995/SSZG95.pdf" }
+    ],
+    "closing": "Use Standard Bloom when its practical visual contract is the goal. Use a calibrated PSF path when angular behavior and energy semantics are requirements you are prepared to validate."
+  },
+  {
+    "slug": "psf-glare-energy-unit-validation",
+    "title": "Energy and Unit Validation for PSF Glare",
+    "abstract": "A dimensional audit from candela and emitter area to source luminance, source solid angle, normalized PSF density, output luminance, and practical conservation tests.",
+    "category": "Rendering validation",
+    "publishedAt": "2026-08-09",
+    "readingTime": "13 min read",
+    "image": "/content/blog/images/psf-unit-audit.svg",
+    "imageAlt": "A dimensionally consistent PSF glare chain from source luminance to output luminance",
+    "lede": "A glare image can look plausible while its brightness changes with resolution, field of view, kernel size, or source footprint. Dimensional analysis catches these failures before visual tuning hides them. The central rule is simple: define what the source buffer stores, what the PSF texture stores, and what the output buffer stores—then make every multiplication preserve those meanings.",
+    "sections": [
+      {
+        "heading": "Write the unit ledger first",
+        "paragraphs": [
+          "Luminous intensity I is measured in candelas, equivalent to lumens per steradian. Luminance L is candelas per square metre. Solid angle is measured in steradians. A normalized angular PSF density P has units inverse steradian because its integral over output directions is dimensionless and equals one.",
+          "A floating-point texture has no inherent unit. R32F can store candelas, cd/m², inverse steradians, or normalized artist weights. The format tells us precision and layout; metadata and equations tell us meaning."
+        ],
+        "technicalTables": [
+          {
+            "columns": ["Symbol", "Meaning", "Unit"],
+            "rows": [
+              ["I", "Luminous intensity in a direction", "cd = lm/sr"],
+              ["L", "Luminance of a source/image direction", "cd/m²"],
+              ["Omega", "Solid angle", "sr"],
+              ["P", "Angular PSF density", "1/sr"],
+              ["K", "Discrete normalized kernel weight", "dimensionless, under its declared sampling rule"]
+            ],
+            "caption": "Do not use P and K interchangeably; one is a density, the other has already absorbed a sampling measure."
+          }
+        ]
+      },
+      {
+        "heading": "Convert intensity to luminance only with a source model",
+        "paragraphs": [
+          "An IES profile supplies directional luminous intensity. A screen-space glare convolution normally wants source luminance. They are related only after defining emitter geometry and emission behavior. For a small, uniform Lambertian planar emitter of area A viewed at angle theta from its normal, projected area is A cos(theta), giving I(theta) = L A cos(theta).",
+          "The inverse becomes unstable at grazing angles and is invalid for a point light with no physical area. A practical renderer therefore needs a finite source shape, a documented projected-area model, and clamps or alternate handling for configurations where the approximation breaks down."
+        ],
+        "equations": [
+          {
+            "label": "Uniform planar emitter",
+            "expression": "L = I(theta) / (A cos(theta))",
+            "terms": ["I is cd, A is m², so L is cd/m².", "This relation is a chosen Lambertian area-source model, not a generic property of every IES luminaire.", "A sphere, disk, tube, and textured mesh require their own projected-area treatment."]
+          }
+        ],
+        "callouts": [
+          { "tone": "warning", "title": "Point-light limitation", "text": "A mathematical point source has zero area and therefore no finite surface luminance. Give glare a finite apparent source or work in a different quantity with a separately derived transfer." }
+        ]
+      },
+      {
+        "heading": "The dimensionally consistent convolution",
+        "paragraphs": [
+          "Let the HDR source image represent luminance as a function of viewing direction. A shift-invariant angular PSF maps source directions to output directions. In the continuous model, output luminance is the integral of source luminance times PSF density over source solid angle.",
+          "In a discrete projected image, each source pixel contributes its luminance multiplied by that source pixel’s solid angle and the PSF density at the angular separation. There is no additional destination-pixel solid-angle factor when the accumulated output is luminance. Multiplying by destination solid angle would instead produce an output integrated over that pixel; to recover luminance, divide by the same destination solid angle."
+        ],
+        "equations": [
+          {
+            "label": "Continuous angular convolution",
+            "expression": "L_out(omega_p) = integral L_src(omega_s) P(omega_p, omega_s) dOmega_s",
+            "terms": ["(cd/m²) × (1/sr) × sr = cd/m².", "For a rotationally symmetric PSF, P depends on the angle between omega_s and omega_p."]
+          },
+          {
+            "label": "Discrete density-kernel evaluation",
+            "expression": "L_out[p] = sum_s L_src[s] * P(angle(s,p)) * deltaOmega_s",
+            "terms": ["deltaOmega_s is the source sample’s solid angle.", "If the texture stores discrete K rather than density P, use the matching discrete formulation and normalization instead."]
+          }
+        ]
+      },
+      {
+        "heading": "Screen-space area is not solid angle",
+        "paragraphs": [
+          "Counting covered pixels gives a screen-area fraction. It approximates angular area only under a declared projection and local scale. With a pinhole camera, pixel solid angle changes with position, focal length, aspect ratio, and resolution. Treating every pixel as one constant Omega makes total glare drift toward image edges and under FOV changes.",
+          "For a rasterized finite emitter, compute its apparent solid angle by summing exact or approximated solid angles of covered source samples. Partial coverage should weight the sample. This is more defensible than multiplying source luminance by a normalized screen rectangle whose unit has never been defined."
+        ],
+        "equations": [
+          {
+            "label": "Projected texel solid angle",
+            "expression": "deltaOmega(x,y) approximately f * deltaA / (f^2 + x^2 + y^2)^(3/2)",
+            "terms": ["deltaA is texel area on the chosen image plane.", "Use the camera’s actual x/y scaling for non-square aspect ratios."]
+          }
+        ]
+      },
+      {
+        "heading": "Energy preservation is a testable invariant",
+        "paragraphs": [
+          "For a unit-integral PSF on an unbounded or properly wrapped domain, integrating output luminance over output solid angle equals integrating source luminance over source solid angle. A finite screen clips part of the halo at edges, so measured output can decrease unless the implementation renormalizes locally—a choice that itself changes physical interpretation.",
+          "Thresholding also changes the ledger. If only luminance above T feeds glare, decide whether the source is max(L − T, 0), a smooth knee, or the full L gated by a mask. The removed energy does not disappear by mathematical necessity; it is an effect-design decision."
+        ],
+        "equations": [
+          {
+            "label": "Conservation check for a normalized PSF",
+            "expression": "sum_p L_out[p] deltaOmega_p approximately sum_s L_src[s] deltaOmega_s",
+            "terms": ["Compare on a domain large enough to contain the kernel.", "If the algorithm intentionally extracts only a bright component, compare against that extracted source, not the original full scene."]
+          }
+        ]
+      },
+      {
+        "heading": "The validation matrix",
+        "paragraphs": [
+          "A single centered impulse checks kernel normalization but not projection correctness. Repeat it at center, mid-field, and near the edge. Sweep resolution and FOV while preserving source angular size and luminance. Test an extended disk because summing many source samples can reveal an omitted or duplicated solid-angle factor.",
+          "Log numbers, not only screenshots: input integral, extracted-source integral, output integral, clipped energy, peak luminance, and radial half-energy angle. When one value moves, the ledger identifies whether the cause is source modeling, PSF normalization, projection sampling, or screen clipping."
+        ],
+        "technicalTables": [
+          {
+            "columns": ["Test", "Keep fixed", "Expected result"],
+            "rows": [
+              ["Resolution sweep", "FOV, angular source, luminance", "Integrated and angular profile remain stable"],
+              ["FOV sweep", "Angular source and PSF model", "Halo keeps angular size"],
+              ["Position sweep", "Source luminance and solid angle", "Energy stable except measured edge clipping"],
+              ["Intensity sweep", "Geometry and exposure state", "Linear response before intentional nonlinear stages"],
+              ["Kernel-support sweep", "Raw model", "Captured tail energy changes predictably before renormalization"]
+            ],
+            "caption": "Every test changes one axis while holding the physical source description fixed."
+          }
+        ]
+      },
+      {
+        "heading": "What this work demonstrates",
+        "paragraphs": [
+          "This audit demonstrates dimensional analysis, photometric modeling, projection-aware discretization, invariant-based testing, and the willingness to reject a visually plausible formula when its units do not close. That habit is valuable anywhere rendering code translates a paper model into finite pixels and engine controls."
+        ]
+      }
+    ],
+    "references": [
+      { "label": "Spencer et al., Physically-Based Glare Effects for Digital Images", "url": "https://www.graphics.cornell.edu/pubs/1995/SSZG95.pdf" },
+      { "label": "Illuminating Engineering Society: ANSI/IES LM-63 standard listing", "url": "https://store.ies.org/product/approved-method-ies-standard-file-format-for-the-electronic-transfer-of-photometric-data-and-related-information/" },
+      { "label": "Epic Games: Using IES Light Profiles", "url": "https://dev.epicgames.com/documentation/unreal-engine/using-ies-light-profiles-in-unreal-engine?lang=en-US" }
+    ],
+    "closing": "If the units close and the invariants survive resolution, FOV, position, and support sweeps, visual tuning becomes a controlled artistic layer instead of compensation for an unknown scale error."
+  },
+  {
+    "slug": "rendering-research-skills-experience",
+    "title": "Rendering Research: Skills and Engineering Experience",
+    "abstract": "An evidence-based summary of the engine, geometry, GPU, photometry, numerical, and validation experience represented by this nine-part technical series.",
+    "category": "Experience",
+    "publishedAt": "2026-08-09",
+    "readingTime": "7 min read",
+    "image": "/content/blog/images/rendering-research-skills.svg",
+    "imageAlt": "A skills map connecting engine tracing, geometry processing, GPU compute, photometry, and verification",
+    "lede": "This series grew from two research threads: integrating OpenSubdiv-style refinement into a UE4.26 skeletal-mesh path, and investigating IES-driven, human-eye PSF glare. The strongest portfolio story is not a claim that every prototype is production complete. It is the method used to turn incomplete notes, engine code, paper equations, diagrams, and captures into an auditable engineering model.",
+    "sections": [
+      {
+        "heading": "The experience, grouped by discipline",
+        "paragraphs": [
+          "The work crosses boundaries that are often treated separately. Renderer integration requires understanding object lifetime and draw submission. Subdivision requires topology and sparse linear evaluation. GPU execution requires explicit resources and scheduling. Glare requires projection geometry, photometric units, numerical integration, and perceptual judgment.",
+          "The useful skill is not knowing isolated terms; it is preserving meaning while data moves between these domains."
+        ],
+        "technicalTables": [
+          {
+            "columns": ["Discipline", "Demonstrated work", "Evidence in the series"],
+            "rows": [
+              ["Engine architecture", "Trace component, proxy, section, batch, factory, and pass ownership", "UE4 skeletal data path"],
+              ["GPU programming", "Plan SRV/UAV buffers, dispatches, transitions, and zero-readback dependencies", "Skin Cache and stencil compute"],
+              ["Geometry processing", "Represent sparse stencils and multiple attribute topologies", "OpenSubdiv tables and seam handling"],
+              ["Photometry", "Separate candela, luminance, solid angle, and runtime texture encodings", "IES anatomy and unit audit"],
+              ["Numerical methods", "Normalize angular kernels and integrate projected solid angle", "Angular PSF construction"],
+              ["Validation", "Build CPU oracles, minimal meshes, impulse tests, and invariant sweeps", "All nine articles"]
+            ],
+            "caption": "Each line names an action and its evidence, not only a technology keyword."
+          }
+        ]
+      },
+      {
+        "heading": "A repeatable research-to-implementation loop",
+        "paragraphs": [
+          "First, state the question narrowly: for example, ‘Which GPU buffer contains current skinned positions?’ or ‘What unit does one PSF texel store?’ Second, trace the authoritative producer and consumer. Third, build the smallest reference model. Fourth, integrate one dependency at a time. Finally, validate with invariants and adversarial inputs before optimizing.",
+          "This loop deliberately produces artifacts: ownership diagrams, equations with unit ledgers, CPU reference evaluators, tiny topology fixtures, frame captures, performance measurements, and limitation lists. Those artifacts make the work reviewable by another engineer."
+        ],
+        "flow": {
+          "label": "Engineering loop",
+          "steps": [
+            { "icon": "help-circle-outline", "title": "Narrow question", "text": "One buffer, transform, topology rule, or unit" },
+            { "icon": "library-outline", "title": "Source model", "text": "Engine documentation, standard, paper, and local evidence" },
+            { "icon": "flask-outline", "title": "Reference", "text": "CPU oracle or controlled analytical case" },
+            { "icon": "construct-outline", "title": "Integration", "text": "Explicit owners, layouts, dependencies, and fallbacks" },
+            { "icon": "checkmark-done-outline", "title": "Validation", "text": "Captures, metrics, invariants, and edge cases" }
+          ]
+        }
+      },
+      {
+        "heading": "What I would present as strengths",
+        "bullets": [
+          "I can navigate an unfamiliar rendering engine by tracing actual data ownership and draw inputs instead of relying on a high-level call stack.",
+          "I can translate recursive geometry rules into cached sparse data and a parallel compute workload.",
+          "I recognize that positions, UVs, normals, materials, and packed render vertices have different continuity rules.",
+          "I can keep animation and deformation on the GPU while reasoning about pass order, hazards, and previous-frame data.",
+          "I can translate a graphics paper or photometric format into code while auditing coordinate systems, normalization, and units.",
+          "I design validation cases that can falsify an implementation: tiny seam meshes, CPU/GPU comparisons, impulses, and resolution/FOV sweeps."
+        ]
+      },
+      {
+        "heading": "What I would not overclaim",
+        "paragraphs": [
+          "The subdivision material documents a serious prototype and its architecture, not proof of a production-ready cross-platform Unreal feature. The remaining bar includes robust face-varying data, all render passes, LOD transitions, motion history, resource lifetime across engine versions, broader platform testing, and sustained performance profiling.",
+          "The PSF material explores a physically motivated glare pipeline, but normalization alone does not establish perceptual accuracy. A production claim would require a fixed source-to-display calibration, documented exposure behavior, comparison against measured or accepted reference data, and user/perceptual evaluation where appropriate."
+        ],
+        "callouts": [
+          { "tone": "note", "title": "Why limitations strengthen the portfolio", "text": "Naming the next validation gate shows that the engineering model is understood well enough to distinguish a successful experiment from a shipped system." }
+        ]
+      },
+      {
+        "heading": "The concise portfolio summary",
+        "paragraphs": [
+          "Rendering engineer with hands-on research experience in Unreal skeletal-mesh data paths, GPU Skin Cache integration, OpenSubdiv topology/stencil evaluation, compute-shader deformation, photometric IES data, and physically motivated glare. Strong focus on data ownership, GPU synchronization, discontinuity-aware geometry, dimensional analysis, and evidence-driven validation.",
+          "Built and audited prototypes that connect CPU topology preprocessing to reusable GPU stencil data, consume animated vertex streams without readback, preserve material and UV boundary semantics, and translate angular PSF models into projection-aware kernels with explicit energy and unit tests."
+        ]
+      }
+    ],
+    "closing": "The common thread is disciplined translation: preserve the meaning of geometry, light, and units from source material to GPU execution, then make the result falsifiable with a focused test."
+  },
+  {
     "slug": "how-this-site-works",
     "title": "How This Site Works",
     "abstract": "A guided tour of the portfolio, the hourly GitHub Actions pipeline, and the collector that turns trusted feeds into a fresh static news page.",

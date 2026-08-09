@@ -88,6 +88,62 @@ function codeBlock(block) {
   return figure;
 }
 
+function equationBlock(equation) {
+  const figure = element("figure", "blog-equation");
+  if (equation.label) figure.append(element("figcaption", "blog-equation-label", equation.label));
+  figure.append(element("div", "blog-equation-expression", equation.expression));
+  if (equation.terms?.length) {
+    const terms = element("dl", "blog-equation-terms");
+    for (const term of equation.terms) {
+      if (typeof term === "string") {
+        terms.append(element("dd", "blog-equation-term-wide", term));
+      } else {
+        terms.append(element("dt", "", term.symbol), element("dd", "", term.text));
+      }
+    }
+    figure.append(terms);
+  }
+  return figure;
+}
+
+function technicalTable(table) {
+  const figure = element("figure", "blog-table-wrap");
+  const scroll = element("div", "blog-table-scroll");
+  const tableElement = element("table", "blog-table");
+  const head = element("thead");
+  const headerRow = element("tr");
+  for (const column of table.columns) headerRow.append(element("th", "", column));
+  head.append(headerRow);
+  const body = element("tbody");
+  for (const row of table.rows) {
+    const tableRow = element("tr");
+    for (const cell of row) tableRow.append(element("td", "", cell));
+    body.append(tableRow);
+  }
+  tableElement.append(head, body);
+  scroll.append(tableElement);
+  figure.append(scroll);
+  if (table.caption) figure.append(element("figcaption", "", table.caption));
+  return figure;
+}
+
+function articleFigure(figure) {
+  const container = element("figure", "blog-figure");
+  const image = element("img");
+  image.src = new URL(figure.src.replace(/^\/+/, ""), siteRoot);
+  image.alt = figure.alt;
+  image.loading = "lazy";
+  container.append(image);
+  if (figure.caption) container.append(element("figcaption", "", figure.caption));
+  return container;
+}
+
+function calloutBlock(callout) {
+  const aside = element("aside", `blog-callout blog-callout-${callout.tone ?? "note"}`);
+  aside.append(element("strong", "", callout.title), element("p", "", callout.text));
+  return aside;
+}
+
 function referenceList(references) {
   const list = element("ul", "blog-reference-list");
   for (const reference of references) {
@@ -96,10 +152,10 @@ function referenceList(references) {
     link.href = reference.url;
     link.target = "_blank";
     link.rel = "noopener noreferrer";
-    link.append(
-      element("span", "blog-reference-title", reference.title),
-      element("span", "blog-reference-description", reference.description),
-    );
+    link.append(element("span", "blog-reference-title", reference.title ?? reference.label));
+    if (reference.description) {
+      link.append(element("span", "blog-reference-description", reference.description));
+    }
     const icon = document.createElement("ion-icon");
     icon.setAttribute("name", "open-outline");
     icon.setAttribute("aria-hidden", "true");
@@ -126,6 +182,16 @@ function articleSection(section, index) {
   for (const block of section.codeBlocks ?? []) {
     container.append(codeBlock(block));
   }
+
+  for (const equation of section.equations ?? []) container.append(equationBlock(equation));
+
+  for (const table of [...(section.tables ?? []), ...(section.technicalTables ?? [])]) {
+    container.append(technicalTable(table));
+  }
+
+  for (const figure of section.figures ?? []) container.append(articleFigure(figure));
+
+  for (const callout of section.callouts ?? []) container.append(calloutBlock(callout));
 
   if (section.flow) container.append(flowDiagram(section.flow));
 
@@ -169,17 +235,23 @@ function renderDetail(post) {
   const body = element("div", "blog-article-body");
   body.append(element("p", "blog-article-lede", post.lede));
   post.sections.forEach((section, index) => body.append(articleSection(section, index)));
+  if (post.references?.length) {
+    body.append(articleSection(
+      { heading: "Sources and further reading", references: post.references },
+      post.sections.length,
+    ));
+  }
 
   const closing = element("footer", "blog-article-footer");
   closing.append(
-    element("p", "", "That is the whole system: small pieces, clear ownership, and an automated path from source to screen."),
+    element("p", "", post.closing ?? "The useful result is not only the technique, but a clearer model of where its assumptions and trade-offs live."),
     Object.assign(element("a", "blog-back blog-back-bottom", "Read more notes \u2192"), { href: "#blog" }),
   );
 
   detailView.replaceChildren(back, header, hero, body, closing);
   listView.hidden = true;
   detailView.hidden = false;
-  pageTitle.textContent = "Journal / 001";
+  pageTitle.textContent = `Journal / ${String(posts.indexOf(post) + 1).padStart(3, "0")}`;
   intro.hidden = true;
   state.textContent = "";
   document.title = `${post.title} - Ziyuan Cao`;
