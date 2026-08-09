@@ -145,15 +145,36 @@ for (let i = 0; i < formInputs.length; i++) {
 const navigationLinks = document.querySelectorAll("[data-nav-link]");
 const pages = document.querySelectorAll("[data-page]");
 
+const activatePage = function (targetPage, shouldScroll = true) {
+  const pageExists = [...pages].some((page) => page.dataset.page === targetPage);
+  const nextPage = pageExists ? targetPage : "about";
+  for (const page of pages) page.classList.toggle("active", page.dataset.page === nextPage);
+  for (const link of navigationLinks) {
+    link.classList.toggle("active", link.textContent.trim().toLowerCase() === nextPage);
+  }
+  if (shouldScroll) window.scrollTo(0, 0);
+};
+
+window.portfolioUi.navigateTo = function (targetPage) {
+  const nextHash = `#${targetPage}`;
+  if (window.location.hash === nextHash) activatePage(targetPage);
+  else window.location.hash = nextHash;
+};
+
 // add event to all nav link
 for (let i = 0; i < navigationLinks.length; i++) {
   navigationLinks[i].addEventListener("click", function () {
     const targetPage = this.textContent.trim().toLowerCase();
-    for (const page of pages) page.classList.toggle("active", page.dataset.page === targetPage);
-    for (const link of navigationLinks) link.classList.toggle("active", link === this);
-    window.scrollTo(0, 0);
-
+    window.portfolioUi.navigateTo(targetPage);
   });
+}
+
+window.addEventListener("hashchange", function () {
+  activatePage(window.location.hash.slice(1).split("/")[0] || "about");
+});
+
+if (window.location.hash) {
+  activatePage(window.location.hash.slice(1).split("/")[0], false);
 }
 
 window.addEventListener("portfolio:loaded", function () {

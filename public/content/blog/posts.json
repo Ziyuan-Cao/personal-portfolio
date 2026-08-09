@@ -1,0 +1,83 @@
+[
+  {
+    "slug": "how-this-site-works",
+    "title": "How This Site Works",
+    "abstract": "A guided tour of the portfolio, the GitHub Pages deployment pipeline, and the automated collector that turns trusted sources into a fresh news feed.",
+    "category": "Behind the scenes",
+    "publishedAt": "2026-08-09",
+    "readingTime": "6 min read",
+    "image": "/content/blog/images/site-system.svg",
+    "imageAlt": "Diagram connecting the portfolio, GitHub Actions, GitHub Pages, and news sources",
+    "lede": "This portfolio is intentionally small: plain HTML, CSS, and JavaScript in the browser, with a focused TypeScript collector doing the heavier work. That makes the page quick to open, easy to inspect, and simple to publish.",
+    "sections": [
+      {
+        "heading": "The page in one picture",
+        "paragraphs": [
+          "The repository is the single source of truth. Portfolio projects and blog posts are stored as files, while news is collected automatically. GitHub Actions checks the code, refreshes the news, and publishes the final public folder to GitHub Pages."
+        ],
+        "flow": {
+          "label": "Website publishing flow",
+          "steps": [
+            { "icon": "code-slash-outline", "title": "Source", "text": "HTML, CSS, JavaScript, TypeScript, and content files" },
+            { "icon": "git-branch-outline", "title": "GitHub Actions", "text": "Checks the code and builds fresh content" },
+            { "icon": "cloud-upload-outline", "title": "Pages artifact", "text": "Packages the public folder" },
+            { "icon": "globe-outline", "title": "Live website", "text": "GitHub Pages serves the static site" }
+          ]
+        }
+      },
+      {
+        "heading": "How the portfolio page works",
+        "paragraphs": [
+          "The browser first loads a single index page. Navigation switches between About, Resume, Portfolio, Blog, News, and Contact without downloading a new layout each time.",
+          "Portfolio entries live in a JSON file. The portfolio script fetches that file, creates one card per project, and adds the preview image, abstract, category, and destination link. The blog follows the same content-first pattern: this article and its preview metadata live in blog JSON, and the interface renders the list or the full article from the current URL."
+        ],
+        "flow": {
+          "label": "Portfolio rendering flow",
+          "steps": [
+            { "icon": "document-text-outline", "title": "Content JSON", "text": "Project title, abstract, image, category, and link" },
+            { "icon": "construct-outline", "title": "Browser script", "text": "Fetches the data and builds accessible cards" },
+            { "icon": "albums-outline", "title": "Portfolio grid", "text": "Responsive previews appear on the page" }
+          ]
+        }
+      },
+      {
+        "heading": "How GitHub puts the page online",
+        "paragraphs": [
+          "Every push to the master branch starts the deployment workflow. The same workflow also runs on a schedule and can be started manually.",
+          "GitHub creates a clean Linux runner, checks out the repository, installs the locked dependencies, verifies the TypeScript build, and runs the static news collector. It then uploads the public directory as a Pages artifact. A separate deploy job publishes that artifact, so the live site contains only browser-ready files."
+        ],
+        "bullets": [
+          "Pushes make code and writing updates visible.",
+          "The hourly schedule keeps news fresh even when the site code does not change.",
+          "A manual run is available when an immediate refresh is useful.",
+          "Concurrent runs are cancelled so only the newest deployment finishes."
+        ]
+      },
+      {
+        "heading": "How news is collected",
+        "paragraphs": [
+          "The collector reads the source URLs in config/sources.txt one at a time. It prefers RSS, Atom, or JSON Feed because structured feeds are reliable; if none is available, it extracts article candidates from the source page.",
+          "Each candidate is normalized and checked. Broken HTTP 404 or 410 links and pages that look like soft 404s are discarded. For valid HTML pages, the collector looks through social preview images and page images, downloads candidates safely, and keeps an image only when its measured width is greater than 480 pixels.",
+          "Finally, canonical URLs and stable identifiers prevent duplicates. The static collector sorts the accepted items, writes public/content/information/items.json, and the News tab reads that file directly on GitHub Pages."
+        ],
+        "flow": {
+          "label": "Automated news collection flow",
+          "steps": [
+            { "icon": "list-outline", "title": "Source list", "text": "Trusted feed and website URLs" },
+            { "icon": "scan-outline", "title": "Discover & parse", "text": "RSS, Atom, JSON Feed, or HTML" },
+            { "icon": "shield-checkmark-outline", "title": "Verify & enrich", "text": "Drop dead links, normalize data, validate images" },
+            { "icon": "copy-outline", "title": "Deduplicate", "text": "Canonical URLs and stable IDs" },
+            { "icon": "newspaper-outline", "title": "News JSON", "text": "A static feed ready for the browser" }
+          ]
+        }
+      },
+      {
+        "heading": "Why this architecture",
+        "paragraphs": [
+          "There is no application server to keep alive in production and no database required by visitors. GitHub does the scheduled work; GitHub Pages serves ordinary static files. The result is inexpensive, portable, and resilient, while the local Fastify server and SQLite database remain useful during development.",
+          "The trade-off is that updates arrive when the workflow finishes rather than instantly. For a personal portfolio and curated news page, that is a good exchange: the system stays understandable, and every deployed result can be traced back to a workflow run and a repository commit."
+        ]
+      }
+    ]
+  }
+]

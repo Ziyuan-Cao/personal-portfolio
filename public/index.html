@@ -17,6 +17,7 @@
   -->
   <link rel="stylesheet" href="./assets/css/style.css">
   <link rel="stylesheet" href="./assets/css/information.css">
+  <link rel="stylesheet" href="./assets/css/blog.css">
 
   <!--
     - google font link
@@ -895,11 +896,19 @@
 
       <article class="blog" data-page="blog">
 
-        <header>
-          <h2 class="h2 article-title">Blog</h2>
+        <header class="blog-header">
+          <p class="blog-eyebrow">Notes from the build</p>
+          <h2 class="h2 article-title" data-blog-page-title>Blog</h2>
+          <p class="blog-intro" data-blog-intro>How I build graphics tools, learn in public, and keep this corner of the web running.</p>
         </header>
 
-          <p> coming soon</p>
+        <div class="blog-state" role="status" data-blog-state>Loading posts...</div>
+        <section class="blog-posts" data-blog-list-view>
+          <ul class="blog-posts-list" data-blog-grid></ul>
+        </section>
+
+        <section class="blog-detail" data-blog-detail-view hidden></section>
+
         <!--<section class="blog-posts">
 
           <ul class="blog-posts-list">
@@ -1134,6 +1143,7 @@
   <script src="./assets/js/main.js"></script>
   <script type="module" src="./assets/js/portfolio.js"></script>
   <script type="module" src="./assets/js/information.js"></script>
+  <script type="module" src="./assets/js/blog.js"></script>
 
   <!--
     - ionicon link

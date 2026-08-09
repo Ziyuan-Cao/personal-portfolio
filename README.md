@@ -16,6 +16,7 @@ Open <http://127.0.0.1:3000>.
 ## Content
 
 - Edit portfolio entries in `public/content/portfolio/projects.json` and put their images in `public/content/portfolio/images/`.
+- Edit blog entries in `public/content/blog/posts.json` and put their preview images in `public/content/blog/images/`. Each post gets a shareable `#blog/<slug>` route.
 - Edit collection sources in `config/sources.txt`. Use one HTTP(S) URL per line; blank lines and lines beginning with `#` are ignored.
 - The included sources cover Unreal, NVIDIA, Khronos, Unity, Autodesk Media & Entertainment, ACM SIGGRAPH, Eurographics, NeurIPS, ICML, ICLR, CVPR, AMD GPUOpen, DirectX, Blender, and Adobe Research.
 - The server tries RSS, Atom, or JSON Feed first and falls back to generic HTML extraction. Every collected article is checked, and confirmed HTTP 404/410 or soft-404 pages are discarded before saving.
