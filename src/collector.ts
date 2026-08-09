@@ -1,7 +1,7 @@
 import dns from "node:dns/promises";
 import net from "node:net";
 import type { InformationDatabase } from "./database.js";
-import { discoverFeed, normalizeItems, pageImageCandidates, parseFeed, parseHtml, type RawInformationItem } from "./parser.js";
+import { discoverFeed, normalizeItems, pageImageCandidates, pagePublishedDate, parseFeed, parseHtml, type RawInformationItem } from "./parser.js";
 import { canonicalizeUrl, sourceName, stableUid } from "./utils.js";
 
 interface FetchResult {
@@ -99,7 +99,12 @@ async function checkArticle(item: RawInformationItem): Promise<RawInformationIte
     const imageUrl = page.contentType.includes("html")
       ? await findHighResolutionPageImage(page.body, page.url)
       : null;
-    return { ...item, url: page.url, imageUrl };
+    return {
+      ...item,
+      url: page.url,
+      imageUrl,
+      publishedAt: item.publishedAt ?? pagePublishedDate(page.body, page.url),
+    };
   } catch (error) {
     if (error instanceof HttpStatusError && (error.status === 404 || error.status === 410)) {
       console.warn(`[article] Dropped HTTP ${error.status}: ${item.url}`);

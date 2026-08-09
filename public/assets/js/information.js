@@ -36,6 +36,12 @@ function formatTime(value) {
   }).format(date);
 }
 
+function formatItemTime(item) {
+  if (item.publishedAt) return formatTime(item.publishedAt);
+  if (item.firstSeenAt) return `Found ${formatTime(item.firstSeenAt).toLocaleLowerCase()}`;
+  return "Date unavailable";
+}
+
 function itemTimestamp(item) {
   const value = Date.parse(item.publishedAt || item.firstSeenAt || "");
   return Number.isNaN(value) ? 0 : value;
@@ -52,7 +58,7 @@ function card(item) {
   meta.append(
     element("span", "source-badge", item.sourceName),
     element("span", "", "·"),
-    element("time", "", formatTime(item.publishedAt)),
+    element("time", "", formatItemTime(item)),
   );
   body.append(meta, element("h3", "", item.title));
   if (item.subtitle) body.append(element("p", "", item.subtitle));

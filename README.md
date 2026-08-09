@@ -22,6 +22,8 @@ Open <http://127.0.0.1:3000>.
 - The server tries RSS, Atom, or JSON Feed first and falls back to generic HTML extraction. Every collected article is checked, and confirmed HTTP 404/410 or soft-404 pages are discarded before saving.
 - Run `npm run collect:static` to collect the configured sources into `public/content/information/items.json`.
 - The News page reads that static JSON file, so it works on GitHub Pages without a server. Preview images come from each article page and are shown only when their actual width is greater than 480 pixels.
+- Missing feed dates are recovered from article metadata, JSON-LD, visible time elements, and finally date-formatted article URLs.
+- When an official page publishes no date at all, its card clearly shows when it was first collected instead of displaying an invented publication date.
 
 When running the Fastify server locally, collected items are stored in `data/information.db`. Existing items are matched by stable UID and canonical URL, and their `last_seen_at` value is updated instead of inserting duplicates.
 

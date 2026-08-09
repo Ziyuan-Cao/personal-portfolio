@@ -79,7 +79,9 @@ export function parseFeed(body: string, baseUrl: string, contentType = ""): RawI
       title: text(entry.title) ?? "",
       subtitle: text(entry.description) ?? text(entry.summary) ?? text(entry.content),
       imageUrl: resolve(image(entry), baseUrl),
-      publishedAt: normalizeDate(text(entry.pubDate) ?? text(entry.published) ?? text(entry.updated)),
+      publishedAt: normalizeDate(
+        text(entry.pubDate) ?? text(entry.published) ?? text(entry["dc:date"]) ?? text(entry.date) ?? text(entry.updated),
+      ),
     })).filter(valid);
   } catch {
     return null;
@@ -95,6 +97,24 @@ export function discoverFeed(body: string, baseUrl: string): string | null {
 
 export function parseHtml(body: string, baseUrl: string): RawInformationItem[] {
   const $ = load(body);
+  const base = new URL(baseUrl);
+  if (base.hostname === "cvpr.thecvf.com" && /\/News\/?$/i.test(base.pathname)) {
+    const items: RawInformationItem[] = [];
+    const urls = new Set<string>();
+    $("a[href]").each((_, element) => {
+      const anchor = $(element);
+      const itemUrl = resolve(anchor.attr("href"), baseUrl);
+      if (!itemUrl) return;
+      const url = new URL(itemUrl);
+      if (!/^\/Conferences\/\d{4}\/News\/[^/]+\/?$/i.test(url.pathname) || urls.has(itemUrl)) return;
+      const title = cleanText(anchor.text(), 300);
+      if (!title) return;
+      urls.add(itemUrl);
+      items.push({ externalUid: null, url: itemUrl, title, subtitle: null, imageUrl: null, publishedAt: null });
+    });
+    return items;
+  }
+
   const nodes = $("article, .news-card, .post-card, .blog-card, .post, .entry").toArray();
   if (!nodes.length) {
     $("h2, h3").each((_, heading) => {
@@ -173,6 +193,70 @@ export function pageImageCandidates(body: string, baseUrl: string): string[] {
   });
 
   return candidates;
+}
+
+/** Extracts an article's publication time from structured page data. */
+export function pagePublishedDate(body: string, pageUrl: string): string | null {
+  const $ = load(body);
+  const candidates: Array<string | null | undefined> = [];
+
+  const metaSelectors = [
+    "meta[property='article:published_time']",
+    "meta[property='og:published_time']",
+    "meta[itemprop='datePublished']",
+    "meta[name='date']",
+    "meta[name='publish-date']",
+    "meta[name='pubdate']",
+    "meta[name='parsely-pub-date']",
+    "meta[name='dc.date']",
+    "meta[name='dc.date.issued']",
+    "meta[property='article:modified_time']",
+    "meta[itemprop='dateModified']",
+  ];
+  for (const selector of metaSelectors) candidates.push($(selector).first().attr("content"));
+
+  $("script[type='application/ld+json']").each((_, script) => {
+    const value = $(script).text().trim();
+    if (!value) return;
+    try {
+      collectStructuredDates(JSON.parse(value), candidates);
+    } catch {
+      // Some pages contain malformed or non-JSON data in JSON-LD blocks.
+    }
+  });
+
+  candidates.push(
+    $("article time[datetime], main time[datetime], time[datetime]").first().attr("datetime"),
+    $("article time, main time, time").first().text(),
+    $(".published, .post-date, .entry-date, .article-date, [class*='publish-date'], [class*='published-date']").first().text(),
+  );
+
+  for (const candidate of candidates) {
+    const date = normalizeDate(candidate);
+    if (date) return date;
+  }
+
+  const visibleText = ($("article, main").first().text() || $("body").text()).replace(/\s+/g, " ");
+  const writtenDate = /\b(?:(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2},?\s+20\d{2}|\d{1,2}\s+(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+20\d{2})\b/i.exec(visibleText)?.[0];
+  const visibleDate = normalizeDate(writtenDate ? `${writtenDate} UTC` : null);
+  if (visibleDate) return visibleDate;
+
+  const pathDate = /\/(20\d{2})\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12]\d|3[01])(?:\/|$)/.exec(new URL(pageUrl).pathname);
+  if (pathDate) return normalizeDate(`${pathDate[1]}-${pathDate[2]!.padStart(2, "0")}-${pathDate[3]!.padStart(2, "0")}T00:00:00Z`);
+  return null;
+}
+
+function collectStructuredDates(value: unknown, output: Array<string | null | undefined>): void {
+  if (Array.isArray(value)) {
+    for (const entry of value) collectStructuredDates(entry, output);
+    return;
+  }
+  if (!value || typeof value !== "object") return;
+  const record = value as Record<string, unknown>;
+  for (const key of ["datePublished", "dateCreated", "uploadDate", "dateModified"]) {
+    if (typeof record[key] === "string") output.push(record[key] as string);
+  }
+  if (record["@graph"]) collectStructuredDates(record["@graph"], output);
 }
 
 export function normalizeItems(items: RawInformationItem[], baseUrl: string, limit = 30): RawInformationItem[] {
