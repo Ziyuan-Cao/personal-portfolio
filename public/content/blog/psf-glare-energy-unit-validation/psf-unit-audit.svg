@@ -1,23 +1,39 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="t d">
-  <title id="t">Energy and unit audit for PSF glare</title>
-  <desc id="d">A dimensionally consistent chain from source luminance and source solid angle through a normalized PSF density to output luminance.</desc>
-  <defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#0e1115"/><stop offset="1" stop-color="#20242b"/></linearGradient></defs>
+  <title id="t">Lighting units and conversion map</title>
+  <desc id="d">Luminous flux in lumens connects to candela through solid angle, to lux through distance and incidence angle, and to luminance through projected area or surface reflectance.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#0e1115"/><stop offset="1" stop-color="#20242b"/></linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#6ad4c8"/></marker>
+  </defs>
   <rect width="1280" height="720" fill="url(#bg)"/>
-  <text x="70" y="94" fill="#6ad4c8" font-family="Arial" font-size="20" letter-spacing="5">DIMENSIONAL ANALYSIS</text>
-  <text x="70" y="144" fill="#f5f2e8" font-family="Arial" font-size="40" font-weight="700">Every multiplication must earn its units</text>
+  <text x="70" y="88" fill="#6ad4c8" font-family="Arial" font-size="20" letter-spacing="5">LIGHTING FUNDAMENTALS</text>
+  <text x="70" y="142" fill="#f5f2e8" font-family="Arial" font-size="42" font-weight="700">Units describe different parts of light</text>
+
   <g font-family="Arial" text-anchor="middle">
-    <g fill="#171a20" stroke="#56616d">
-      <rect x="70" y="290" width="230" height="132" rx="18"/><rect x="350" y="290" width="230" height="132" rx="18"/><rect x="630" y="290" width="230" height="132" rx="18"/><rect x="910" y="290" width="300" height="132" rx="18"/>
+    <g fill="#171a20" stroke="#56616d" stroke-width="2">
+      <rect x="70" y="270" width="240" height="128" rx="18"/>
+      <rect x="520" y="270" width="240" height="128" rx="18"/>
+      <rect x="970" y="270" width="240" height="128" rx="18"/>
+      <rect x="520" y="510" width="240" height="128" rx="18"/>
     </g>
     <g fill="#f5f2e8">
-      <text x="185" y="334" font-size="18">Source luminance</text><text x="185" y="377" fill="#f5c85b" font-family="monospace">cd / m^2</text>
-      <text x="465" y="334" font-size="18">Source solid angle</text><text x="465" y="377" fill="#f5c85b" font-family="monospace">sr</text>
-      <text x="745" y="334" font-size="18">PSF density</text><text x="745" y="377" fill="#f5c85b" font-family="monospace">1 / sr</text>
-      <text x="1060" y="334" font-size="18">Output luminance</text><text x="1060" y="377" fill="#f5c85b" font-family="monospace">cd / m^2</text>
+      <text x="190" y="316" font-size="18">Luminous flux</text><text x="190" y="362" fill="#f5c85b" font-family="Cambria Math,serif" font-size="27">Φ · lm</text>
+      <text x="640" y="316" font-size="18">Luminous intensity</text><text x="640" y="362" fill="#f5c85b" font-family="Cambria Math,serif" font-size="27">I · cd</text>
+      <text x="1090" y="316" font-size="18">Illuminance</text><text x="1090" y="362" fill="#f5c85b" font-family="Cambria Math,serif" font-size="27">E · lx</text>
+      <text x="640" y="556" font-size="18">Luminance</text><text x="640" y="602" fill="#f5c85b" font-family="Cambria Math,serif" font-size="27">L · cd/m²</text>
     </g>
   </g>
-  <g stroke="#6ad4c8" stroke-width="3"><path d="M300 356h50M580 356h50M860 356h50"/></g>
-  <g fill="#6ad4c8"><path d="m338 348 13 8-13 8z"/><path d="m618 348 13 8-13 8z"/><path d="m898 348 13 8-13 8z"/></g>
-  <text x="70" y="550" fill="#f5f2e8" font-family="Cambria Math,serif" font-size="28">Lout(p) = sum_s Lsrc(s) * P(angle(s,p)) * deltaOmega_s</text>
-  <text x="70" y="595" fill="#aaa5ad" font-family="Arial" font-size="16">No destination-pixel solid angle is needed when P is a density per steradian. Screen area is not automatically solid angle.</text>
+
+  <g fill="none" stroke="#6ad4c8" stroke-width="3" marker-end="url(#arrow)">
+    <path d="M310 334H500"/>
+    <path d="M760 334H950"/>
+    <path d="M640 398V490"/>
+  </g>
+  <g fill="#aaa5ad" font-family="Cambria Math,serif" font-size="20" text-anchor="middle">
+    <text x="405" y="315">÷ Ω</text>
+    <text x="855" y="315">× cosθ / r²</text>
+    <text x="686" y="457">÷ Aₚ</text>
+  </g>
+
+  <text x="70" y="666" fill="#aaa5ad" font-family="Arial" font-size="17">W measures radiant power; lm, cd, lx, and cd/m² are weighted for human vision.</text>
 </svg>

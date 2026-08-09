@@ -1,236 +1,318 @@
 {
   "slug": "psf-glare-energy-unit-validation",
-  "title": "Energy and Unit Validation for PSF Glare",
-  "abstract": "A dimensional audit from candela and emitter area to source luminance, source solid angle, normalized PSF density, output luminance, and practical conservation tests.",
-  "category": "Rendering validation",
+  "title": "Unit of lighting and Convertion",
+  "abstract": "A compact guide to lumen, candela, lux, luminance, and radiant power—with the geometry needed to convert between them correctly.",
+  "category": "Lighting fundamentals",
   "publishedAt": "2026-08-09",
-  "readingTime": "13 min read",
+  "readingTime": "8 min read",
   "image": "/content/blog/psf-glare-energy-unit-validation/psf-unit-audit.svg",
-  "imageAlt": "A dimensionally consistent PSF glare chain from source luminance to output luminance",
-  "lede": "A glare image can look plausible while its brightness changes with resolution, field of view, kernel size, or source footprint. Dimensional analysis catches these failures before visual tuning hides them. The central rule is simple: define what the source buffer stores, what the PSF texture stores, and what the output buffer stores—then make every multiplication preserve those meanings.",
+  "imageAlt": "A relationship map connecting lumen, candela, lux, and candela per square metre",
+  "lede": "Lighting units describe different parts of the same system: total visible output, directional strength, light arriving at a surface, and the brightness that a surface presents to an eye or camera. A valid conversion therefore needs the missing geometry—solid angle, distance, incidence angle, illuminated area, or projected emitter area.",
   "sections": [
     {
-      "heading": "Write the unit ledger first",
+      "heading": "The five quantities",
       "paragraphs": [
-        "Luminous intensity I is measured in candelas, equivalent to lumens per steradian. Luminance L is candelas per square metre. Solid angle is measured in steradians. A normalized angular PSF density P has units inverse steradian because its integral over output directions is dimensionless and equals one.",
-        "A floating-point texture has no inherent unit. R32F can store candelas, cd/m², inverse steradians, or normalized artist weights. The format tells us precision and layout; metadata and equations tell us meaning."
-      ],
-      "docLinks": [
-        {
-          "label": "IES: LM-63 standard listing",
-          "url": "https://store.ies.org/product/approved-method-ies-standard-file-format-for-the-electronic-transfer-of-photometric-data-and-related-information/",
-          "note": "Use the standard when interpreting photometric source data."
-        },
-        {
-          "label": "Spencer et al. glare paper",
-          "url": "https://www.graphics.cornell.edu/pubs/1995/SSZG95.pdf",
-          "note": "Use the paper when interpreting and normalizing the selected PSF model."
-        }
+        "Lumen, candela, lux, and candela per square metre are photometric units, so they describe light according to the sensitivity of human vision. Watt is radiometric: it measures physical optical power without applying that visual weighting.",
+        "These units are related, but they are not interchangeable labels for brightness. Each one answers a different question."
       ],
       "technicalTables": [
         {
           "columns": [
+            "Quantity",
+            "Unit",
             "Symbol",
-            "Meaning",
-            "Unit"
+            "Meaning"
           ],
           "rows": [
             [
-              "I",
-              "Luminous intensity in a direction",
-              "cd = lm/sr"
+              "Luminous flux",
+              "lumen",
+              "lm",
+              "Total visible light output"
             ],
             [
-              "L",
-              "Luminance of a source/image direction",
-              "cd/m²"
+              "Luminous intensity",
+              "candela",
+              "cd",
+              "Light strength in one direction"
             ],
             [
-              "Omega",
-              "Solid angle",
-              "sr"
+              "Illuminance",
+              "lux",
+              "lx",
+              "Light arriving on a surface"
             ],
             [
-              "P",
-              "Angular PSF density",
-              "1/sr"
+              "Luminance",
+              "candela/m² = nit",
+              "cd/m²",
+              "Brightness of a surface seen by an eye or camera"
             ],
             [
-              "K",
-              "Discrete normalized kernel weight",
-              "dimensionless, under its declared sampling rule"
+              "Radiant power",
+              "watt",
+              "W",
+              "Physical optical energy per unit time, not eye-weighted"
             ]
           ],
-          "caption": "Do not use P and K interchangeably; one is a density, the other has already absorbed a sampling measure."
+          "caption": "The quantity determines the unit; geometry determines whether a conversion is possible."
         }
       ]
     },
     {
-      "heading": "Convert intensity to luminance only with a source model",
+      "heading": "Lumen ↔ candela",
       "paragraphs": [
-        "An IES profile supplies directional luminous intensity. A screen-space glare convolution normally wants source luminance. They are related only after defining emitter geometry and emission behavior. For a small, uniform Lambertian planar emitter of area A viewed at angle theta from its normal, projected area is A cos(theta), giving I(theta) = L A cos(theta).",
-        "The inverse becomes unstable at grazing angles and is invalid for a point light with no physical area. A practical renderer therefore needs a finite source shape, a documented projected-area model, and clamps or alternate handling for configurations where the approximation breaks down."
+        "Candela is luminous flux per solid angle. Converting a directional intensity into total lumens requires the angular distribution of the source.",
+        "For an isotropic point source, the emission fills 4π sr. This special case allows one candela value to determine the total luminous flux. Most real luminaires are not isotropic, so a single peak value from an IES profile cannot be treated as the total output."
       ],
       "equations": [
         {
-          "label": "Uniform planar emitter",
-          "expression": "L = I(theta) / (A cos(theta))",
+          "label": "Directional intensity",
+          "expression": "I = Φ / Ω    ⇔    Φ = IΩ",
           "terms": [
-            "I is cd, A is m², so L is cd/m².",
-            "This relation is a chosen Lambertian area-source model, not a generic property of every IES luminaire.",
-            "A sphere, disk, tube, and textured mesh require their own projected-area treatment."
+            {
+              "symbol": "I",
+              "text": "Luminous intensity (cd)."
+            },
+            {
+              "symbol": "Φ",
+              "text": "Luminous flux (lm)."
+            },
+            {
+              "symbol": "Ω",
+              "text": "Solid angle (sr)."
+            }
+          ]
+        },
+        {
+          "label": "Isotropic source",
+          "expression": "Ω = 4π    ⇒    Φ = 4πI",
+          "terms": [
+            "Φ = 4π(1000 cd) ≈ 12 566 lm"
           ]
         }
       ],
       "callouts": [
         {
           "tone": "warning",
-          "title": "Point-light limitation",
-          "text": "A mathematical point source has zero area and therefore no finite surface luminance. Give glare a finite apparent source or work in a different quantity with a separately derived transfer."
+          "title": "Distribution is required",
+          "text": "A directional IES value may reach 100,000 cd while the fixture’s total lumen output is much smaller than a 4π conversion would suggest. Integrate the full directional distribution instead of assuming isotropic emission."
         }
       ]
     },
     {
-      "heading": "The dimensionally consistent convolution",
+      "heading": "Candela → lux",
       "paragraphs": [
-        "Let the HDR source image represent luminance as a function of viewing direction. A shift-invariant angular PSF maps source directions to output directions. In the continuous model, output luminance is the integral of source luminance times PSF density over source solid angle.",
-        "In a discrete projected image, each source pixel contributes its luminance multiplied by that source pixel’s solid angle and the PSF density at the angular separation. There is no additional destination-pixel solid-angle factor when the accumulated output is luminance. Multiplying by destination solid angle would instead produce an output integrated over that pixel; to recover luminance, divide by the same destination solid angle."
+        "Illuminance from a point light follows the inverse-square law and the cosine of the incidence angle. Distance is measured from the light to the receiving point, and θ is the angle between the incoming light direction and the surface normal.",
+        "When the surface faces the light directly, θ is zero and the cosine term becomes one."
       ],
       "equations": [
         {
-          "label": "Continuous angular convolution",
-          "expression": "L_out(omega_p) = integral L_src(omega_s) P(omega_p, omega_s) dOmega_s",
+          "label": "Point-light illuminance",
+          "expression": "E = I cosθ / r²",
           "terms": [
-            "(cd/m²) × (1/sr) × sr = cd/m².",
-            "For a rotationally symmetric PSF, P depends on the angle between omega_s and omega_p."
+            {
+              "symbol": "E",
+              "text": "Illuminance (lx)."
+            },
+            {
+              "symbol": "I",
+              "text": "Directional luminous intensity (cd)."
+            },
+            {
+              "symbol": "r",
+              "text": "Distance (m)."
+            },
+            {
+              "symbol": "θ",
+              "text": "Incidence angle from the surface normal."
+            }
           ]
         },
         {
-          "label": "Discrete density-kernel evaluation",
-          "expression": "L_out[p] = sum_s L_src[s] * P(angle(s,p)) * deltaOmega_s",
+          "label": "Normal incidence",
+          "expression": "θ = 0    ⇒    cosθ = 1    ⇒    E = I / r²",
           "terms": [
-            "deltaOmega_s is the source sample’s solid angle.",
-            "If the texture stores discrete K rather than density P, use the matching discrete formulation and normalization instead."
+            "I = 1000 cd, r = 2 m    ⇒    E = 1000 / 2² = 250 lx"
           ]
         }
-      ]
-    },
-    {
-      "heading": "Screen-space area is not solid angle",
-      "paragraphs": [
-        "Counting covered pixels gives a screen-area fraction. It approximates angular area only under a declared projection and local scale. With a pinhole camera, pixel solid angle changes with position, focal length, aspect ratio, and resolution. Treating every pixel as one constant Omega makes total glare drift toward image edges and under FOV changes.",
-        "For a rasterized finite emitter, compute its apparent solid angle by summing exact or approximated solid angles of covered source samples. Partial coverage should weight the sample. This is more defensible than multiplying source luminance by a normalized screen rectangle whose unit has never been defined."
-      ],
-      "equations": [
-        {
-          "label": "Projected texel solid angle",
-          "expression": "deltaOmega(x,y) approximately f * deltaA / (f^2 + x^2 + y^2)^(3/2)",
-          "terms": [
-            "deltaA is texel area on the chosen image plane.",
-            "Use the camera’s actual x/y scaling for non-square aspect ratios."
-          ]
-        }
-      ]
-    },
-    {
-      "heading": "Energy preservation is a testable invariant",
-      "paragraphs": [
-        "For a unit-integral PSF on an unbounded or properly wrapped domain, integrating output luminance over output solid angle equals integrating source luminance over source solid angle. A finite screen clips part of the halo at edges, so measured output can decrease unless the implementation renormalizes locally—a choice that itself changes physical interpretation.",
-        "Thresholding also changes the ledger. If only luminance above T feeds glare, decide whether the source is max(L − T, 0), a smooth knee, or the full L gated by a mask. The removed energy does not disappear by mathematical necessity; it is an effect-design decision."
-      ],
-      "equations": [
-        {
-          "label": "Conservation check for a normalized PSF",
-          "expression": "sum_p L_out[p] deltaOmega_p approximately sum_s L_src[s] deltaOmega_s",
-          "terms": [
-            "Compare on a domain large enough to contain the kernel.",
-            "If the algorithm intentionally extracts only a bright component, compare against that extracted source, not the original full scene."
-          ]
-        }
-      ]
-    },
-    {
-      "heading": "The validation matrix",
-      "paragraphs": [
-        "A single centered impulse checks kernel normalization but not projection correctness. Repeat it at center, mid-field, and near the edge. Sweep resolution and FOV while preserving source angular size and luminance. Test an extended disk because summing many source samples can reveal an omitted or duplicated solid-angle factor.",
-        "Log numbers, not only screenshots: input integral, extracted-source integral, output integral, clipped energy, peak luminance, and radial half-energy angle. When one value moves, the ledger identifies whether the cause is source modeling, PSF normalization, projection sampling, or screen clipping."
       ],
       "technicalTables": [
         {
           "columns": [
-            "Test",
-            "Keep fixed",
-            "Expected result"
+            "I",
+            "r",
+            "E"
           ],
           "rows": [
             [
-              "Resolution sweep",
-              "FOV, angular source, luminance",
-              "Integrated and angular profile remain stable"
+              "1000 cd",
+              "1 m",
+              "1000 lx"
             ],
             [
-              "FOV sweep",
-              "Angular source and PSF model",
-              "Halo keeps angular size"
+              "1000 cd",
+              "2 m",
+              "250 lx"
             ],
             [
-              "Position sweep",
-              "Source luminance and solid angle",
-              "Energy stable except measured edge clipping"
-            ],
-            [
-              "Intensity sweep",
-              "Geometry and exposure state",
-              "Linear response before intentional nonlinear stages"
-            ],
-            [
-              "Kernel-support sweep",
-              "Raw model",
-              "Captured tail energy changes predictably before renormalization"
+              "1000 cd",
+              "10 m",
+              "10 lx"
             ]
           ],
-          "caption": "Every test changes one axis while holding the physical source description fixed."
+          "caption": "Values assume θ = 0. Doubling r reduces E to one quarter."
+        }
+      ]
+    },
+    {
+      "heading": "Lumen → lux",
+      "paragraphs": [
+        "Lux is luminous flux per illuminated area. A direct conversion from lumens is valid only when the flux distribution and receiving area are known.",
+        "If 1000 lm is distributed uniformly over 10 m², the illuminance is 100 lx. A focused beam and a wide beam can have equal lumens but produce very different lux values on the same surface."
+      ],
+      "equations": [
+        {
+          "label": "Uniform illuminance",
+          "expression": "1 lx = 1 lm/m²    ·    E = Φ / A",
+          "terms": [
+            {
+              "symbol": "A",
+              "text": "Illuminated area (m²)."
+            },
+            "E = 1000 lm / 10 m² = 100 lx"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "cd/m² and nit: visible surface brightness",
+      "paragraphs": [
+        "Luminance describes how bright a surface appears in a direction. One nit is exactly one candela per square metre. It is different from illuminance: lux measures light arriving at a surface, while cd/m² measures the directional brightness leaving or emitted by that surface.",
+        "For a perfectly diffuse Lambertian surface, reflected luminance depends on illuminance and reflectance. A perfect white surface under 1000 lx reaches about 318 cd/m²; a darker surface produces proportionally less luminance."
+      ],
+      "equations": [
+        {
+          "label": "Nit equivalence",
+          "expression": "1 nit = 1 cd/m²",
+          "terms": [
+            "100 cd/m² = 100 nit",
+            "1000 cd/m² = 1000 nit"
+          ]
+        },
+        {
+          "label": "Lambertian reflection",
+          "expression": "L = ρE / π",
+          "terms": [
+            {
+              "symbol": "L",
+              "text": "Luminance (cd/m²)."
+            },
+            {
+              "symbol": "ρ",
+              "text": "Diffuse reflectance, 0–1."
+            },
+            "ρ = 1, E = 1000 lx    ⇒    L = 1000 / π ≈ 318 cd/m²"
+          ]
         }
       ],
-      "numberedSteps": [
+      "callouts": [
         {
-          "title": "Log the source",
-          "text": "Source luminance, apparent solid angle, exposure state, and extraction rule."
-        },
-        {
-          "title": "Log the kernel",
-          "text": "Angular support, stored unit, raw captured energy, and post-normalization integral."
-        },
-        {
-          "title": "Log the output",
-          "text": "Integrated luminance over solid angle, peak luminance, half-energy angle, and clipped energy."
-        },
-        {
-          "title": "Repeat one-axis sweeps",
-          "text": "Resolution, FOV, screen position, intensity, and support are separate experiments."
+          "tone": "note",
+          "title": "Three viewpoints",
+          "text": "cd describes source strength in a direction; lx describes light arriving at something; cd/m² describes how bright that thing appears."
         }
       ]
     },
     {
-      "heading": "Audit record to keep",
+      "heading": "Candela ↔ cd/m²",
       "paragraphs": [
-        "Keep one machine-readable record per validation run: camera projection and FOV, resolution, source luminance and apparent solid angle, extraction threshold, PSF unit and support, normalization integral, input/output integrals, clipped energy, half-energy angle, and commit/build identifier. Without those fields, two screenshots cannot diagnose a scale change."
+        "Directional intensity is luminance integrated over apparent emitting area. For a flat, uniform emitter viewed straight-on, luminance is intensity divided by physical area.",
+        "At an angle, use projected area. The cosine term reduces the apparent area as the emitter turns away from the viewing direction. This relationship is especially useful when an IES intensity must be connected to a finite emitter brightness."
+      ],
+      "equations": [
+        {
+          "label": "Projected emitter area",
+          "expression": "I = LAₚ    ·    Aₚ = A cosθ    ⇒    I = LA cosθ",
+          "terms": [
+            {
+              "symbol": "Aₚ",
+              "text": "Projected emitting area (m²)."
+            },
+            {
+              "symbol": "A",
+              "text": "Physical emitting area (m²)."
+            }
+          ]
+        },
+        {
+          "label": "Front-facing emitter",
+          "expression": "θ = 0    ⇒    L = I / A",
+          "terms": [
+            "I = 1000 cd, A = 0.1 m²    ⇒    L = 10 000 cd/m²"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "A practical relationship map",
+      "paragraphs": [
+        "The conversion path is a geometry problem. Solid angle links total flux to directional intensity; distance and incidence angle link intensity to illuminance; projected emitter area links intensity to luminance.",
+        "For UE and IES work, use the directional candela value I(θ, φ) from the IES table. Do not collapse total lumens into one candela value unless the angular distribution is explicitly defined."
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "From",
+            "Geometry",
+            "Relation",
+            "To"
+          ],
+          "rows": [
+            [
+              "lm",
+              "Ω",
+              "I = Φ/Ω",
+              "cd"
+            ],
+            [
+              "cd",
+              "r, θ",
+              "E = I cosθ/r²",
+              "lx"
+            ],
+            [
+              "lm",
+              "A",
+              "E = Φ/A",
+              "lx"
+            ],
+            [
+              "lx",
+              "ρ",
+              "L = ρE/π",
+              "cd/m²"
+            ],
+            [
+              "cd",
+              "Aₚ",
+              "L = I/Aₚ",
+              "cd/m²"
+            ]
+          ],
+          "caption": "Every arrow names the geometric information required for the conversion."
+        }
+      ],
+      "equations": [
+        {
+          "label": "IES lighting chain",
+          "expression": "I(θ, φ)    →    E(r, θ)    →    L(ρ, Aₚ)",
+          "terms": [
+            "IES cd → lx at a position → cd/m² of an illuminated or emissive surface"
+          ]
+        }
       ]
     }
   ],
-  "references": [
-    {
-      "label": "Spencer et al., Physically-Based Glare Effects for Digital Images",
-      "url": "https://www.graphics.cornell.edu/pubs/1995/SSZG95.pdf"
-    },
-    {
-      "label": "Illuminating Engineering Society: ANSI/IES LM-63 standard listing",
-      "url": "https://store.ies.org/product/approved-method-ies-standard-file-format-for-the-electronic-transfer-of-photometric-data-and-related-information/"
-    },
-    {
-      "label": "Epic Games: Using IES Light Profiles",
-      "url": "https://dev.epicgames.com/documentation/unreal-engine/using-ies-light-profiles-in-unreal-engine?lang=en-US"
-    }
-  ],
-  "closing": "Acceptance requires closed units and stable invariants across resolution, FOV, screen position, source intensity, and kernel-support sweeps. Record any deliberate thresholding or edge renormalization separately."
+  "closing": "Choose the quantity first, then supply the geometry. The symbols make the constraint visible: Φ needs Ω, I needs r and θ, and L needs ρ or Aₚ."
 }
