@@ -1,5 +1,5 @@
 const siteRoot = new URL("../../", import.meta.url);
-const informationUrl = new URL("content/information/items.json", siteRoot);
+const informationIndexUrl = new URL("content/information/index.json", siteRoot);
 const grid = document.querySelector("[data-information-grid]");
 const state = document.querySelector("[data-information-state]");
 const more = document.querySelector("[data-information-more]");
@@ -104,25 +104,35 @@ async function load() {
   grid.replaceChildren();
   state.textContent = "Loading news…";
   more.hidden = true;
-  const response = await fetch(`${informationUrl.href}?v=${Date.now()}`, {
+  const response = await fetch(`${informationIndexUrl.href}?v=${Date.now()}`, {
     cache: "no-store",
     headers: { accept: "application/json" },
   });
   if (!response.ok) throw new Error(`Request failed (${response.status})`);
-  const document = await response.json();
-  if (!Array.isArray(document.items) || !Array.isArray(document.sources)) {
-    throw new Error("The news file has an invalid format");
+  const manifest = await response.json();
+  if (!Array.isArray(manifest.items) || !Array.isArray(manifest.sources)) {
+    throw new Error("The news index has an invalid format");
   }
 
-  items = document.items;
+  const version = encodeURIComponent(manifest.generatedAt ?? Date.now());
+  items = await Promise.all(manifest.items.map(async (itemPath) => {
+    const itemUrl = new URL(itemPath, informationIndexUrl);
+    itemUrl.searchParams.set("v", version);
+    const itemResponse = await fetch(itemUrl, {
+      cache: "no-store",
+      headers: { accept: "application/json" },
+    });
+    if (!itemResponse.ok) throw new Error(`Could not load ${itemPath} (${itemResponse.status})`);
+    return itemResponse.json();
+  }));
   const selected = sourceFilter.value;
   sourceFilter.replaceChildren(
     new Option("All sources", ""),
-    ...document.sources.map((source) => new Option(source.name, source.url)),
+    ...manifest.sources.map((source) => new Option(source.name, source.url)),
   );
-  sourceFilter.value = document.sources.some((source) => source.url === selected) ? selected : "";
-  updated.textContent = document.generatedAt
-    ? `Collected ${new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(document.generatedAt))}`
+  sourceFilter.value = manifest.sources.some((source) => source.url === selected) ? selected : "";
+  updated.textContent = manifest.generatedAt
+    ? `Collected ${new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(manifest.generatedAt))}`
     : "Waiting for the first scheduled collection";
   render();
 }

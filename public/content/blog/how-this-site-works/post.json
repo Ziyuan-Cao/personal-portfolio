@@ -1,0 +1,229 @@
+{
+  "slug": "how-this-site-works",
+  "title": "How This Site Works",
+  "abstract": "A guided tour of the portfolio, the hourly GitHub Actions pipeline, and the collector that turns trusted feeds into a fresh static news page.",
+  "category": "Behind the scenes",
+  "publishedAt": "2026-08-09",
+  "readingTime": "10 min read",
+  "image": "/content/blog/how-this-site-works/site-system.svg",
+  "imageAlt": "Diagram connecting the portfolio, GitHub Actions, GitHub Pages, and news sources",
+  "lede": "This portfolio is intentionally small: plain HTML, CSS, and JavaScript in the browser, with a focused TypeScript collector doing the heavier work. GitHub supplies the temporary compute, while GitHub Pages only has to serve static files.",
+  "sections": [
+    {
+      "heading": "The page in one picture",
+      "paragraphs": [
+        "The repository is the source for the site code, portfolio projects, blog posts, and the list of trusted news sources. GitHub Actions checks out that source, refreshes the news, and packages the public folder. GitHub Pages then serves the resulting artifact as an ordinary static website."
+      ],
+      "flow": {
+        "label": "Website publishing flow",
+        "steps": [
+          {
+            "icon": "code-slash-outline",
+            "title": "Repository",
+            "text": "Site code, content files, and trusted source URLs"
+          },
+          {
+            "icon": "timer-outline",
+            "title": "GitHub Actions",
+            "text": "Starts on a push, an hourly schedule, or a manual request"
+          },
+          {
+            "icon": "scan-outline",
+            "title": "Collector",
+            "text": "Fetches, verifies, normalizes, and deduplicates articles"
+          },
+          {
+            "icon": "cloud-upload-outline",
+            "title": "Pages artifact",
+            "text": "Packages the browser-ready public folder"
+          },
+          {
+            "icon": "globe-outline",
+            "title": "Live website",
+            "text": "GitHub Pages serves the latest successful artifact"
+          }
+        ]
+      }
+    },
+    {
+      "heading": "How the portfolio page works",
+      "paragraphs": [
+        "The browser first loads a single index page. Navigation switches between About, Resume, Portfolio, Blog, News, and Contact without downloading a new layout each time.",
+        "Each portfolio project owns a material folder containing its JSON record and images. A small index lists only those per-project JSON paths; the browser loads the records and creates the cards. Blog posts use the same structure, so an article's text and images stay together instead of sharing one monolithic content file."
+      ],
+      "flow": {
+        "label": "Portfolio rendering flow",
+        "steps": [
+          {
+            "icon": "document-text-outline",
+            "title": "Content JSON",
+            "text": "Project title, abstract, image, category, and link"
+          },
+          {
+            "icon": "construct-outline",
+            "title": "Browser script",
+            "text": "Fetches the data and builds accessible cards"
+          },
+          {
+            "icon": "albums-outline",
+            "title": "Portfolio grid",
+            "text": "Responsive previews appear on the page"
+          }
+        ]
+      }
+    },
+    {
+      "heading": "Why the news can refresh every hour",
+      "paragraphs": [
+        "There is no portfolio server running continuously. The schedule below asks GitHub Actions to create a temporary runner at minute 17 of every hour. The five cron fields mean minute, hour, day of month, month, and day of week, so the four asterisks match every hour and every day.",
+        "GitHub evaluates this schedule in UTC because no timezone is specified. Choosing minute 17 also avoids the especially busy start of the hour. Scheduled execution is best effort: GitHub documents that runs can be delayed during heavy load, so hourly means a regular target rather than an exact sixty-minute promise.",
+        "The other triggers are useful too. A push to master publishes code or writing changes, while workflow_dispatch adds the Run workflow button in GitHub's Actions interface."
+      ],
+      "codeBlocks": [
+        {
+          "file": ".github/workflows/pages.yml",
+          "language": "yaml",
+          "code": "on:\n  push:\n    branches:\n      - master\n  schedule:\n    - cron: \"17 * * * *\"\n  workflow_dispatch:"
+        }
+      ]
+    },
+    {
+      "heading": "What the GitHub runner does",
+      "paragraphs": [
+        "Each run starts on a clean Ubuntu machine. It checks out the latest repository commit, installs the exact dependency versions from the lockfile, compiles the TypeScript as a build check, and runs the static collector. The public directory is uploaded as a Pages artifact only after those steps succeed.",
+        "The deploy job depends on the build job, so it cannot publish a half-built site. Its pages: write and id-token: write permissions are scoped to deployment; the workflow-level contents: read permission is deliberately not enough to commit generated news back into the repository."
+      ],
+      "codeBlocks": [
+        {
+          "file": ".github/workflows/pages.yml",
+          "language": "yaml",
+          "code": "- name: Install dependencies\n  run: npm ci\n\n- name: Check TypeScript\n  run: npm test\n\n- name: Collect news\n  run: npm run collect:static\n\n- name: Upload Pages artifact\n  uses: actions/upload-pages-artifact@v3\n  with:\n    path: public\n\n# A separate job publishes that artifact.\n- name: Deploy to GitHub Pages\n  uses: actions/deploy-pages@v4"
+        }
+      ],
+      "bullets": [
+        "Pushes make code and writing updates visible.",
+        "The schedule refreshes news even when nobody changes the repository.",
+        "A manual run is available when an immediate collection is useful.",
+        "Concurrent runs are cancelled so only the newest Pages deployment finishes."
+      ]
+    },
+    {
+      "heading": "How one source becomes news cards",
+      "paragraphs": [
+        "The collector reads config/sources.txt one URL at a time. It first tries to parse the response as RSS, Atom, or JSON Feed. If the response is a webpage, it looks for a linked feed; if no usable structured feed exists, it extracts article candidates from the HTML.",
+        "The normalized list is capped at 30 candidates per source by default. Four workers then verify article pages concurrently. Confirmed HTTP 404 or 410 responses and pages whose title or main heading looks like a soft 404 are removed.",
+        "For a valid HTML article, the collector recovers missing publication dates from metadata, JSON-LD, time elements, visible dates, or a date-shaped URL. It also examines social and article images, but keeps a preview only after downloading it and measuring a width greater than 480 pixels."
+      ],
+      "codeBlocks": [
+        {
+          "file": "src/collector.ts",
+          "language": "typescript",
+          "code": "const page = await fetchText(sourceUrl);\nlet items = parseFeed(page.body, page.url, page.contentType);\n\nif (!items) {\n  const feedUrl = discoverFeed(page.body, page.url);\n  if (feedUrl) {\n    try {\n      const feed = await fetchText(feedUrl);\n      items = parseFeed(feed.body, feed.url, feed.contentType);\n    } catch {\n      // Fall back to parsing the source page as HTML.\n    }\n  }\n}\n\nconst normalized = normalizeItems(\n  items ?? parseHtml(page.body, page.url),\n  page.url,\n  maxItems,\n);\nconst checked = await mapConcurrent(\n  normalized,\n  enrichmentConcurrency,\n  checkArticle,\n);\nreturn checked.filter((item) => item !== null);"
+        }
+      ],
+      "flow": {
+        "label": "Automated news collection flow",
+        "steps": [
+          {
+            "icon": "list-outline",
+            "title": "Source list",
+            "text": "Trusted feed and website URLs"
+          },
+          {
+            "icon": "scan-outline",
+            "title": "Discover & parse",
+            "text": "RSS, Atom, JSON Feed, or HTML"
+          },
+          {
+            "icon": "shield-checkmark-outline",
+            "title": "Verify & enrich",
+            "text": "Drop dead links, recover dates, validate images"
+          },
+          {
+            "icon": "copy-outline",
+            "title": "Deduplicate",
+            "text": "Canonical URLs and deterministic hashes"
+          },
+          {
+            "icon": "newspaper-outline",
+            "title": "Item folders",
+            "text": "One JSON record per article plus a small index"
+          }
+        ]
+      }
+    },
+    {
+      "heading": "The deployed feed is a fresh snapshot",
+      "paragraphs": [
+        "The static collector deliberately opens an in-memory SQLite database. It does not import the previously deployed JSON file, so each workflow run rebuilds the digest from the articles currently returned by the configured sources. Canonical URLs and stable hashes prevent duplicates inside that run, but first-seen timestamps and internal row IDs begin again on the next runner.",
+        "That makes the News page a current digest rather than a permanent archive. The generated index and per-item folders are placed in the Pages artifact. If every source fails and no items are collected, the script throws before deployment, leaving the last successful Pages artifact live. A partial source failure does not stop deployment, so that source can be absent until a later successful run."
+      ],
+      "codeBlocks": [
+        {
+          "file": "src/static-collector.ts",
+          "language": "typescript",
+          "code": "const itemFiles = await Promise.all(items.map(async (item) => {\n  const itemFile = path.join(stagingItemsPath, item.uid, \"item.json\");\n  await writeJson(itemFile, item);\n  return `items/${item.uid}/item.json`;\n}));\n\nawait fs.rename(stagingItemsPath, itemsPath);\nawait writeJson(indexPath, {\n  generatedAt: new Date().toISOString(),\n  sources: sourceOptions,\n  items: itemFiles,\n});"
+        }
+      ]
+    },
+    {
+      "heading": "How the browser gets the new deployment",
+      "paragraphs": [
+        "GitHub Pages serves public/content/information/index.json and every per-item JSON file as ordinary static assets. When the News tab opens, the browser requests the index with no-store caching, loads the listed item records, and then builds the source filter and article cards.",
+        "The Reload button repeats that browser request; it does not trigger GitHub Actions or contact the news sites directly. Therefore a newly published article appears after the next successful collection and Pages deployment, followed by a page load or Reload in the visitor's browser."
+      ],
+      "codeBlocks": [
+        {
+          "file": "public/assets/js/information.js",
+          "language": "javascript",
+          "code": "const response = await fetch(\n  `${informationIndexUrl.href}?v=${Date.now()}`,\n  { cache: \"no-store\", headers: { accept: \"application/json\" } },\n);\nconst manifest = await response.json();\nitems = await Promise.all(\n  manifest.items.map((itemPath) => fetch(new URL(itemPath, informationIndexUrl)).then((item) => item.json())),\n);"
+        }
+      ]
+    },
+    {
+      "heading": "Why this architecture",
+      "paragraphs": [
+        "There is no application server to keep alive in production and no database required by visitors. GitHub provides short-lived compute for collection, and GitHub Pages serves ordinary static files. The result is inexpensive, portable, and resilient, while the local Fastify server and persistent SQLite database remain useful during development.",
+        "The trade-off is latency and limited history: updates arrive when a scheduled workflow and deployment finish, rather than instantly, and the static output reflects the sources' current windows. In return, each live artifact is associated with a visible workflow run and repository commit without giving the collector permission to rewrite the repository."
+      ]
+    },
+    {
+      "heading": "References and specifications",
+      "paragraphs": [
+        "These are the primary documents behind the scheduling, deployment, and structured-feed formats used by the site."
+      ],
+      "references": [
+        {
+          "title": "GitHub Actions: schedule event",
+          "description": "Cron timing, UTC defaults, default-branch behavior, and possible scheduling delays.",
+          "url": "https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule"
+        },
+        {
+          "title": "GitHub Pages: custom workflows",
+          "description": "Official guidance for building, uploading, and deploying a Pages artifact.",
+          "url": "https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages"
+        },
+        {
+          "title": "GitHub deploy-pages action",
+          "description": "The official deployment action, required permissions, environment, and artifact contract.",
+          "url": "https://github.com/actions/deploy-pages"
+        },
+        {
+          "title": "RSS 2.0 specification",
+          "description": "The RSS channel and item format parsed by the collector.",
+          "url": "https://www.rssboard.org/rss-specification"
+        },
+        {
+          "title": "RFC 4287: Atom Syndication Format",
+          "description": "The IETF specification for Atom feeds and entries.",
+          "url": "https://www.rfc-editor.org/rfc/rfc4287"
+        },
+        {
+          "title": "JSON Feed 1.1",
+          "description": "The JSON-based feed format supported alongside RSS and Atom.",
+          "url": "https://www.jsonfeed.org/version/1.1/"
+        }
+      ]
+    }
+  ]
+}

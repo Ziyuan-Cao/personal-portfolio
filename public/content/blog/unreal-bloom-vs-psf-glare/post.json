@@ -1,0 +1,190 @@
+{
+  "slug": "unreal-bloom-vs-psf-glare",
+  "title": "Unreal Mip-Chain Bloom vs PSF Glare",
+  "abstract": "A fair comparison between Unreal’s standard multi-resolution Gaussian bloom and a calibrated human-eye PSF convolution, including what each approximates, costs, controls, and validates.",
+  "category": "Post processing",
+  "publishedAt": "2026-08-09",
+  "readingTime": "11 min read",
+  "image": "/content/blog/unreal-bloom-vs-psf-glare/bloom-vs-psf.svg",
+  "imageAlt": "Standard multi-resolution bloom is compared with an angular point spread function glare path",
+  "lede": "Bloom and human-eye glare can both turn a bright point into a halo, but they are not automatically the same model. Unreal’s standard bloom is a practical multi-resolution blend of Gaussian blurs. A PSF approach starts from an angular light-spread kernel and can be calibrated for energy and field of view. Unreal also offers Convolution Bloom, which is a separate kernel-based option and should not be confused with Standard Bloom.",
+  "sections": [
+    {
+      "heading": "What Standard Bloom does",
+      "paragraphs": [
+        "Epic documents Standard Bloom as several Gaussian blurs computed at progressively lower resolutions, from one-half down to one-thirty-second of the screen. The lower-resolution levels create wide halos cheaply; their contributions are tinted and combined. Threshold and exposure determine which scene values feed the effect.",
+        "This design is fast, stable, and art-directable. It creates a convincing camera/display cue without claiming to reproduce a particular human eye’s angular PSF. Because each blur level is screen-resolution based, its behavior must be tested when resolution, dynamic resolution, and FOV change."
+      ],
+      "docLinks": [
+        {
+          "label": "Epic: Bloom in Unreal Engine",
+          "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/bloom-in-unreal-engine",
+          "note": "Standard Bloom levels, controls, and Convolution Bloom are documented on the same page."
+        },
+        {
+          "label": "Epic: Post Process Effects",
+          "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/post-process-effects-in-unreal-engine",
+          "note": "Use this to place bloom relative to exposure, tone mapping, and the post-process volume."
+        }
+      ],
+      "flow": {
+        "label": "Standard Bloom path",
+        "steps": [
+          {
+            "icon": "sunny-outline",
+            "title": "HDR scene",
+            "text": "Bright scene-referred values after exposure decisions"
+          },
+          {
+            "icon": "funnel-outline",
+            "title": "Threshold",
+            "text": "Select or weight values that contribute"
+          },
+          {
+            "icon": "contract-outline",
+            "title": "Downsample chain",
+            "text": "Half to very low resolution levels"
+          },
+          {
+            "icon": "water-outline",
+            "title": "Gaussian blurs",
+            "text": "Different effective screen-space widths"
+          },
+          {
+            "icon": "layers-outline",
+            "title": "Weighted combine",
+            "text": "Blend levels back into the post-process image"
+          }
+        ]
+      }
+    },
+    {
+      "heading": "What a PSF glare path does",
+      "paragraphs": [
+        "A PSF path extracts or otherwise identifies glare-producing luminance, then convolves it with a kernel expressed as angular spread. If the kernel is a density per steradian, projected source samples must be weighted by their source solid angle. The output is composited within a declared exposure and tone-mapping pipeline.",
+        "The approach can represent narrow cores, long scattering tails, wavelength-dependent halos, and directional streaks. It can also be much more expensive. A large direct convolution is rarely practical, so implementations use separability when available, FFT convolution, hierarchical approximations, sparse bright-source methods, or hybrid kernels."
+      ]
+    },
+    {
+      "heading": "A fair feature comparison",
+      "paragraphs": [
+        "The choice is not ‘fake versus physical.’ It is a choice of objective. Standard Bloom is often the right renderer feature when the goal is robust artistic response at real-time cost. A calibrated PSF is useful when angular consistency, glare research, optical matching, or explicit energy accounting matters. A poorly normalized PSF texture can be less defensible than a well-characterized bloom chain.",
+        "Unreal’s Convolution Bloom deserves its own row: it convolves the image with a supplied kernel and can produce custom bloom shapes. Kernel convolution is a mechanism; it becomes a human-eye model only when the kernel, input quantity, projection mapping, and normalization support that interpretation."
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "Question",
+            "Standard Bloom",
+            "Angular PSF glare",
+            "Convolution Bloom"
+          ],
+          "rows": [
+            [
+              "Primary goal",
+              "Fast, art-directed halo",
+              "Model a declared angular spread",
+              "Custom image-space kernel"
+            ],
+            [
+              "Kernel",
+              "Several Gaussian scales",
+              "Measured or paper-derived PSF",
+              "Artist/imported kernel image"
+            ],
+            [
+              "FOV behavior",
+              "Must be characterized",
+              "Built around visual angle",
+              "Depends on kernel mapping"
+            ],
+            [
+              "Energy meaning",
+              "Implementation/control dependent",
+              "Can be unit-integral by construction",
+              "Depends on kernel normalization"
+            ],
+            [
+              "Cost strategy",
+              "Multi-resolution separable blur",
+              "Direct, FFT, sparse, or hybrid",
+              "Engine convolution implementation"
+            ]
+          ],
+          "caption": "A mechanism does not acquire physical meaning merely because it is called convolution."
+        }
+      ]
+    },
+    {
+      "heading": "Integration order changes the result",
+      "paragraphs": [
+        "Glare is driven by scene brightness, but the renderer operates through pre-exposure, exposure, thresholding, tone mapping, and display encoding. Applying a kernel to tone-mapped display RGB is not equivalent to spreading scene-referred luminance before tone mapping. Document the color space and exposure state at the extraction and composite points.",
+        "Spencer’s original display-oriented method applies glare to intensity exceeding the display maximum, which is a particular simulation setup. A modern HDR renderer may choose a different source-selection rule. That is a design change, not something the PSF equation decides."
+      ],
+      "callouts": [
+        {
+          "tone": "warning",
+          "title": "Avoid double bloom",
+          "text": "When comparing a PSF path, disable or isolate Standard Bloom and Convolution Bloom. Otherwise the reference and test effects are stacked, and neither energy nor shape comparisons are interpretable."
+        }
+      ]
+    },
+    {
+      "heading": "Benchmark with controlled stimuli",
+      "paragraphs": [
+        "Use an HDR impulse, a thin bright line, a grid of equal-luminance points, and an extended bright disk. Sweep intensity without moving the source, then sweep FOV and output resolution without changing its angular position. Compare radial profiles, integrated output, temporal stability, and GPU time—not only screenshots.",
+        "For performance, report resolution, kernel support, pass count, and hardware. A low-resolution mip chain and a full-resolution direct convolution solve very different workloads. Quality comparisons should give both methods comparable source selection and compositing conditions."
+      ],
+      "bullets": [
+        "Impulse test: kernel shape and normalization.",
+        "FOV test: angular versus pixel-space size.",
+        "Resolution test: brightness and profile stability.",
+        "Extended source: linearity and halo overlap.",
+        "Temporal test: shimmer, history dependence, and dynamic-resolution transitions."
+      ],
+      "numberedSteps": [
+        {
+          "title": "Lock the input",
+          "text": "Same HDR buffer, exposure state, threshold rule, and composite point for both paths."
+        },
+        {
+          "title": "Record profiles",
+          "text": "Export horizontal and radial luminance profiles, not only screenshots."
+        },
+        {
+          "title": "Sweep FOV and resolution",
+          "text": "Measure half-energy angle, peak value, and integrated output."
+        },
+        {
+          "title": "Record GPU cost",
+          "text": "Resolution, pass count, kernel support, hardware, and timing range belong in the result."
+        },
+        {
+          "title": "State the objective",
+          "text": "Choose Standard Bloom, Convolution Bloom, or PSF glare against the actual product requirement."
+        }
+      ]
+    },
+    {
+      "heading": "Decision rule",
+      "paragraphs": [
+        "Use Standard Bloom for a low-cost, art-directed multi-scale halo. Use Convolution Bloom when a custom image-space kernel is the requirement. Build a calibrated PSF path only when the project needs angular consistency, a documented eye/optics model, and unit or energy validation—and can afford the implementation and test cost."
+      ]
+    }
+  ],
+  "references": [
+    {
+      "label": "Epic Games: Bloom in Unreal Engine",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/bloom-in-unreal-engine"
+    },
+    {
+      "label": "Epic Games: Post Process Effects",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/post-process-effects-in-unreal-engine"
+    },
+    {
+      "label": "Spencer et al., Physically-Based Glare Effects for Digital Images",
+      "url": "https://www.graphics.cornell.edu/pubs/1995/SSZG95.pdf"
+    }
+  ],
+  "closing": "The comparison report should include identical HDR input conditions, radial profiles, FOV and resolution sweeps, integrated output, GPU timings, and the product requirement used to select a path."
+}

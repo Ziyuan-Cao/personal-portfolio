@@ -1,0 +1,14 @@
+{
+  "id": "cfc6bcb1-7479-4af2-af3e-ae1caaa099e8",
+  "uid": "1ad1a8e3ded3c7c4d324128cfdacf4f68d0ceaf2521ff42400db1852fdcda2df",
+  "url": "https://gpuopen.com/learn/gpu-view-adaptive-subdivision",
+  "canonicalUrl": "https://gpuopen.com/learn/gpu-view-adaptive-subdivision",
+  "sourceUrl": "https://gpuopen.com/feed",
+  "sourceName": "AMD GPUOpen",
+  "title": "GPU view-adaptive crack-free subdivision of Bézier surfaces",
+  "subtitle": "Learn how fast, crack-free GPU work graph subdivision for bicubic Bézier surfaces dramatically reduce triangle counts while simplifying implementation and matching hardware-tessellation quality.",
+  "imageUrl": "https://gpuopen.com/images/teaser_subdiv_wire_featured.BtvGrp40.jpg",
+  "publishedAt": "2026-08-06T12:00:00.000Z",
+  "firstSeenAt": "2026-08-09T02:54:00.259Z",
+  "lastSeenAt": "2026-08-09T02:54:00.259Z"
+}

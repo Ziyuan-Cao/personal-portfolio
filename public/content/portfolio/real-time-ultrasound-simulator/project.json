@@ -1,0 +1,8 @@
+{
+  "id": "real-time-ultrasound-simulator",
+  "title": "A Real-time Ultrasound Simulator Using Monte-Carlo Path Tracing in Conjunction with Optix Engine",
+  "subtitle": "A paper published in IEEE SMC 2020",
+  "category": "Paper",
+  "image": "/content/portfolio/real-time-ultrasound-simulator/IEEESMC2020.png",
+  "url": "https://ieeexplore.ieee.org/document/9283057"
+}

@@ -1,0 +1,171 @@
+{
+  "slug": "opensubdiv-stencil-tables-explained",
+  "title": "OpenSubdiv Stencil Tables, Explained",
+  "abstract": "A compact mental model for offsets, sizes, indices, and weights—and why OpenSubdiv can turn recursive subdivision into a sparse linear evaluation over coarse control vertices.",
+  "category": "Subdivision surfaces",
+  "publishedAt": "2026-08-09",
+  "readingTime": "10 min read",
+  "image": "/content/blog/opensubdiv-stencil-tables-explained/opensubdiv-stencils.svg",
+  "imageAlt": "Sparse subdivision stencil rows mapping coarse control vertices to refined output vertices",
+  "cardImage": "/content/blog/opensubdiv-stencil-tables-explained/material-opensubdiv-pipeline.png",
+  "cardImageAlt": "Project material diagram of OpenSubdiv topology refinement and stencil shader-resource creation",
+  "lede": "OpenSubdiv’s stencil table looks like four plain arrays. Together they encode a powerful result: once topology is fixed, every selected refined vertex can be evaluated directly from coarse control data without replaying every intermediate subdivision level.",
+  "sections": [
+    {
+      "heading": "A stencil is one sparse row",
+      "paragraphs": [
+        "Subdivision rules are linear combinations. A newly created edge point, face point, or updated vertex is a weighted sum of vertices from the previous level. Recursively substitute those previous-level expressions and the final refined vertex becomes a weighted sum of the original coarse controls.",
+        "OpenSubdiv stores that accumulated expression as a stencil. The row contains only controls with non-zero influence, so it behaves like one row of a sparse matrix without paying for a dense matrix full of zeros."
+      ],
+      "equations": [
+        {
+          "label": "One refined output",
+          "expression": "v_out[i] = sum_(k=0)^(size[i]-1) weight[offset[i]+k] * v_control[index[offset[i]+k]]",
+          "terms": [
+            "offset[i] starts row i in the flattened index and weight arrays.",
+            "size[i] is the number of non-zero influences in that row.",
+            "index and weight have matching entries."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Why there are four arrays",
+      "paragraphs": [
+        "Variable-length rows are awkward on the GPU. OpenSubdiv flattens all row entries into parallel index and weight arrays, then stores a per-output offset and size. Output 0 may use four controls, output 1 six, and output 2 three; no padding is required.",
+        "The essential invariant is that offsets and sizes address both flattened arrays identically. If row i begins at offset 12 and has size 5, entries 12 through 16 in both the control-index and weight arrays belong to that output."
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "Array",
+            "One value means",
+            "Count"
+          ],
+          "rows": [
+            [
+              "sizes",
+              "Number of contributing controls for one output",
+              "One per stencil"
+            ],
+            [
+              "offsets",
+              "First flattened contribution for one output",
+              "One per stencil"
+            ],
+            [
+              "indices",
+              "Coarse-control vertex to read",
+              "One per non-zero contribution"
+            ],
+            [
+              "weights",
+              "Multiplier paired with that control index",
+              "One per non-zero contribution"
+            ]
+          ],
+          "caption": "This is compressed sparse row storage specialized for subdivision evaluation."
+        }
+      ]
+    },
+    {
+      "heading": "A numeric example",
+      "paragraphs": [
+        "Suppose an output stencil starts at offset 3 and has size 3. Its flattened indices are [1, 4, 7] and its weights are [0.25, 0.50, 0.25]. The output is one quarter of control 1, one half of control 4, and one quarter of control 7. The weights sum to one, so translating all controls by the same vector translates the output by that vector.",
+        "Weight-sum checks are a valuable diagnostic for positional stencils, but not a complete proof. Incorrect indices can still sum to a plausible point, and derivative stencils intentionally obey different constraints."
+      ],
+      "codeBlocks": [
+        {
+          "file": "CPU reference evaluator",
+          "language": "cpp",
+          "code": "for (uint32 i = 0; i < stencilCount; ++i) {\n    Vec3 value = Vec3(0);\n    const uint32 begin = offsets[i];\n    const uint32 end = begin + sizes[i];\n\n    for (uint32 k = begin; k < end; ++k)\n        value += weights[k] * control[indices[k]];\n\n    output[i] = value;\n}"
+        }
+      ]
+    },
+    {
+      "heading": "Topology is compiled; attributes are evaluated",
+      "paragraphs": [
+        "OpenSubdiv’s topology refiner constructs refinement relationships from the coarse mesh and subdivision options. A stencil-table factory then accumulates the chosen refined vertices back to the coarse level. That is the expensive conceptual step; it depends on connectivity, crease rules, boundary interpolation, and requested refinement—not on the current animated coordinates.",
+        "For a mesh whose topology is stable, build and upload stencils once. Evaluate them repeatedly as positions change. The same linear structure can also evaluate compatible attributes, but only when those attributes share the same topology and interpolation semantics. UVs at seams usually do not."
+      ],
+      "docLinks": [
+        {
+          "label": "Pixar: Far Overview",
+          "url": "https://graphics.pixar.com/opensubdiv/docs_3x_alpha/far_overview.html",
+          "note": "TopologyRefiner, primvar refinement, stencil tables, and patch tables are separated here."
+        },
+        {
+          "label": "Pixar: CLStencilTable API",
+          "url": "https://graphics.pixar.com/opensubdiv/docs/doxy_html/a00008.html",
+          "note": "Useful when matching offsets, sizes, indices, and weights to GPU buffers."
+        }
+      ],
+      "callouts": [
+        {
+          "tone": "note",
+          "title": "Stencil table versus patch table",
+          "text": "Stencil tables evaluate refined data. Patch tables organize limit-surface patches for feature-adaptive evaluation and tessellation. Creating both does not mean they are interchangeable or that a patch table has been used."
+        }
+      ],
+      "figures": [
+        {
+          "src": "/content/blog/opensubdiv-stencil-tables-explained/material-opensubdiv-pipeline.png",
+          "alt": "Original project diagram of OpenSubdiv topology refinement and stencil SRV creation",
+          "caption": "Project material: a useful historical map of topology construction, stencil-table creation, and SRV upload. Patch-table creation is shown separately; it should only be claimed as used when the render path actually consumes it."
+        }
+      ]
+    },
+    {
+      "heading": "What to validate before moving to a shader",
+      "paragraphs": [
+        "Evaluate a tiny mesh on the CPU and print every row. Confirm that all offsets and ranges stay within the flattened arrays, every control index is valid, and expected positional rows approximately sum to one. Compare selected output vertices with OpenSubdiv’s reference evaluator before introducing GPU packing or synchronization.",
+        "Also define output ordering. A stencil table may contain only generated vertices, or include coarse vertices depending on factory options. If the renderer expects a combined coarse-plus-refined buffer, write the base offset explicitly rather than assuming stencil i maps to render vertex i."
+      ],
+      "bullets": [
+        "Check subdivision scheme and boundary/crease options.",
+        "Record whether intermediate levels or only the final level are included.",
+        "Record whether the output buffer begins with coarse controls.",
+        "Keep CPU and GPU evaluators on the same precision and indexing convention during tests."
+      ],
+      "numberedSteps": [
+        {
+          "title": "Print row 0",
+          "text": "Offset, size, every control index, every weight, and the weight sum."
+        },
+        {
+          "title": "Evaluate it by hand",
+          "text": "Use a tiny mesh with integer coordinates so an incorrect index is obvious."
+        },
+        {
+          "title": "Compare the library",
+          "text": "Check the same row against OpenSubdiv’s evaluator before uploading anything."
+        },
+        {
+          "title": "Then compare the GPU",
+          "text": "Read back only the small debug fixture, not the production animation path."
+        }
+      ]
+    },
+    {
+      "heading": "Useful debug output",
+      "paragraphs": [
+        "For a small fixture, dump one line per output: output ID, offset, size, control IDs, weights, weight sum, CPU result, OpenSubdiv result, and GPU result. That single table usually locates an ordering, indexing, packing, or precision error faster than inspecting the final shaded mesh."
+      ]
+    }
+  ],
+  "references": [
+    {
+      "label": "Pixar OpenSubdiv: Far Overview",
+      "url": "https://graphics.pixar.com/opensubdiv/docs_3x_alpha/far_overview.html"
+    },
+    {
+      "label": "Pixar OpenSubdiv: Project Overview",
+      "url": "https://graphics.pixar.com/opensubdiv/overview.html"
+    },
+    {
+      "label": "Pixar OpenSubdiv: CLStencilTable API",
+      "url": "https://graphics.pixar.com/opensubdiv/docs/doxy_html/a00008.html"
+    }
+  ],
+  "closing": "Stencil row i is fully defined by sizes[i], offsets[i], and the matching slices of control indices and weights. Validate that row on the CPU before uploading it."
+}

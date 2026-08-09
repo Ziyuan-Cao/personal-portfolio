@@ -1,0 +1,228 @@
+{
+  "slug": "building-angular-human-eye-psf-texture",
+  "title": "Building an Angular Human-Eye PSF Texture",
+  "abstract": "How to turn a glare model expressed in visual angle into a normalized, field-of-view-aware kernel—without confusing an angular density, a screen image, and an artist-authored bloom shape.",
+  "category": "Perceptual rendering",
+  "publishedAt": "2026-08-09",
+  "readingTime": "13 min read",
+  "image": "/content/blog/building-angular-human-eye-psf-texture/angular-psf.svg",
+  "imageAlt": "An angular human-eye point spread function is sampled into a normalized radial texture",
+  "lede": "A human-eye point spread function describes how light arriving from one direction contributes glare to nearby perceived directions. If the source model is parameterized by degrees, the texture generator must preserve that angular domain. A fixed image-space radius is not the same model when field of view or resolution changes.",
+  "sections": [
+    {
+      "heading": "Begin with a declared PSF model",
+      "paragraphs": [
+        "Spencer, Shirley, Zimmerman, and Greenberg modeled disability glare with several radial components: a narrow core, broader inverse-power scattering terms, and a wavelength-dependent halo. The component balance changes between photopic, mesopic, and scotopic vision. It is a perceptual rendering model, not a complete individualized optical measurement of every eye.",
+        "Write down the model version, angle unit, wavelength handling, adaptation state, and any modifications before generating a texture. A circular fade, hand-authored streak, or artist gain may be useful, but it should be labeled as an extension rather than silently folded into the cited PSF."
+      ],
+      "docLinks": [
+        {
+          "label": "Spencer et al.: Physically-Based Glare Effects for Digital Images",
+          "url": "https://www.graphics.cornell.edu/pubs/1995/SSZG95.pdf",
+          "note": "Equations, component weights, normalization, and the display-oriented application are in the original paper."
+        },
+        {
+          "label": "ACM DOI record",
+          "url": "https://doi.org/10.1145/218380.218466",
+          "note": "Stable bibliographic record for the 1995 paper."
+        }
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "Component",
+            "Qualitative role",
+            "Implementation concern"
+          ],
+          "rows": [
+            [
+              "Narrow Gaussian core",
+              "Very small-angle spread",
+              "Easy to undersample"
+            ],
+            [
+              "Inverse-cubic term",
+              "Broad scatter with a long tail",
+              "Needs wide angular support"
+            ],
+            [
+              "Inverse-square term",
+              "Still broader halo energy",
+              "Truncation changes normalization"
+            ],
+            [
+              "Spectral halo",
+              "Wavelength-dependent ring",
+              "Requires spectral or RGB approximation"
+            ]
+          ],
+          "caption": "The original paper supplies explicit functions and adaptation-state weights; a generator should preserve those separately for auditability."
+        }
+      ]
+    },
+    {
+      "heading": "Map texels to visual angle",
+      "paragraphs": [
+        "For a radial lookup texture, the cleanest coordinate is angle itself: texel x represents theta between zero and a declared thetaMax. For a 2D screen-shaped kernel, map each texel center through the same projection used by the camera. With a pinhole projection, theta is atan(r/f), where r is distance from the optical axis in image-plane units and f is focal length in those same units.",
+        "Do not map radius linearly to angle except as an explicitly measured approximation. The atan relationship matters at wide fields of view. It also means a texture baked for one projection and angular support cannot be interpreted as the same PSF under an arbitrary FOV without remapping."
+      ],
+      "equations": [
+        {
+          "label": "Pinhole angle map",
+          "expression": "theta(x,y) = atan(sqrt(x^2 + y^2) / f),    f = h / tan(thetaMax)",
+          "terms": [
+            "x, y, f, and half-height h use the same image-plane units.",
+            "thetaMax is the angle from the optical axis to the chosen image-plane boundary, not automatically the full camera FOV."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Choose what each texel stores",
+      "paragraphs": [
+        "The most portable convention is an angular density P(theta) with units inverse steradian. Normalize its integral over the supported solid angle to one. The runtime convolution then multiplies source luminance by source-sample solid angle and the PSF density. The result remains luminance.",
+        "A second convention stores discrete per-texel weights whose solid-angle-weighted sum is already one. That can be efficient for a fixed projection, but it embeds sampling and support in the asset. Mixing a density texture with discrete-weight math is a common source of resolution-dependent brightness."
+      ],
+      "equations": [
+        {
+          "label": "Continuous normalization",
+          "expression": "integral_over_Omega P(theta) dOmega = 1; for a radial PSF, dOmega = 2 pi sin(theta) dtheta",
+          "terms": [
+            "P has units 1/sr.",
+            "Normalize over the finite angular support actually stored; record the excluded tail energy before renormalizing."
+          ]
+        },
+        {
+          "label": "Discrete normalization on a projected grid",
+          "expression": "P_i = raw_i / sum_j(raw_j * deltaOmega_j)",
+          "terms": [
+            "deltaOmega varies across a perspective image.",
+            "After normalization, sum_i(P_i * deltaOmega_i) is approximately one."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Compute solid angle correctly",
+      "paragraphs": [
+        "For equal angular bins on a sphere, solid-angle weights follow spherical geometry. For a pinhole image plane, equal-area pixels do not subtend equal solid angles. The Jacobian is f divided by (f² + x² + y²)^(3/2), multiplied by the texel’s image-plane area.",
+        "A constant center-pixel solid-angle approximation may be acceptable for a small kernel near the optical axis. It should not be used to normalize a wide-FOV, full-screen kernel without quantifying the error."
+      ],
+      "equations": [
+        {
+          "label": "Perspective image-plane solid angle",
+          "expression": "dOmega = f / (f^2 + x^2 + y^2)^(3/2) * dx dy",
+          "terms": [
+            "At the image center this approaches dx dy / f².",
+            "Toward the image edge the same pixel covers less solid angle under the pinhole mapping."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Sampling the sharp core and long tail",
+      "paragraphs": [
+        "A uniform 257×257 texture may spend many samples on a smooth tail while missing a very narrow central lobe. Supersample each texel in angle space, analytically integrate components where possible, or use a non-uniform radial table with finer sampling near zero. Store enough precision to preserve the tail after normalization.",
+        "If the runtime texture is 2D, generate a radial value first, then add any directional streak structure as a separate normalized modulation. Spencer’s paper describes random radial lines for lenticular effects and normalizes those filters; deterministic seeds make assets reproducible."
+      ],
+      "bullets": [
+        "Evaluate texel integrals, not only values at texel centers, around the singular-looking core.",
+        "Record thetaMax and unnormalized captured energy in asset metadata.",
+        "Use deterministic seeds for stochastic starburst structure.",
+        "Normalize after every structural modification that is intended to redistribute energy.",
+        "Generate diagnostic radial plots in addition to the texture image."
+      ],
+      "codeBlocks": [
+        {
+          "file": "Angular PSF asset builder",
+          "language": "pseudo",
+          "code": "for each texel i:\n    omega_i = project_texel_to_direction(i, fov)\n    theta_i = angle(optical_axis, omega_i)\n    raw_i   = integrate_psf_over_texel(theta_i)\n    dOmega_i = projected_texel_solid_angle(i, fov)\n\nnorm = sum(raw_i * dOmega_i)\nP_i  = raw_i / norm\nassert approximately_equal(sum(P_i * dOmega_i), 1)"
+        }
+      ]
+    },
+    {
+      "heading": "Validation assets",
+      "paragraphs": [
+        "First test a single angular impulse. Its output should reproduce the kernel, with integrated energy matching the chosen convention. Then test two impulses at different screen positions to reveal projection mistakes. Rebuild or remap for two FOVs and confirm that the glare has the same angular size rather than the same pixel size.",
+        "Finally compare photopic, mesopic, and scotopic settings at equal input. The change should come from documented component weights, not an accidental global exposure shift. Keep an artist gain outside the normalized kernel so calibration and creative control remain separable."
+      ],
+      "numberedSteps": [
+        {
+          "title": "Centered impulse",
+          "text": "Output equals the kernel and the solid-angle-weighted sum matches the source."
+        },
+        {
+          "title": "Off-axis impulse",
+          "text": "Projection changes sampling, not the intended angular profile."
+        },
+        {
+          "title": "Two resolutions",
+          "text": "Peak sampling may move slightly; integrated energy and half-energy angle stay stable."
+        },
+        {
+          "title": "Two FOVs",
+          "text": "The halo changes pixel radius but keeps visual-angle radius."
+        },
+        {
+          "title": "Adaptation-state sweep",
+          "text": "Only the documented component weights change."
+        }
+      ],
+      "callouts": [
+        {
+          "tone": "note",
+          "title": "What normalization guarantees",
+          "text": "A unit-integral kernel conserves the quantity used by the convolution model. It does not prove that scene luminance, exposure, display mapping, or the selected human-eye model is calibrated."
+        }
+      ]
+    },
+    {
+      "heading": "Metadata stored beside the texture",
+      "paragraphs": [
+        "The texture alone is ambiguous. Store the paper/model revision, adaptation state, wavelength-to-RGB approximation, thetaMax, projection, FOV, resolution, texel unit, raw captured energy, normalization factor, random seed, and any artistic modification in a sidecar record or asset metadata."
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "Field",
+            "Example"
+          ],
+          "rows": [
+            [
+              "Angular support",
+              "thetaMax = 12°"
+            ],
+            [
+              "Stored quantity",
+              "PSF density, sr⁻¹"
+            ],
+            [
+              "Sampling",
+              "Perspective texel integral, 8×8 sub-samples"
+            ],
+            [
+              "Normalization",
+              "sum(P_i ΔΩ_i) = 1"
+            ],
+            [
+              "Extension",
+              "Deterministic radial streaks, seed 1847"
+            ]
+          ],
+          "caption": "Example values illustrate the record format; they are not universal defaults."
+        }
+      ]
+    }
+  ],
+  "references": [
+    {
+      "label": "Spencer et al., Physically-Based Glare Effects for Digital Images (1995)",
+      "url": "https://www.graphics.cornell.edu/pubs/1995/SSZG95.pdf"
+    },
+    {
+      "label": "DOI: Physically-Based Glare Effects for Digital Images",
+      "url": "https://doi.org/10.1145/218380.218466"
+    }
+  ],
+  "closing": "Store an angular density with its support and normalization metadata, then verify the same half-energy angle and integrated result across resolution and FOV sweeps."
+}

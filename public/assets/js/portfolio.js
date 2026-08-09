@@ -2,7 +2,13 @@ const grid = document.querySelector("[data-portfolio-grid]");
 const state = document.querySelector("[data-portfolio-state]");
 const { element } = window.portfolioUi;
 const siteRoot = new URL("../../", import.meta.url);
-const projectsUrl = new URL("content/portfolio/projects.json", siteRoot);
+const portfolioIndexUrl = new URL("content/portfolio/index.json", siteRoot);
+
+async function fetchJson(url) {
+  const response = await fetch(url, { headers: { accept: "application/json" } });
+  if (!response.ok) throw new Error(`Request failed (${response.status})`);
+  return response.json();
+}
 
 function projectCard(project) {
   const item = element("li", "project-item active");
@@ -33,9 +39,11 @@ function projectCard(project) {
 
 async function loadPortfolio() {
   try {
-    const response = await fetch(projectsUrl, { headers: { accept: "application/json" } });
-    if (!response.ok) throw new Error(`Request failed (${response.status})`);
-    const projects = await response.json();
+    const manifest = await fetchJson(portfolioIndexUrl);
+    if (!Array.isArray(manifest.projects)) throw new Error("The portfolio index has an invalid format");
+    const projects = await Promise.all(
+      manifest.projects.map((projectPath) => fetchJson(new URL(projectPath, portfolioIndexUrl))),
+    );
     grid.replaceChildren(...projects.map(projectCard));
     state.textContent = projects.length ? "" : "No portfolio projects are currently published.";
     window.dispatchEvent(new CustomEvent("portfolio:loaded"));

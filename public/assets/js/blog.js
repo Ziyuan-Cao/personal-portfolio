@@ -6,9 +6,15 @@ const pageTitle = document.querySelector("[data-blog-page-title]");
 const intro = document.querySelector("[data-blog-intro]");
 const { element } = window.portfolioUi;
 const siteRoot = new URL("../../", import.meta.url);
-const postsUrl = new URL("content/blog/posts.json", siteRoot);
+const blogIndexUrl = new URL("content/blog/index.json", siteRoot);
 const defaultDocumentTitle = document.title;
 let posts = [];
+
+async function fetchJson(url) {
+  const response = await fetch(url, { headers: { accept: "application/json" } });
+  if (!response.ok) throw new Error(`Request failed (${response.status})`);
+  return response.json();
+}
 
 function formatDate(value) {
   return new Intl.DateTimeFormat("en", {
@@ -318,9 +324,11 @@ function renderRoute() {
 
 async function loadBlog() {
   try {
-    const response = await fetch(postsUrl, { headers: { accept: "application/json" } });
-    if (!response.ok) throw new Error(`Request failed (${response.status})`);
-    posts = await response.json();
+    const manifest = await fetchJson(blogIndexUrl);
+    if (!Array.isArray(manifest.posts)) throw new Error("The blog index has an invalid format");
+    posts = await Promise.all(
+      manifest.posts.map((postPath) => fetchJson(new URL(postPath, blogIndexUrl))),
+    );
     renderRoute();
   } catch (error) {
     state.textContent = `Could not load blog posts. ${error.message}`;

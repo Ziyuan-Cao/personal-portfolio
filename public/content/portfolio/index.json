@@ -1,0 +1,9 @@
+{
+  "projects": [
+    "skeleton-aware-skin-weight-transfer/project.json",
+    "competitively-growing-corals/project.json",
+    "quick-tool-pipeline/project.json",
+    "sivgame/project.json",
+    "real-time-ultrasound-simulator/project.json"
+  ]
+}

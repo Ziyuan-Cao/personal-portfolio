@@ -1,0 +1,162 @@
+{
+  "slug": "subdivision-stencils-compute-shader",
+  "title": "Evaluating Subdivision Stencils in a Compute Shader",
+  "abstract": "A production-minded compute path for OpenSubdiv stencil data: buffer packing, dispatch shape, output offsets, synchronization, attribute handling, and validation against a CPU reference.",
+  "category": "Compute shaders",
+  "publishedAt": "2026-08-09",
+  "readingTime": "12 min read",
+  "image": "/content/blog/subdivision-stencils-compute-shader/stencil-compute-shader.svg",
+  "imageAlt": "A compute shader gathers indexed control vertices and writes one refined vertex per stencil",
+  "cardImage": "/content/blog/subdivision-stencils-compute-shader/material-gpu-subdivision-schedule.png",
+  "cardImageAlt": "Project material diagram separating one-time subdivision setup from GPU vertex evaluation",
+  "lede": "Stencil evaluation is an unusually clean compute workload: one output row gathers a small set of control vertices, accumulates weighted values, and writes one result. The arithmetic is easy. Correct buffer layout, output mapping, lifetime, and synchronization are the real implementation.",
+  "sections": [
+    {
+      "heading": "Split setup from per-frame evaluation",
+      "paragraphs": [
+        "Topology refinement and stencil construction depend on connectivity and subdivision options, so they should run when the mesh or refinement configuration changes. Upload sizes, offsets, indices, weights, and any refined index data at that time. The per-frame path should only bind the current control attributes and dispatch evaluation.",
+        "This separation is especially important for animation. Rebuilding OpenSubdiv topology every pose discards the central advantage of stencils: stable topology has already been compiled into reusable linear weights."
+      ],
+      "docLinks": [
+        {
+          "label": "Pixar: OpenSubdiv Far Overview",
+          "url": "https://graphics.pixar.com/opensubdiv/docs_3x_alpha/far_overview.html",
+          "note": "Use this to confirm which data is topology-dependent and which primvar data changes per frame."
+        }
+      ],
+      "figures": [
+        {
+          "src": "/content/blog/subdivision-stencils-compute-shader/material-gpu-subdivision-schedule.png",
+          "alt": "Original project diagram separating one-time refinement setup from the recurring GPU vertex evaluation",
+          "caption": "Project material: the original GPU-path design already separates one-time topology/index work from recurring stencil evaluation. The article tightens that idea into explicit resource lifetimes."
+        }
+      ]
+    },
+    {
+      "heading": "Use one thread per output stencil",
+      "paragraphs": [
+        "Dispatch enough threads to cover the stencil count. Thread i reads sizes[i] and offsets[i], walks its flattened contribution range, gathers control positions by index, and writes one output. Rows are independent, so no atomics or group synchronization are required.",
+        "A bounds check is mandatory because the dispatch is normally rounded up to a whole thread group. Choose group size after profiling; 64 threads is a sensible starting point, not a universal optimum. Irregular row lengths create some divergence, but the workload is usually dominated by scattered reads and the number of contributions."
+      ],
+      "codeBlocks": [
+        {
+          "file": "StencilEvaluate.usf (engine-neutral HLSL)",
+          "language": "hlsl",
+          "code": "StructuredBuffer<uint>   Sizes;\nStructuredBuffer<uint>   Offsets;\nStructuredBuffer<uint>   ControlIndices;\nStructuredBuffer<float>  Weights;\nStructuredBuffer<float3> ControlPositions;\nRWStructuredBuffer<float3> OutputPositions;\n\ncbuffer Params { uint StencilCount; uint OutputBase; };\n\n[numthreads(64, 1, 1)]\nvoid MainCS(uint3 dispatchId : SV_DispatchThreadID)\n{\n    uint i = dispatchId.x;\n    if (i >= StencilCount) return;\n\n    uint begin = Offsets[i];\n    uint end = begin + Sizes[i];\n    float3 p = 0.0;\n    for (uint k = begin; k < end; ++k)\n        p += Weights[k] * ControlPositions[ControlIndices[k]];\n\n    OutputPositions[OutputBase + i] = p;\n}"
+        }
+      ]
+    },
+    {
+      "heading": "Make buffer contracts explicit",
+      "paragraphs": [
+        "Use unsigned integer buffers for counts, offsets, and indices, and a floating-point buffer for weights. The source and destination position layout must match the shader declaration exactly; a packed engine vertex structure is not automatically a StructuredBuffer<float3>. When layouts differ, expose a raw/byte-address view with explicit loads or stage positions into a simple structured stream.",
+        "OutputBase resolves a common ambiguity. Some render buffers retain coarse controls at the beginning and append stencil-generated vertices. Others contain only evaluated outputs. Encoding the base in a parameter prevents a hidden assumption from becoming an out-of-bounds write or a one-vertex shift."
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "Resource",
+            "Access",
+            "Update frequency"
+          ],
+          "rows": [
+            [
+              "Sizes/offsets/indices/weights",
+              "Shader resource",
+              "When topology/options change"
+            ],
+            [
+              "Control positions",
+              "Shader resource",
+              "Every animated frame"
+            ],
+            [
+              "Output positions",
+              "Unordered access, then vertex/shader resource",
+              "Every animated frame"
+            ],
+            [
+              "Refined index buffer",
+              "Index-buffer access",
+              "When topology/options change"
+            ]
+          ],
+          "caption": "Treat topology data as cached configuration and positions as dynamic instance data."
+        }
+      ]
+    },
+    {
+      "heading": "The output needs a rendering consumer",
+      "paragraphs": [
+        "Writing a UAV does not change what an existing mesh batch draws. The batch must use an index buffer describing refined triangles and a vertex factory whose position stream points at the evaluated buffer. If UV, tangent, color, or other streams are still sourced from the coarse mesh, every refined index must have a valid corresponding element in those streams.",
+        "A prototype may use a local-style factory over fully materialized refined buffers. Another design may evaluate patches in tessellation or mesh shaders. Either way, the producer’s output layout and the consumer’s fetch contract must be designed together."
+      ],
+      "callouts": [
+        {
+          "tone": "warning",
+          "title": "Patch-table trap",
+          "text": "Building an OpenSubdiv patch table while manually triangulating a refined level does not mean patch evaluation is implemented. Verify which data structure actually supplies the rendered indices and vertices."
+        }
+      ]
+    },
+    {
+      "heading": "Validate in layers",
+      "paragraphs": [
+        "Start with a triangle or tetrahedron and compare every GPU output against the CPU reference evaluator. Then test a cube with boundaries, a mesh containing an extraordinary vertex, and a mesh with creases. Use a tolerance appropriate for floating-point accumulation order rather than bitwise equality.",
+        "Next validate scheduling: animate the controls, capture the compute pass and subsequent draw, and confirm the expected state transition. Finally measure. Count total stencil contributions, bytes read and written, dispatches per section, and buffer allocations. Dispatch overhead can dominate if every small material section launches its own pass."
+      ],
+      "bullets": [
+        "Assert offset + size never exceeds the contribution arrays.",
+        "Assert every control index is inside the bound source stream.",
+        "Fill the output with a sentinel before dispatch to expose unwritten rows.",
+        "Test outputBase = 0 and a non-zero appended-output layout.",
+        "Keep a slow CPU oracle in debug tooling even after the GPU path ships."
+      ],
+      "numberedSteps": [
+        {
+          "title": "Correctness fixture",
+          "text": "Run a tetrahedron and a boundary cube through CPU and GPU evaluators."
+        },
+        {
+          "title": "Scheduling fixture",
+          "text": "Animate one input and inspect the Skin Cache → refine → draw order in a capture."
+        },
+        {
+          "title": "Scale fixture",
+          "text": "Sweep stencil count and total contribution count separately."
+        },
+        {
+          "title": "Section fixture",
+          "text": "Compare one batched dispatch with many small per-section dispatches."
+        }
+      ]
+    },
+    {
+      "heading": "Numbers worth profiling",
+      "paragraphs": [
+        "Record output count, total contribution count, mean and maximum row size, bytes read, bytes written, dispatch count, allocation count, and GPU duration. Vertex count alone is not enough: two meshes with the same outputs can have different stencil widths and memory traffic."
+      ],
+      "equations": [
+        {
+          "label": "First-order work estimate",
+          "expression": "gatherWork = sum_i size[i];    outputWrites = stencilCount",
+          "terms": [
+            "Use total contributions when comparing topology fixtures.",
+            "Measure dispatch overhead separately when work is split per material section."
+          ]
+        }
+      ]
+    }
+  ],
+  "references": [
+    {
+      "label": "Pixar OpenSubdiv: CLStencilTable",
+      "url": "https://graphics.pixar.com/opensubdiv/docs/doxy_html/a00008.html"
+    },
+    {
+      "label": "Pixar OpenSubdiv: Far Overview",
+      "url": "https://graphics.pixar.com/opensubdiv/docs_3x_alpha/far_overview.html"
+    }
+  ],
+  "closing": "Completion means the GPU output matches the CPU oracle, the buffer transition is captured, and timing is reported against both stencil count and total contribution count."
+}

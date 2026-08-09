@@ -1,0 +1,236 @@
+{
+  "slug": "psf-glare-energy-unit-validation",
+  "title": "Energy and Unit Validation for PSF Glare",
+  "abstract": "A dimensional audit from candela and emitter area to source luminance, source solid angle, normalized PSF density, output luminance, and practical conservation tests.",
+  "category": "Rendering validation",
+  "publishedAt": "2026-08-09",
+  "readingTime": "13 min read",
+  "image": "/content/blog/psf-glare-energy-unit-validation/psf-unit-audit.svg",
+  "imageAlt": "A dimensionally consistent PSF glare chain from source luminance to output luminance",
+  "lede": "A glare image can look plausible while its brightness changes with resolution, field of view, kernel size, or source footprint. Dimensional analysis catches these failures before visual tuning hides them. The central rule is simple: define what the source buffer stores, what the PSF texture stores, and what the output buffer stores—then make every multiplication preserve those meanings.",
+  "sections": [
+    {
+      "heading": "Write the unit ledger first",
+      "paragraphs": [
+        "Luminous intensity I is measured in candelas, equivalent to lumens per steradian. Luminance L is candelas per square metre. Solid angle is measured in steradians. A normalized angular PSF density P has units inverse steradian because its integral over output directions is dimensionless and equals one.",
+        "A floating-point texture has no inherent unit. R32F can store candelas, cd/m², inverse steradians, or normalized artist weights. The format tells us precision and layout; metadata and equations tell us meaning."
+      ],
+      "docLinks": [
+        {
+          "label": "IES: LM-63 standard listing",
+          "url": "https://store.ies.org/product/approved-method-ies-standard-file-format-for-the-electronic-transfer-of-photometric-data-and-related-information/",
+          "note": "Use the standard when interpreting photometric source data."
+        },
+        {
+          "label": "Spencer et al. glare paper",
+          "url": "https://www.graphics.cornell.edu/pubs/1995/SSZG95.pdf",
+          "note": "Use the paper when interpreting and normalizing the selected PSF model."
+        }
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "Symbol",
+            "Meaning",
+            "Unit"
+          ],
+          "rows": [
+            [
+              "I",
+              "Luminous intensity in a direction",
+              "cd = lm/sr"
+            ],
+            [
+              "L",
+              "Luminance of a source/image direction",
+              "cd/m²"
+            ],
+            [
+              "Omega",
+              "Solid angle",
+              "sr"
+            ],
+            [
+              "P",
+              "Angular PSF density",
+              "1/sr"
+            ],
+            [
+              "K",
+              "Discrete normalized kernel weight",
+              "dimensionless, under its declared sampling rule"
+            ]
+          ],
+          "caption": "Do not use P and K interchangeably; one is a density, the other has already absorbed a sampling measure."
+        }
+      ]
+    },
+    {
+      "heading": "Convert intensity to luminance only with a source model",
+      "paragraphs": [
+        "An IES profile supplies directional luminous intensity. A screen-space glare convolution normally wants source luminance. They are related only after defining emitter geometry and emission behavior. For a small, uniform Lambertian planar emitter of area A viewed at angle theta from its normal, projected area is A cos(theta), giving I(theta) = L A cos(theta).",
+        "The inverse becomes unstable at grazing angles and is invalid for a point light with no physical area. A practical renderer therefore needs a finite source shape, a documented projected-area model, and clamps or alternate handling for configurations where the approximation breaks down."
+      ],
+      "equations": [
+        {
+          "label": "Uniform planar emitter",
+          "expression": "L = I(theta) / (A cos(theta))",
+          "terms": [
+            "I is cd, A is m², so L is cd/m².",
+            "This relation is a chosen Lambertian area-source model, not a generic property of every IES luminaire.",
+            "A sphere, disk, tube, and textured mesh require their own projected-area treatment."
+          ]
+        }
+      ],
+      "callouts": [
+        {
+          "tone": "warning",
+          "title": "Point-light limitation",
+          "text": "A mathematical point source has zero area and therefore no finite surface luminance. Give glare a finite apparent source or work in a different quantity with a separately derived transfer."
+        }
+      ]
+    },
+    {
+      "heading": "The dimensionally consistent convolution",
+      "paragraphs": [
+        "Let the HDR source image represent luminance as a function of viewing direction. A shift-invariant angular PSF maps source directions to output directions. In the continuous model, output luminance is the integral of source luminance times PSF density over source solid angle.",
+        "In a discrete projected image, each source pixel contributes its luminance multiplied by that source pixel’s solid angle and the PSF density at the angular separation. There is no additional destination-pixel solid-angle factor when the accumulated output is luminance. Multiplying by destination solid angle would instead produce an output integrated over that pixel; to recover luminance, divide by the same destination solid angle."
+      ],
+      "equations": [
+        {
+          "label": "Continuous angular convolution",
+          "expression": "L_out(omega_p) = integral L_src(omega_s) P(omega_p, omega_s) dOmega_s",
+          "terms": [
+            "(cd/m²) × (1/sr) × sr = cd/m².",
+            "For a rotationally symmetric PSF, P depends on the angle between omega_s and omega_p."
+          ]
+        },
+        {
+          "label": "Discrete density-kernel evaluation",
+          "expression": "L_out[p] = sum_s L_src[s] * P(angle(s,p)) * deltaOmega_s",
+          "terms": [
+            "deltaOmega_s is the source sample’s solid angle.",
+            "If the texture stores discrete K rather than density P, use the matching discrete formulation and normalization instead."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Screen-space area is not solid angle",
+      "paragraphs": [
+        "Counting covered pixels gives a screen-area fraction. It approximates angular area only under a declared projection and local scale. With a pinhole camera, pixel solid angle changes with position, focal length, aspect ratio, and resolution. Treating every pixel as one constant Omega makes total glare drift toward image edges and under FOV changes.",
+        "For a rasterized finite emitter, compute its apparent solid angle by summing exact or approximated solid angles of covered source samples. Partial coverage should weight the sample. This is more defensible than multiplying source luminance by a normalized screen rectangle whose unit has never been defined."
+      ],
+      "equations": [
+        {
+          "label": "Projected texel solid angle",
+          "expression": "deltaOmega(x,y) approximately f * deltaA / (f^2 + x^2 + y^2)^(3/2)",
+          "terms": [
+            "deltaA is texel area on the chosen image plane.",
+            "Use the camera’s actual x/y scaling for non-square aspect ratios."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Energy preservation is a testable invariant",
+      "paragraphs": [
+        "For a unit-integral PSF on an unbounded or properly wrapped domain, integrating output luminance over output solid angle equals integrating source luminance over source solid angle. A finite screen clips part of the halo at edges, so measured output can decrease unless the implementation renormalizes locally—a choice that itself changes physical interpretation.",
+        "Thresholding also changes the ledger. If only luminance above T feeds glare, decide whether the source is max(L − T, 0), a smooth knee, or the full L gated by a mask. The removed energy does not disappear by mathematical necessity; it is an effect-design decision."
+      ],
+      "equations": [
+        {
+          "label": "Conservation check for a normalized PSF",
+          "expression": "sum_p L_out[p] deltaOmega_p approximately sum_s L_src[s] deltaOmega_s",
+          "terms": [
+            "Compare on a domain large enough to contain the kernel.",
+            "If the algorithm intentionally extracts only a bright component, compare against that extracted source, not the original full scene."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "The validation matrix",
+      "paragraphs": [
+        "A single centered impulse checks kernel normalization but not projection correctness. Repeat it at center, mid-field, and near the edge. Sweep resolution and FOV while preserving source angular size and luminance. Test an extended disk because summing many source samples can reveal an omitted or duplicated solid-angle factor.",
+        "Log numbers, not only screenshots: input integral, extracted-source integral, output integral, clipped energy, peak luminance, and radial half-energy angle. When one value moves, the ledger identifies whether the cause is source modeling, PSF normalization, projection sampling, or screen clipping."
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "Test",
+            "Keep fixed",
+            "Expected result"
+          ],
+          "rows": [
+            [
+              "Resolution sweep",
+              "FOV, angular source, luminance",
+              "Integrated and angular profile remain stable"
+            ],
+            [
+              "FOV sweep",
+              "Angular source and PSF model",
+              "Halo keeps angular size"
+            ],
+            [
+              "Position sweep",
+              "Source luminance and solid angle",
+              "Energy stable except measured edge clipping"
+            ],
+            [
+              "Intensity sweep",
+              "Geometry and exposure state",
+              "Linear response before intentional nonlinear stages"
+            ],
+            [
+              "Kernel-support sweep",
+              "Raw model",
+              "Captured tail energy changes predictably before renormalization"
+            ]
+          ],
+          "caption": "Every test changes one axis while holding the physical source description fixed."
+        }
+      ],
+      "numberedSteps": [
+        {
+          "title": "Log the source",
+          "text": "Source luminance, apparent solid angle, exposure state, and extraction rule."
+        },
+        {
+          "title": "Log the kernel",
+          "text": "Angular support, stored unit, raw captured energy, and post-normalization integral."
+        },
+        {
+          "title": "Log the output",
+          "text": "Integrated luminance over solid angle, peak luminance, half-energy angle, and clipped energy."
+        },
+        {
+          "title": "Repeat one-axis sweeps",
+          "text": "Resolution, FOV, screen position, intensity, and support are separate experiments."
+        }
+      ]
+    },
+    {
+      "heading": "Audit record to keep",
+      "paragraphs": [
+        "Keep one machine-readable record per validation run: camera projection and FOV, resolution, source luminance and apparent solid angle, extraction threshold, PSF unit and support, normalization integral, input/output integrals, clipped energy, half-energy angle, and commit/build identifier. Without those fields, two screenshots cannot diagnose a scale change."
+      ]
+    }
+  ],
+  "references": [
+    {
+      "label": "Spencer et al., Physically-Based Glare Effects for Digital Images",
+      "url": "https://www.graphics.cornell.edu/pubs/1995/SSZG95.pdf"
+    },
+    {
+      "label": "Illuminating Engineering Society: ANSI/IES LM-63 standard listing",
+      "url": "https://store.ies.org/product/approved-method-ies-standard-file-format-for-the-electronic-transfer-of-photometric-data-and-related-information/"
+    },
+    {
+      "label": "Epic Games: Using IES Light Profiles",
+      "url": "https://dev.epicgames.com/documentation/unreal-engine/using-ies-light-profiles-in-unreal-engine?lang=en-US"
+    }
+  ],
+  "closing": "Acceptance requires closed units and stable invariants across resolution, FOV, screen position, source intensity, and kernel-support sweeps. Record any deliberate thresholding or edge renormalization separately."
+}
