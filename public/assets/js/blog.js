@@ -25,14 +25,6 @@ function postCard(post, index) {
   link.href = `#blog/${encodeURIComponent(post.slug)}`;
   link.setAttribute("aria-label", `Read ${post.title}`);
 
-  const figure = element("figure", "blog-banner-box");
-  const image = element("img");
-  image.src = new URL(post.image.replace(/^\/+/, ""), siteRoot);
-  image.alt = post.imageAlt;
-  image.loading = index === 0 ? "eager" : "lazy";
-  const number = element("span", "blog-card-number", String(index + 1).padStart(2, "0"));
-  figure.append(image, number);
-
   const content = element("div", "blog-content");
   const meta = element("div", "blog-meta");
   const category = element("p", "blog-category", post.category);
@@ -49,7 +41,19 @@ function postCard(post, index) {
     element("span", "blog-read-link", "Read article \u2197"),
   );
   content.append(meta, title, abstract, footer);
-  link.append(figure, content);
+  if (post.cardImage) {
+    const figure = element("figure", "blog-banner-box");
+    const image = element("img");
+    image.src = new URL(post.cardImage.replace(/^\/+/, ""), siteRoot);
+    image.alt = post.cardImageAlt ?? "";
+    image.loading = index === 0 ? "eager" : "lazy";
+    const number = element("span", "blog-card-number", String(index + 1).padStart(2, "0"));
+    figure.append(image, number);
+    link.append(figure);
+  } else {
+    link.classList.add("blog-card-text-only");
+  }
+  link.append(content);
   item.append(link);
   return item;
 }
@@ -166,6 +170,42 @@ function referenceList(references) {
   return list;
 }
 
+function documentationLinks(links) {
+  const aside = element("aside", "blog-doc-links");
+  aside.append(element("strong", "blog-doc-links-title", "Read with the docs open"));
+  const list = element("ul");
+  for (const entry of links) {
+    const item = element("li");
+    const link = element("a", "", entry.label);
+    link.href = entry.url;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    const icon = document.createElement("ion-icon");
+    icon.setAttribute("name", "open-outline");
+    icon.setAttribute("aria-hidden", "true");
+    link.append(icon);
+    item.append(link);
+    if (entry.note) item.append(element("span", "", entry.note));
+    list.append(item);
+  }
+  aside.append(list);
+  return aside;
+}
+
+function numberedStepList(steps) {
+  const list = element("ol", "blog-numbered-steps");
+  for (const step of steps) {
+    const item = element("li");
+    if (typeof step === "string") {
+      item.append(element("p", "", step));
+    } else {
+      item.append(element("strong", "", step.title), element("p", "", step.text));
+    }
+    list.append(item);
+  }
+  return list;
+}
+
 function articleSection(section, index) {
   const container = element("section", "blog-article-section");
   const headingRow = element("div", "blog-section-heading");
@@ -178,6 +218,8 @@ function articleSection(section, index) {
   for (const paragraph of section.paragraphs ?? []) {
     container.append(element("p", "", paragraph));
   }
+
+  if (section.docLinks?.length) container.append(documentationLinks(section.docLinks));
 
   for (const block of section.codeBlocks ?? []) {
     container.append(codeBlock(block));
@@ -194,6 +236,8 @@ function articleSection(section, index) {
   for (const callout of section.callouts ?? []) container.append(calloutBlock(callout));
 
   if (section.flow) container.append(flowDiagram(section.flow));
+
+  if (section.numberedSteps?.length) container.append(numberedStepList(section.numberedSteps));
 
   if (section.bullets?.length) {
     const list = element("ul", "blog-article-list");
