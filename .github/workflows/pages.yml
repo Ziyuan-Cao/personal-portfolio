@@ -1,4 +1,4 @@
-name: Collect information and deploy Pages
+name: Collect news and deploy Pages
 
 on:
   push:
@@ -34,7 +34,7 @@ jobs:
       - name: Check TypeScript
         run: npm test
 
-      - name: Collect information
+      - name: Collect news
         run: npm run collect:static
 
       - name: Upload Pages artifact

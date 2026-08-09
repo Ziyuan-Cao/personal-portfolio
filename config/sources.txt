@@ -5,4 +5,4 @@ https://www.unrealengine.com/rss?lang=en-US
 https://developer.nvidia.com/blog/
 
 # Khronos
-https://www.khronos.org/blog/
+https://www.khronos.org/feeds/blog_feed

@@ -133,6 +133,48 @@ export function parseHtml(body: string, baseUrl: string): RawInformationItem[] {
   return items;
 }
 
+/**
+ * Returns image URLs that are actually referenced by an article page, ordered
+ * from the strongest main-image signal to the weakest. Pixel dimensions are
+ * deliberately checked by the collector after downloading each candidate.
+ */
+export function pageImageCandidates(body: string, baseUrl: string): string[] {
+  const $ = load(body);
+  const candidates: string[] = [];
+  const seen = new Set<string>();
+  const add = (value: string | null | undefined) => {
+    const url = resolve(value, baseUrl);
+    if (!url || seen.has(url)) return;
+    seen.add(url);
+    candidates.push(url);
+  };
+
+  $("meta[property='og:image'], meta[property='og:image:secure_url'], meta[name='twitter:image'], meta[name='twitter:image:src']")
+    .each((_, node) => add($(node).attr("content")));
+  $("link[rel='image_src']").each((_, node) => add($(node).attr("href")));
+
+  $("article img, main img, [role='main'] img").each((_, node) => {
+    const image = $(node);
+    const identity = `${image.attr("class") ?? ""} ${image.attr("id") ?? ""} ${image.attr("alt") ?? ""}`;
+    if (/\b(?:avatar|badge|emoji|icon|logo|spinner)\b/i.test(identity)) return;
+
+    const sourceSets = [image.attr("srcset"), image.attr("data-srcset")];
+    for (const sourceSet of sourceSets) {
+      if (!sourceSet) continue;
+      const sources = sourceSet.split(",").map((entry) => {
+        const [url = "", descriptor = ""] = entry.trim().split(/\s+/);
+        return { url, width: Number.parseInt(descriptor, 10) || 0 };
+      }).sort((left, right) => right.width - left.width);
+      for (const source of sources) add(source.url);
+    }
+    add(image.attr("data-src"));
+    add(image.attr("data-lazy-src"));
+    add(image.attr("src"));
+  });
+
+  return candidates;
+}
+
 export function normalizeItems(items: RawInformationItem[], baseUrl: string, limit = 30): RawInformationItem[] {
   const normalized: RawInformationItem[] = [];
   for (const item of items) {

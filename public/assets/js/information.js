@@ -1,6 +1,5 @@
 const siteRoot = new URL("../../", import.meta.url);
 const informationUrl = new URL("content/information/items.json", siteRoot);
-const placeholder = new URL("assets/images/information-placeholder.png", siteRoot).href;
 const grid = document.querySelector("[data-information-grid]");
 const state = document.querySelector("[data-information-state]");
 const more = document.querySelector("[data-information-more]");
@@ -48,15 +47,6 @@ function card(item) {
   link.href = item.url;
   link.target = "_blank";
   link.rel = "noopener noreferrer";
-  const media = element("div", "information-card-image");
-  const image = element("img");
-  image.src = item.imageUrl || placeholder;
-  image.alt = "";
-  image.loading = "lazy";
-  image.addEventListener("error", () => { image.src = placeholder; }, { once: true });
-  const external = element("span", "information-card-external");
-  external.innerHTML = '<ion-icon name="open-outline"></ion-icon>';
-  media.append(image, external);
   const body = element("div", "information-card-body");
   const meta = element("div", "information-card-meta");
   meta.append(
@@ -66,7 +56,19 @@ function card(item) {
   );
   body.append(meta, element("h3", "", item.title));
   if (item.subtitle) body.append(element("p", "", item.subtitle));
-  link.append(media, body);
+  if (item.imageUrl) {
+    const media = element("div", "information-card-image");
+    const image = element("img");
+    image.src = item.imageUrl;
+    image.alt = "";
+    image.loading = "lazy";
+    image.addEventListener("error", () => { media.remove(); }, { once: true });
+    const external = element("span", "information-card-external");
+    external.innerHTML = '<ion-icon name="open-outline"></ion-icon>';
+    media.append(image, external);
+    link.append(media);
+  }
+  link.append(body);
   article.append(link);
   return article;
 }
@@ -87,14 +89,14 @@ function render({ reset = true } = {}) {
   const filtered = filteredItems();
   const visible = filtered.slice(0, visibleCount);
   grid.replaceChildren(...visible.map(card));
-  state.textContent = visible.length ? "" : "No information matches these filters yet.";
+  state.textContent = visible.length ? "" : "No news matches these filters yet.";
   more.hidden = visible.length >= filtered.length;
   more.disabled = false;
 }
 
 async function load() {
   grid.replaceChildren();
-  state.textContent = "Loading information…";
+  state.textContent = "Loading news…";
   more.hidden = true;
   const response = await fetch(`${informationUrl.href}?v=${Date.now()}`, {
     cache: "no-store",
@@ -103,7 +105,7 @@ async function load() {
   if (!response.ok) throw new Error(`Request failed (${response.status})`);
   const document = await response.json();
   if (!Array.isArray(document.items) || !Array.isArray(document.sources)) {
-    throw new Error("The information file has an invalid format");
+    throw new Error("The news file has an invalid format");
   }
 
   items = document.items;
@@ -125,7 +127,7 @@ refresh.addEventListener("click", async () => {
   try {
     await load();
   } catch (error) {
-    state.textContent = `Could not load information. ${error.message}`;
+    state.textContent = `Could not load news. ${error.message}`;
   } finally {
     refresh.disabled = false;
     refresh.querySelector("span").textContent = "Reload";
@@ -144,5 +146,5 @@ search.addEventListener("input", () => {
 });
 
 load().catch((error) => {
-  state.textContent = `Could not load information. ${error.message}`;
+  state.textContent = `Could not load news. ${error.message}`;
 });
