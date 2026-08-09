@@ -73,6 +73,43 @@ function flowDiagram(flow) {
   return figure;
 }
 
+function codeBlock(block) {
+  const figure = element("figure", "blog-code");
+  const header = element("figcaption", "blog-code-header");
+  header.append(
+    element("span", "blog-code-file", block.file),
+    element("span", "blog-code-language", block.language),
+  );
+  const pre = element("pre");
+  const code = element("code");
+  code.textContent = block.code;
+  pre.append(code);
+  figure.append(header, pre);
+  return figure;
+}
+
+function referenceList(references) {
+  const list = element("ul", "blog-reference-list");
+  for (const reference of references) {
+    const item = element("li", "blog-reference-item");
+    const link = element("a", "blog-reference-link");
+    link.href = reference.url;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.append(
+      element("span", "blog-reference-title", reference.title),
+      element("span", "blog-reference-description", reference.description),
+    );
+    const icon = document.createElement("ion-icon");
+    icon.setAttribute("name", "open-outline");
+    icon.setAttribute("aria-hidden", "true");
+    link.append(icon);
+    item.append(link);
+    list.append(item);
+  }
+  return list;
+}
+
 function articleSection(section, index) {
   const container = element("section", "blog-article-section");
   const headingRow = element("div", "blog-section-heading");
@@ -86,6 +123,10 @@ function articleSection(section, index) {
     container.append(element("p", "", paragraph));
   }
 
+  for (const block of section.codeBlocks ?? []) {
+    container.append(codeBlock(block));
+  }
+
   if (section.flow) container.append(flowDiagram(section.flow));
 
   if (section.bullets?.length) {
@@ -93,6 +134,8 @@ function articleSection(section, index) {
     for (const bullet of section.bullets) list.append(element("li", "", bullet));
     container.append(list);
   }
+
+  if (section.references?.length) container.append(referenceList(section.references));
   return container;
 }
 
