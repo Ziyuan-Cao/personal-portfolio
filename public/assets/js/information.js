@@ -1,4 +1,6 @@
-const placeholder = "/assets/images/information-placeholder.png";
+const siteRoot = new URL("../../", import.meta.url);
+const informationUrl = new URL("content/information/items.json", siteRoot);
+const placeholder = new URL("assets/images/information-placeholder.png", siteRoot).href;
 const grid = document.querySelector("[data-information-grid]");
 const state = document.querySelector("[data-information-state]");
 const more = document.querySelector("[data-information-more]");
@@ -13,9 +15,10 @@ const element = window.portfolioUi?.element ?? ((tag, className, text) => {
   if (text != null) node.textContent = text;
   return node;
 });
-let cursor = null;
+const pageSize = 12;
+let items = [];
+let visibleCount = pageSize;
 let debounce;
-let attemptedInitialRefresh = false;
 
 function formatTime(value) {
   if (!value) return "Date unavailable";
@@ -27,7 +30,16 @@ function formatTime(value) {
   if (hours < 24) return `${hours}h ago`;
   const days = Math.floor(hours / 24);
   if (days < 7) return `${days}d ago`;
-  return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: date.getFullYear() === new Date().getFullYear() ? undefined : "numeric" }).format(date);
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+    year: date.getFullYear() === new Date().getFullYear() ? undefined : "numeric",
+  }).format(date);
+}
+
+function itemTimestamp(item) {
+  const value = Date.parse(item.publishedAt || item.firstSeenAt || "");
+  return Number.isNaN(value) ? 0 : value;
 }
 
 function card(item) {
@@ -47,7 +59,11 @@ function card(item) {
   media.append(image, external);
   const body = element("div", "information-card-body");
   const meta = element("div", "information-card-meta");
-  meta.append(element("span", "source-badge", item.sourceName), element("span", "", "·"), element("time", "", formatTime(item.publishedAt)));
+  meta.append(
+    element("span", "source-badge", item.sourceName),
+    element("span", "", "·"),
+    element("time", "", formatTime(item.publishedAt)),
+  );
   body.append(meta, element("h3", "", item.title));
   if (item.subtitle) body.append(element("p", "", item.subtitle));
   link.append(media, body);
@@ -55,67 +71,78 @@ function card(item) {
   return article;
 }
 
-async function request(path, options) {
-  const response = await fetch(path, options);
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error?.message || `Request failed (${response.status})`);
-  return data;
+function filteredItems() {
+  const term = search.value.trim().toLocaleLowerCase();
+  const filtered = items.filter((item) => {
+    if (sourceFilter.value && item.sourceUrl !== sourceFilter.value) return false;
+    if (!term) return true;
+    return `${item.title} ${item.subtitle || ""}`.toLocaleLowerCase().includes(term);
+  });
+  const direction = sort.value === "oldest" ? 1 : -1;
+  return filtered.sort((left, right) => direction * (itemTimestamp(left) - itemTimestamp(right)));
 }
 
-async function load({ append = false, refreshIfEmpty = false } = {}) {
-  if (!append) {
-    grid.replaceChildren();
-    state.textContent = "Loading information…";
+function render({ reset = true } = {}) {
+  if (reset) visibleCount = pageSize;
+  const filtered = filteredItems();
+  const visible = filtered.slice(0, visibleCount);
+  grid.replaceChildren(...visible.map(card));
+  state.textContent = visible.length ? "" : "No information matches these filters yet.";
+  more.hidden = visible.length >= filtered.length;
+  more.disabled = false;
+}
+
+async function load() {
+  grid.replaceChildren();
+  state.textContent = "Loading information…";
+  more.hidden = true;
+  const response = await fetch(`${informationUrl.href}?v=${Date.now()}`, {
+    cache: "no-store",
+    headers: { accept: "application/json" },
+  });
+  if (!response.ok) throw new Error(`Request failed (${response.status})`);
+  const document = await response.json();
+  if (!Array.isArray(document.items) || !Array.isArray(document.sources)) {
+    throw new Error("The information file has an invalid format");
   }
-  more.disabled = true;
-  const params = new URLSearchParams({ limit: "12", sort: sort.value });
-  if (sourceFilter.value) params.set("sourceUrl", sourceFilter.value);
-  if (search.value.trim()) params.set("search", search.value.trim());
-  if (append && cursor) params.set("cursor", cursor);
-  try {
-    let page = await request(`/api/content?${params}`);
-    if (refreshIfEmpty && !page.items.length && !attemptedInitialRefresh) {
-      attemptedInitialRefresh = true;
-      state.textContent = "Collecting the latest information…";
-      await request("/api/refresh", { method: "POST" });
-      page = await request(`/api/content?${params}`);
-    }
-    cursor = page.nextCursor;
-    if (!append) grid.replaceChildren();
-    for (const item of page.items) grid.append(card(item));
-    const selected = sourceFilter.value;
-    sourceFilter.replaceChildren(new Option("All sources", ""), ...page.sources.map((source) => new Option(source.name, source.url)));
-    sourceFilter.value = selected;
-    state.textContent = grid.children.length ? "" : "No information matches these filters yet.";
-    more.hidden = !cursor;
-    more.disabled = false;
-    updated.textContent = `Last updated ${new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(new Date())}`;
-  } catch (error) {
-    state.textContent = `Could not load information. ${error.message}`;
-    more.hidden = true;
-  }
+
+  items = document.items;
+  const selected = sourceFilter.value;
+  sourceFilter.replaceChildren(
+    new Option("All sources", ""),
+    ...document.sources.map((source) => new Option(source.name, source.url)),
+  );
+  sourceFilter.value = document.sources.some((source) => source.url === selected) ? selected : "";
+  updated.textContent = document.generatedAt
+    ? `Collected ${new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(document.generatedAt))}`
+    : "Waiting for the first scheduled collection";
+  render();
 }
 
 refresh.addEventListener("click", async () => {
   refresh.disabled = true;
-  refresh.querySelector("span").textContent = "Collecting…";
+  refresh.querySelector("span").textContent = "Reloading…";
   try {
-    await request("/api/refresh", { method: "POST" });
     await load();
   } catch (error) {
-    state.textContent = `Could not refresh information. ${error.message}`;
+    state.textContent = `Could not load information. ${error.message}`;
   } finally {
     refresh.disabled = false;
-    refresh.querySelector("span").textContent = "Refresh";
+    refresh.querySelector("span").textContent = "Reload";
   }
 });
 
-more.addEventListener("click", () => load({ append: true }));
-sourceFilter.addEventListener("change", () => load());
-sort.addEventListener("change", () => load());
+more.addEventListener("click", () => {
+  visibleCount += pageSize;
+  render({ reset: false });
+});
+sourceFilter.addEventListener("change", () => render());
+sort.addEventListener("change", () => render());
 search.addEventListener("input", () => {
   clearTimeout(debounce);
-  debounce = setTimeout(() => load(), 280);
+  debounce = setTimeout(() => render(), 280);
 });
 
-load({ refreshIfEmpty: true });
+load().catch((error) => {
+  state.textContent = `Could not load information. ${error.message}`;
+});

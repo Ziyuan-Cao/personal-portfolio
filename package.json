@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "node --import tsx --watch src/server.ts",
     "build": "tsc -p tsconfig.json",
+    "collect:static": "npm run build && node dist/static-collector.js",
     "start": "node dist/server.js",
     "test": "npm run build"
   },

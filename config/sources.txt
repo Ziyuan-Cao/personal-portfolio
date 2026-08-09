@@ -1,5 +1,5 @@
 # Unreal
-https://www.unrealengine.com/en-US/news
+https://www.unrealengine.com/rss?lang=en-US
 
 # NVIDIA
 https://developer.nvidia.com/blog/

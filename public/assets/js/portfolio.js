@@ -1,6 +1,8 @@
 const grid = document.querySelector("[data-portfolio-grid]");
 const state = document.querySelector("[data-portfolio-state]");
 const { element } = window.portfolioUi;
+const siteRoot = new URL("../../", import.meta.url);
+const projectsUrl = new URL("content/portfolio/projects.json", siteRoot);
 
 function projectCard(project) {
   const item = element("li", "project-item active");
@@ -15,7 +17,7 @@ function projectCard(project) {
   const icon = element("div", "project-item-icon-box");
   icon.innerHTML = '<ion-icon name="eye-outline"></ion-icon>';
   const image = element("img");
-  image.src = project.image;
+  image.src = new URL(project.image.replace(/^\/+/, ""), siteRoot);
   image.alt = project.title;
   image.loading = "lazy";
   figure.append(icon, image);
@@ -31,7 +33,7 @@ function projectCard(project) {
 
 async function loadPortfolio() {
   try {
-    const response = await fetch("/content/portfolio/projects.json", { headers: { accept: "application/json" } });
+    const response = await fetch(projectsUrl, { headers: { accept: "application/json" } });
     if (!response.ok) throw new Error(`Request failed (${response.status})`);
     const projects = await response.json();
     grid.replaceChildren(...projects.map(projectCard));
