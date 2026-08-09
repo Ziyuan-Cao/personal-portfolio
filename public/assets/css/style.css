@@ -1886,3 +1886,10 @@ textarea.form-input::-webkit-resizer { display: none; }
   .timeline-text { max-width: 700px; }
 
 }
+
+.portfolio-state {
+  color: var(--light-gray-70);
+  text-align: center;
+}
+
+.portfolio-state:empty { display: none; }

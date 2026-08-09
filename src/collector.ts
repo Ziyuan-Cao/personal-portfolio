@@ -1,0 +1,171 @@
+import dns from "node:dns/promises";
+import net from "node:net";
+import type { InformationDatabase } from "./database.js";
+import { discoverFeed, normalizeItems, parseFeed, parseHtml } from "./parser.js";
+import { canonicalizeUrl, sourceName, stableUid } from "./utils.js";
+
+interface FetchResult {
+  body: string;
+  contentType: string;
+  url: string;
+}
+
+interface RefreshResult {
+  found: number;
+  inserted: number;
+  errors: number;
+}
+
+const timeoutMs = positiveInteger(process.env.HTTP_TIMEOUT_MS, 10_000);
+const maxBytes = positiveInteger(process.env.HTTP_MAX_BYTES, 5_242_880);
+const maxItems = positiveInteger(process.env.MAX_ITEMS_PER_SOURCE, 30);
+const userAgent = process.env.HTTP_USER_AGENT ?? "PersonalPortfolioInformationCollector/2.0";
+
+export async function collectSources(sources: string[], database: InformationDatabase): Promise<RefreshResult> {
+  const result: RefreshResult = { found: 0, inserted: 0, errors: 0 };
+  for (const sourceUrl of sources) {
+    const label = sourceName(sourceUrl);
+    try {
+      const items = await collectSource(sourceUrl);
+      const seenAt = new Date().toISOString();
+      const inserted = database.transaction(() => {
+        let count = 0;
+        for (const item of items) {
+          const canonicalUrl = canonicalizeUrl(item.url, sourceUrl);
+          if (database.upsert({
+            uid: stableUid(sourceUrl, item.externalUid, canonicalUrl),
+            canonicalUrl,
+            sourceUrl,
+            title: item.title,
+            subtitle: item.subtitle,
+            imageUrl: item.imageUrl,
+            publishedAt: item.publishedAt,
+            seenAt,
+          })) count++;
+        }
+        return count;
+      });
+      result.found += items.length;
+      result.inserted += inserted;
+      console.log(`[${label}] found=${items.length} new=${inserted}`);
+    } catch (error) {
+      result.errors++;
+      console.error(`[${label}] ERROR ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  return result;
+}
+
+export async function collectSource(sourceUrl: string) {
+  const page = await fetchText(sourceUrl);
+  let items = parseFeed(page.body, page.url, page.contentType);
+  if (!items) {
+    const feedUrl = discoverFeed(page.body, page.url);
+    if (feedUrl) {
+      try {
+        const feed = await fetchText(feedUrl);
+        items = parseFeed(feed.body, feed.url, feed.contentType);
+      } catch {
+        // The source page can still be parsed as HTML when its advertised feed fails.
+      }
+    }
+  }
+  return normalizeItems(items ?? parseHtml(page.body, page.url), page.url, maxItems);
+}
+
+async function fetchText(rawUrl: string): Promise<FetchResult> {
+  let current = rawUrl;
+  for (let redirects = 0; redirects <= 5; redirects++) {
+    const url = await validateTarget(current);
+    let response: Response | undefined;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        response = await fetch(url, {
+          headers: {
+            accept: "application/rss+xml, application/atom+xml, application/feed+json, application/json, text/html, application/xml, text/xml;q=0.9",
+            "user-agent": userAgent,
+          },
+          redirect: "manual",
+          signal: controller.signal,
+        });
+      } catch (error) {
+        if (attempt === 2) throw error;
+        await delay(250 * 2 ** attempt);
+        continue;
+      } finally {
+        clearTimeout(timer);
+      }
+      if (![429, 502, 503, 504].includes(response.status) || attempt === 2) break;
+      await delay(250 * 2 ** attempt);
+    }
+    if (!response) throw new Error("HTTP request failed");
+    if ([301, 302, 303, 307, 308].includes(response.status)) {
+      const location = response.headers.get("location");
+      if (!location) throw new Error("Redirect did not include a location");
+      current = new URL(location, url).toString();
+      continue;
+    }
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+    const contentLength = Number(response.headers.get("content-length"));
+    if (Number.isFinite(contentLength) && contentLength > maxBytes) throw new Error("Response is too large");
+    const reader = response.body?.getReader();
+    if (!reader) throw new Error("Response did not contain a body");
+    const chunks: Uint8Array[] = [];
+    let size = 0;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > maxBytes) {
+        await reader.cancel();
+        throw new Error("Response is too large");
+      }
+      chunks.push(value);
+    }
+    return {
+      body: new TextDecoder().decode(Buffer.concat(chunks)),
+      contentType: (response.headers.get("content-type") ?? "").split(";", 1)[0]!.trim().toLowerCase(),
+      url: response.url || url.toString(),
+    };
+  }
+  throw new Error("Too many redirects");
+}
+
+async function validateTarget(value: string): Promise<URL> {
+  const url = new URL(value);
+  if (url.protocol !== "http:" && url.protocol !== "https:") throw new Error("Only HTTP and HTTPS sources are allowed");
+  if (url.username || url.password) throw new Error("Source URLs cannot contain credentials");
+  const hostname = url.hostname.replace(/^\[|\]$/g, "").toLowerCase();
+  if (hostname === "localhost" || hostname.endsWith(".localhost") || hostname.endsWith(".local")) {
+    throw new Error("Local network sources are not allowed");
+  }
+  const addresses = net.isIP(hostname) ? [{ address: hostname }] : await dns.lookup(hostname, { all: true });
+  if (!addresses.length || addresses.some(({ address }) => isPrivateIp(address))) {
+    throw new Error("Private, loopback, and link-local sources are not allowed");
+  }
+  return url;
+}
+
+function isPrivateIp(address: string): boolean {
+  if (net.isIPv4(address)) {
+    const [first = 0, second = 0] = address.split(".").map(Number);
+    return first === 10 || first === 127 || first === 0 || (first === 169 && second === 254)
+      || (first === 172 && second >= 16 && second <= 31) || (first === 192 && second === 168)
+      || (first === 100 && second >= 64 && second <= 127) || first >= 224;
+  }
+  const normalized = address.toLowerCase();
+  return normalized === "::1" || normalized === "::" || normalized.startsWith("fc") || normalized.startsWith("fd")
+    || normalized.startsWith("fe8") || normalized.startsWith("fe9") || normalized.startsWith("fea")
+    || normalized.startsWith("feb") || normalized.startsWith("::ffff:127.") || normalized.startsWith("::ffff:10.")
+    || normalized.startsWith("::ffff:192.168.");
+}
+
+function positiveInteger(value: string | undefined, fallback: number): number {
+  const parsed = Number(value ?? fallback);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+const delay = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds));

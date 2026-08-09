@@ -1,2 +1,0 @@
-import fs from "node:fs";import path from "node:path";import { loadConfig } from "../infrastructure/config.js";
-const config=loadConfig();if(!fs.existsSync(config.databasePath))throw new Error(`Database does not exist: ${config.databasePath}`);const directory=path.join(path.dirname(config.databasePath),"backups");fs.mkdirSync(directory,{recursive:true});const output=path.join(directory,`information-${new Date().toISOString().replace(/[:.]/g,"-")}.db`);fs.copyFileSync(config.databasePath,output);console.log(output);

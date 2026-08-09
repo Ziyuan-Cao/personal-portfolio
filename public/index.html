@@ -517,9 +517,6 @@
             <button class="info-button info-button-secondary" type="button" data-information-refresh>
               <ion-icon name="refresh-outline"></ion-icon><span>Refresh</span>
             </button>
-            <button class="info-button" type="button" data-manage-sources>
-              <ion-icon name="options-outline"></ion-icon><span>Manage sources</span>
-            </button>
           </div>
         </header>
 
@@ -542,7 +539,9 @@
 
         <div class="information-state" role="status" data-information-state>Loading information…</div>
         <section class="information-grid" aria-live="polite" data-information-grid></section>
-        <button class="info-button information-load-more" type="button" data-information-more hidden>Load more</button>
+        <div class="information-pagination">
+          <button class="info-button information-load-more" type="button" data-information-more hidden>Load more</button>
+        </div>
       </article>
 
 
@@ -879,97 +878,8 @@
 
           </div>
 
-          <ul class="project-list">
-
-              <li class="project-item  active" data-filter-item data-category="Paper">
-                  <a href="https://github.com/Ziyuan-Cao/Skeleton-Aware-Skin-Weight-Transfer">
-
-                      <figure class="project-img">
-                          <div class="project-item-icon-box">
-                              <ion-icon name="eye-outline"></ion-icon>
-                          </div>
-
-                          <img src="./assets/images/EG2024.png" alt="EG2024" loading="lazy">
-                      </figure>
-
-                      <h3 class="project-title">Skeleton-Aware Skin Weight Transfer for Helper Joint Rigs</h3>
-                      <p class="project-abstract">A short paper presented at Eurographics 2024</p>
-                      <p class="project-category">Paper</p>
-
-                  </a>
-              </li>
-
-              <li class="project-item  active" data-filter-item data-category="Paper">
-                  <a href="https://mukai-lab.org/publications/sa2022-corals/">
-
-                      <figure class="project-img">
-                          <div class="project-item-icon-box">
-                              <ion-icon name="eye-outline"></ion-icon>
-                          </div>
-
-                          <img src="./assets/images/SGA2022.png" alt="SGA2022" loading="lazy">
-                      </figure>
-
-                      <h3 class="project-title">Artist-directed Modeling of Competitively Growing Corals</h3>
-                      <p class="project-abstract">A poster presented at Siggraph Asia 2022</p>
-                      <p class="project-category">Paper</p>
-
-                  </a>
-              </li>
-
-              <li class="project-item  active" data-filter-item data-category="Rendering Application">
-                  <a href="https://github.com/Ziyuan-Cao/StreEngine">
-
-                      <figure class="project-img">
-                          <div class="project-item-icon-box">
-                              <ion-icon name="eye-outline"></ion-icon>
-                          </div>
-
-                          <img src="./assets/images/QtEngine.png" alt="QtEngine" loading="lazy">
-                      </figure>
-
-                      <h3 class="project-title">A Quick Tool For Creating A Pipeline </h3>
-                      <p class="project-abstract">QT DirectX12</p>
-                      <p class="project-category">Rendering Application</p>
-
-                  </a>
-              </li>
-
-              <li class="project-item  active" data-filter-item data-category="Game Application">
-                  <a href="https://github.com/Ziyuan-Cao/siv_game">
-
-                      <figure class="project-img">
-                          <div class="project-item-icon-box">
-                              <ion-icon name="eye-outline"></ion-icon>
-                          </div>
-
-                          <img src="./assets/images/SivGame.png" alt="SivGame" loading="lazy">
-                      </figure>
-
-                      <h3 class="project-title">SivGame</h3>
-                      <p class="project-abstract">A roguelike game developed with Siv3d</p>
-                      <p class="project-category">Game Application</p>
-                  </a>
-              </li>
-
-              <li class="project-item  active" data-filter-item data-category="Paper">
-                  <a href="https://ieeexplore.ieee.org/document/9283057">
-
-                      <figure class="project-img">
-                          <div class="project-item-icon-box">
-                              <ion-icon name="eye-outline"></ion-icon>
-                          </div>
-
-                          <img src="./assets/images/IEEESMC2020.png" alt="IEEESMC2020" loading="lazy">
-                      </figure>
-
-                      <h3 class="project-title">A Real-time Ultrasound Simulator Using Monte-Carlo Path Tracing in Conjunction with Optix Engine</h3>
-                      <p class="project-abstract">A paper published in IEEE SMC 2020</p>
-                      <p class="project-category">Paper</p>
-                  </a>
-              </li>
-
-          </ul>
+          <p class="portfolio-state" data-portfolio-state>Loading projects…</p>
+          <ul class="project-list" data-portfolio-grid></ul>
 
         </section>
 
@@ -1218,71 +1128,12 @@
 
   </main>
 
-  <dialog class="source-dialog" data-source-dialog>
-    <div class="source-dialog-shell">
-      <header class="source-dialog-header">
-        <div><p class="eyebrow">Collection desk</p><h2>Manage sources</h2></div>
-        <button type="button" class="dialog-close" aria-label="Close source settings" data-source-close><ion-icon name="close-outline"></ion-icon></button>
-      </header>
-
-      <div class="source-dialog-body">
-        <section class="source-list-panel">
-          <div class="source-panel-heading"><h3>Sources</h3><button type="button" class="text-button" data-new-source>+ New source</button></div>
-          <div class="source-list" data-source-list></div>
-          <div class="collection-history">
-            <h3>Recent collection history</h3>
-            <div data-collection-history></div>
-          </div>
-        </section>
-
-        <form class="source-form" data-source-form>
-          <input type="hidden" name="id">
-          <h3 data-source-form-title>Add a source</h3>
-          <div class="source-form-grid">
-            <label class="field-wide"><span>Source name</span><input name="name" required maxlength="120" placeholder="Engineering notes"></label>
-            <label><span>Website URL</span><input name="baseUrl" type="url" required placeholder="https://example.com"></label>
-            <label><span>Collection URL</span><input name="collectionUrl" type="url" required placeholder="https://example.com/news"></label>
-            <label><span>Collection mode</span><select name="adapterType"><option value="AUTO">Auto discover</option><option value="FEED">RSS / Atom / JSON Feed</option><option value="HTML">HTML selectors</option></select></label>
-            <label><span>Feed URL <small>optional</small></span><input name="feedUrl" type="url" placeholder="https://example.com/feed.xml"></label>
-            <label><span>Interval</span><select name="intervalMinutes"><option value="30">Every 30 minutes</option><option value="60" selected>Every hour</option><option value="360">Every 6 hours</option><option value="1440">Daily</option><option value="10080">Weekly</option></select></label>
-            <label><span>Maximum items</span><input name="maxItemsPerRun" type="number" min="1" max="200" value="30" required></label>
-            <label class="toggle-field"><input name="enabled" type="checkbox" checked><span>Enable scheduled collection</span></label>
-          </div>
-
-          <details class="advanced-fields" data-html-fields>
-            <summary>Advanced HTML selectors</summary>
-            <div class="source-form-grid">
-              <label><span>Item selector</span><input name="itemSelector" placeholder=".news-card"></label>
-              <label><span>Link selector</span><input name="linkSelector" placeholder="a"></label>
-              <label><span>Title selector</span><input name="titleSelector" placeholder=".news-title"></label>
-              <label><span>Subtitle selector</span><input name="subtitleSelector" placeholder=".description"></label>
-              <label><span>Image selector</span><input name="imageSelector" placeholder="img"></label>
-              <label><span>Date selector</span><input name="dateSelector" placeholder="time"></label>
-              <label><span>Next-page selector</span><input name="nextPageSelector" placeholder="a.next"></label>
-            </div>
-          </details>
-
-          <div class="source-test-result" data-source-test-result>Test the source to preview its first items before enabling it.</div>
-          <div class="source-form-actions">
-            <button type="button" class="info-button info-button-secondary" data-test-source>Test source</button>
-            <button type="button" class="info-button info-button-secondary" data-preview-source disabled>Preview results</button>
-            <button type="submit" class="info-button" data-save-source>Save source</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </dialog>
-
-
-
-
-
-
   <!--
     - custom js link
   -->
-  <script src="./assets/js/script.js"></script>
-  <script type="module" src="./assets/js/information/information-controller.js"></script>
+  <script src="./assets/js/main.js"></script>
+  <script type="module" src="./assets/js/portfolio.js"></script>
+  <script type="module" src="./assets/js/information.js"></script>
 
   <!--
     - ionicon link
