@@ -55,7 +55,15 @@
 }
 
 @media (max-width: 579px) {
-  .blog-content { min-height: 0; }
+  .blog-posts-list { gap: 30px; }
+  .blog-banner-box { height: auto; margin-bottom: 15px; }
+  .blog-post-item > a { background: none; box-shadow: none; overflow: visible; }
+  .blog-post-item > a::before { display: none; }
+  .blog-post-item > a:hover { box-shadow: none; transform: none; }
+  .blog-content { min-height: 0; padding: 0 10px; }
+  .blog-meta { margin-bottom: 6px; }
+  .blog-item-title { font-size: var(--fs-5); margin-bottom: 0; }
+  .blog-text, .blog-card-footer { display: none; }
   .blog-article-header h1 { font-size: 34px; }
   .blog-article-hero { margin: 28px 0 36px; }
   .blog-flow { padding: 18px; }
