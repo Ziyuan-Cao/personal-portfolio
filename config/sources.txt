@@ -6,3 +6,28 @@ https://developer.nvidia.com/blog/
 
 # Khronos
 https://www.khronos.org/feeds/blog_feed
+
+# Unity
+https://blog.unity.com/feed
+
+# Autodesk Media & Entertainment
+https://blogs.autodesk.com/media-and-entertainment/feed/
+
+# ACM SIGGRAPH
+https://blog.siggraph.org/feed/
+
+# Eurographics
+https://www.eg.org/wp/category/news/feed/
+
+# Leading AI conferences
+https://blog.neurips.cc/feed/
+https://blog.icml.cc/feed/
+https://blog.iclr.cc/feed/
+# CVPR uses a year-specific news URL; update this line for each new conference year.
+https://cvpr.thecvf.com/Conferences/2026/News
+
+# Graphics engineering and creative research
+https://gpuopen.com/feed/
+https://devblogs.microsoft.com/directx/feed/
+https://www.blender.org/feed/
+https://research.adobe.com/news

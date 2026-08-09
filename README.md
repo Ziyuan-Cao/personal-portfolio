@@ -17,6 +17,7 @@ Open <http://127.0.0.1:3000>.
 
 - Edit portfolio entries in `public/content/portfolio/projects.json` and put their images in `public/content/portfolio/images/`.
 - Edit collection sources in `config/sources.txt`. Use one HTTP(S) URL per line; blank lines and lines beginning with `#` are ignored.
+- The included sources cover Unreal, NVIDIA, Khronos, Unity, Autodesk Media & Entertainment, ACM SIGGRAPH, Eurographics, NeurIPS, ICML, ICLR, CVPR, AMD GPUOpen, DirectX, Blender, and Adobe Research.
 - The server tries RSS, Atom, or JSON Feed first and falls back to generic HTML extraction. Every collected article is checked, and confirmed HTTP 404/410 or soft-404 pages are discarded before saving.
 - Run `npm run collect:static` to collect the configured sources into `public/content/information/items.json`.
 - The News page reads that static JSON file, so it works on GitHub Pages without a server. Preview images come from each article page and are shown only when their actual width is greater than 480 pixels.

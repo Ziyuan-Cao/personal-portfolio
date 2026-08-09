@@ -47,6 +47,22 @@ export function sourceName(sourceUrl: string): string {
   const hostname = new URL(sourceUrl).hostname.replace(/^www\./, "");
   const parts = hostname.split(".");
   const name = parts.length > 1 ? parts[parts.length - 2]! : parts[0]!;
-  const aliases: Record<string, string> = { unrealengine: "Unreal", nvidia: "NVIDIA", khronos: "Khronos" };
+  const aliases: Record<string, string> = {
+    unrealengine: "Unreal",
+    nvidia: "NVIDIA",
+    khronos: "Khronos",
+    autodesk: "Autodesk",
+    unity: "Unity",
+    siggraph: "ACM SIGGRAPH",
+    eg: "Eurographics",
+    neurips: "NeurIPS",
+    icml: "ICML",
+    iclr: "ICLR",
+    thecvf: "CVPR",
+    gpuopen: "AMD GPUOpen",
+    microsoft: "DirectX",
+    blender: "Blender",
+    adobe: "Adobe Research",
+  };
   return aliases[name] ?? name.charAt(0).toUpperCase() + name.slice(1);
 }
