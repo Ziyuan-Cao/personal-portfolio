@@ -1,0 +1,307 @@
+{
+  "slug": "angular-psf-glare-pipeline",
+  "title": "Angular PSF Glare: From Texture to Final Composite",
+  "abstract": "How Version 24 builds a solid-angle-normalized PSF and turns sampled source luminance into screen-space glare.",
+  "category": "Perceptual rendering",
+  "publishedAt": "2026-08-10",
+  "image": "/content/blog/angular-psf-glare-pipeline/angular-psf-glare.svg",
+  "imageAlt": "Angular PSF components integrated into a normalized texture and accumulated as runtime glare",
+  "lede": "This pipeline stores glare as angular density in sr⁻¹. Texture generation integrates four PSF components over each texel, normalizes their energy, and applies adaptation weights. Runtime sampling then converts area-light luminance into an additive glare result measured in cd/m².",
+  "sections": [
+    {
+      "heading": "Map texture space to visual angle",
+      "paragraphs": [
+        "For texture resolution N, let H_tex = (N − 1) / 2 and θ_max = PSFMaxAngleDeg. A virtual focal length maps every center-relative texel position to an angle."
+      ],
+      "equations": [
+        {
+          "label": "Angle mapping",
+          "expression": "f = H_tex / tan(θ_max)\nr = √(x² + y²)\nθ = atan(r / f) × 180° / π",
+          "terms": [
+            "x and y are measured from the texture center. θ is measured in degrees."
+          ]
+        },
+        {
+          "label": "Texel solid angle",
+          "expression": "J_Ω(x, y) = f / (f² + x² + y²)^(3/2)\nΩ_texel = ∫_texel J_Ω(x, y) dxdy",
+          "terms": [
+            "J_Ω is the solid-angle Jacobian of the virtual projection."
+          ]
+        },
+        {
+          "label": "Trapezoidal integration",
+          "expression": "E = Σ F(θ) × J_Ω × w_x × w_y × Δx × Δy",
+          "terms": [
+            "The code uses 100 intervals near the center and 10 elsewhere."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Evaluate the PSF components",
+      "paragraphs": [
+        "The texture combines a narrow core, two achromatic corona terms, and a spectral halo."
+      ],
+      "equations": [
+        {
+          "label": "Central core",
+          "expression": "F₀(θ) = 2.61 × 10⁶ × exp[−(θ / 0.02)²]",
+          "terms": [
+            "The narrow unscattered peak."
+          ]
+        },
+        {
+          "label": "Inner corona",
+          "expression": "F₁(θ) = 20.91 / (θ + 0.02)³",
+          "terms": [
+            "The fast-decaying inner glare."
+          ]
+        },
+        {
+          "label": "Outer corona",
+          "expression": "F₂(θ) = 72.37 / (θ + 0.02)²",
+          "terms": [
+            "The slower far-distance glare."
+          ]
+        },
+        {
+          "label": "Wavelength halo",
+          "expression": "θ_peak(λ) = 3° × λ / 568\nF₃(θ, λ) = 436.9 × (568 / λ) × exp[−19.75(θ − θ_peak)²]",
+          "terms": [
+            "λ is measured in nanometres. The implementation samples 50 wavelengths from 400 nm to 700 nm."
+          ]
+        },
+        {
+          "label": "Spectral color",
+          "expression": "XYZ(θ) = ∫₄₀₀⁷⁰⁰ CIE(λ) × F₃(θ, λ) dλ",
+          "terms": [
+            "R = max(3.2406X − 1.5372Y − 0.4986Z, 0).",
+            "G = max(−0.9689X + 1.8758Y + 0.0415Z, 0).",
+            "B = max(0.0557X − 0.2040Y + 1.0570Z, 0)."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Fade and normalize the component energy",
+      "paragraphs": [
+        "The inner 40% of the circular texture is unchanged. A quintic fade removes the outer region before each component is normalized."
+      ],
+      "equations": [
+        {
+          "label": "Circular boundary",
+          "expression": "ρ = √(x² + y²) / H_tex\nt = clamp[(ρ − 0.4) / 0.6, 0, 1]\nS(t) = t³[t(6t − 15) + 10]",
+          "terms": [
+            "Fade = 1 − S(t) for ρ < 1 and Fade = 0 for ρ ≥ 1.",
+            "The integrated component becomes E′_k = E_k × Fade."
+          ]
+        },
+        {
+          "label": "Scalar normalization",
+          "expression": "Ê_k,p = E_k,p / Σ_p E_k,p,  k ∈ {0, 1, 2}",
+          "terms": [
+            "Each scalar component sums to one."
+          ]
+        },
+        {
+          "label": "Halo normalization",
+          "expression": "Y_p = 0.2126R + 0.7152G + 0.0722B\nÊ₃,p = E₃,p / Σ_p Y_p",
+          "terms": [
+            "The colored component is normalized by total luminance."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Modulate the corona with radial lines",
+      "paragraphs": [
+        "One-sided rays add structured streaks. Global and local normalization keep the raw mask mean near one before its contrast is reduced."
+      ],
+      "equations": [
+        {
+          "label": "Angular distance from a ray",
+          "expression": "a = p · d\nd_⊥ = |p_xd_y − p_yd_x|\nδ = asin[d_⊥ / √(|p|² + f²)] × 180° / π",
+          "terms": [
+            "A ray contributes only when a > 0."
+          ]
+        },
+        {
+          "label": "Line mask",
+          "expression": "w_inner = 0.2w\nCoverage = 1 − smoothstep(w_inner, w, δ)\nM_raw(p) = Σ_j Coverage_j × RandomIntensity_j",
+          "terms": [
+            "M(p) = lerp[1, clamp(M_raw(p), 0, 4), 0.25]."
+          ]
+        },
+        {
+          "label": "Component modulation",
+          "expression": "F₁ ← F₁M_corona\nF₂ ← F₂M_corona\nF₃ ← F₃M_halo",
+          "terms": [
+            "F₁, F₂, and F₃ are normalized again after modulation."
+          ]
+        },
+        {
+          "label": "Density per steradian",
+          "expression": "P_k,p = Ê_k,p / Ω_texel,p",
+          "terms": [
+            "P has units sr⁻¹."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Apply the visual adaptation weights",
+      "technicalTables": [
+        {
+          "columns": [
+            "State",
+            "w₀",
+            "w₁",
+            "w₂",
+            "w₃"
+          ],
+          "rows": [
+            [
+              "Photopic",
+              "0.384",
+              "0.478",
+              "0.138",
+              "0"
+            ],
+            [
+              "Mesopic",
+              "0.368",
+              "0.478",
+              "0.138",
+              "0.016"
+            ],
+            [
+              "Scotopic",
+              "0.282",
+              "0.478",
+              "0.207",
+              "0.033"
+            ]
+          ]
+        }
+      ],
+      "equations": [
+        {
+          "label": "Final texture",
+          "expression": "Core = w₀P₀\nCorona = w₁P₁ + w₂P₂\nHalo_RGB = w₃P₃,RGB",
+          "terms": [
+            "PSF_RGB = EnergyScale × [(Core + Corona)(1, 1, 1) + Halo_RGB].",
+            "The texture border is forced to black."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Sample each visible emitter",
+      "paragraphs": [
+        "Each light uses N_s = PSFSourceSampleCount low-discrepancy samples. R_scaled and U_scaled use the same directional-candela scaling as the source pass."
+      ],
+      "equations": [
+        {
+          "label": "Sample sequence",
+          "expression": "u = (i + 0.5) / N_s\nv = fractional[RadicalInverse(i) + rotation]",
+          "terms": [
+            "Rectangle: q = (2u − 1, 2v − 1).",
+            "Ellipse: q = √u(cos 2πv, sin 2πv)."
+          ]
+        },
+        {
+          "label": "Sample position",
+          "expression": "p_sample = p_light + q_xR_scaled + q_yU_scaled",
+          "terms": [
+            "The sample lies inside the projected rectangle or ellipse."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Weight source luminance by emitter area",
+      "paragraphs": [
+        "The source texture stores RGB luminance in cd/m². A shared luminance limit preserves color, then each sample is weighted by its share of the screen-space emitter."
+      ],
+      "equations": [
+        {
+          "label": "Screen-space emitter area",
+          "expression": "A_axis = |R_xU_y − R_yU_x|\nA_rectangle = 4A_axis\nA_ellipse = πA_axis\nA_sample = A_emitter / N_s",
+          "terms": [
+            "A_axis is the parallelogram area of the two projected half-axes."
+          ]
+        },
+        {
+          "label": "Source-luminance limit",
+          "expression": "L_max = max(L_R, L_G, L_B)\nL_RGB ← L_RGB × PSFMaxIntensityCdM2 / L_max when L_max exceeds the limit",
+          "terms": [
+            "All RGB channels use the same scale, preserving source color."
+          ]
+        },
+        {
+          "label": "Area-weighted source value",
+          "expression": "W_sample = L_RGB × A_sample"
+        }
+      ]
+    },
+    {
+      "heading": "Preserve visual angle at runtime",
+      "paragraphs": [
+        "The PSF footprint changes with projection and resolution so its apparent angular size remains approximately constant."
+      ],
+      "equations": [
+        {
+          "label": "Viewport-UV half-size",
+          "expression": "h_u = 0.5 × tan(α) × P_x\nh_v = 0.5 × tan(α) × P_y",
+          "terms": [
+            "α is PSFGeneratedMaxAngleDeg. P_x and P_y are projection-matrix scales."
+          ]
+        },
+        {
+          "label": "Destination-pixel solid angle",
+          "expression": "Ω_pixel = 4 / (W_view × H_view × P_x × P_y)",
+          "terms": [
+            "W_view and H_view are viewport dimensions. Ω_pixel is measured in sr."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Accumulate and composite the glare",
+      "paragraphs": [
+        "Every source sample contributes physical glare to each covered pixel. All samples and visible lights are added into a render target measured in cd/m²."
+      ],
+      "equations": [
+        {
+          "label": "Runtime gain",
+          "expression": "g = PSFIntensity × 10⁻⁵"
+        },
+        {
+          "label": "Per-sample contribution",
+          "expression": "ΔL_i,p = W_sample,i × PSF(u_i,p) × Ω_pixel × g",
+          "terms": [
+            "L_PSF,p = Σ_lights Σ_samples ΔL_i,p."
+          ]
+        },
+        {
+          "label": "Final composite",
+          "expression": "C_final = C_scene + L_PSF",
+          "terms": [
+            "The source brightness is not removed or redistributed."
+          ]
+        }
+      ]
+    }
+  ],
+  "references": [
+    {
+      "label": "Spencer et al., Physically-Based Glare Effects for Digital Images (1995)",
+      "url": "https://www.graphics.cornell.edu/pubs/1995/SSZG95.pdf"
+    },
+    {
+      "label": "DOI: Physically-Based Glare Effects for Digital Images",
+      "url": "https://doi.org/10.1145/218380.218466"
+    }
+  ],
+  "closing": "Version 24 carries one unit-consistent path from angular PSF energy to an additive glare image: integrate in solid angle, store density in sr⁻¹, then accumulate area-weighted source luminance in cd/m²."
+}

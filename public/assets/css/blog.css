@@ -50,7 +50,7 @@
 .blog-code code { color: hsl(45, 25%, 86%); display: block; font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 13px; line-height: 1.75; min-width: max-content; tab-size: 2; }
 .blog-equation { background: linear-gradient(135deg, hsla(45, 100%, 72%, .07), hsla(0, 0%, 100%, .018)); border: 1px solid hsla(45, 100%, 72%, .16); border-radius: 16px; margin-top: 28px; padding: 20px; }
 .blog-equation-label { color: var(--vegas-gold); font-size: 10px; letter-spacing: .1em; margin-bottom: 14px; text-transform: uppercase; }
-.blog-equation-expression { color: var(--white-2); font-family: "Cambria Math", "Times New Roman", serif; font-size: clamp(18px, 3vw, 25px); line-height: 1.5; overflow-wrap: anywhere; padding: 5px 0; }
+.blog-equation-expression { color: var(--white-2); font-family: "Cambria Math", "Times New Roman", serif; font-size: clamp(18px, 3vw, 25px); line-height: 1.5; overflow-wrap: anywhere; padding: 5px 0; white-space: pre-line; }
 .blog-equation-terms { border-top: 1px solid var(--jet); display: grid; gap: 8px 14px; grid-template-columns: max-content 1fr; margin-top: 15px; padding-top: 15px; }
 .blog-equation-terms dt { color: var(--orange-yellow-crayola); font-family: monospace; font-size: 13px; }
 .blog-equation-terms dd { color: var(--light-gray-70); font-size: var(--fs-8); line-height: 1.55; }
