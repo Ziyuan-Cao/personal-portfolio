@@ -42,10 +42,7 @@ function postCard(post, index) {
   const title = element("h3", "h3 blog-item-title", post.title);
   const abstract = element("p", "blog-text", post.abstract);
   const footer = element("div", "blog-card-footer");
-  footer.append(
-    element("span", "blog-reading-time", post.readingTime),
-    element("span", "blog-read-link", "Read article \u2197"),
-  );
+  footer.append(element("span", "blog-read-link", "Read article \u2197"));
   content.append(meta, title, abstract, footer);
   if (post.cardImage) {
     const figure = element("figure", "blog-banner-box");
@@ -65,21 +62,33 @@ function postCard(post, index) {
 }
 
 function flowDiagram(flow) {
-  const figure = element("figure", "blog-flow");
-  const list = element("ol", "blog-flow-list");
-  for (const step of flow.steps) {
-    const item = element("li", "blog-flow-step");
-    const iconBox = element("div", "blog-flow-icon");
-    const icon = document.createElement("ion-icon");
-    icon.setAttribute("name", step.icon);
-    icon.setAttribute("aria-hidden", "true");
-    iconBox.append(icon);
-    const copy = element("div", "blog-flow-copy");
-    copy.append(element("strong", "", step.title), element("span", "", step.text));
-    item.append(iconBox, copy);
+  const figure = element("figure", "blog-code blog-flow-code");
+  const header = element("figcaption", "blog-code-header");
+  header.append(
+    element("span", "blog-code-file", flow.label),
+    element("span", "blog-code-language", "text"),
+  );
+
+  const list = element("div", "blog-flow-code-list");
+  list.setAttribute("role", "list");
+  list.setAttribute("aria-label", flow.label);
+  flow.steps.forEach((step, index) => {
+    const item = element("div", "blog-flow-code-step");
+    item.setAttribute("role", "listitem");
+    item.append(
+      element("code", "blog-flow-code-title", step.title),
+      element("span", "blog-flow-code-comment", step.text),
+    );
     list.append(item);
-  }
-  figure.append(list, element("figcaption", "", flow.label));
+
+    if (index < flow.steps.length - 1) {
+      const arrow = element("span", "blog-flow-code-arrow");
+      arrow.setAttribute("aria-hidden", "true");
+      list.append(arrow);
+    }
+  });
+
+  figure.append(header, list);
   return figure;
 }
 
@@ -273,7 +282,7 @@ function renderDetail(post) {
   const meta = element("div", "blog-article-meta");
   const time = element("time", "", formatDate(post.publishedAt));
   time.dateTime = post.publishedAt;
-  meta.append(element("span", "blog-category-pill", post.category), time, element("span", "", post.readingTime));
+  meta.append(element("span", "blog-category-pill", post.category), time);
   header.append(meta, element("h1", "", post.title), element("p", "blog-article-deck", post.abstract));
 
   const hero = element("figure", "blog-article-hero");
