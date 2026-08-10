@@ -1,185 +1,227 @@
 {
   "slug": "what-an-ies-file-stores",
-  "title": "What an IES File Stores",
-  "abstract": "A careful reading of LM-63 photometric data: metadata, lamp and multiplier fields, vertical and horizontal angles, candela tables, symmetry, and the distinction between a measured distribution and an engine texture.",
+  "title": "IES Profiles: From File Rows to Runtime Sampling",
+  "abstract": "How an IES file becomes an absolute-candela texture, how that texture is sampled, and how the result drives source scaling and light meters.",
   "category": "Photometry",
   "publishedAt": "2026-08-09",
-  "readingTime": "10 min read",
   "image": "/content/blog/what-an-ies-file-stores/ies-file-anatomy.svg",
-  "imageAlt": "An IES photometric file is parsed into angle arrays and a candela intensity table",
-  "lede": "An IES file is not a picture of a light beam and not a PSF. In the common LM-63 family, it is an electronic description of measured photometric intensity around a luminaire, plus metadata and test configuration. A renderer turns those irregular angular samples into a representation convenient for its own light shader.",
+  "imageAlt": "IES file rows parsed into angular candela data and resampled into a texture",
+  "lede": "An IES profile stores candela samples at measured vertical and horizontal angles. The runtime path parses those rows into an angle-indexed table, resamples the table into a 257 × 257 R32F texture, and looks up directional candela from the light-to-camera direction.",
   "sections": [
     {
-      "heading": "The physical quantity is luminous intensity",
+      "heading": "Read the file row by row",
       "paragraphs": [
-        "The central table contains luminous intensity samples, normally interpreted in candelas after the file’s candela multiplier is applied. One candela is one lumen per steradian. The distribution answers: in this measured direction, how much luminous intensity does the luminaire emit?",
-        "It does not directly store illuminance on a wall, radiance along a camera ray, or a grayscale cookie image. Distance, orientation, fixture placement, and the renderer’s lighting model are applied later."
-      ],
-      "equations": [
-        {
-          "label": "Intensity sample after file scaling",
-          "expression": "I(theta, phi) = table(theta, phi) * candelaMultiplier * ballastFactor",
-          "terms": [
-            "The exact use of lamp and ballast-related fields depends on the LM-63 revision and consuming application.",
-            "Do not silently multiply an engine light-intensity control a second time without defining the intended calibration."
-          ]
-        }
-      ]
-    },
-    {
-      "heading": "The file is angles plus a rectangular table",
-      "paragraphs": [
-        "After the header and luminaire/test fields, the file declares counts for vertical and horizontal angles. It then lists the vertical-angle array, the horizontal-angle array, and candela values for each horizontal plane across all vertical angles. The angular spacing may be non-uniform, so sample number is not itself an angle.",
-        "To evaluate an arbitrary direction, convert that direction into the file’s photometric coordinate system, find the surrounding vertical and horizontal samples, and interpolate. The photometric type field determines how the coordinate system is interpreted."
-      ],
-      "docLinks": [
-        {
-          "label": "IES: ANSI/IES LM-63 standard listing",
-          "url": "https://store.ies.org/product/approved-method-ies-standard-file-format-for-the-electronic-transfer-of-photometric-data-and-related-information/",
-          "note": "Confirm the revision and normative field definitions before writing a parser."
-        },
-        {
-          "label": "Epic: Using IES Light Profiles",
-          "url": "https://dev.epicgames.com/documentation/unreal-engine/using-ies-light-profiles-in-unreal-engine?lang=en-US",
-          "note": "This describes Unreal’s imported profile behavior, not the complete LM-63 grammar."
-        }
+        "LM-63 is token-based, so a long list may wrap across physical lines. Conceptually, the data appears in this order: format and metadata, tilt data, photometric fields, angle arrays, then candela rows."
       ],
       "codeBlocks": [
         {
-          "file": "Schematic LM-63 excerpt — not a complete fixture",
+          "file": "Conceptual LM-63 layout",
           "language": "text",
-          "code": "IESNA:LM-63-2002\n[TEST] LAB-EXAMPLE\n[LUMCAT] FIXTURE-A\nTILT=NONE\n1 1000 1.0 3 2 1 2 ...\n0 45 90\n0 90\n120 80 10\n100 60 5"
+          "code": "IESNA:LM-63-2002\n[keywords and test metadata]\nTILT=NONE\nlamps lumensPerLamp candelaMultiplier verticalCount horizontalCount photometricType unitType width length height\nballastFactor futureUse inputWatts\n[vertical angles]\n[horizontal angles]\n[candela values for horizontal plane 0]\n[candela values for horizontal plane 1]\n..."
         }
       ],
       "technicalTables": [
         {
           "columns": [
-            "Data group",
-            "What it contributes"
+            "Row or group",
+            "Definition"
           ],
           "rows": [
             [
-              "Version and keywords",
-              "Format identity, laboratory/manufacturer metadata, catalog and test information"
+              "IESNA version",
+              "Identifies the LM-63 revision."
             ],
             [
-              "TILT section",
-              "Optional lamp-tilt correction data or an external reference"
+              "Keywords",
+              "Test, manufacturer, catalog, and luminaire metadata."
             ],
             [
-              "Lamp/luminaire fields",
-              "Counts, lumens, multiplier, dimensions, ballast and input-power context"
+              "TILT",
+              "No correction, an included correction table, or an external tilt file."
             ],
             [
-              "Angle arrays",
-              "The sampled directions; not necessarily uniformly spaced"
+              "Photometric fields",
+              "Lamp count, lumens per lamp, candela multiplier, angle counts, photometric type, units, and emitter dimensions."
             ],
             [
-              "Candela table",
-              "Measured relative/angular luminous-intensity distribution after scaling"
+              "Electrical fields",
+              "Ballast factor, reserved value, and input watts."
+            ],
+            [
+              "Vertical angles θ",
+              "verticalCount samples, normally covering part or all of 0°–180°."
+            ],
+            [
+              "Horizontal angles φ",
+              "horizontalCount C-planes covering the stored symmetry range."
+            ],
+            [
+              "Candela rows",
+              "One row per horizontal plane, with verticalCount intensity samples."
             ]
-          ],
-          "caption": "Exact fields vary by LM-63 revision; a robust parser identifies the revision instead of assuming one fixed header."
+          ]
         }
       ]
     },
     {
-      "heading": "Symmetry is encoded by coverage",
+      "heading": "Load an angle-indexed candela table",
       "paragraphs": [
-        "Many luminaires do not list a full 0–360-degree horizontal sweep. A restricted set of horizontal planes can imply rotational, bilateral, or quadrant symmetry under the standard’s conventions. A loader should reconstruct the intended domain before resampling, not clamp every missing direction to the nearest listed plane.",
-        "Vertical coverage also matters. Some measurements cover only the downward hemisphere; others include uplight. Validate monotonic angles, declared counts, table length, and expected coverage before generating a texture."
+        "Keep the source angles because their spacing may be irregular. Store candela in horizontal-major order so candela[p × verticalCount + a] addresses horizontal plane p and vertical angle a. Reconstruct any symmetry before texture creation."
+      ],
+      "codeBlocks": [
+        {
+          "file": "IESProfileData",
+          "language": "cpp",
+          "code": "struct IESProfileData\n{\n    float lumensPerLamp;\n    float candelaMultiplier;\n    float ballastFactor;\n    std::vector<float> verticalAnglesDeg;\n    std::vector<float> horizontalAnglesDeg;\n    std::vector<float> candela; // [horizontal][vertical]\n};"
+        }
+      ],
+      "equations": [
+        {
+          "label": "Absolute candela",
+          "expression": "I_abs(θ, φ) = I_IES(θ, φ) × M_cd × F_ballast",
+          "terms": [
+            "I_IES is the source-table sample, M_cd is the candela multiplier, and F_ballast is the ballast factor.",
+            "Lumens per Lamp is parsed but not used in this calculation."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Recreate the profile as a 2D texture",
+      "paragraphs": [
+        "Create a 257 × 257 R32F texture. Each texel stores absolute candela for one vertical angle and one horizontal C-plane angle. The duplicated horizontal endpoint closes the 0°/360° seam."
+      ],
+      "equations": [
+        {
+          "label": "Texture coordinates",
+          "expression": "u = θ / 180°,  v = φ / 360°",
+          "terms": [
+            "θ = 180°u is the vertical angle from 0° to 180°.",
+            "φ = 360°v is the horizontal angle from 0° to 360°.",
+            "T(u, v) = I_abs(θ, φ)."
+          ]
+        },
+        {
+          "label": "Source-table interpolation",
+          "expression": "I(θ, φ) = (1 − tφ)[(1 − tθ)I00 + tθI10] + tφ[(1 − tθ)I01 + tθI11]",
+          "terms": [
+            "tθ = (θ − θ0) / (θ1 − θ0) and tφ = (φ − φ0) / (φ1 − φ0).",
+            "I00, I10, I01, and I11 are the four surrounding source samples."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Sample directional candela at runtime",
+      "paragraphs": [
+        "Convert the light-to-camera direction into the light's photometric basis. F, U, and R are the light forward, up, and right directions."
+      ],
+      "equations": [
+        {
+          "label": "Light-to-camera direction",
+          "expression": "d = (P_camera − P_light) / |P_camera − P_light|",
+          "terms": [
+            "d is a normalized world-space direction."
+          ]
+        },
+        {
+          "label": "Vertical lookup",
+          "expression": "θ = arccos(clamp(F · d, −1, 1)),  u = θ / π",
+          "terms": [
+            "u maps the forward angle from 0 to 1."
+          ]
+        },
+        {
+          "label": "Horizontal C-plane lookup",
+          "expression": "C0 = −U,  C90 = −R,  φ = atan2(d · C90, d · C0),  v = mod(φ + 2π, 2π) / 2π",
+          "terms": [
+            "v wraps the azimuth into the 0–1 range."
+          ]
+        },
+        {
+          "label": "Directional intensity",
+          "expression": "I_dir = T(u, v)",
+          "terms": [
+            "The texture lookup uses bilinear filtering and returns absolute candela."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Scale the visible source without changing its area",
+      "paragraphs": [
+        "Directional candela can enlarge the screen-space glare source. This affects only its visible axes; the physical emitter area remains unchanged. Each screen-space axis is clamped to at least 1.5 pixels."
+      ],
+      "equations": [
+        {
+          "label": "Glare scale",
+          "expression": "G = log10(max(αI_dir, 1.0001)),  S = S_source √max(G, 0)",
+          "terms": [
+            "α is ScalingAreaAlpha. Apply the optional limit S = min(S, S_max).",
+            "R_scaled = S R_screen and U_scaled = S U_screen."
+          ]
+        }
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "Emitter",
+            "Physical area in m²"
+          ],
+          "rows": [
+            [
+              "Rectangle",
+              "A = 4wh × 10⁻⁴"
+            ],
+            [
+              "Ellipse",
+              "A = πwh × 10⁻⁴"
+            ],
+            [
+              "Circle",
+              "A = πr² × 10⁻⁴"
+            ]
+          ],
+          "caption": "w and h are half-extents in centimetres; r is the radius. The factor 10⁻⁴ converts cm² to m²."
+        }
+      ]
+    },
+    {
+      "heading": "Compute brightness and directional meter values",
+      "paragraphs": [
+        "The brightness meter converts candela to luminance using projected emitter area. The directional meter keeps the sampled candela. Both apply the emitter mask M and depth visibility V_d, then keep the maximum value where lights overlap."
+      ],
+      "equations": [
+        {
+          "label": "Projected area",
+          "expression": "c = saturate(F · d),  A_proj = Ac",
+          "terms": [
+            "A is the physical emitter area and c is the viewing-angle cosine."
+          ]
+        },
+        {
+          "label": "Brightness meter luminance",
+          "expression": "L = I_dir / max(Ac, 10⁻⁶) when c > 10⁻⁴; otherwise L = I_ref / A",
+          "terms": [
+            "I_ref = I(0°, 0°). L is measured in cd/m².",
+            "For light color C, L_RGB = LC and L_meter = max(L_r, L_g, L_b).",
+            "L_output = L_meter × M × V_d; L_final = max_i(L_output,i); test L_final > L_threshold."
+          ]
+        },
+        {
+          "label": "Directional meter",
+          "expression": "I_meter = I_dir × M × V_d,  I_final = max_i(I_meter,i)",
+          "terms": [
+            "I_final is measured in cd; test I_final > I_threshold."
+          ]
+        }
       ],
       "callouts": [
         {
-          "tone": "warning",
-          "title": "Parser rule",
-          "text": "Do not assume 1-degree samples, a 256×256 grid, or a full sphere. Those are possible runtime representations, not properties guaranteed by LM-63 data."
+          "tone": "note",
+          "title": "Current intensity path",
+          "text": "The implementation samples absolute IES candela directly. It does not multiply the result by Unreal Engine light intensity."
         }
-      ]
-    },
-    {
-      "heading": "File data and Unreal’s runtime representation are different",
-      "paragraphs": [
-        "Unreal imports an IES profile and builds a texture used by the light. Epic’s documentation describes its representation as a one-dimensional texture swept around an axis. That is an engine choice suited to the supported profile behavior; it is not a claim that the source file contains one-dimensional pixels.",
-        "A custom implementation may instead resample intensity into a 2D angular texture—for example, u from vertical angle and v from azimuth. That can preserve asymmetric distributions, but it must define axis orientation, seam wrapping, pole behavior, interpolation, normalization, and the relationship between stored candelas and the light component’s own intensity controls."
-      ],
-      "flow": {
-        "label": "IES ingestion",
-        "steps": [
-          {
-            "icon": "document-text-outline",
-            "title": "LM-63 text",
-            "text": "Revision, metadata, test fields, angles, and candela values"
-          },
-          {
-            "icon": "checkmark-done-outline",
-            "title": "Validated model",
-            "text": "Counts, coordinate type, symmetry, units, and multipliers"
-          },
-          {
-            "icon": "repeat-outline",
-            "title": "Angular resampling",
-            "text": "Interpolate the irregular measured grid"
-          },
-          {
-            "icon": "grid-outline",
-            "title": "Engine texture",
-            "text": "A documented 1D or 2D runtime encoding"
-          },
-          {
-            "icon": "flashlight-outline",
-            "title": "Light evaluation",
-            "text": "Direction lookup combines with distance and surface response"
-          }
-        ]
-      }
-    },
-    {
-      "heading": "A small validation suite",
-      "paragraphs": [
-        "Test a rotationally symmetric profile, an asymmetric profile, a profile with incomplete horizontal coverage, and a file with a non-trivial candela multiplier. Compare original tabulated directions exactly before judging interpolated directions. Plot polar slices at several horizontal planes so swapped axes and mirrored azimuth become obvious.",
-        "Keep raw parsed values alongside the generated texture in debug builds. When the rendered beam looks wrong, this lets the investigation distinguish parser error, coordinate error, resampling error, and lighting-model error."
-      ],
-      "bullets": [
-        "Declared angle counts equal parsed angle counts.",
-        "Candela-value count equals verticalCount × horizontalCount.",
-        "Angles are monotonic and within the expected photometric domain.",
-        "Texture samples at listed directions reproduce scaled source values within tolerance.",
-        "Integrated or peak intensity behavior is documented when normalization is applied."
-      ],
-      "numberedSteps": [
-        {
-          "title": "Parse without resampling",
-          "text": "Retain the raw angle arrays and candela table exactly as read."
-        },
-        {
-          "title": "Reproduce listed samples",
-          "text": "Query every original direction and compare after documented multipliers."
-        },
-        {
-          "title": "Expand symmetry",
-          "text": "Plot the reconstructed 0–360° coverage before building a texture."
-        },
-        {
-          "title": "Resample",
-          "text": "Only now choose a 1D swept or 2D angular runtime representation."
-        },
-        {
-          "title": "Render polar fixtures",
-          "text": "A symmetric and an asymmetric profile expose swapped axes and mirror errors."
-        }
-      ]
-    },
-    {
-      "heading": "Parser acceptance criteria",
-      "paragraphs": [
-        "A parser fixture passes when it identifies the LM-63 revision, consumes the declared number of angles and candela samples, preserves raw values, reconstructs the intended horizontal coverage, and reproduces every tabulated direction after documented multipliers. Texture generation is a later test layer."
-      ],
-      "bullets": [
-        "Reject truncated tables and non-monotonic angle arrays.",
-        "Keep photometric type and TILT handling visible in debug output.",
-        "Plot source planes before interpolating between them.",
-        "Store the import transformation with the generated asset."
       ]
     }
   ],
@@ -193,5 +235,5 @@
       "url": "https://dev.epicgames.com/documentation/unreal-engine/using-ies-light-profiles-in-unreal-engine?lang=en-US"
     }
   ],
-  "closing": "Parser output should remain an angle-indexed candela table. The engine-specific 1D or 2D texture is a documented resampling product, not the source format."
+  "closing": "The pipeline is direct: parse angles and candela, apply the file multipliers, resample absolute candela into a 2D texture, and recover directional intensity with the light's runtime basis."
 }
