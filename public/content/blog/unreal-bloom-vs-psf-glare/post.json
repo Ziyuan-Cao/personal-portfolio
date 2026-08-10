@@ -1,30 +1,111 @@
 {
   "slug": "unreal-bloom-vs-psf-glare",
-  "title": "Unreal Mip-Chain Bloom vs PSF Glare",
-  "abstract": "A fair comparison between Unreal’s standard multi-resolution Gaussian bloom and a calibrated human-eye PSF convolution, including what each approximates, costs, controls, and validates.",
+  "title": "How Bloom Works in Unreal Engine 5: Standard vs. Convolution",
+  "abstract": "A practical look at Unreal Engine 5's two bloom methods: the fast multi-resolution Gaussian pyramid used by Standard Bloom and the FFT-accelerated kernel filtering used by Convolution Bloom.",
   "category": "Post processing",
   "publishedAt": "2026-08-09",
-  "readingTime": "11 min read",
+  "readingTime": "12 min read",
   "image": "/content/blog/unreal-bloom-vs-psf-glare/bloom-vs-psf.svg",
-  "imageAlt": "Standard multi-resolution bloom is compared with an angular point spread function glare path",
-  "lede": "Bloom and human-eye glare can both turn a bright point into a halo, but they are not automatically the same model. Unreal’s standard bloom is a practical multi-resolution blend of Gaussian blurs. A PSF approach starts from an angular light-spread kernel and can be calibrated for energy and field of view. Unreal also offers Convolution Bloom, which is a separate kernel-based option and should not be confused with Standard Bloom.",
+  "imageAlt": "Unreal Engine 5 Standard Bloom blur pyramid compared with the FFT pipeline used by Convolution Bloom",
+  "lede": "Unreal Engine 5 offers two ways to turn intense HDR highlights into visible halos. Standard Bloom builds several inexpensive Gaussian blurs at reduced resolutions and blends them together. Convolution Bloom spreads the image through a custom point-spread kernel, using an FFT to make a large convolution practical. Both begin with bright scene color, but they make very different tradeoffs in speed, control, and optical complexity.",
   "sections": [
     {
-      "heading": "What Standard Bloom does",
+      "heading": "What bloom is doing",
       "paragraphs": [
-        "Epic documents Standard Bloom as several Gaussian blurs computed at progressively lower resolutions, from one-half down to one-thirty-second of the screen. The lower-resolution levels create wide halos cheaply; their contributions are tinted and combined. Threshold and exposure determine which scene values feed the effect.",
-        "This design is fast, stable, and art-directable. It creates a convincing camera/display cue without claiming to reproduce a particular human eye’s angular PSF. Because each blur level is screen-resolution based, its behavior must be tested when resolution, dynamic resolution, and FOV change."
+        "A display cannot reproduce the full brightness range that a rendered HDR scene can contain. Bloom helps communicate that missing intensity by allowing very bright regions to spill into neighboring pixels. The result is the familiar glow around emissive signs, specular highlights, and lights seen against a darker background.",
+        "Conceptually, Unreal evaluates bloom from HDR scene color, adds the bloom result back to the scene, and then produces the final display image through the rest of the post-processing pipeline. Exposure affects which highlights appear intense enough to bloom, while tone mapping compresses the combined HDR result for the display. Bloom is therefore more than a soft filter placed over the finished LDR image."
       ],
+      "flow": {
+        "label": "Conceptual bloom pipeline",
+        "steps": [
+          {
+            "icon": "sunny-outline",
+            "title": "Scene rendering",
+            "text": "Materials and lights produce HDR scene color"
+          },
+          {
+            "icon": "funnel-outline",
+            "title": "Bloom source",
+            "text": "Bright scene values drive the selected bloom method"
+          },
+          {
+            "icon": "sparkles-outline",
+            "title": "Light spread",
+            "text": "Standard blur pyramid or convolution kernel"
+          },
+          {
+            "icon": "layers-outline",
+            "title": "HDR composite",
+            "text": "Bloom is combined with scene color"
+          },
+          {
+            "icon": "image-outline",
+            "title": "Final image",
+            "text": "Tone mapping converts the result for display"
+          }
+        ]
+      },
       "docLinks": [
         {
-          "label": "Epic: Bloom in Unreal Engine",
+          "label": "Epic Games: Bloom in Unreal Engine",
           "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/bloom-in-unreal-engine",
-          "note": "Standard Bloom levels, controls, and Convolution Bloom are documented on the same page."
+          "note": "The official description of Standard Bloom, Bloom Convolution, their controls, and kernel setup."
         },
         {
-          "label": "Epic: Post Process Effects",
+          "label": "Epic Games: Post Process Effects",
           "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/post-process-effects-in-unreal-engine",
-          "note": "Use this to place bloom relative to exposure, tone mapping, and the post-process volume."
+          "note": "Context for bloom, exposure, tone mapping, and Post Process Volumes."
+        }
+      ]
+    },
+    {
+      "heading": "Standard Bloom: a pyramid of Gaussian blurs",
+      "paragraphs": [
+        "Standard Bloom is Unreal's performance-oriented method. It creates several blurred versions of the bloom source and combines them. The levels named Blur 1 through Blur 5 run from roughly one-half to one-thirty-second of the screen resolution. High-resolution levels create compact glow close to a highlight; low-resolution levels create broad halos at a much lower cost than a full-resolution wide blur.",
+        "Each level is based on a Gaussian-shaped filter. The parameter σ controls the spread: a small σ produces a narrow halo, while a large σ produces a wider and softer one. Unreal's multi-level result can be understood as a weighted sum of blurred images, with each level contributing a different spatial scale. The actual renderer is more involved than the equations below, but this model captures the essential operation."
+      ],
+      "equations": [
+        {
+          "label": "Two-dimensional Gaussian",
+          "expression": "G(x, y) = [1 / (2πσ²)] exp[−(x² + y²) / (2σ²)]",
+          "terms": [
+            {
+              "symbol": "σ",
+              "text": "Controls the radius and softness of the blur."
+            },
+            {
+              "symbol": "G",
+              "text": "Gaussian kernel sampled around each image pixel."
+            }
+          ]
+        },
+        {
+          "label": "One blur level",
+          "expression": "Bᵢ = Dᵢ(S) * Gσᵢ",
+          "terms": [
+            {
+              "symbol": "S",
+              "text": "Bloom source after thresholding or source selection."
+            },
+            {
+              "symbol": "Dᵢ",
+              "text": "Downsampling operation for level i."
+            },
+            {
+              "symbol": "*",
+              "text": "Spatial convolution."
+            }
+          ]
+        },
+        {
+          "label": "Combined Standard Bloom",
+          "expression": "Bstandard = Σᵢ wᵢBᵢ",
+          "terms": [
+            {
+              "symbol": "wᵢ",
+              "text": "Per-level contribution, including the level's intensity and tint."
+            }
+          ]
         }
       ],
       "flow": {
@@ -33,142 +114,303 @@
           {
             "icon": "sunny-outline",
             "title": "HDR scene",
-            "text": "Bright scene-referred values after exposure decisions"
+            "text": "Start with bright scene color"
           },
           {
             "icon": "funnel-outline",
             "title": "Threshold",
-            "text": "Select or weight values that contribute"
+            "text": "Select or weight bloom-producing values"
           },
           {
             "icon": "contract-outline",
-            "title": "Downsample chain",
-            "text": "Half to very low resolution levels"
+            "title": "Downsample",
+            "text": "Build levels from 1/2 through 1/32 resolution"
           },
           {
             "icon": "water-outline",
-            "title": "Gaussian blurs",
-            "text": "Different effective screen-space widths"
+            "title": "Gaussian blur",
+            "text": "Filter each level at a useful radius"
           },
           {
             "icon": "layers-outline",
-            "title": "Weighted combine",
-            "text": "Blend levels back into the post-process image"
+            "title": "Upsample + combine",
+            "text": "Blend the levels into the final bloom"
+          }
+        ]
+      },
+      "codeBlocks": [
+        {
+          "file": "Conceptual Standard Bloom pseudocode",
+          "language": "cpp",
+          "code": "BloomSource = ApplyBloomThreshold(SceneColor);\n\nBloom1 = GaussianBlur(Downsample(BloomSource, 2));\nBloom2 = GaussianBlur(Downsample(BloomSource, 4));\nBloom3 = GaussianBlur(Downsample(BloomSource, 8));\nBloom4 = GaussianBlur(Downsample(BloomSource, 16));\nBloom5 = GaussianBlur(Downsample(BloomSource, 32));\n\nBloom = Bloom1 * Weight1\n      + Bloom2 * Weight2\n      + Bloom3 * Weight3\n      + Bloom4 * Weight4\n      + Bloom5 * Weight5;\n\nFinalHDR = SceneColor + Bloom * BloomIntensity;"
+        }
+      ],
+      "callouts": [
+        {
+          "tone": "note",
+          "title": "Why the pyramid is fast",
+          "text": "A 1/32-resolution image contains about one pixel for every 1,024 full-resolution pixels. That makes a very wide low-resolution blur dramatically cheaper than applying comparable support at full resolution."
+        }
+      ]
+    },
+    {
+      "heading": "What Standard Bloom gives you",
+      "paragraphs": [
+        "Standard Bloom is well suited to real-time games because it is fast, stable, and easy to art-direct. Bloom Intensity scales the complete result. Threshold controls how bright a scene value must be before it contributes, with a one-unit transition region; setting the threshold to −1 allows every scene color to contribute. Each blur level also has Size and Tint controls, so nearby glow and broad haze can be shaped independently.",
+        "Its limitation is the same thing that makes it efficient: the final shape is assembled from smooth Gaussian scales. It cannot directly reproduce an arbitrary starburst, asymmetric diffraction pattern, or distinctive lens response. Epic also notes that Standard Bloom is not conservative, meaning it can increase the image's overall brightness."
+      ],
+      "bullets": [
+        "Use higher-resolution levels for small, tight bloom.",
+        "Use lower-resolution levels for broad bloom at a lower cost.",
+        "Use Tint to control both the color and contribution of each level.",
+        "Prefer Standard Bloom when frame time and predictable real-time behavior matter most."
+      ]
+    },
+    {
+      "heading": "Convolution Bloom: the kernel defines the shape",
+      "paragraphs": [
+        "Convolution Bloom replaces the Gaussian pyramid with a two-dimensional kernel texture. The kernel describes how an optical system responds to a single point of light—its point spread function, or PSF. A centered bright point in the kernel can be surrounded by rings, streaks, colored scattering, or an asymmetric star pattern. When the scene is convolved with that kernel, every source pixel distributes part of its brightness to neighboring pixels according to the same shape.",
+        "This is why Convolution Bloom can create responses that Standard Bloom cannot: starbursts, directional streaks, complex lens-like scattering, and non-symmetric halos all come directly from the kernel image. A kernel can resemble a camera or eye response, but it is only as physically meaningful as the data and normalization used to build it."
+      ],
+      "equations": [
+        {
+          "label": "Spatial convolution",
+          "expression": "B(x, y) = I(x, y) * K(x, y)",
+          "terms": [
+            {
+              "symbol": "I",
+              "text": "Source HDR image."
+            },
+            {
+              "symbol": "K",
+              "text": "Kernel texture or point spread function."
+            },
+            {
+              "symbol": "B",
+              "text": "Convolved bloom result."
+            }
+          ]
+        }
+      ],
+      "flow": {
+        "label": "What convolution does",
+        "steps": [
+          {
+            "icon": "ellipse-outline",
+            "title": "Point source",
+            "text": "One bright image sample"
+          },
+          {
+            "icon": "aperture-outline",
+            "title": "Kernel response",
+            "text": "A centered PSF, starburst, or scattering pattern"
+          },
+          {
+            "icon": "copy-outline",
+            "title": "Spread each pixel",
+            "text": "Scale and place the kernel at every source sample"
+          },
+          {
+            "icon": "add-outline",
+            "title": "Accumulate",
+            "text": "Overlapping responses form the bloom image"
           }
         ]
       }
     },
     {
-      "heading": "What a PSF glare path does",
+      "heading": "Why Unreal uses the FFT",
       "paragraphs": [
-        "A PSF path extracts or otherwise identifies glare-producing luminance, then convolves it with a kernel expressed as angular spread. If the kernel is a density per steradian, projected source samples must be weighted by their source solid angle. The output is composited within a declared exposure and tone-mapping pipeline.",
-        "The approach can represent narrow cores, long scattering tails, wavelength-dependent halos, and directional streaks. It can also be much more expensive. A large direct convolution is rarely practical, so implementations use separability when available, FFT convolution, hierarchical approximations, sparse bright-source methods, or hybrid kernels."
+        "A large kernel makes direct spatial convolution prohibitively expensive. A 513 × 513 kernel contains 263,169 samples; testing that many kernel taps for every output pixel is not a practical full-screen real-time operation.",
+        "Unreal accelerates Bloom Convolution with the Fast Fourier Transform. The convolution theorem says that convolution in image space becomes multiplication in frequency space. The engine transforms the scene and kernel, multiplies their frequency representations, and transforms the product back into an image. The result is still Scene * Kernel—the FFT is a more efficient route to that result for a large filter."
+      ],
+      "equations": [
+        {
+          "label": "Convolution theorem",
+          "expression": "FFT(I * K) = FFT(I) · FFT(K)",
+          "terms": [
+            "Convolution in image space becomes element-wise multiplication in frequency space."
+          ]
+        },
+        {
+          "label": "FFT implementation",
+          "expression": "B = IFFT[FFT(I) · FFT(K)]",
+          "terms": [
+            {
+              "symbol": "IFFT",
+              "text": "Inverse transform that returns the multiplied result to image space."
+            }
+          ]
+        }
+      ],
+      "flow": {
+        "label": "Convolution Bloom path",
+        "steps": [
+          {
+            "icon": "image-outline",
+            "title": "Bloom source",
+            "text": "HDR image to be filtered"
+          },
+          {
+            "icon": "pulse-outline",
+            "title": "Forward FFT",
+            "text": "Transform source and kernel"
+          },
+          {
+            "icon": "close-outline",
+            "title": "Multiply",
+            "text": "Combine frequency-domain values"
+          },
+          {
+            "icon": "return-down-back-outline",
+            "title": "Inverse FFT",
+            "text": "Return the result to image space"
+          },
+          {
+            "icon": "sparkles-outline",
+            "title": "Bloom",
+            "text": "Composite the shaped response with the scene"
+          }
+        ]
+      },
+      "codeBlocks": [
+        {
+          "file": "Conceptual Convolution Bloom pseudocode",
+          "language": "cpp",
+          "code": "SceneFrequency  = FFT(BloomSource);\nKernelFrequency = FFT(BloomKernel);\n\nBloomFrequency = SceneFrequency * KernelFrequency;\nBloom = IFFT(BloomFrequency);\n\nFinalHDR = SceneColor + Bloom;"
+        }
+      ],
+      "callouts": [
+        {
+          "tone": "note",
+          "title": "A static kernel can be cached",
+          "text": "When the kernel does not change, its transformed representation can be reused instead of recomputed every frame. Unreal exposes bloom kernel caching through the r.Bloom.CacheKernel console variable."
+        }
       ]
     },
     {
-      "heading": "A fair feature comparison",
+      "heading": "Setting up a Convolution kernel",
       "paragraphs": [
-        "The choice is not ‘fake versus physical.’ It is a choice of objective. Standard Bloom is often the right renderer feature when the goal is robust artistic response at real-time cost. A calibrated PSF is useful when angular consistency, glare research, optical matching, or explicit energy accounting matters. A poorly normalized PSF texture can be less defensible than a well-characterized bloom chain.",
-        "Unreal’s Convolution Bloom deserves its own row: it convolves the image with a supplied kernel and can produce custom bloom shapes. Kernel convolution is a mechanism; it becomes a human-eye model only when the kernel, input quantity, projection mapping, and normalization support that interpretation."
+        "Select Convolution under Lens → Bloom → Method in a Post Process Volume, then assign the Convolution Kernel texture. Convolution Scale changes the response size relative to the viewport, Convolution Center corrects the kernel's UV origin, Convolution Boost selectively amplifies bright source values, and Convolution Buffer reserves space to prevent the FFT result from wrapping across the image boundary.",
+        "The kernel should be treated as filter data rather than an ordinary streamed color texture. Epic recommends disabling mip generation and enabling Never Stream so the full-resolution kernel remains resident. The hottest point should normally be near the center, and the useful structure should occupy much of the image. Because convolution is a whole-image filter, the kernel's center needs to be much brighter than the surrounding values; Epic recommends EXR for the required dynamic range."
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "Control",
+            "Purpose",
+            "Practical caution"
+          ],
+          "rows": [
+            [
+              "Convolution Kernel",
+              "Defines the bloom response shape",
+              "Keep it at full resolution with no mipmaps and no streaming"
+            ],
+            [
+              "Convolution Scale",
+              "Changes kernel size relative to the viewport",
+              "Primarily used to make the bloom smaller"
+            ],
+            [
+              "Convolution Center",
+              "Sets the kernel origin in UV coordinates",
+              "Offsets move the complete bloom response"
+            ],
+            [
+              "Convolution Boost",
+              "Amplifies a selected brightness range before filtering",
+              "Disabled by default; use it carefully"
+            ],
+            [
+              "Convolution Buffer",
+              "Prevents wraparound at the image boundary",
+              "Larger buffers increase cost"
+            ]
+          ],
+          "caption": "Large visual changes belong in the kernel image; the advanced settings are best used for smaller corrections."
+        }
+      ],
+      "numberedSteps": [
+        {
+          "title": "Start with a high-dynamic-range kernel",
+          "text": "Use a centered, very bright impulse surrounded by the rings, rays, or haze you want the optical response to contain."
+        },
+        {
+          "title": "Preserve the source texture",
+          "text": "Disable mipmaps and texture streaming so Unreal does not substitute a degraded low-resolution kernel."
+        },
+        {
+          "title": "Set the center before tuning the scale",
+          "text": "Correct small UV alignment errors first; otherwise every bright source produces a displaced response."
+        },
+        {
+          "title": "Check the screen edges",
+          "text": "Increase Convolution Buffer only as much as needed to remove visible wraparound, because the buffer has a performance cost."
+        }
+      ]
+    },
+    {
+      "heading": "Standard vs. Convolution",
+      "paragraphs": [
+        "The choice is mainly about the response you need and the frame time you can afford. Standard Bloom approximates glow through a small number of smooth scales and has a clear performance advantage. Convolution Bloom spends more time to reproduce the structure encoded in a custom kernel and is intended for high-end hardware, in-game cinematics, or offline cinematic work.",
+        "Convolution is the better fit when a recognizable optical signature matters. Standard is the better default when bloom needs to look good across a real-time game without becoming a dominant post-process cost."
       ],
       "technicalTables": [
         {
           "columns": [
             "Question",
             "Standard Bloom",
-            "Angular PSF glare",
             "Convolution Bloom"
           ],
           "rows": [
             [
-              "Primary goal",
-              "Fast, art-directed halo",
-              "Model a declared angular spread",
-              "Custom image-space kernel"
+              "Core method",
+              "Multi-resolution Gaussian blur pyramid",
+              "Image convolution with a custom kernel"
             ],
             [
-              "Kernel",
-              "Several Gaussian scales",
-              "Measured or paper-derived PSF",
-              "Artist/imported kernel image"
+              "Bloom shape",
+              "Smooth, multi-scale glow",
+              "Arbitrary PSF, starburst, or asymmetric response"
             ],
             [
-              "FOV behavior",
-              "Must be characterized",
-              "Built around visual angle",
-              "Depends on kernel mapping"
+              "Acceleration",
+              "Downsampling and efficient Gaussian filtering",
+              "Fast Fourier Transform"
             ],
             [
-              "Energy meaning",
-              "Implementation/control dependent",
-              "Can be unit-integral by construction",
-              "Depends on kernel normalization"
+              "Performance",
+              "Faster",
+              "More expensive"
             ],
             [
-              "Cost strategy",
-              "Multi-resolution separable blur",
-              "Direct, FFT, sparse, or hybrid",
-              "Engine convolution implementation"
+              "Energy behavior",
+              "Not conservative; may brighten the image overall",
+              "Documented by Epic as energy-conserving scatter"
+            ],
+            [
+              "Typical use",
+              "Most real-time game applications",
+              "High-end hardware and cinematic rendering"
             ]
           ],
-          "caption": "A mechanism does not acquire physical meaning merely because it is called convolution."
+          "caption": "The custom kernel provides optical complexity; the blur pyramid provides speed."
         }
-      ]
-    },
-    {
-      "heading": "Integration order changes the result",
-      "paragraphs": [
-        "Glare is driven by scene brightness, but the renderer operates through pre-exposure, exposure, thresholding, tone mapping, and display encoding. Applying a kernel to tone-mapped display RGB is not equivalent to spreading scene-referred luminance before tone mapping. Document the color space and exposure state at the extraction and composite points.",
-        "Spencer’s original display-oriented method applies glare to intensity exceeding the display maximum, which is a particular simulation setup. A modern HDR renderer may choose a different source-selection rule. That is a design change, not something the PSF equation decides."
       ],
       "callouts": [
         {
           "tone": "warning",
-          "title": "Avoid double bloom",
-          "text": "When comparing a PSF path, disable or isolate Standard Bloom and Convolution Bloom. Otherwise the reference and test effects are stacked, and neither energy nor shape comparisons are interpretable."
+          "title": "Convolution does not guarantee a physical camera model",
+          "text": "A kernel texture supplies the shape. Its physical interpretation still depends on how that texture was measured or authored, centered, scaled, and normalized."
         }
       ]
     },
     {
-      "heading": "Benchmark with controlled stimuli",
+      "heading": "The short decision rule",
       "paragraphs": [
-        "Use an HDR impulse, a thin bright line, a grid of equal-luminance points, and an extended bright disk. Sweep intensity without moving the source, then sweep FOV and output resolution without changing its angular position. Compare radial profiles, integrated output, temporal stability, and GPU time—not only screenshots.",
-        "For performance, report resolution, kernel support, pass count, and hardware. A low-resolution mip chain and a full-resolution direct convolution solve very different workloads. Quality comparisons should give both methods comparable source selection and compositing conditions."
-      ],
-      "bullets": [
-        "Impulse test: kernel shape and normalization.",
-        "FOV test: angular versus pixel-space size.",
-        "Resolution test: brightness and profile stability.",
-        "Extended source: linearity and halo overlap.",
-        "Temporal test: shimmer, history dependence, and dynamic-resolution transitions."
-      ],
-      "numberedSteps": [
-        {
-          "title": "Lock the input",
-          "text": "Same HDR buffer, exposure state, threshold rule, and composite point for both paths."
-        },
-        {
-          "title": "Record profiles",
-          "text": "Export horizontal and radial luminance profiles, not only screenshots."
-        },
-        {
-          "title": "Sweep FOV and resolution",
-          "text": "Measure half-energy angle, peak value, and integrated output."
-        },
-        {
-          "title": "Record GPU cost",
-          "text": "Resolution, pass count, kernel support, hardware, and timing range belong in the result."
-        },
-        {
-          "title": "State the objective",
-          "text": "Choose Standard Bloom, Convolution Bloom, or PSF glare against the actual product requirement."
-        }
-      ]
-    },
-    {
-      "heading": "Decision rule",
-      "paragraphs": [
-        "Use Standard Bloom for a low-cost, art-directed multi-scale halo. Use Convolution Bloom when a custom image-space kernel is the requirement. Build a calibrated PSF path only when the project needs angular consistency, a documented eye/optics model, and unit or energy validation—and can afford the implementation and test cost."
+        "Use Standard Bloom when you want a fast, controllable halo for normal gameplay. Tune the high-resolution levels for compact glow and the lower-resolution levels for wide haze. Use Convolution Bloom when the bloom must carry a specific optical pattern and the target hardware or cinematic budget can absorb the FFT-based filter.",
+        "In one line: Standard Bloom builds an efficient approximation from several Gaussian scales; Convolution Bloom applies the response encoded by a custom PSF kernel."
       ]
     }
   ],
@@ -178,13 +420,17 @@
       "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/bloom-in-unreal-engine"
     },
     {
-      "label": "Epic Games: Post Process Effects",
-      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/post-process-effects-in-unreal-engine"
+      "label": "Epic Games: Unreal Engine Console Variables Reference",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-console-variables-reference"
     },
     {
-      "label": "Spencer et al., Physically-Based Glare Effects for Digital Images",
-      "url": "https://www.graphics.cornell.edu/pubs/1995/SSZG95.pdf"
+      "label": "Temporal Glare: Real-Time Dynamic Simulation of Scattering in the Human Eye",
+      "url": "https://people.compute.dtu.dk/jerf/papers/TemporalGlare.pdf"
+    },
+    {
+      "label": "Spencer et al.: Physically-Based Glare Effects for Digital Images",
+      "url": "https://dl.acm.org/doi/10.1145/218380.218466"
     }
   ],
-  "closing": "The comparison report should include identical HDR input conditions, radial profiles, FOV and resolution sweeps, integrated output, GPU timings, and the product requirement used to select a path."
+  "closing": "Standard Bloom wins on speed by constructing glow from a downsampled Gaussian pyramid. Convolution Bloom wins on shape by filtering the HDR source with a custom kernel through the FFT. Choose the method that matches the image you need and the frame time you actually have."
 }

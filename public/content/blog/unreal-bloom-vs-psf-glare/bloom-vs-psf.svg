@@ -1,8 +1,44 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="t d"><title id="t">Unreal standard bloom versus PSF glare</title><desc id="d">A mip pyramid and multi-scale Gaussian reconstruction are contrasted with convolution by a calibrated angular kernel.</desc><defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#111014"/><stop offset="1" stop-color="#242126"/></linearGradient></defs><rect width="1280" height="720" fill="url(#bg)"/>
-  <text x="70" y="94" fill="#f5c85b" font-family="Arial" font-size="20" letter-spacing="5">BLOOM MODELS</text><text x="70" y="144" fill="#f5f2e8" font-family="Arial" font-size="40" font-weight="700">Fast multi-scale blur or explicit lens response?</text><path d="M640 205v400" stroke="#4c484f"/>
-  <g font-family="Arial"><text x="110" y="230" fill="#6ad4c8" font-size="25" font-weight="700">Standard bloom</text><text x="718" y="230" fill="#f5c85b" font-size="25" font-weight="700">PSF glare</text>
-  <g fill="#17191e" stroke="#4e5660"><rect x="105" y="278" width="190" height="116" rx="16"/><rect x="330" y="302" width="145" height="92" rx="16"/><rect x="510" y="326" width="90" height="68" rx="14"/></g><g fill="#f5f2e8" text-anchor="middle"><text x="200" y="330" font-size="18">bright pass</text><text x="200" y="360" fill="#aaa" font-size="14">½ resolution</text><text x="402" y="342" font-size="18">blur</text><text x="402" y="370" fill="#aaa" font-size="14">⅛ resolution</text><text x="555" y="365" font-size="17">blur</text></g>
-  <rect x="716" y="278" width="176" height="116" rx="16" fill="#17191e" stroke="#4e5660"/><circle cx="1015" cy="336" r="105" fill="none" stroke="#f5c85b" stroke-width="3"/><circle cx="1015" cy="336" r="48" fill="#f5c85b" opacity=".1"/><circle cx="1015" cy="336" r="7" fill="#fff2b8"/><text x="804" y="330" fill="#f5f2e8" text-anchor="middle" font-size="18">HDR source</text><text x="804" y="360" fill="#aaa" text-anchor="middle" font-size="14">radiometric input</text>
-  <text x="1020" y="480" fill="#aaa5ad" text-anchor="middle" font-size="16">fixed angular distribution</text><text x="352" y="480" fill="#aaa5ad" text-anchor="middle" font-size="16">weighted, performance-oriented scales</text></g>
-  <text x="70" y="620" fill="#aaa5ad" font-family="Arial" font-size="17">Neither model is universally “better.” They optimize different contracts: art direction and speed versus explicit spread and energy.</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="t d">
+  <title id="t">Unreal Engine 5 Standard Bloom versus Convolution Bloom</title>
+  <desc id="d">A multi-resolution Gaussian blur pyramid is compared with an FFT convolution pipeline driven by a custom bloom kernel.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#111014"/><stop offset="1" stop-color="#242126"/></linearGradient>
+    <radialGradient id="halo"><stop stop-color="#fff5c7" stop-opacity=".9"/><stop offset=".2" stop-color="#f5c85b" stop-opacity=".35"/><stop offset="1" stop-color="#f5c85b" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <text x="70" y="94" fill="#f5c85b" font-family="Arial" font-size="20" letter-spacing="5">UNREAL ENGINE 5 BLOOM</text>
+  <text x="70" y="144" fill="#f5f2e8" font-family="Arial" font-size="40" font-weight="700">Standard blur pyramid or FFT convolution?</text>
+  <path d="M640 205v400" stroke="#4c484f"/>
+  <g font-family="Arial">
+    <text x="110" y="230" fill="#6ad4c8" font-size="25" font-weight="700">Standard Bloom</text>
+    <text x="718" y="230" fill="#f5c85b" font-size="25" font-weight="700">Convolution Bloom</text>
+    <g fill="#17191e" stroke="#4e5660">
+      <rect x="90" y="286" width="156" height="104" rx="16"/>
+      <rect x="275" y="306" width="132" height="84" rx="15"/>
+      <rect x="436" y="326" width="102" height="64" rx="14"/>
+      <rect x="562" y="344" width="56" height="46" rx="12"/>
+    </g>
+    <g fill="#f5f2e8" text-anchor="middle">
+      <text x="168" y="329" font-size="17">½ res</text><text x="168" y="357" fill="#aaa" font-size="13">small blur</text>
+      <text x="341" y="340" font-size="17">¼ res</text><text x="341" y="367" fill="#aaa" font-size="13">blur</text>
+      <text x="487" y="354" font-size="16">⅛ res</text><text x="487" y="377" fill="#aaa" font-size="12">blur</text>
+      <text x="590" y="374" font-size="13">¹⁄₃₂</text>
+    </g>
+    <path d="M130 420h440" stroke="#6ad4c8" stroke-width="3"/><path d="m570 420-13-8v16z" fill="#6ad4c8"/>
+    <text x="350" y="463" fill="#aaa5ad" text-anchor="middle" font-size="16">downsample · blur · upsample · combine</text>
+    <g fill="#17191e" stroke="#4e5660">
+      <rect x="704" y="286" width="128" height="92" rx="16"/>
+      <rect x="894" y="286" width="128" height="92" rx="16"/>
+      <rect x="1084" y="286" width="128" height="92" rx="16"/>
+    </g>
+    <text x="768" y="329" fill="#f5f2e8" text-anchor="middle" font-size="17">Scene FFT</text>
+    <text x="958" y="319" fill="#f5f2e8" text-anchor="middle" font-size="17">Frequency</text><text x="958" y="346" fill="#aaa" text-anchor="middle" font-size="14">multiply</text>
+    <text x="1148" y="329" fill="#f5f2e8" text-anchor="middle" font-size="17">Inverse FFT</text>
+    <path d="M832 332h54m136 0h54" stroke="#f5c85b" stroke-width="3"/><path d="m886 332-13-8v16zm190 0-13-8v16z" fill="#f5c85b"/>
+    <circle cx="958" cy="451" r="83" fill="url(#halo)"/>
+    <g stroke="#f5c85b" stroke-width="2" opacity=".8"><path d="M875 451h166M958 368v166M899 392l118 118M899 510l118-118"/></g>
+    <circle cx="958" cy="451" r="6" fill="#fff5c7"/>
+    <text x="958" y="566" fill="#aaa5ad" text-anchor="middle" font-size="16">custom kernel defines the response</text>
+  </g>
+  <text x="70" y="650" fill="#aaa5ad" font-family="Arial" font-size="17">Standard favors real-time speed. Convolution favors complex, kernel-defined optical shapes.</text>
 </svg>
