@@ -1,5 +1,5 @@
 {
-  "id": "693ea2ba-1013-47f2-922a-243ebbb907b9",
+  "id": "cc12f1e8-a391-4032-8dbf-01cded84ead3",
   "uid": "b2002f83f6ab93e60168f5371e1a1cdf73904456fd3ea9658e3d56e966644c23",
   "url": "https://blog.neurips.cc/2026/05/04/responsible-ai-metadata-requirements-for-the-evaluations-and-datasets-track-neurips-2026",
   "canonicalUrl": "https://blog.neurips.cc/2026/05/04/responsible-ai-metadata-requirements-for-the-evaluations-and-datasets-track-neurips-2026",
@@ -9,6 +9,6 @@
   "subtitle": "This year, to improve transparency and responsible use of datasets, we are introducing a new requirement for dataset submissions in the NeurIPS 2026 Evaluations and Datasets Track: all dataset submissions must now include Responsible AI (RAI) metadata as part of the dataset’s Croissant file. Dataset submissions to the track are already required to include a […]",
   "imageUrl": null,
   "publishedAt": "2026-05-04T07:52:52.000Z",
-  "firstSeenAt": "2026-08-11T06:05:17.352Z",
-  "lastSeenAt": "2026-08-11T06:05:17.352Z"
+  "firstSeenAt": "2026-08-11T07:38:14.430Z",
+  "lastSeenAt": "2026-08-11T07:38:14.430Z"
 }

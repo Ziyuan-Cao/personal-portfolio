@@ -1,5 +1,5 @@
 {
-  "id": "817eaf07-4483-41fc-9492-2e647f8c633b",
+  "id": "45002c76-06ad-4cbe-b51e-d4549768d767",
   "uid": "33baafe05ed9ce31c5a7469d701e5cd095b89780f6009f6f69a1f29fec0e1fae",
   "url": "https://www.khronos.org/blog/khronos-adds-middleware-insights-to-the-openxr-extension-matrix",
   "canonicalUrl": "https://www.khronos.org/blog/khronos-adds-middleware-insights-to-the-openxr-extension-matrix",
@@ -9,6 +9,6 @@
   "subtitle": "The Khronos OpenXR working group has expanded its Extension Matrix to include self-reported data from middleware providers. Developers now have a clearer view of what's available across the broader XR stack.",
   "imageUrl": "https://www.khronos.org/images/jcogs_img/cache/expanding_the_openxr_extension_matrix_v3_-_28de80_-_ade52cc9e2371411e2f6a5e18fb8664a9767175d.png",
   "publishedAt": "2026-04-07T13:00:00.000Z",
-  "firstSeenAt": "2026-08-11T06:04:59.132Z",
-  "lastSeenAt": "2026-08-11T06:04:59.132Z"
+  "firstSeenAt": "2026-08-11T07:37:55.161Z",
+  "lastSeenAt": "2026-08-11T07:37:55.161Z"
 }
