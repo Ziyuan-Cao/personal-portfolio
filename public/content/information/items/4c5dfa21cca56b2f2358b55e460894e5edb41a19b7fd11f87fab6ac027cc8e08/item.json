@@ -1,5 +1,5 @@
 {
-  "id": "1e1e473a-5ead-4874-b7b7-d06256a501ca",
+  "id": "82d7d1a7-468b-4202-8880-f512da5687d7",
   "uid": "4c5dfa21cca56b2f2358b55e460894e5edb41a19b7fd11f87fab6ac027cc8e08",
   "url": "https://gpuopen.com/learn/amd-dgf-an-open-geometry-compression-standard",
   "canonicalUrl": "https://gpuopen.com/learn/amd-dgf-an-open-geometry-compression-standard",
@@ -9,6 +9,6 @@
   "subtitle": "AMD is partnering with Samsung on a multivendor Vulkan extension for Dense Geometry Format (DGF) to help enable dramatically smaller geometry, reduced memory/latency for ray-traced real‑time 3D, and easier engine integration.",
   "imageUrl": "https://gpuopen.com/images/featured-dgf-blog.B1KuAYhx.png",
   "publishedAt": "2026-05-07T20:51:00.000Z",
-  "firstSeenAt": "2026-08-11T01:49:36.834Z",
-  "lastSeenAt": "2026-08-11T01:49:36.834Z"
+  "firstSeenAt": "2026-08-11T02:29:04.961Z",
+  "lastSeenAt": "2026-08-11T02:29:04.961Z"
 }

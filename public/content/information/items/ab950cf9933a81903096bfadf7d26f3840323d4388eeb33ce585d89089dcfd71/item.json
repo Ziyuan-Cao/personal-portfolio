@@ -1,5 +1,5 @@
 {
-  "id": "5aaf9bc2-b59c-40a9-9404-f2a969ab70a9",
+  "id": "d8a78c28-8549-4e0a-a5c1-c871c2b78f88",
   "uid": "ab950cf9933a81903096bfadf7d26f3840323d4388eeb33ce585d89089dcfd71",
   "url": "https://gpuopen.com/learn/ray-tracing-massive-amounts-animated-geometry",
   "canonicalUrl": "https://gpuopen.com/learn/ray-tracing-massive-amounts-animated-geometry",
@@ -9,6 +9,6 @@
   "subtitle": "Animate compact tetrahedral cages and reuse static mini-BLASes to ray-trace hundreds of millions of triangles in real time, dramatically cutting per-frame update and memory costs for dense foliage, grass, and crowds.",
   "imageUrl": "https://gpuopen.com/images/FFX_HybridReflections.BrXc0EK2.jpg",
   "publishedAt": "2026-07-22T13:00:00.000Z",
-  "firstSeenAt": "2026-08-11T01:49:36.834Z",
-  "lastSeenAt": "2026-08-11T01:49:36.834Z"
+  "firstSeenAt": "2026-08-11T02:29:04.961Z",
+  "lastSeenAt": "2026-08-11T02:29:04.961Z"
 }

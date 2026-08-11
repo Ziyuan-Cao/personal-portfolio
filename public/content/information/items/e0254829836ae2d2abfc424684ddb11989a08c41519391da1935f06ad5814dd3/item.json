@@ -1,5 +1,5 @@
 {
-  "id": "ddd5464e-5788-42c1-8f1d-9799e9ef4411",
+  "id": "bb7da112-0dea-4e22-8ca3-dba185729227",
   "uid": "e0254829836ae2d2abfc424684ddb11989a08c41519391da1935f06ad5814dd3",
   "url": "https://unity.com/blog/unity-ai-3d-object-generator",
   "canonicalUrl": "https://unity.com/blog/unity-ai-3d-object-generator",
@@ -9,6 +9,6 @@
   "subtitle": "Unity's AI tools in beta includes a 3D Object Generator capable of creating static 3D mesh prefabs from text prompts or reference images. Generated objects are single-part, non-rigged props suited to environment details, household items, and decorative assets. Generate directly from the Generators window or through the in-editor AI Assistant using natural language. Results are saved to the Assets folder as prefabs containing a mesh and materials. Requires Unity 6.0+ with the AI beta package installed.",
   "imageUrl": null,
   "publishedAt": "2026-05-21T00:00:00.000Z",
-  "firstSeenAt": "2026-08-11T01:49:20.689Z",
-  "lastSeenAt": "2026-08-11T01:49:20.689Z"
+  "firstSeenAt": "2026-08-11T02:28:36.145Z",
+  "lastSeenAt": "2026-08-11T02:28:36.145Z"
 }
