@@ -1,7 +1,7 @@
 {
   "slug": "how-this-site-works",
   "title": "How This Site Works",
-  "abstract": "A guided tour of the portfolio, the hourly GitHub Actions pipeline, and the collector that turns trusted feeds into a fresh static news page.",
+  "abstract": "A guided tour of the portfolio, the daily GitHub Actions pipeline, and the collector that turns trusted feeds into a fresh static news page.",
   "category": "Behind the scenes",
   "publishedAt": "2026-08-09",
   "readingTime": "10 min read",
@@ -25,7 +25,7 @@
           {
             "icon": "timer-outline",
             "title": "GitHub Actions",
-            "text": "Starts on a push, an hourly schedule, or a manual request"
+            "text": "Starts on a push, the daily schedule, or a manual request"
           },
           {
             "icon": "scan-outline",
@@ -73,17 +73,17 @@
       }
     },
     {
-      "heading": "Why the news can refresh every hour",
+      "heading": "Why the news refreshes each morning",
       "paragraphs": [
-        "There is no portfolio server running continuously. The schedule below asks GitHub Actions to create a temporary runner at minute 17 of every hour. The five cron fields mean minute, hour, day of month, month, and day of week, so the four asterisks match every hour and every day.",
-        "GitHub evaluates this schedule in UTC because no timezone is specified. Choosing minute 17 also avoids the especially busy start of the hour. Scheduled execution is best effort: GitHub documents that runs can be delayed during heavy load, so hourly means a regular target rather than an exact sixty-minute promise.",
+        "There is no portfolio server running continuously. The schedule below asks GitHub Actions to create a temporary runner once a day. The five cron fields mean minute, hour, day of month, month, and day of week: zero selects the start of the hour, 21 selects 21:00 UTC, and the three asterisks match every calendar day.",
+        "GitHub evaluates this schedule in UTC. Japan Standard Time is UTC+9, so 21:00 UTC is 06:00 JST on the following day. Scheduled execution is best effort: GitHub documents that a run can be delayed during heavy load, so 06:00 is the daily target rather than an exact start-time guarantee.",
         "The other triggers are useful too. A push to master publishes code or writing changes, while workflow_dispatch adds the Run workflow button in GitHub's Actions interface."
       ],
       "codeBlocks": [
         {
           "file": ".github/workflows/pages.yml",
           "language": "yaml",
-          "code": "on:\n  push:\n    branches:\n      - master\n  schedule:\n    - cron: \"17 * * * *\"\n  workflow_dispatch:"
+          "code": "on:\n  push:\n    branches:\n      - master\n  schedule:\n    # 21:00 UTC is 06:00 JST on the following day.\n    - cron: \"0 21 * * *\"\n  workflow_dispatch:"
         }
       ]
     },

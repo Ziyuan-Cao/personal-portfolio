@@ -29,7 +29,7 @@ When running the Fastify server locally, collected items are stored in `data/inf
 
 ## GitHub Pages
 
-The workflow in `.github/workflows/pages.yml` collects news every hour, can also be run manually, and deploys the contents of `public/`.
+The workflow in `.github/workflows/pages.yml` collects news once a day at 06:00 JST, can also be run manually, and deploys the contents of `public/`.
 
 After pushing the workflow, open the repository's **Settings → Pages** page and set **Source** to **GitHub Actions**. The first successful workflow run will replace the README page with the portfolio.
 
