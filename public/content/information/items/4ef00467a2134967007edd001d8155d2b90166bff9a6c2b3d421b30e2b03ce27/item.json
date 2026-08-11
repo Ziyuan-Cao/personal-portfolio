@@ -1,5 +1,5 @@
 {
-  "id": "f917966e-f6c7-4f8d-9c05-1bc895581e9c",
+  "id": "6fe404c3-acf3-4024-b64f-8c7b9d437869",
   "uid": "4ef00467a2134967007edd001d8155d2b90166bff9a6c2b3d421b30e2b03ce27",
   "url": "https://www.khronos.org/blog/opencl-3.1-is-here",
   "canonicalUrl": "https://www.khronos.org/blog/opencl-3.1-is-here",
@@ -9,6 +9,6 @@
   "subtitle": "On the eve of IWOCL 2026, the Khronos® OpenCL Working Group has released OpenCL™ 3.1, bringing widely deployed, field-proven capabilities into the core specification to expand functionality, including SPIR-V ingestion, that developers will be able to rely on across conformant implementations. The new specification arrives into a growing OpenCL ecosystem, with implementations from multiple silicon vendors, particularly in mobile and embedded markets, and higher-level frameworks including SYCL™ and chipStar increasingly targeting OpenCL as an acceleration backend. The open-source compiler and runtime ecosystem around OpenCL also continues to mature with layered implementations of OpenCL over Vulkan and DirectX 12 — widening OpenCL’s cross-platform availability, including on platforms without native drivers.",
   "imageUrl": "https://www.khronos.org/images/jcogs_img/cache/opencl-3-1-banner-c_-_28de80_-_ade52cc9e2371411e2f6a5e18fb8664a9767175d.png",
   "publishedAt": "2026-05-04T07:01:00.000Z",
-  "firstSeenAt": "2026-08-11T09:14:09.726Z",
-  "lastSeenAt": "2026-08-11T09:14:09.726Z"
+  "firstSeenAt": "2026-08-11T10:05:26.165Z",
+  "lastSeenAt": "2026-08-11T10:05:26.165Z"
 }

@@ -1,5 +1,5 @@
 {
-  "id": "e27b688d-7e99-48af-bec9-4955a33e4347",
+  "id": "41a5dd29-de91-4f9a-8599-54b69dc38fb1",
   "uid": "fda44a93eefe721630cc238778f9503f8e0b14b9e4e891a4c259ad300d720d15",
   "url": "https://devblogs.microsoft.com/directx/shader-model-6-10-agilitysdk-720-preview",
   "canonicalUrl": "https://devblogs.microsoft.com/directx/shader-model-6-10-agilitysdk-720-preview",
@@ -9,6 +9,6 @@
   "subtitle": "Overview Today, we are pleased to announce that Shader Model 6.10 and other features have been officially released with Agility SDK 1.720-preview and complementary DXC 1.10.2605.2. AgilitySDK 1.720-preview exposes the following features. There’s more detail further below, including download and driver links. Shader Model 6.10 (via DXC 1.10.2605.2): linalg::Matrix Group Wave Index Variable Group Shared […] The post Announcing Shader Model 6.10 Preview and AgilitySDK 720 Preview appeared first on DirectX Developer Blog.",
   "imageUrl": "https://devblogs.microsoft.com/directx/wp-content/uploads/sites/42/2017/01/XII_BLACK_1kx1k.jpg",
   "publishedAt": "2026-04-27T17:01:04.000Z",
-  "firstSeenAt": "2026-08-11T09:14:36.316Z",
-  "lastSeenAt": "2026-08-11T09:14:36.316Z"
+  "firstSeenAt": "2026-08-11T10:05:49.811Z",
+  "lastSeenAt": "2026-08-11T10:05:49.811Z"
 }
