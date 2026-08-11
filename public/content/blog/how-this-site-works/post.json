@@ -90,14 +90,14 @@
     {
       "heading": "What the GitHub runner does",
       "paragraphs": [
-        "Each run starts on a clean Ubuntu machine. It checks out the latest repository commit, installs the exact dependency versions from the lockfile, compiles the TypeScript as a build check, and runs the static collector. The public directory is uploaded as a Pages artifact only after those steps succeed.",
-        "The deploy job depends on the build job, so it cannot publish a half-built site. Its pages: write and id-token: write permissions are scoped to deployment; the workflow-level contents: read permission is deliberately not enough to commit generated news back into the repository."
+        "Each run starts on a clean Ubuntu machine. It checks out the latest repository commit, installs the exact dependency versions from the lockfile, compiles the TypeScript as a build check, and runs the static collector. When the generated news changes, the build job commits those files to master before uploading the public directory as a Pages artifact.",
+        "The build job receives contents: write only so it can save generated news. The separate deploy job receives pages: write and id-token: write, and it cannot publish until the build job succeeds. Commits made with the workflow's GITHUB_TOKEN do not start another workflow run, while the skip-ci marker also records that intent in the commit message."
       ],
       "codeBlocks": [
         {
           "file": ".github/workflows/pages.yml",
           "language": "yaml",
-          "code": "- name: Install dependencies\n  run: npm ci\n\n- name: Check TypeScript\n  run: npm test\n\n- name: Collect news\n  run: npm run collect:static\n\n- name: Upload Pages artifact\n  uses: actions/upload-pages-artifact@v3\n  with:\n    path: public\n\n# A separate job publishes that artifact.\n- name: Deploy to GitHub Pages\n  uses: actions/deploy-pages@v4"
+          "code": "- name: Collect news\n  run: npm run collect:static\n\n- name: Save collected news\n  run: |\n    git add --all public/content/information\n    git diff --cached --quiet && exit 0\n    git commit -m \"chore(news): refresh collected news [skip ci]\"\n    git push origin HEAD:master\n\n- name: Upload Pages artifact\n  uses: actions/upload-pages-artifact@v3\n  with:\n    path: public\n\n# A separate job publishes that artifact.\n- name: Deploy to GitHub Pages\n  uses: actions/deploy-pages@v4"
         }
       ],
       "bullets": [
@@ -156,7 +156,7 @@
       "heading": "The deployed feed is a fresh snapshot",
       "paragraphs": [
         "The static collector deliberately opens an in-memory SQLite database. It does not import the previously deployed JSON file, so each workflow run rebuilds the digest from the articles currently returned by the configured sources. Canonical URLs and stable hashes prevent duplicates inside that run, but first-seen timestamps and internal row IDs begin again on the next runner.",
-        "That makes the News page a current digest rather than a permanent archive. The generated index and per-item folders are placed in the Pages artifact. If every source fails and no items are collected, the script throws before deployment, leaving the last successful Pages artifact live. A partial source failure does not stop deployment, so that source can be absent until a later successful run."
+        "That makes the News page a current digest rather than a permanent archive. The generated index and per-item folders are committed to the repository and placed in the Pages artifact. If every source fails and no items are collected, the script throws before the commit and deployment, leaving both the last saved snapshot and the last successful Pages artifact unchanged. A partial source failure does not stop the run, so that source can be absent from the saved snapshot until a later successful collection."
       ],
       "codeBlocks": [
         {
@@ -184,7 +184,7 @@
       "heading": "Why this architecture",
       "paragraphs": [
         "There is no application server to keep alive in production and no database required by visitors. GitHub provides short-lived compute for collection, and GitHub Pages serves ordinary static files. The result is inexpensive, portable, and resilient, while the local Fastify server and persistent SQLite database remain useful during development.",
-        "The trade-off is latency and limited history: updates arrive when a scheduled workflow and deployment finish, rather than instantly, and the static output reflects the sources' current windows. In return, each live artifact is associated with a visible workflow run and repository commit without giving the collector permission to rewrite the repository."
+        "The trade-off is latency, limited history, and an automated repository commit whenever the generated snapshot changes: updates arrive when a scheduled workflow and deployment finish, rather than instantly, and the static output reflects the sources' current windows. In return, the deployed feed and the version saved in the repository stay aligned and can be inspected through ordinary Git history."
       ]
     },
     {

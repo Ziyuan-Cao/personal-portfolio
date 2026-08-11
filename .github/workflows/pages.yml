@@ -17,6 +17,8 @@ concurrency:
 
 jobs:
   build:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -36,6 +38,18 @@ jobs:
 
       - name: Collect news
         run: npm run collect:static
+
+      - name: Save collected news
+        run: |
+          git add --all public/content/information
+          if git diff --cached --quiet; then
+            echo "No collected news changes to save."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(news): refresh collected news [skip ci]"
+          git push origin HEAD:master
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
