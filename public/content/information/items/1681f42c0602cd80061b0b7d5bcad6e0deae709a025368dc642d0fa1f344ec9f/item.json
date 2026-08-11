@@ -1,5 +1,5 @@
 {
-  "id": "bf29d406-ff05-4fb3-8ee9-1b872aac27ad",
+  "id": "3fd2ffb5-ce98-4119-a85c-13de0dcedb02",
   "uid": "1681f42c0602cd80061b0b7d5bcad6e0deae709a025368dc642d0fa1f344ec9f",
   "url": "https://devblogs.microsoft.com/directx/dx-dump-files-preview",
   "canonicalUrl": "https://devblogs.microsoft.com/directx/dx-dump-files-preview",
@@ -9,6 +9,6 @@
   "subtitle": "At this year’s GDC, we shared our vision for bringing console‑level GPU developer tools to Windows. As part of that announcement, we introduced DirectX Dump Files as a major step forward in GPU crash debugging on Windows. Today, we’re excited to make our DirectX Dump Files public preview available to developers! If you missed our […] The post DirectX Dump Files Preview Now Available! appeared first on DirectX Developer Blog.",
   "imageUrl": "https://devblogs.microsoft.com/directx/wp-content/uploads/sites/42/2025/12/ultimate.webp",
   "publishedAt": "2026-06-18T17:05:40.000Z",
-  "firstSeenAt": "2026-08-09T02:54:00.941Z",
-  "lastSeenAt": "2026-08-09T02:54:00.941Z"
+  "firstSeenAt": "2026-08-11T01:49:37.174Z",
+  "lastSeenAt": "2026-08-11T01:49:37.174Z"
 }

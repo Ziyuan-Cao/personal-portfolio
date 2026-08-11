@@ -1,5 +1,5 @@
 {
-  "id": "775d6423-cae5-4727-8444-eb2b0a252100",
+  "id": "3feb2062-88af-4913-98c1-fed95a5324fd",
   "uid": "8500f0d3fdea1f7fd47d44f076c4ae6a1c4b04b3f1bcf980b838a767ae3ac146",
   "url": "https://devblogs.microsoft.com/directx/evolving-directx-for-the-ml-era-on-windows",
   "canonicalUrl": "https://devblogs.microsoft.com/directx/evolving-directx-for-the-ml-era-on-windows",
@@ -9,6 +9,6 @@
   "subtitle": "At GDC this year, we shared how machine learning is becoming foundational to real time graphics, and how DirectX is evolving to meet that shift across shader level and model level ML. ML is no longer a niche optimization or a postprocess trick. It’s increasingly embedded throughout the graphics pipeline, influencing how frames are generated, […] The post Evolving DirectX for the ML Era on Windows appeared first on DirectX Developer Blog.",
   "imageUrl": "https://devblogs.microsoft.com/directx/wp-content/uploads/sites/42/2017/01/XII_BLACK_1kx1k.jpg",
   "publishedAt": "2026-03-12T20:33:24.000Z",
-  "firstSeenAt": "2026-08-09T02:54:00.941Z",
-  "lastSeenAt": "2026-08-09T02:54:00.941Z"
+  "firstSeenAt": "2026-08-11T01:49:37.174Z",
+  "lastSeenAt": "2026-08-11T01:49:37.174Z"
 }
