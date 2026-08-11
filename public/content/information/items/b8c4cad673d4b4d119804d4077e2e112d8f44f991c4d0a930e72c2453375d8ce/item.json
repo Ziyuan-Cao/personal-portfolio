@@ -1,5 +1,5 @@
 {
-  "id": "71f9b5fb-28a9-433a-9de8-050e9cebe44a",
+  "id": "f01c4acd-d29c-4cdf-b959-8bce3348154c",
   "uid": "b8c4cad673d4b4d119804d4077e2e112d8f44f991c4d0a930e72c2453375d8ce",
   "url": "https://www.khronos.org/blog/introducing-gltf-2.1-with-complex-scenes",
   "canonicalUrl": "https://www.khronos.org/blog/introducing-gltf-2.1-with-complex-scenes",
@@ -9,6 +9,6 @@
   "subtitle": "Since the release of glTF™ 2.0 in 2017, the format has matured into a rich ecosystem spanning mesh compression, texture optimization, 3D Gaussian splats, and more. Today, the Khronos® 3D Formats Working Group is excited to announce plans for glTF 2.1: a focused, backward-compatible revision of the core specification, built around a single motivation — making glTF work as well for large, composed scenes as it already does for single assets. Every feature in this release addresses a real gap that today forces teams toward proprietary conventions, custom tooling, or workarounds that break interoperability.",
   "imageUrl": "https://www.khronos.org/images/jcogs_img/cache/2026-gltf-blog-introducing-gltf-21-with-complex-scenes-header_-_28de80_-_ade52cc9e2371411e2f6a5e18fb8664a9767175d.png",
   "publishedAt": "2026-06-11T13:00:00.000Z",
-  "firstSeenAt": "2026-08-09T02:53:25.804Z",
-  "lastSeenAt": "2026-08-09T02:53:25.804Z"
+  "firstSeenAt": "2026-08-11T09:14:09.726Z",
+  "lastSeenAt": "2026-08-11T09:14:09.726Z"
 }
