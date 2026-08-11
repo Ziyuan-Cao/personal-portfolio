@@ -1,5 +1,5 @@
 {
-  "id": "a52c694e-66f2-4da8-b6ce-7a1f44b7a84e",
+  "id": "28f9c805-ec43-4de4-b8d6-0e578e3d192c",
   "uid": "d4135c7648bcaaaf6c0353a1fe2be84ddf30fd16b33bd83607e703be29d653a0",
   "url": "https://www.khronos.org/blog/video-encoding-and-decoding-with-vulkan-compute-shaders-in-ffmpeg",
   "canonicalUrl": "https://www.khronos.org/blog/video-encoding-and-decoding-with-vulkan-compute-shaders-in-ffmpeg",
@@ -9,6 +9,6 @@
   "subtitle": "In this blog we explore how FFmpeg uses Vulkan Compute to seamlessly accelerate encoding and decoding of even professional-grade video on consumer GPUs — unlocking GPU compute parallelism at scale, without specialized hardware. This approach complements Vulkan Video's fixed-function codec support, extending acceleration to formats and workflows it doesn't cover.",
   "imageUrl": "https://www.khronos.org/assets/uploads/blogs/contributed-blog-banner.png",
   "publishedAt": "2026-03-16T17:04:00.000Z",
-  "firstSeenAt": "2026-08-11T04:40:29.508Z",
-  "lastSeenAt": "2026-08-11T04:40:29.508Z"
+  "firstSeenAt": "2026-08-11T06:04:59.132Z",
+  "lastSeenAt": "2026-08-11T06:04:59.132Z"
 }
