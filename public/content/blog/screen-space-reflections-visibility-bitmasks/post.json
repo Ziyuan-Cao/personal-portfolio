@@ -1,0 +1,413 @@
+{
+  "slug": "screen-space-reflections-visibility-bitmasks",
+  "title": "Screen-Space Reflections: Ray Marching, Hit Tests, and Visibility Bitmasks",
+  "abstract": "How SSR finds reflected scene color in a depth buffer, where it fails, and how visibility bitmasks improve SSAO and SSR-like diffuse indirect lighting without replacing mirror SSR.",
+  "category": "Real-time rendering",
+  "publishedAt": "2026-08-12",
+  "image": "/content/blog/screen-space-reflections-visibility-bitmasks/ssr-visibility-bitmask.svg",
+  "imageAlt": "A reflected view-space ray crosses a depth buffer while a neighboring hemisphere slice records occluded and visible directions in a bitmask",
+  "lede": "Screen-space reflections reuse the image the camera has already rendered. A shader reflects the view ray at a visible surface, walks that ray through the depth buffer, and samples scene color when the ray crosses another visible surface. The method is fast and fully dynamic, but it can only reflect information present in the current frame. A 2023 visibility-bitmask paper attacks a related problem: it replaces noisy SSR-like rays for diffuse indirect lighting and the single-horizon model of SSAO with a compact record of directional visibility.",
+  "sections": [
+    {
+      "heading": "SSR traces the camera's visible surfaces",
+      "paragraphs": [
+        "A conventional reflection ray queries the full scene acceleration structure. SSR instead treats the camera depth buffer as a height field over screen pixels. For each reflective pixel, it reconstructs the surface position and normal, computes the reflected direction, and searches the projected ray for a depth crossing.",
+        "The useful inputs are therefore already produced by a deferred or visibility-buffer renderer: linear or reconstructable depth, a normal, material roughness, and HDR scene color. SSR does not discover hidden geometry. It searches only the first visible layer recorded by the current camera."
+      ],
+      "flow": {
+        "label": "Conventional SSR path",
+        "steps": [
+          {
+            "title": "G-buffer",
+            "text": "Read depth, normal, and roughness"
+          },
+          {
+            "title": "Reflection ray",
+            "text": "Reflect the camera ray in view space"
+          },
+          {
+            "title": "Screen trace",
+            "text": "Walk projected pixels and compare depth"
+          },
+          {
+            "title": "Resolve",
+            "text": "Fetch HDR scene color at the hit"
+          },
+          {
+            "title": "Fallback",
+            "text": "Blend probes or environment for misses"
+          }
+        ]
+      },
+      "docLinks": [
+        {
+          "label": "McGuire and Mara: Efficient GPU Screen-Space Ray Tracing",
+          "url": "https://jcgt.org/published/0003/04/04/paper.pdf",
+          "note": "The primary reference for perspective-correct 2D DDA traversal, depth-layer testing, stride, and jitter."
+        }
+      ]
+    },
+    {
+      "heading": "Build the ray in one coordinate space",
+      "paragraphs": [
+        "Reconstruct the shaded point P and its normal N in view space. With the camera at the origin, the normalized incident direction I points from the camera toward P. Reflecting I around N produces the direction R. Offset the origin slightly along the normal or ray direction so the first depth test does not immediately hit the source surface.",
+        "The position, normal, ray, and sampled scene depth must share the same convention. The examples below use row-vector HLSL notation and positive-forward view-space z. If the renderer uses negative-forward view space or reverse-Z storage, reconstruct linear view depth before the hit test instead of comparing device-depth values directly."
+      ],
+      "equations": [
+        {
+          "label": "Specular reflection direction",
+          "expression": "R = I - 2 dot(N, I) N",
+          "terms": [
+            {
+              "symbol": "I",
+              "text": "Normalized direction from the camera to the surface point."
+            },
+            {
+              "symbol": "N",
+              "text": "Normalized view-space surface normal."
+            },
+            {
+              "symbol": "R",
+              "text": "View-space reflection direction to trace."
+            }
+          ]
+        }
+      ],
+      "codeBlocks": [
+        {
+          "file": "Conceptual reflection-ray setup",
+          "language": "hlsl",
+          "code": "float rawDepth = DepthTexture.SampleLevel(PointClamp, uv, 0);\nfloat3 P = ReconstructViewPosition(uv, rawDepth, InvProjection);\nfloat3 N = DecodeViewNormal(NormalTexture.SampleLevel(PointClamp, uv, 0));\n\nfloat3 I = normalize(P);\nfloat3 R = reflect(I, normalize(N));\nfloat3 rayOrigin = P + N * normalBias;"
+        }
+      ]
+    },
+    {
+      "heading": "Traverse pixels, not equal 3D steps",
+      "paragraphs": [
+        "The simplest implementation advances P + sR by a constant view-space step, projects every point, and samples depth. Perspective makes those projected points uneven: nearby parts of the ray can be oversampled while distant parts skip pixels. More steps reduce misses but increase bandwidth and still do not guarantee contiguous coverage.",
+        "McGuire and Mara instead project the ray endpoints and apply a perspective-correct digital differential analyzer. The DDA advances along the dominant screen axis, visits a controlled sequence of pixels, and interpolates the reciprocal homogeneous coordinate and camera-space position needed for a correct ray-depth interval. A stride greater than one trades coverage for speed; jitter varies the skipped pattern so temporal filtering sees noise instead of fixed bands.",
+        "A hierarchical-Z trace is another common acceleration. It tests coarse depth tiles to skip empty screen regions, then descends to finer mip levels near a possible crossing. DDA controls pixel coverage; Hi-Z controls empty-space skipping."
+      ],
+      "codeBlocks": [
+        {
+          "file": "Conceptual screen-space traversal",
+          "language": "hlsl",
+          "code": "float3 rayEnd = rayOrigin + R * maxDistance;\nfloat4 H0 = mul(float4(rayOrigin, 1.0), Projection);\nfloat4 H1 = mul(float4(rayEnd,    1.0), Projection);\n\nfloat2 P0 = H0.xy / H0.w;\nfloat2 P1 = H1.xy / H1.w;\n\n// Set up perspective-correct DDA derivatives for screen position,\n// reciprocal w, and the ray's view-space depth interval.\nDDAState trace = SetupPerspectiveDDA(P0, P1, H0, H1, stride, jitter);\nwhile (trace.stepCount < maxSteps && !trace.outsideViewport) {\n    Advance(trace);\n    if (RayIntervalOverlapsSceneDepth(trace, thickness)) break;\n}"
+        }
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "Traversal",
+            "Strength",
+            "Main cost or artifact"
+          ],
+          "rows": [
+            [
+              "Constant 3D march",
+              "Simple to implement",
+              "Uneven projected spacing skips and oversamples pixels"
+            ],
+            [
+              "Perspective-correct 2D DDA",
+              "Controlled pixel coverage",
+              "More setup and divergent ray lengths"
+            ],
+            [
+              "Hierarchical Z",
+              "Skips large empty regions",
+              "Mip traversal and conservative depth logic"
+            ]
+          ],
+          "caption": "All three query the same incomplete screen-space geometry; acceleration does not restore missing surfaces."
+        }
+      ]
+    },
+    {
+      "heading": "A hit is a depth-interval overlap",
+      "paragraphs": [
+        "Testing only whether one ray point is behind the depth buffer is unstable. Between two visited pixels, the ray covers a depth interval. Compare that interval with a finite interval around the visible scene depth. If they overlap, the ray may have crossed the surface represented by that pixel.",
+        "Thickness expands the single depth layer into a slab so oblique rays and skipped samples can still register a hit. Too little thickness creates holes; too much lets the ray hit geometry that is not actually intersected and causes streaks behind silhouettes. A short binary or secant refinement can improve the final UV after a coarse crossing, but it cannot determine the true back face from a one-layer buffer."
+      ],
+      "equations": [
+        {
+          "label": "Conservative screen-space hit",
+          "expression": "hit if [rayZmin, rayZmax] overlaps [sceneZ - thicknessNear, sceneZ + thicknessFar]",
+          "terms": [
+            {
+              "symbol": "rayZmin, rayZmax",
+              "text": "View-space depth bounds covered by the current DDA step."
+            },
+            {
+              "symbol": "sceneZ",
+              "text": "Reconstructed view-space depth at the visited pixel."
+            }
+          ]
+        }
+      ],
+      "callouts": [
+        {
+          "tone": "warning",
+          "title": "Thickness is a heuristic",
+          "text": "A single depth value contains no back-face position. The SSR thickness parameter approximates missing geometry and must be tuned against scene scale, projection, and stride."
+        }
+      ]
+    },
+    {
+      "heading": "Resolve the hit, then expose the miss",
+      "paragraphs": [
+        "A valid hit supplies a UV for sampling the HDR color buffer. Fresnel, material specular response, and roughness determine how much that radiance contributes. Mirror-like SSR can fetch one color sample; glossy reflection needs a distribution of directions or a filtered approximation. Stochastic SSR importance-samples the reflection lobe and reconstructs sparse results with spatial and temporal filtering.",
+        "A robust composite also computes confidence. Fade rays near the viewport boundary, at excessive travel distance, when the hit faces the wrong way, or when the refined depth error remains large. Blend low-confidence regions toward reflection probes, a cubemap, planar reflection, hardware ray tracing, or another scene representation instead of fading them to unexplained black."
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "Failure",
+            "Why it happens",
+            "Typical response"
+          ],
+          "rows": [
+            [
+              "Off-screen miss",
+              "The reflected point is outside the camera image",
+              "Edge confidence fade plus probe or ray-traced fallback"
+            ],
+            [
+              "Hidden-surface miss",
+              "Only the nearest camera-visible depth layer exists",
+              "Deep G-buffer, another scene representation, or fallback"
+            ],
+            [
+              "Disocclusion",
+              "A foreground object hides color needed by the reflection",
+              "Temporal rejection and fallback"
+            ],
+            [
+              "Thin-object leak",
+              "The assumed depth slab differs from real thickness",
+              "Tune thickness or use multiple layers"
+            ],
+            [
+              "Rough-reflection noise",
+              "Too few rays sample a wide BRDF lobe",
+              "Importance sampling and spatiotemporal reconstruction"
+            ]
+          ]
+        }
+      ],
+      "docLinks": [
+        {
+          "label": "Stachowiak: Stochastic Screen-Space Reflections",
+          "url": "https://h3.gd/stochastic-ssr/",
+          "note": "Production work on importance-sampled reflection rays and spatiotemporal filtering for glossy SSR."
+        },
+        {
+          "label": "Mara et al.: Fast Global Illumination Approximations on Deep G-Buffers",
+          "url": "https://research.nvidia.com/sites/default/files/pubs/2014-06_Fast-Global-Illumination/paper.pdf",
+          "note": "Shows how additional depth layers improve screen-space AO, radiosity, and mirror reflections."
+        }
+      ]
+    },
+    {
+      "heading": "The paper changes the visibility representation",
+      "paragraphs": [
+        "Screen Space Indirect Lighting with Visibility Bitmask addresses diffuse indirect light and ambient visibility, not the specular reflection equation. Traditional GTAO or HBAO samples a two-dimensional hemisphere slice and keeps the highest horizon on each side. That compact horizon assumes the depth buffer is an infinitely thick height field: once a thin pole raises the horizon, every lower direction behind it becomes occluded.",
+        "The paper replaces the two horizon angles with N binary angular sectors. Each depth sample is treated as a slab with constant view-direction thickness t. Its front and estimated back points subtend an angular interval, and the shader sets only the bits overlapped by that interval. Directions above or behind a thin sample can remain visible instead of being swallowed by one maximum horizon."
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "Method",
+            "Visibility record",
+            "What one sample can do"
+          ],
+          "rows": [
+            [
+              "Mirror SSR",
+              "One reflected ray and its first accepted hit",
+              "Return one specular radiance sample"
+            ],
+            [
+              "GTAO / HBAO",
+              "Highest horizon angle on each side of a slice",
+              "Extend an assumed infinitely thick occlusion cone"
+            ],
+            [
+              "Visibility bitmask",
+              "Usually 32 binary angular sectors per slice",
+              "Cover a finite interval and preserve visibility around it"
+            ]
+          ],
+          "caption": "The bitmask is a directional visibility model for AO and diffuse SSGI; it is not a new mirror-reflection hit test."
+        }
+      ],
+      "docLinks": [
+        {
+          "label": "Therrien, Levesque, and Gilet: Screen Space Indirect Lighting with Visibility Bitmask",
+          "url": "https://arxiv.org/pdf/2301.11376",
+          "note": "The paper introducing finite-thickness visibility sectors for ambient occlusion, directional ambient light, and indirect diffuse lighting."
+        }
+      ]
+    },
+    {
+      "heading": "One integer tracks a hemisphere slice",
+      "paragraphs": [
+        "With 32 sectors, the complete slice fits in one unsigned integer. For each depth sample, the shader maps the front and back angles into a contiguous bit range. A bitwise AND with the inverse accumulated mask finds sectors this sample covers for the first time. A population count gives their fraction, and OR marks them unavailable to farther samples.",
+        "That same state produces two outputs. Ambient visibility is the fraction of bits still clear after the slice is processed. Diffuse indirect lighting accumulates the sampled light buffer only for newly covered sectors, weighted by the receiving and emitting surface cosine terms. The bit operations update all overlapped sectors in constant time for a machine-word mask."
+      ],
+      "codeBlocks": [
+        {
+          "file": "Conceptual visibility-bitmask slice",
+          "language": "hlsl",
+          "code": "static const uint SectorCount = 32;\nuint occupied = 0;\nfloat3 indirect = 0;\n\nfor (uint step = 0; step < stepCount; ++step) {\n    SampleData s = ReconstructSliceSample(step);\n    uint sampleMask = SectorMask(s.frontAngle, s.backAngle, SectorCount);\n    uint newMask = sampleMask & ~occupied;\n\n    float newFraction = countbits(newMask) / float(SectorCount);\n    indirect += newFraction * s.directLighting\n              * saturate(dot(receiverNormal,  s.direction))\n              * saturate(dot(s.normal,        -s.direction));\n\n    occupied |= sampleMask;\n}\n\nfloat ambientVisibility = 1.0 - countbits(occupied) / float(SectorCount);"
+        }
+      ],
+      "equations": [
+        {
+          "label": "Visibility of one slice",
+          "expression": "Vslice = 1 - popcount(occupiedMask) / N",
+          "terms": [
+            {
+              "symbol": "N",
+              "text": "Number of angular sectors, 32 in the paper's preferred configuration."
+            },
+            {
+              "symbol": "occupiedMask",
+              "text": "Union of finite-thickness angular intervals covered by depth samples."
+            }
+          ]
+        },
+        {
+          "label": "New diffuse contribution",
+          "expression": "Lindirect += popcount(sampleMask & ~occupiedMask) / N * Lsample * cosReceiver * cosSample",
+          "terms": [
+            "Only sectors not already blocked by a nearer sample contribute again."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Why SSAO improves around thin geometry",
+      "paragraphs": [
+        "The direct SSAO improvement is reduced over-occlusion. A fence bar, railing, or pole occupies a limited angular interval instead of setting a permanent maximum horizon. Light can pass through angular sectors beside and behind the thin surface, so wide AO radii preserve more detail and produce fewer dark halos.",
+        "The gain still depends on an invented thickness. A small constant t favors avoiding visible dark halos but may leak light behind genuinely thick geometry. Because a one-layer depth buffer cannot reveal the true back face, the paper optionally increases thickness with camera distance and leaves accurate per-sample thickness estimation as future work."
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "Radius / samples",
+            "GTAO sampling pass",
+            "Visibility bitmask"
+          ],
+          "rows": [
+            [
+              "1 / 16",
+              "0.95 ms",
+              "0.97 ms"
+            ],
+            [
+              "2 / 16",
+              "1.12 ms",
+              "1.13 ms"
+            ],
+            [
+              "3 / 16",
+              "1.12 ms",
+              "1.13 ms"
+            ]
+          ],
+          "caption": "Paper measurements at 1920 x 1080 on an RTX 2080 with 32 sectors; the separate denoising pass was 0.3 ms. These are historical measurements for that implementation, not universal budgets."
+        }
+      ],
+      "callouts": [
+        {
+          "tone": "note",
+          "title": "Why 32 sectors",
+          "text": "The paper found 32 sectors visually sufficient for its tests and convenient because the state fits one uint. Its 128-sector version cost about 5-10% more and still could not recover geometry absent from the depth buffer."
+        }
+      ],
+      "references": [
+        {
+          "label": "Authors' implementation notes: SSAO using Visibility Bitmasks",
+          "url": "https://cdrinmatane.github.io/posts/ssaovb-code/",
+          "description": "Code-oriented clarification of slice orientation, angle mapping, rounding criteria, and sector updates."
+        }
+      ]
+    },
+    {
+      "heading": "It improves SSR-like SSGI, not mirror SSR",
+      "paragraphs": [
+        "Many SSGI implementations reuse an SSR-style tracer: launch a few directions over the hemisphere, march each ray, and gather lighting only when a ray finds a valid hit. That estimator is noisy because a ray that exits the viewport, slips behind a thin surface, or misses between samples contributes nothing. The paper compares this diffuse use of SSR-like tracing with its slice search, not a glossy mirror-reflection result.",
+        "A visibility-bitmask slice can extract evidence from many positions along the search. Every sample that covers previously visible sectors can add a weighted light-buffer value. Under the paper's equal maximum sample comparison, two SSR-like rays with 16 steps were visibly noisier than two 16-step horizon searches because each ray accumulated at most one hit while the bitmask accumulated multiple newly covered directions.",
+        "For mirror SSR, the desired answer is still the first intersection along one reflected direction, so the bitmask does not replace DDA, Hi-Z, thickness testing, or reflection fallback. Its lesson can inform thickness handling and directional visibility, but calling it a direct upgrade to specular SSR would conflate two different integrals."
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "Question",
+            "SSR-like diffuse ray tracing",
+            "Visibility-bitmask SSGI"
+          ],
+          "rows": [
+            [
+              "Sampling domain",
+              "A few stochastic hemisphere rays",
+              "A few screen-aligned hemisphere slices"
+            ],
+            [
+              "Contribution per search",
+              "Usually zero or one accepted hit",
+              "Several newly visible angular sectors"
+            ],
+            [
+              "Thin surfaces",
+              "Ray may pass behind or miss the slab",
+              "Constant thickness covers a bounded angle interval"
+            ],
+            [
+              "Noise behavior",
+              "High variance from many wasted rays",
+              "Lower variance because more samples can contribute"
+            ],
+            [
+              "Output",
+              "Diffuse radiance sample estimate",
+              "Directional visibility plus diffuse radiance estimate"
+            ]
+          ],
+          "caption": "The paper improves the diffuse indirect-light estimator that borrowed SSR traversal, not the specular reflection technique itself."
+        }
+      ]
+    },
+    {
+      "heading": "Choose the estimator for the light path",
+      "paragraphs": [
+        "Use conventional SSR when the material needs a view-dependent specular reflection and the reflected content is likely to be visible in the current frame. Use stochastic SSR when roughness requires sampling a specular lobe and a temporal reconstruction budget is available. Use horizon slices with visibility bitmasks when the target is local ambient visibility, directionally occluded environment light, or diffuse screen-space bounce.",
+        "The shared boundary remains the screen. The visibility-bitmask method is bandwidth-intensive because indirect diffuse samples depth, normals, and the HDR light buffer; half-resolution rendering reduces cost but increases blur and flicker. It also loses indirect light when the source leaves the viewport. Better angular bookkeeping reduces noise and thin-surface artifacts, but no single-layer screen-space method can reconstruct information the camera never recorded."
+      ]
+    }
+  ],
+  "references": [
+    {
+      "label": "McGuire and Mara: Efficient GPU Screen-Space Ray Tracing",
+      "url": "https://jcgt.org/published/0003/04/04/paper.pdf"
+    },
+    {
+      "label": "Therrien, Levesque, and Gilet: Screen Space Indirect Lighting with Visibility Bitmask",
+      "url": "https://arxiv.org/pdf/2301.11376"
+    },
+    {
+      "label": "Therrien: SSAO using Visibility Bitmasks",
+      "url": "https://cdrinmatane.github.io/posts/ssaovb-code/"
+    },
+    {
+      "label": "Stachowiak: Stochastic Screen-Space Reflections",
+      "url": "https://h3.gd/stochastic-ssr/"
+    },
+    {
+      "label": "Mara et al.: Fast Global Illumination Approximations on Deep G-Buffers",
+      "url": "https://research.nvidia.com/sites/default/files/pubs/2014-06_Fast-Global-Illumination/paper.pdf"
+    }
+  ],
+  "closing": "SSR and visibility bitmasks reuse the same camera buffers for different questions. SSR follows one reflected direction until it finds the first plausible specular hit. The bitmask integrates many angular sectors to estimate diffuse visibility and bounce. The paper improves SSAO directly and replaces noisy SSR-like diffuse SSGI rays with a more productive slice estimator; it does not replace mirror SSR."
+}

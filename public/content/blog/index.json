@@ -1,5 +1,8 @@
 {
   "posts": [
+    "screen-space-reflections-visibility-bitmasks/post.json",
+    "notes-on-game-engine-architecture/post.json",
+    "ssao-view-space-sampling/post.json",
     "what-an-ies-file-stores/post.json",
     "angular-psf-glare-pipeline/post.json",
     "unreal-bloom-vs-psf-glare/post.json",

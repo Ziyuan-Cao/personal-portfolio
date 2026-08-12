@@ -1,0 +1,305 @@
+{
+  "slug": "notes-on-game-engine-architecture",
+  "title": "Notes on Game Engine Architecture",
+  "abstract": "A practical map of engine layers, subsystem lifetimes, asset loading, frame scheduling, and the boundaries that keep them manageable.",
+  "category": "Engine architecture",
+  "publishedAt": "2026-08-12",
+  "image": "/content/blog/notes-on-game-engine-architecture/engine-layers.svg",
+  "imageAlt": "Five game engine layers connected by downward dependency arrows and a frame loop running beside them",
+  "lede": "A game engine is not one large update function. It is a set of systems with different owners, lifetimes, update rates, and platform requirements. The architecture becomes understandable when those systems are arranged around three rules: dependencies point downward, resources outlive their users, and frame work is scheduled explicitly.",
+  "sections": [
+    {
+      "heading": "Start with dependency direction",
+      "paragraphs": [
+        "A useful engine stack has five broad layers. Tools sit at the top, gameplay and rendering features sit below them, assets bridge authoring and runtime, core services provide reusable infrastructure, and the platform layer isolates operating-system and graphics-API details.",
+        "The important property is direction, not the exact names. A feature may call a core container, and that container may request platform memory. The platform layer must not call back into gameplay to complete its own work. When a lower layer needs policy from above, pass an interface, callback, command, or data record across the boundary instead of creating a reverse dependency."
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "Layer",
+            "Typical responsibilities",
+            "May depend on"
+          ],
+          "rows": [
+            [
+              "Tools",
+              "World, material, animation, and import editors",
+              "Features, assets, core, platform"
+            ],
+            [
+              "Features",
+              "Gameplay, input, camera, animation, physics, rendering, audio, networking",
+              "Assets, core, platform"
+            ],
+            [
+              "Assets",
+              "Import, cooking, identifiers, dependencies, streaming, lifetime",
+              "Core, platform"
+            ],
+            [
+              "Core",
+              "Math, containers, jobs, allocation, logging, configuration",
+              "Platform"
+            ],
+            [
+              "Platform",
+              "Files, threads, clocks, devices, graphics and input backends",
+              "Operating system and hardware APIs"
+            ]
+          ],
+          "caption": "Higher layers choose policy; lower layers provide mechanisms."
+        }
+      ],
+      "callouts": [
+        {
+          "tone": "note",
+          "title": "A layer is a dependency rule",
+          "text": "Folders alone do not create architecture. Enforce the boundary in build targets, module imports, public headers, or dependency tests so an accidental upward call is visible."
+        }
+      ],
+      "flow": {
+        "label": "Allowed dependency path",
+        "steps": [
+          {
+            "title": "Tools",
+            "text": "Author and inspect content"
+          },
+          {
+            "title": "Features",
+            "text": "Run game-facing systems"
+          },
+          {
+            "title": "Assets",
+            "text": "Resolve runtime data"
+          },
+          {
+            "title": "Core",
+            "text": "Supply common mechanisms"
+          },
+          {
+            "title": "Platform",
+            "text": "Reach the machine"
+          }
+        ]
+      }
+    },
+    {
+      "heading": "Make startup an explicit graph",
+      "paragraphs": [
+        "Subsystem construction order is part of the engine's behavior. A renderer may require a window and graphics device; an asset manager may require the file system and job system; gameplay may require all of them. Hiding these relationships in global constructors makes startup order difficult to inspect and shutdown even harder to reverse safely.",
+        "Represent each subsystem as a node with declared prerequisites. A topological sort produces a valid startup order, while shutdown walks the completed order backward. A cycle is then a concrete architecture error instead of an intermittent boot failure."
+      ],
+      "codeBlocks": [
+        {
+          "file": "Conceptual subsystem registry",
+          "language": "cpp",
+          "code": "registerSubsystem(\"Platform\", {});\nregisterSubsystem(\"Jobs\", {\"Platform\"});\nregisterSubsystem(\"Assets\", {\"Platform\", \"Jobs\"});\nregisterSubsystem(\"Renderer\", {\"Platform\", \"Assets\"});\nregisterSubsystem(\"Gameplay\", {\"Assets\", \"Renderer\"});\n\nauto order = topologicalSort(subsystems);\nfor (auto* system : order) system->start();\nfor (auto* system : reverse(order)) system->stop();"
+        }
+      ],
+      "callouts": [
+        {
+          "tone": "warning",
+          "title": "Shutdown is not optional design work",
+          "text": "A job that still references a renderer, asset, or allocator after that owner stops is a lifetime bug. Stop producers, drain or cancel work, then release the services they used."
+        }
+      ]
+    },
+    {
+      "heading": "Allocate by lifetime and access pattern",
+      "paragraphs": [
+        "Allocation strategy should follow how data is created, traversed, and destroyed. Per-frame scratch data can be released together; fixed-size particles can reuse slots; level data can live in arenas that disappear when the level unloads. These choices reduce bookkeeping and can improve locality because related values remain close in memory.",
+        "This does not mean that every engine needs custom versions of every standard container. Standard containers are not inherently slow, and a general heap call does not necessarily cross into the operating-system kernel each time. Measure allocation count, fragmentation, cache behavior, and contention first; specialize the hot lifetime only when the profile identifies a real cost."
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "Lifetime pattern",
+            "Useful strategy",
+            "Tradeoff"
+          ],
+          "rows": [
+            [
+              "One frame",
+              "Linear or frame arena",
+              "Fast reset; individual frees are unavailable"
+            ],
+            [
+              "Result survives one more frame",
+              "Double-buffered frame arenas",
+              "Simple handoff; memory is duplicated"
+            ],
+            [
+              "Many equal-size objects",
+              "Pool or slab",
+              "Stable, fast slots; unused capacity remains reserved"
+            ],
+            [
+              "One level or streaming cell",
+              "Arena or grouped blocks",
+              "Cheap bulk release; mixed lifetimes waste space"
+            ],
+            [
+              "Irregular long-lived objects",
+              "General allocator and ownership types",
+              "Flexible; may fragment and requires clear ownership"
+            ]
+          ],
+          "caption": "The best allocator is usually the one whose release operation matches the data's real lifetime."
+        }
+      ],
+      "equations": [
+        {
+          "label": "Power-of-two alignment",
+          "expression": "aligned = (address + alignment - 1) & ~(alignment - 1)",
+          "terms": [
+            {
+              "symbol": "alignment",
+              "text": "A power-of-two byte boundary."
+            },
+            "For 16-byte alignment, address 100 becomes 112."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Treat an asset as a built dependency graph",
+      "paragraphs": [
+        "Authoring files are inputs, not ideal runtime payloads. The content pipeline imports DCC output, validates it, converts it into platform-ready formats, records dependencies, and packages related data for efficient reads. A stable asset identifier keeps references meaningful even when an editor-facing path changes.",
+        "At runtime, a registry maps identifiers or soft references to metadata and loaded instances. A handle adds a level of indirection between users and raw addresses, which helps validate stale references and lets the manager control residency. It does not automatically solve ownership: the manager still needs a rule for when an asset becomes unloadable."
+      ],
+      "flow": {
+        "label": "Asset path from DCC to runtime",
+        "steps": [
+          {
+            "title": "Export",
+            "text": "Read source meshes, textures, animation, and metadata"
+          },
+          {
+            "title": "Compile",
+            "text": "Validate, compress, and convert for the target"
+          },
+          {
+            "title": "Link",
+            "text": "Resolve identifiers and dependency records"
+          },
+          {
+            "title": "Package",
+            "text": "Group data for installation and streaming"
+          },
+          {
+            "title": "Load",
+            "text": "Create runtime objects when requested"
+          }
+        ]
+      },
+      "docLinks": [
+        {
+          "label": "Epic Games: Asset Management",
+          "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/asset-management-in-unreal-engine",
+          "note": "An example of IDs, bundles, loading, unloading, and chunk-oriented asset management in a production engine."
+        },
+        {
+          "label": "Epic Games: Asynchronous Asset Loading",
+          "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/asynchronous-asset-loading-in-unreal-engine",
+          "note": "Shows how soft references and a registry allow metadata queries and on-demand loading without forcing every asset into memory."
+        }
+      ]
+    },
+    {
+      "heading": "Keep the frame loop small",
+      "paragraphs": [
+        "The main loop should coordinate systems, not contain their implementation. It pumps platform messages, measures time, advances fixed-rate simulation as needed, schedules variable-rate work, submits rendering, and presents. Each stage defines when its inputs become stable and when its outputs may be consumed.",
+        "A fixed simulation step makes physics behavior less dependent on render rate. The loop accumulates real time and runs zero or more fixed updates; rendering can interpolate between the two most recent simulation states. Clamp unusually large elapsed times after a pause or debugger stop so the engine does not attempt an unbounded catch-up."
+      ],
+      "codeBlocks": [
+        {
+          "file": "Conceptual main loop",
+          "language": "cpp",
+          "code": "while (running) {\n    pumpPlatformMessages();\n    accumulator += min(clock.tick(), maxFrameDelta);\n\n    while (accumulator >= fixedStep) {\n        sampleInput();\n        simulate(fixedStep);\n        accumulator -= fixedStep;\n    }\n\n    const float alpha = accumulator / fixedStep;\n    buildRenderState(alpha);\n    render();\n    present();\n}"
+        }
+      ],
+      "equations": [
+        {
+          "label": "Render interpolation fraction",
+          "expression": "alpha = accumulator / fixedStep",
+          "terms": [
+            {
+              "symbol": "alpha",
+              "text": "Position between the previous and current simulation states."
+            },
+            {
+              "symbol": "fixedStep",
+              "text": "Constant simulation interval, such as 1/60 second."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Batch work before making it parallel",
+      "paragraphs": [
+        "Parallelism works best when systems publish coarse jobs over well-defined data. Animation can evaluate a batch of poses, physics can process independent islands, and rendering can build command data while the main thread continues with unrelated work. The scheduler needs dependencies and completion points; threads alone do not provide either.",
+        "Batching also improves the single-threaded case. A renderer traversing a packed list of visible instances can reuse state and memory more effectively than thousands of game objects each making a deep renderer call from their own update function."
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "Technique",
+            "Unit of work",
+            "Main constraint"
+          ],
+          "rows": [
+            [
+              "SIMD",
+              "Several values per instruction",
+              "Data layout and branch coherence"
+            ],
+            [
+              "Fork/join",
+              "A bounded parallel region",
+              "Useful work must exceed scheduling overhead"
+            ],
+            [
+              "Subsystem thread",
+              "Long-lived isolated service",
+              "Ownership and synchronization at the boundary"
+            ],
+            [
+              "Job system",
+              "Short tasks with dependencies",
+              "Granularity, queues, and safe completion points"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Objects request; systems execute",
+      "paragraphs": [
+        "A straightforward object model gives every entity an update method, but it scales poorly when each method reaches into animation, physics, audio, and rendering. A stronger boundary lets objects change intent or component data, then lets each subsystem process the relevant data as a batch.",
+        "Events decouple the sender from the receiver, but queues add ownership, ordering, latency, and debugging questions. Handle immediate commands directly when the call order is safe; queue events when delivery belongs to a later phase, another thread, or multiple subscribers. Time-stamped and prioritized events should make those policies visible instead of depending on incidental insertion order.",
+        "The recurring design rule is ownership. A layer owns a service, an allocator owns a lifetime, an asset manager owns residency, a scheduler owns execution order, and an event queue owns delayed delivery. Once those owners are explicit, the engine becomes easier to extend without turning every subsystem into a special case."
+      ]
+    }
+  ],
+  "references": [
+    {
+      "label": "Epic Games: Asset Management in Unreal Engine",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/asset-management-in-unreal-engine"
+    },
+    {
+      "label": "Epic Games: Asynchronous Asset Loading in Unreal Engine",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/asynchronous-asset-loading-in-unreal-engine"
+    },
+    {
+      "label": "C++ Core Guidelines",
+      "url": "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines"
+    },
+    {
+      "label": "Game Programming Patterns: Game Loop",
+      "url": "https://gameprogrammingpatterns.com/game-loop.html"
+    }
+  ],
+  "closing": "A maintainable engine is a set of explicit contracts: dependencies flow toward stable mechanisms, startup follows a graph, memory follows lifetime, assets move through a build-and-load pipeline, and frame work runs through scheduled phases. The specific subsystems will change; those ownership boundaries are what keep the changes local."
+}

@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Game engine architecture layers</title>
+  <desc id="desc">Five engine layers descend from tools to platform while a frame loop coordinates simulation, jobs, rendering, and presentation.</desc>
+  <defs>
+    <linearGradient id="background" x2="1" y2="1">
+      <stop stop-color="#0d1014"/>
+      <stop offset="1" stop-color="#252128"/>
+    </linearGradient>
+    <linearGradient id="accent" x2="1">
+      <stop stop-color="#f5c85b"/>
+      <stop offset="1" stop-color="#6ad4c8"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#000" flood-opacity=".3"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6ad4c8"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="720" fill="url(#background)"/>
+  <text x="70" y="84" fill="#f5c85b" font-family="Arial, sans-serif" font-size="18" letter-spacing="5">ENGINE ARCHITECTURE</text>
+  <text x="70" y="133" fill="#f5f2e8" font-family="Arial, sans-serif" font-size="39" font-weight="700">Layers define direction. Lifetimes define ownership.</text>
+  <g transform="translate(75 190)" font-family="Arial, sans-serif" filter="url(#shadow)">
+    <g>
+      <rect width="560" height="72" rx="16" fill="#201f24" stroke="#f5c85b" stroke-width="2"/>
+      <text x="28" y="45" fill="#f5f2e8" font-size="23" font-weight="700">TOOLS</text>
+      <text x="168" y="44" fill="#aaa6ad" font-size="18">editors and importers</text>
+    </g>
+    <g transform="translate(28 90)">
+      <rect width="532" height="72" rx="16" fill="#1d2024" stroke="#dfb95b" stroke-width="2"/>
+      <text x="28" y="45" fill="#f5f2e8" font-size="23" font-weight="700">FEATURES</text>
+      <text x="185" y="44" fill="#aaa6ad" font-size="18">gameplay and rendering</text>
+    </g>
+    <g transform="translate(56 180)">
+      <rect width="504" height="72" rx="16" fill="#192126" stroke="#b9b668" stroke-width="2"/>
+      <text x="28" y="45" fill="#f5f2e8" font-size="23" font-weight="700">ASSETS</text>
+      <text x="158" y="44" fill="#aaa6ad" font-size="18">build, link, stream</text>
+    </g>
+    <g transform="translate(84 270)">
+      <rect width="476" height="72" rx="16" fill="#162226" stroke="#8db879" stroke-width="2"/>
+      <text x="28" y="45" fill="#f5f2e8" font-size="23" font-weight="700">CORE</text>
+      <text x="133" y="44" fill="#aaa6ad" font-size="18">math, jobs, memory</text>
+    </g>
+    <g transform="translate(112 360)">
+      <rect width="448" height="72" rx="16" fill="#132427" stroke="#6ad4c8" stroke-width="2"/>
+      <text x="28" y="45" fill="#f5f2e8" font-size="23" font-weight="700">PLATFORM</text>
+      <text x="186" y="44" fill="#aaa6ad" font-size="18">OS, devices, APIs</text>
+    </g>
+  </g>
+  <g transform="translate(760 214)" font-family="Arial, sans-serif">
+    <rect width="440" height="390" rx="24" fill="#15181d" stroke="#4a4850"/>
+    <text x="34" y="50" fill="#6ad4c8" font-size="17" letter-spacing="3">FRAME COORDINATION</text>
+    <path d="M64 100 V314 C64 338 83 355 107 355 H358 C382 355 400 337 400 313 V100" fill="none" stroke="url(#accent)" stroke-width="4" marker-end="url(#arrow)"/>
+    <g fill="#f5f2e8" font-size="21" font-weight="700">
+      <circle cx="64" cy="100" r="8" fill="#f5c85b"/>
+      <text x="92" y="107">Input</text>
+      <circle cx="64" cy="168" r="8" fill="#e2bd62"/>
+      <text x="92" y="175">Fixed simulation</text>
+      <circle cx="64" cy="236" r="8" fill="#9cc078"/>
+      <text x="92" y="243">Parallel jobs</text>
+      <circle cx="64" cy="304" r="8" fill="#6ad4c8"/>
+      <text x="92" y="311">Render and present</text>
+    </g>
+    <text x="34" y="376" fill="#aaa6ad" font-size="17">Explicit phases make data ownership visible.</text>
+  </g>
+</svg>

@@ -1,0 +1,286 @@
+{
+  "slug": "ssao-view-space-sampling",
+  "title": "SSAO: From View-Space Samples to an Occlusion Term",
+  "abstract": "How a tangent-space hemisphere, projection, depth reconstruction, and range-weighted comparison produce screen-space ambient occlusion.",
+  "category": "Real-time rendering",
+  "publishedAt": "2026-08-12",
+  "image": "/content/blog/ssao-view-space-sampling/ssao-sampling.svg",
+  "imageAlt": "A view-space hemisphere projects sample points into a depth buffer where closer geometry contributes to ambient occlusion",
+  "lede": "Screen-space ambient occlusion estimates how much nearby geometry hides the hemisphere above a visible surface. The shader never traces the complete scene. It builds candidate points around the current pixel in view space, projects each point back into the depth buffer, and asks whether the visible surface at that screen coordinate lies in front of the candidate.",
+  "sections": [
+    {
+      "heading": "What SSAO can observe",
+      "paragraphs": [
+        "Ambient occlusion is a visibility term for indirect light. A point inside a corner sees less of the surrounding hemisphere than a point on an open plane, so its indirect contribution is reduced. SSAO approximates this relationship from the current camera's depth and normal buffers in a post-process pass.",
+        "That makes cost largely independent of scene polygon count, but it also defines the limitation: the depth buffer normally stores one visible surface per pixel. Geometry behind that layer, outside the viewport, or too thin to survive sampling is unavailable to the estimator."
+      ],
+      "equations": [
+        {
+          "label": "Conceptual ambient visibility",
+          "expression": "A(P) = 1 - (1 / pi) integral_over_hemisphere V(P, omega) W(omega) d omega",
+          "terms": [
+            {
+              "symbol": "A(P)",
+              "text": "Ambient visibility at surface point P; one is open and zero is fully occluded."
+            },
+            {
+              "symbol": "V",
+              "text": "Occlusion test in direction omega."
+            },
+            {
+              "symbol": "W",
+              "text": "Distance, angle, and tuning weights."
+            }
+          ]
+        }
+      ],
+      "docLinks": [
+        {
+          "label": "McGuire et al.: The Alchemy Screen-Space Ambient Obscurance Algorithm",
+          "url": "https://research.nvidia.com/sites/default/files/publications/paper_0.pdf",
+          "note": "A production-oriented derivation from depth and normal samples, including screen-space limitations and edge-aware filtering."
+        },
+        {
+          "label": "Bavoil, Sainz, and Dimitrov: Image-Space Horizon-Based Ambient Occlusion",
+          "url": "https://developer.download.nvidia.com/presentations/2008/SIGGRAPH/HBAO_SIG08b.pdf",
+          "note": "A primary description of reconstructing eye-space positions and integrating occlusion from depth samples."
+        }
+      ]
+    },
+    {
+      "heading": "Put every comparison in view space",
+      "paragraphs": [
+        "The center position, center normal, kernel sample, and sampled scene position must use the same coordinate system. View space is convenient because the camera is at the origin and depth follows a known view axis. This article assumes a DirectX-style positive-forward view space, so larger z values are farther from the camera.",
+        "A world-space position buffer can be transformed with the view matrix. A hardware depth value cannot: it is a non-linear projection result, not an xyz position. Reconstruct a view-space position with the inverse projection, or linearize depth with the exact projection parameters used to render it. Transform normals as vectors with w = 0, then normalize them."
+      ],
+      "codeBlocks": [
+        {
+          "file": "Conceptual view-space inputs",
+          "language": "hlsl",
+          "code": "float rawDepth = DepthTexture.SampleLevel(PointClamp, uv, 0);\nfloat3 centerPosVS = ReconstructViewPosition(uv, rawDepth, InvProjection);\n\nfloat3 normalWS = DecodeNormal(NormalTexture.SampleLevel(PointClamp, uv, 0));\nfloat3 normalVS = normalize(mul(float4(normalWS, 0.0), View).xyz);"
+        }
+      ],
+      "callouts": [
+        {
+          "tone": "warning",
+          "title": "Know what the G-buffer stores",
+          "text": "If a texture stores world position, transform it as a point. If it stores device depth, reconstruct it through the inverse projection. Treating device depth as world xyz produces a plausible-looking but incorrect comparison."
+        }
+      ]
+    },
+    {
+      "heading": "Rotate a hemisphere around the surface normal",
+      "paragraphs": [
+        "A reusable kernel stores random points inside a hemisphere whose local +z axis is its normal. For each pixel, construct a tangent-bitangent-normal basis that rotates this kernel onto the visible surface. A small tiled noise texture changes the tangent direction across pixels, trading structured banding for high-frequency noise that can be filtered later.",
+        "Project the random vector onto the plane perpendicular to the normal. The normalized result is the tangent; crossing the normal and tangent produces the bitangent. If the random vector is almost parallel to the normal, choose a fallback axis before normalizing so the basis does not become undefined."
+      ],
+      "codeBlocks": [
+        {
+          "file": "Build a per-pixel TBN basis",
+          "language": "hlsl",
+          "code": "float3 randomDir = NoiseTexture.Sample(LinearWrap, uv * noiseScale).xyz * 2.0 - 1.0;\nfloat3 tangentCandidate = randomDir - normalVS * dot(randomDir, normalVS);\n\nif (dot(tangentCandidate, tangentCandidate) < 1e-4)\n    tangentCandidate = abs(normalVS.z) < 0.999\n        ? cross(float3(0, 0, 1), normalVS)\n        : cross(float3(0, 1, 0), normalVS);\n\nfloat3 tangent = normalize(tangentCandidate);\nfloat3 bitangent = cross(normalVS, tangent);\nfloat3x3 tbn = float3x3(tangent, bitangent, normalVS);"
+        }
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "Input",
+            "Space",
+            "Purpose"
+          ],
+          "rows": [
+            [
+              "Kernel offsets",
+              "Local tangent space",
+              "Reusable hemisphere distribution"
+            ],
+            [
+              "Normal",
+              "View space",
+              "Defines the hemisphere axis"
+            ],
+            [
+              "Noise vector",
+              "View-space orientation seed",
+              "Rotates the kernel pattern per pixel"
+            ],
+            [
+              "TBN matrix",
+              "Tangent to view space",
+              "Places kernel samples around this surface"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Place and project each sample",
+      "paragraphs": [
+        "Transform one kernel offset by the TBN matrix, scale it by the view-space radius, and add it to the center position. The result is a three-dimensional candidate point near the current surface.",
+        "The shader then projects that point to clip space, divides xy by w to obtain normalized device coordinates, and remaps NDC from [-1, 1] into texture UVs. The vertical sign in the remap depends on the graphics API and texture convention; the code below uses a top-left texture origin. Reject points behind the camera or outside the viewport."
+      ],
+      "flow": {
+        "label": "One SSAO sample",
+        "steps": [
+          {
+            "title": "Kernel",
+            "text": "Choose a local hemisphere offset"
+          },
+          {
+            "title": "TBN",
+            "text": "Rotate the offset into view space"
+          },
+          {
+            "title": "Radius",
+            "text": "Place the candidate around the center"
+          },
+          {
+            "title": "Projection",
+            "text": "Map the candidate to NDC and UV"
+          },
+          {
+            "title": "Depth lookup",
+            "text": "Read visible geometry at that UV"
+          }
+        ]
+      },
+      "codeBlocks": [
+        {
+          "file": "Project a view-space sample",
+          "language": "hlsl",
+          "code": "float3 samplePosVS = centerPosVS + mul(kernel[i], tbn) * radius;\n\nfloat4 clip = mul(float4(samplePosVS, 1.0), Projection);\nif (clip.w <= 0.0) continue;\n\nfloat2 ndc = clip.xy / clip.w;\nfloat2 sampleUV = ndc * float2(0.5, -0.5) + 0.5;\nif (any(sampleUV < 0.0) || any(sampleUV > 1.0)) continue;"
+        }
+      ],
+      "equations": [
+        {
+          "label": "Homogeneous projection",
+          "expression": "clip = Projection * float4(sampleVS, 1); NDC.xy = clip.xy / clip.w; UV = NDC.xy * (0.5, -0.5) + 0.5",
+          "terms": [
+            {
+              "symbol": "clip.w",
+              "text": "Homogeneous scale introduced by projection; perspective division is required before the UV remap."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Compare the candidate with visible depth",
+      "paragraphs": [
+        "Sample the depth buffer at the projected UV and reconstruct the visible scene depth in view space. Under the positive-forward convention, the scene occludes the candidate when the scene surface is closer to the camera than the candidate: sceneZ is less than sampleZ. A small bias prevents the center surface from occluding itself because of precision and interpolation error.",
+        "A range weight suppresses unrelated surfaces that happen to project onto the same UV but are far away in depth. An optional normal-direction weight can favor samples aligned with the surface hemisphere. Sum the weighted binary tests, divide by the valid weight or sample count, invert to ambient visibility, and apply a power only as an art-directed contrast control."
+      ],
+      "codeBlocks": [
+        {
+          "file": "Accumulate one sample",
+          "language": "hlsl",
+          "code": "float rawSampleDepth = DepthTexture.SampleLevel(PointClamp, sampleUV, 0);\nfloat sceneZ = ReconstructViewPosition(sampleUV, rawSampleDepth, InvProjection).z;\n\nfloat occluded = sceneZ <= samplePosVS.z - bias ? 1.0 : 0.0;\nfloat rangeWeight = smoothstep(0.0, 1.0, radius / max(abs(centerPosVS.z - sceneZ), 1e-4));\nfloat directionWeight = saturate(dot(normalVS, normalize(samplePosVS - centerPosVS)));\n\nocclusion += occluded * rangeWeight * directionWeight;\nweightSum += rangeWeight * directionWeight;"
+        }
+      ],
+      "equations": [
+        {
+          "label": "Discrete SSAO estimate",
+          "expression": "visibility = pow(saturate(1 - sum(occluded_i * weight_i) / max(sum(weight_i), epsilon)), power)",
+          "terms": [
+            {
+              "symbol": "occluded_i",
+              "text": "One when visible depth lies in front of candidate i, otherwise zero."
+            },
+            {
+              "symbol": "weight_i",
+              "text": "Range and optional direction weight for sample i."
+            },
+            {
+              "symbol": "power",
+              "text": "Contrast control; it changes appearance, not visibility evidence."
+            }
+          ]
+        }
+      ],
+      "callouts": [
+        {
+          "tone": "note",
+          "title": "The inequality is convention-dependent",
+          "text": "Negative-forward view space, reverse-Z storage, and APIs with different clip conventions can reverse or otherwise change the test. Convert both values to one documented linear view-space convention before comparing them."
+        }
+      ]
+    },
+    {
+      "heading": "Noise is part of the sampling strategy",
+      "paragraphs": [
+        "A small kernel cannot integrate every direction, so a fixed pattern creates visible bands. Rotating or jittering the pattern per pixel breaks those bands into noise. A depth- and normal-aware bilateral filter can then smooth samples from the same surface while preserving silhouettes and creases better than a plain box blur.",
+        "Temporal accumulation can reuse evidence across frames, but it needs motion vectors, rejection tests, and clamping to avoid trails. Half-resolution SSAO reduces texture work, although upsampling must again respect depth and normals to prevent halos."
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "Control",
+            "Increasing it does",
+            "Common failure"
+          ],
+          "rows": [
+            [
+              "Kernel size",
+              "Reduces sampling variance",
+              "More depth reads and shader cost"
+            ],
+            [
+              "Radius",
+              "Captures larger nearby structure",
+              "Halos and scale mismatch"
+            ],
+            [
+              "Bias",
+              "Reduces self-occlusion",
+              "Contact shadow detaches"
+            ],
+            [
+              "Power",
+              "Darkens the final response",
+              "Crushed corners without better visibility"
+            ],
+            [
+              "Blur radius",
+              "Suppresses noise",
+              "Bleeding across depth discontinuities"
+            ]
+          ],
+          "caption": "Tune radius in view or world units first; use power last because it only reshapes the output."
+        }
+      ]
+    },
+    {
+      "heading": "Read artifacts as missing information",
+      "paragraphs": [
+        "A bright edge can mean that the occluder moved off-screen. A dark halo can mean that a large radius sampled a different depth layer. Flicker can mean that the sparse kernel changed coverage as geometry moved through pixels. These are not random defects; each one points to information the current depth image did not preserve or the filter mixed incorrectly.",
+        "SSAO is therefore most convincing as a local contact and crease term, not a replacement for complete indirect-light visibility. Keep its scale bounded, combine it with the engine's indirect-light model, and verify the result while the camera and objects move."
+      ],
+      "bullets": [
+        "Use a linear view-space radius so the effect has a stable scene scale.",
+        "Reject or downweight large depth differences before they become halos.",
+        "Use edge-aware spatial or temporal filtering for sparse kernels.",
+        "Expect missing occlusion from off-screen and hidden geometry.",
+        "Debug center position, normal, projected UV, reconstructed depth, and the binary comparison as separate views."
+      ]
+    }
+  ],
+  "references": [
+    {
+      "label": "McGuire et al.: The Alchemy Screen-Space Ambient Obscurance Algorithm",
+      "url": "https://research.nvidia.com/sites/default/files/publications/paper_0.pdf"
+    },
+    {
+      "label": "Bavoil, Sainz, and Dimitrov: Image-Space Horizon-Based Ambient Occlusion",
+      "url": "https://developer.download.nvidia.com/presentations/2008/SIGGRAPH/HBAO_SIG08b.pdf"
+    },
+    {
+      "label": "Bavoil: Modern Real-Time Rendering Techniques",
+      "url": "https://developer.download.nvidia.com/presentations/2010/futuregameon/LouisBavoil_ModernRealTimeRenderingTechniques.pdf"
+    },
+    {
+      "label": "Ritschel et al.: Approximating Dynamic Global Illumination in Image Space",
+      "url": "https://doi.org/10.1145/1507149.1507161"
+    }
+  ],
+  "closing": "The SSAO loop is a sequence of coordinate-space contracts: reconstruct the visible surface in view space, rotate a local hemisphere around its normal, project each candidate back to the depth buffer, compare linear depths under one sign convention, and filter the sparse estimate without crossing real edges. Most SSAO bugs are one broken contract in that chain."
+}
