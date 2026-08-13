@@ -1,0 +1,222 @@
+{
+  "title": "IES 配置文件：从文件行到运行时采样",
+  "abstract": "IES 文件如何成为绝对坎德拉纹理、该纹理如何采样以及结果如何驱动源缩放和测光表。",
+  "category": "光度测定",
+  "imageAlt": "IES 文件行解析为角度坎德拉数据并重新采样为纹理",
+  "lede": "IES 配置文件存储测量的垂直和水平角度的坎德拉样本。运行时路径将这些行解析为角度索引表，将该表重新采样为 257 × 257 R32F 纹理，并从光到相机的方向查找定向坎德拉。",
+  "sections": [
+    {
+      "heading": "逐行读取文件",
+      "paragraphs": [
+        "LM-63 是基于令牌的，因此长列表可能会跨越物理行。从概念上讲，数据按以下顺序出现：格式和元数据、倾斜数据、光度场、角度阵列，然后是坎德拉行。"
+      ],
+      "codeBlocks": [
+        {
+          "file": "Conceptual LM-63 layout",
+          "language": "text",
+          "code": "IESNA:LM-63-2002\n[keywords and test metadata]\nTILT=NONE\nlamps lumensPerLamp candelaMultiplier verticalCount horizontalCount photometricType unitType width length height\nballastFactor futureUse inputWatts\n[vertical angles]\n[horizontal angles]\n[candela values for horizontal plane 0]\n[candela values for horizontal plane 1]\n..."
+        }
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "行或组",
+            "定义"
+          ],
+          "rows": [
+            [
+              "IESNA版本",
+              "标识 LM-63 修订版。"
+            ],
+            [
+              "关键词",
+              "测试、制造商、目录和灯具元数据。"
+            ],
+            [
+              "倾斜",
+              "无校正，附带校正表或外部倾斜文件。"
+            ],
+            [
+              "光度领域",
+              "灯数、每灯流明、坎德拉乘数、角度数、光度类型、单位和发射器尺寸。"
+            ],
+            [
+              "电气领域",
+              "镇流器系数、保留值和输入瓦数。"
+            ],
+            [
+              "垂直角θ",
+              "垂直计数样本，通常覆盖部分或全部0°–180°。"
+            ],
+            [
+              "水平角 φ",
+              "HorizontalCount 覆盖存储的对称范围的 C 平面。"
+            ],
+            [
+              "坎德拉行",
+              "每个水平面一行，具有verticalCount 强度样本。"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "加载角度索引坎德拉表",
+      "paragraphs": [
+        "保持源角度，因为它们的间距可能不规则。以水平主序存储 candela，以便 candela[p ×verticalCount + a] 寻址水平面 p 和垂直角 a。在创建纹理之前重建任何对称性。"
+      ],
+      "codeBlocks": [
+        {
+          "file": "IESProfileData",
+          "language": "cpp",
+          "code": "struct IESProfileData\n{\n    float lumensPerLamp;\n    float candelaMultiplier;\n    float ballastFactor;\n    std::vector<float> verticalAnglesDeg;\n    std::vector<float> horizontalAnglesDeg;\n    std::vector<float> candela; // [horizontal][vertical]\n};"
+        }
+      ],
+      "equations": [
+        {
+          "label": "绝对坎德拉",
+          "terms": [
+            "I_IES 是源表样本，M_cd 是坎德拉乘数，F_ballast 是流明系数。",
+            "每灯流明已解析，但不用于此计算。"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "将轮廓重新创建为 2D 纹理",
+      "paragraphs": [
+        "创建 257 × 257 R32F 纹理。每个纹素存储一个垂直角度和一个水平 C 面角度的绝对坎德拉。复制的水平端点闭合 0°/360° 接缝。"
+      ],
+      "equations": [
+        {
+          "label": "纹理坐标",
+          "terms": [
+            "θ = 180°u 是从 0° 到 180° 的垂直角。",
+            "φ = 360°v 是从 0° 到 360° 的水平角。",
+            "T(u, v) = I_abs(θ, φ)."
+          ]
+        },
+        {
+          "label": "源表插值",
+          "terms": [
+            "tθ = (θ − θ0) / (θ1 − θ0) 且 tΦ = (Φ − Φ0) / (Φ1 − Φ0)。",
+            "I00、I10、I01 和 I11 是四个周围源样本。"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "运行时的定向坎德拉示例",
+      "paragraphs": [
+        "将光到相机的方向转换为光的光度基础。 F、U 和 R 分别是向前、向上和向右的光方向。"
+      ],
+      "equations": [
+        {
+          "label": "光到相机的方向",
+          "terms": [
+            "d 是标准化的世界空间方向。"
+          ]
+        },
+        {
+          "label": "垂直查找",
+          "terms": [
+            "u 将前向角度从 0 映射到 1。"
+          ]
+        },
+        {
+          "label": "水平 C 平面查找",
+          "terms": [
+            "v 将方位角包裹在 0–1 范围内。"
+          ]
+        },
+        {
+          "label": "定向强度",
+          "terms": [
+            "纹理查找使用双线性过滤并返回绝对坎德拉。"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "缩放可见源而不改变其面积",
+      "paragraphs": [
+        "定向坎德拉可以放大屏幕空间眩光源。这仅影响其可见轴；物理发射器面积保持不变。每个屏幕空间轴被限制为至少 1.5 像素。"
+      ],
+      "equations": [
+        {
+          "label": "眩光等级",
+          "terms": [
+            "α 是 ScalingAreaAlpha。应用可选限制 S = min(S, S_max)。",
+            "R_scaled = S R_screen 且 U_scaled = S U_screen。"
+          ]
+        }
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "发射器",
+            "物理面积（平方米）"
+          ],
+          "rows": [
+            [
+              "矩形",
+              "A = 4wh × 10⁻⁴"
+            ],
+            [
+              "椭圆",
+              "A = πwh × 10⁻⁴"
+            ],
+            [
+              "圆",
+              "A = πr² × 10⁻⁴"
+            ]
+          ],
+          "caption": "w 和 h 是厘米的一半； r 是半径。因子 10⁻⁴ 将 cm² 转换为 m²。"
+        }
+      ]
+    },
+    {
+      "heading": "计算亮度和方向计值",
+      "paragraphs": [
+        "亮度计使用投影发射器面积将坎德拉转换为亮度。方向计保留采样的坎德拉。两者都应用发射器掩模 M 和深度可见性 V_d，然后在灯光重叠处保持最大值。"
+      ],
+      "equations": [
+        {
+          "label": "投影面积",
+          "terms": [
+            "A 是物理发射器面积，c 是视角余弦。"
+          ]
+        },
+        {
+          "label": "亮度计亮度",
+          "terms": [
+            "I_ref = I(0°, 0°)。 L 的单位为 cd/m²。",
+            "对于光颜色 C，L_RGB = LC 且 L_meter = max(L_r, L_g, L_b)。",
+            "L_输出=L_表×M×V_d； L_final = max_i(L_output,i);测试 L_final > L_threshold。"
+          ]
+        },
+        {
+          "label": "定向仪",
+          "terms": [
+            "I_final 以 cd 为单位；测试 I_final > I_threshold。"
+          ]
+        }
+      ],
+      "callouts": [
+        {
+          "title": "电流强度路径",
+          "text": "该实现直接对绝对 IES 坎德拉进行采样。它不会将结果乘以虚幻引擎光强度。"
+        }
+      ]
+    }
+  ],
+  "references": [
+    {
+      "label": "照明工程学会：ANSI/IES LM-63 标准列表"
+    },
+    {
+      "label": "Epic Games：使用 IES 灯光配置文件"
+    }
+  ],
+  "closing": "管道是直接的：解析角度和坎德拉，应用文件乘数，将绝对坎德拉重新采样为 2D 纹理，并根据灯光的运行时间恢复方向强度。"
+}

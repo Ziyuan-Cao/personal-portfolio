@@ -1892,3 +1892,43 @@ textarea.form-input::-webkit-resizer { display: none; }
 }
 
 .portfolio-state:empty { display: none; }
+
+.language-switcher {
+  position: absolute;
+  top: -54px;
+  right: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--light-gray-70);
+  font-size: var(--fs-8);
+}
+
+.language-switcher select {
+  min-height: 34px;
+  padding: 5px 30px 5px 10px;
+  border: 1px solid var(--jet);
+  border-radius: 10px;
+  color: var(--white-2);
+  background: var(--eerie-black-2);
+  font: inherit;
+  cursor: pointer;
+}
+
+.language-switcher option { background: var(--eerie-black-2); }
+
+@media (max-width: 1249px) {
+  .language-switcher {
+    position: static;
+    justify-content: flex-end;
+    margin: 0 4px 12px;
+  }
+}
+
+@media (max-width: 580px) {
+  .language-switcher {
+    justify-content: flex-start;
+    margin: 0 0 12px;
+  }
+}

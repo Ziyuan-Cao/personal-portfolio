@@ -5,6 +5,12 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const publicRoot = path.join(root, "public");
 const contentRoot = path.join(publicRoot, "content");
+const requiredLocales = ["ja", "zh-CN"];
+const immutableTranslationKeys = new Set([
+  "slug", "id", "url", "src", "image", "cardImage", "publishedAt",
+  "readingTime", "file", "language", "code", "expression", "symbol",
+  "icon", "tone", "type", "kind",
+]);
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -12,6 +18,45 @@ function assert(condition, message) {
 
 async function readJson(filename) {
   return JSON.parse(await fs.readFile(filename, "utf8"));
+}
+
+function localeFilename(filename, locale) {
+  return filename.replace(/\.json$/, `.${locale}.json`);
+}
+
+function validateOverlay(source, overlay, label, trail = "") {
+  assert(overlay !== null && typeof overlay === typeof source, `${label}${trail} has a different value type`);
+  if (Array.isArray(overlay)) {
+    assert(Array.isArray(source), `${label}${trail} must remain an array`);
+    assert(overlay.length === source.length, `${label}${trail} must keep the source array length`);
+    overlay.forEach((value, index) => validateOverlay(source[index], value, label, `${trail}[${index}]`));
+    return;
+  }
+  if (overlay && typeof overlay === "object") {
+    for (const [key, value] of Object.entries(overlay)) {
+      assert(Object.hasOwn(source, key), `${label}${trail}.${key} does not exist in the English source`);
+      validateOverlay(source[key], value, label, `${trail}.${key}`);
+      if (immutableTranslationKeys.has(key)) {
+        assert(JSON.stringify(value) === JSON.stringify(source[key]), `${label}${trail}.${key} must not be translated`);
+      }
+    }
+    return;
+  }
+  if (typeof overlay === "string") {
+    assert(overlay.trim().length > 0, `${label}${trail} must not be empty`);
+    assert(!overlay.includes("<<<I18N_"), `${label}${trail} contains a translation batching marker`);
+  }
+}
+
+async function validateTranslations(filename, source, requiredKeys, label) {
+  for (const locale of requiredLocales) {
+    const translatedFilename = localeFilename(filename, locale);
+    const overlay = await readJson(translatedFilename);
+    for (const key of requiredKeys) {
+      assert(typeof overlay[key] === "string" && overlay[key].trim(), `${label} ${locale} is missing ${key}`);
+    }
+    validateOverlay(source, overlay, `${label} ${locale}`);
+  }
 }
 
 function resolveListedFile(ownerRoot, listedPath) {
@@ -62,6 +107,7 @@ async function validatePortfolio() {
     assert(path.basename(ownerDirectory) === project.id, `Portfolio folder must match project id: ${project.id}`);
     assert(path.dirname(resolvePublicUrl(project.image)) === ownerDirectory, `Project image must live beside project.json: ${project.id}`);
     await fs.access(resolvePublicUrl(project.image));
+    await validateTranslations(filename, project, ["title", "subtitle", "category"], `Portfolio project ${project.id}`);
   }
   return index.projects.length;
 }
@@ -83,6 +129,7 @@ async function validateBlog() {
       assert(path.dirname(asset) === ownerDirectory, `Blog asset must live beside its post: ${publicUrl}`);
       await fs.access(asset);
     }
+    await validateTranslations(filename, post, ["title", "abstract", "category", "lede"], `Blog post ${post.slug}`);
   }
   return index.posts.length;
 }

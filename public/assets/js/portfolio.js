@@ -1,6 +1,7 @@
 const grid = document.querySelector("[data-portfolio-grid]");
 const state = document.querySelector("[data-portfolio-state]");
 const { element } = window.portfolioUi;
+const i18n = window.portfolioI18n;
 const siteRoot = new URL("../../", import.meta.url);
 const portfolioIndexUrl = new URL("content/portfolio/index.json", siteRoot);
 
@@ -10,10 +11,33 @@ async function fetchJson(url) {
   return response.json();
 }
 
+async function fetchOptionalJson(url) {
+  const response = await fetch(url, { headers: { accept: "application/json" } });
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error(`Request failed (${response.status})`);
+  return response.json();
+}
+
+async function fetchProject(projectPath) {
+  const sourceUrl = new URL(projectPath, portfolioIndexUrl);
+  const source = await fetchJson(sourceUrl);
+  const extensionIndex = sourceUrl.pathname.lastIndexOf(".json");
+  const localeUrls = ["ja", "zh-CN"].map((locale) => {
+    const localized = new URL(sourceUrl);
+    localized.pathname = `${sourceUrl.pathname.slice(0, extensionIndex)}.${locale}.json`;
+    return localized;
+  });
+  const [ja, zhCN] = await Promise.all(localeUrls.map(fetchOptionalJson));
+  source.locales = { ...(source.locales ?? {}), ...(ja && { ja }), ...(zhCN && { "zh-CN": zhCN }) };
+  return source;
+}
+
+let projects = [];
+
 function projectCard(project) {
   const item = element("li", "project-item active");
   item.dataset.filterItem = "";
-  item.dataset.category = project.category;
+  item.dataset.category = project.filterCategory;
   item.dataset.projectId = project.id;
   const link = element("a");
   link.href = project.url;
@@ -41,15 +65,22 @@ async function loadPortfolio() {
   try {
     const manifest = await fetchJson(portfolioIndexUrl);
     if (!Array.isArray(manifest.projects)) throw new Error("The portfolio index has an invalid format");
-    const projects = await Promise.all(
-      manifest.projects.map((projectPath) => fetchJson(new URL(projectPath, portfolioIndexUrl))),
-    );
-    grid.replaceChildren(...projects.map(projectCard));
-    state.textContent = projects.length ? "" : "No portfolio projects are currently published.";
-    window.dispatchEvent(new CustomEvent("portfolio:loaded"));
+    projects = await Promise.all(manifest.projects.map(fetchProject));
+    renderPortfolio();
   } catch (error) {
-    state.textContent = `Could not load portfolio projects. ${error.message}`;
+    state.textContent = i18n.t("portfolio.loadError", { message: error.message });
   }
 }
 
+function renderPortfolio() {
+    const localizedProjects = projects.map((project) => ({
+      ...i18n.localizeContent(project),
+      filterCategory: project.category,
+    }));
+    grid.replaceChildren(...localizedProjects.map(projectCard));
+    state.textContent = localizedProjects.length ? "" : i18n.t("portfolio.empty");
+    window.dispatchEvent(new CustomEvent("portfolio:loaded"));
+}
+
+window.addEventListener("portfolio:localechange", renderPortfolio);
 loadPortfolio();

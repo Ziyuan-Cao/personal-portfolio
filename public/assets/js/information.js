@@ -8,6 +8,7 @@ const sourceFilter = document.querySelector("[data-information-source]");
 const search = document.querySelector("[data-information-search]");
 const sort = document.querySelector("[data-information-sort]");
 const refresh = document.querySelector("[data-information-refresh]");
+const i18n = window.portfolioI18n;
 const element = window.portfolioUi?.element ?? ((tag, className, text) => {
   const node = document.createElement(tag);
   if (className) node.className = className;
@@ -20,16 +21,16 @@ let visibleCount = pageSize;
 let debounce;
 
 function formatTime(value) {
-  if (!value) return "Date unavailable";
+  if (!value) return i18n.t("news.unavailable");
   const date = new Date(value);
-  if (Number.isNaN(date.valueOf())) return "Date unavailable";
+  if (Number.isNaN(date.valueOf())) return i18n.t("news.unavailable");
   const elapsed = Date.now() - date.valueOf();
   const hours = Math.floor(elapsed / 3_600_000);
-  if (hours < 1) return "Just now";
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 1) return i18n.t("news.justNow");
+  if (hours < 24) return i18n.t("news.hoursAgo", { count: hours });
   const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d ago`;
-  return new Intl.DateTimeFormat(undefined, {
+  if (days < 7) return i18n.t("news.daysAgo", { count: days });
+  return new Intl.DateTimeFormat(i18n.dateLocale, {
     month: "short",
     day: "numeric",
     year: date.getFullYear() === new Date().getFullYear() ? undefined : "numeric",
@@ -38,8 +39,8 @@ function formatTime(value) {
 
 function formatItemTime(item) {
   if (item.publishedAt) return formatTime(item.publishedAt);
-  if (item.firstSeenAt) return `Found ${formatTime(item.firstSeenAt).toLocaleLowerCase()}`;
-  return "Date unavailable";
+  if (item.firstSeenAt) return i18n.t("news.found", { time: formatTime(item.firstSeenAt) });
+  return i18n.t("news.unavailable");
 }
 
 function itemTimestamp(item) {
@@ -47,7 +48,8 @@ function itemTimestamp(item) {
   return Number.isNaN(value) ? 0 : value;
 }
 
-function card(item) {
+function card(sourceItem) {
+  const item = i18n.localizeContent(sourceItem);
   const article = element("article", "information-card");
   const link = element("a");
   link.href = item.url;
@@ -95,14 +97,14 @@ function render({ reset = true } = {}) {
   const filtered = filteredItems();
   const visible = filtered.slice(0, visibleCount);
   grid.replaceChildren(...visible.map(card));
-  state.textContent = visible.length ? "" : "No news matches these filters yet.";
+  state.textContent = visible.length ? "" : i18n.t("news.empty");
   more.hidden = visible.length >= filtered.length;
   more.disabled = false;
 }
 
 async function load() {
   grid.replaceChildren();
-  state.textContent = "Loading news…";
+  state.textContent = i18n.t("news.loading");
   more.hidden = true;
   const response = await fetch(`${informationIndexUrl.href}?v=${Date.now()}`, {
     cache: "no-store",
@@ -127,26 +129,26 @@ async function load() {
   }));
   const selected = sourceFilter.value;
   sourceFilter.replaceChildren(
-    new Option("All sources", ""),
+    new Option(i18n.t("news.allSources"), ""),
     ...manifest.sources.map((source) => new Option(source.name, source.url)),
   );
   sourceFilter.value = manifest.sources.some((source) => source.url === selected) ? selected : "";
   updated.textContent = manifest.generatedAt
-    ? `Collected ${new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(manifest.generatedAt))}`
-    : "Waiting for the first scheduled collection";
+    ? i18n.t("news.collected", { time: new Intl.DateTimeFormat(i18n.dateLocale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(manifest.generatedAt)) })
+    : i18n.t("news.awaiting");
   render();
 }
 
 refresh.addEventListener("click", async () => {
   refresh.disabled = true;
-  refresh.querySelector("span").textContent = "Reloading…";
+  refresh.querySelector("span").textContent = i18n.t("news.reloading");
   try {
     await load();
   } catch (error) {
-    state.textContent = `Could not load news. ${error.message}`;
+    state.textContent = i18n.t("news.loadError", { message: error.message });
   } finally {
     refresh.disabled = false;
-    refresh.querySelector("span").textContent = "Reload";
+    refresh.querySelector("span").textContent = i18n.t("news.reload");
   }
 });
 
@@ -162,5 +164,12 @@ search.addEventListener("input", () => {
 });
 
 load().catch((error) => {
-  state.textContent = `Could not load news. ${error.message}`;
+  state.textContent = i18n.t("news.loadError", { message: error.message });
+});
+
+window.addEventListener("portfolio:localechange", () => {
+  const selected = sourceFilter.value;
+  if (sourceFilter.options.length) sourceFilter.options[0].textContent = i18n.t("news.allSources");
+  sourceFilter.value = selected;
+  if (items.length) render();
 });

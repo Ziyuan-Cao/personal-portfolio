@@ -9,6 +9,8 @@ window.portfolioUi = {
   },
 };
 
+const i18n = window.portfolioI18n;
+
 
 
 // element toggle function
@@ -76,8 +78,9 @@ select.addEventListener("click", function () { elementToggleFunc(this); });
 for (let i = 0; i < selectItems.length; i++) {
   selectItems[i].addEventListener("click", function () {
 
-    let selectedValue = this.innerText.toLowerCase();
+    const selectedValue = this.dataset.filterValue || "all";
     selectValue.innerText = this.innerText;
+    selectValue.dataset.filterValue = selectedValue;
     elementToggleFunc(select);
     filterFunc(selectedValue);
 
@@ -86,10 +89,10 @@ for (let i = 0; i < selectItems.length; i++) {
 
 const filterFunc = function (selectedValue) {
   const filterItems = document.querySelectorAll("[data-filter-item]");
-    for (let i = 0; i < filterItems.length; i++) {
-    if (selectedValue === "all") {
+  for (let i = 0; i < filterItems.length; i++) {
+    if (selectedValue.toLowerCase() === "all") {
       filterItems[i].classList.add("active");
-    } else if (selectedValue === filterItems[i].dataset.category || selectedValue === filterItems[i].dataset.category.toLowerCase()) {
+    } else if (selectedValue.toLowerCase() === filterItems[i].dataset.category.toLowerCase()) {
       filterItems[i].classList.add("active");
     } else {
       filterItems[i].classList.remove("active");
@@ -106,8 +109,9 @@ for (let i = 0; i < filterBtn.length; i++) {
 
   filterBtn[i].addEventListener("click", function () {
 
-    let selectedValue = this.innerText.toLowerCase();
+    const selectedValue = this.dataset.filterValue || "all";
     selectValue.innerText = this.innerText;
+    selectValue.dataset.filterValue = selectedValue;
     filterFunc(selectedValue);
 
     lastClickedBtn.classList.remove("active");
@@ -150,7 +154,7 @@ const activatePage = function (targetPage, shouldScroll = true) {
   const nextPage = pageExists ? targetPage : "about";
   for (const page of pages) page.classList.toggle("active", page.dataset.page === nextPage);
   for (const link of navigationLinks) {
-    link.classList.toggle("active", link.textContent.trim().toLowerCase() === nextPage);
+    link.classList.toggle("active", link.dataset.route === nextPage);
   }
   if (shouldScroll) window.scrollTo(0, 0);
 };
@@ -164,8 +168,7 @@ window.portfolioUi.navigateTo = function (targetPage) {
 // add event to all nav link
 for (let i = 0; i < navigationLinks.length; i++) {
   navigationLinks[i].addEventListener("click", function () {
-    const targetPage = this.textContent.trim().toLowerCase();
-    window.portfolioUi.navigateTo(targetPage);
+    window.portfolioUi.navigateTo(this.dataset.route);
   });
 }
 
@@ -178,5 +181,23 @@ if (window.location.hash) {
 }
 
 window.addEventListener("portfolio:loaded", function () {
-  filterFunc(selectValue.innerText.toLowerCase() === "select category" ? "all" : selectValue.innerText.toLowerCase());
+  filterFunc(selectValue.dataset.filterValue || "all");
 });
+
+window.addEventListener("portfolio:localechange", function () {
+  activatePage(window.location.hash.slice(1).split("/")[0] || "about", false);
+  filterFunc(selectValue.dataset.filterValue || "all");
+});
+
+const birthday = document.querySelector('time[datetime="1999-07-12"]');
+function localizeBirthday() {
+  if (!birthday) return;
+  birthday.textContent = new Intl.DateTimeFormat(i18n.dateLocale, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  }).format(new Date("1999-07-12T00:00:00Z"));
+}
+localizeBirthday();
+window.addEventListener("portfolio:localechange", localizeBirthday);

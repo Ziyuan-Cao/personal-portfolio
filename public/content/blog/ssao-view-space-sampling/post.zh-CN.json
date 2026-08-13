@@ -1,0 +1,265 @@
+{
+  "title": "SSAO：从视图空间样本到遮挡项",
+  "abstract": "切线空间半球、投影、深度重建和范围加权比较如何产生屏幕空间环境光遮挡。",
+  "category": "实时渲染",
+  "imageAlt": "视图空间半球将样本点投影到深度缓冲区中，其中更接近的几何形状有助于环境遮挡",
+  "lede": "屏幕空间环境光遮挡估计附近几何体将可见表面上方的半球隐藏的程度。着色器永远不会追踪完整的场景。它围绕视图空间中的当前像素构建候选点，将每个点投影回深度缓冲区，并询问该屏幕坐标处的可见表面是否位于候选点的前面。",
+  "sections": [
+    {
+      "heading": "SSAO 可以观察到什么",
+      "paragraphs": [
+        "环境光遮挡是间接光的可见性术语。角内的点比开放平面上的点看到的周围半球少，因此其间接贡献减少。 SSAO 在后处理通道中根据当前相机的深度和正常缓冲区来近似这种关系。",
+        "这使得成本在很大程度上与场景多边形数量无关，但它也定义了限制：深度缓冲区通常为每个像素存储一个可见表面。该层后面、视口之外的几何图形或太薄而无法进行采样的几何图形对于估算器来说是不可用的。"
+      ],
+      "equations": [
+        {
+          "label": "概念环境可见度",
+          "terms": [
+            {
+              "text": "表面点P处的环境能见度； 1 是开放的，0 是完全遮挡的。"
+            },
+            {
+              "text": "欧米茄方向的遮挡测试。"
+            },
+            {
+              "text": "距离、角度和调整权重。"
+            }
+          ]
+        }
+      ],
+      "docLinks": [
+        {
+          "label": "McGuire 等人：Alchemy 屏幕空间环境遮光算法",
+          "note": "来自深度和正常样本的面向生产的派生，包括屏幕空间限制和边缘感知过滤。"
+        },
+        {
+          "label": "Bavoil、Sainz 和 Dimitrov：基于图像空间地平线的环境光遮挡",
+          "note": "重建眼睛空间位置和整合深度样本遮挡的主要描述。"
+        }
+      ]
+    },
+    {
+      "heading": "将每个比较放在视图空间中",
+      "paragraphs": [
+        "中心位置、中心法线、内核样本和采样场景位置必须使用相同的坐标系。视图空间很方便，因为相机位于原点并且深度遵循已知的视图轴。本文假设 DirectX 样式的正前视空间，因此 z 值越大，距离相机越远。",
+        "世界空间位置缓冲区可以使用视图矩阵进行变换。硬件深度值不能：它是非线性投影结果，而不是 xyz 位置。使用逆投影重建视图空间位置，或使用用于渲染它的精确投影参数将深度线性化。将法线转换为 w = 0 的向量，然后对其进行归一化。"
+      ],
+      "codeBlocks": [
+        {
+          "file": "Conceptual view-space inputs",
+          "language": "hlsl",
+          "code": "float rawDepth = DepthTexture.SampleLevel(PointClamp, uv, 0);\nfloat3 centerPosVS = ReconstructViewPosition(uv, rawDepth, InvProjection);\n\nfloat3 normalWS = DecodeNormal(NormalTexture.SampleLevel(PointClamp, uv, 0));\nfloat3 normalVS = normalize(mul(float4(normalWS, 0.0), View).xyz);"
+        }
+      ],
+      "callouts": [
+        {
+          "title": "了解 G 缓冲区存储什么",
+          "text": "如果纹理存储世界位置，请将其转换为点。如果它存储设备深度，则通过逆投影重建它。将设备深度视为世界 xyz 会产生看似合理但不正确的比较。"
+        }
+      ]
+    },
+    {
+      "heading": "绕表面法线旋转半球",
+      "paragraphs": [
+        "可重用内核存储半球内的随机点，其局部 +z 轴为其法线。对于每个像素，构建一个切线-双切线-法线基础，将该内核旋转到可见表面上。小的平铺噪声纹理会改变像素之间的切线方向，用结构化条带换取稍后可以过滤的高频噪声。",
+        "将随机向量投影到垂直于法线的平面上。归一化的结果就是正切；穿过法线和切线会产生双切线。如果随机向量几乎平行于法线，请在标准化之前选择一个后备轴，以便基础不会变得不确定。"
+      ],
+      "codeBlocks": [
+        {
+          "file": "Build a per-pixel TBN basis",
+          "language": "hlsl",
+          "code": "float3 randomDir = NoiseTexture.Sample(LinearWrap, uv * noiseScale).xyz * 2.0 - 1.0;\nfloat3 tangentCandidate = randomDir - normalVS * dot(randomDir, normalVS);\n\nif (dot(tangentCandidate, tangentCandidate) < 1e-4)\n    tangentCandidate = abs(normalVS.z) < 0.999\n        ? cross(float3(0, 0, 1), normalVS)\n        : cross(float3(0, 1, 0), normalVS);\n\nfloat3 tangent = normalize(tangentCandidate);\nfloat3 bitangent = cross(normalVS, tangent);\nfloat3x3 tbn = float3x3(tangent, bitangent, normalVS);"
+        }
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "输入",
+            "空间",
+            "目的"
+          ],
+          "rows": [
+            [
+              "内核偏移量",
+              "局部切线空间",
+              "可重复使用的半球分布"
+            ],
+            [
+              "正常",
+              "查看空间",
+              "定义半球轴"
+            ],
+            [
+              "噪声矢量",
+              "视空间方向种子",
+              "每个像素旋转内核模式"
+            ],
+            [
+              "TBN矩阵",
+              "与观察空间相切",
+              "将内核样本放置在该表面周围"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "放置并投影每个样本",
+      "paragraphs": [
+        "将一个核偏移量变换为 TBN 矩阵，按视图空间半径进行缩放，然后将其添加到中心位置。结果是当前表面附近的三维候选点。",
+        "然后，着色器将该点投影到剪辑空间，将 xy 除以 w 以获得标准化的设备坐标，并将 NDC 从 [-1, 1] 重新映射到纹理 UV。重映射中的垂直符号取决于图形 API 和纹理约定；下面的代码使用左上角的纹理原点。拒绝相机后面或视口之外的点。"
+      ],
+      "flow": {
+        "label": "1 个 SSAO 样本",
+        "steps": [
+          {
+            "title": "内核",
+            "text": "选择局部半球偏移"
+          },
+          {
+            "title": "总碱值",
+            "text": "将偏移旋转到视图空间"
+          },
+          {
+            "title": "半径",
+            "text": "将候选人放在中心周围"
+          },
+          {
+            "title": "投影",
+            "text": "将候选者映射到 NDC 和 UV"
+          },
+          {
+            "title": "深度查找",
+            "text": "读取该 UV 处的可见几何形状"
+          }
+        ]
+      },
+      "codeBlocks": [
+        {
+          "file": "Project a view-space sample",
+          "language": "hlsl",
+          "code": "float3 samplePosVS = centerPosVS + mul(kernel[i], tbn) * radius;\n\nfloat4 clip = mul(float4(samplePosVS, 1.0), Projection);\nif (clip.w <= 0.0) continue;\n\nfloat2 ndc = clip.xy / clip.w;\nfloat2 sampleUV = ndc * float2(0.5, -0.5) + 0.5;\nif (any(sampleUV < 0.0) || any(sampleUV > 1.0)) continue;"
+        }
+      ],
+      "equations": [
+        {
+          "label": "均匀投影",
+          "terms": [
+            {
+              "text": "通过投影引入均匀尺度； UV重贴图之前需要进行透视划分。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "将候选者与可见深度进行比较",
+      "paragraphs": [
+        "在投影 UV 处对深度缓冲区进行采样，并在视图空间中重建可见场景深度。在正前向约定下，当场景表面比候选者更接近相机时，场景会遮挡候选者：sceneZ 小于sampleZ。由于精度和插值误差，小偏差可防止中心表面自身遮挡。",
+        "范围权重会抑制恰好投射到同一 UV 上但深度较远的不相关曲面。可选的法线方向权重可以有利于与表面半球对齐的样本。对加权二进制测试求和，除以有效权重或样本计数，反转到环境可见度，并仅将功率用作艺术指导的对比度控制。"
+      ],
+      "codeBlocks": [
+        {
+          "file": "Accumulate one sample",
+          "language": "hlsl",
+          "code": "float rawSampleDepth = DepthTexture.SampleLevel(PointClamp, sampleUV, 0);\nfloat sceneZ = ReconstructViewPosition(sampleUV, rawSampleDepth, InvProjection).z;\n\nfloat occluded = sceneZ <= samplePosVS.z - bias ? 1.0 : 0.0;\nfloat rangeWeight = smoothstep(0.0, 1.0, radius / max(abs(centerPosVS.z - sceneZ), 1e-4));\nfloat directionWeight = saturate(dot(normalVS, normalize(samplePosVS - centerPosVS)));\n\nocclusion += occluded * rangeWeight * directionWeight;\nweightSum += rangeWeight * directionWeight;"
+        }
+      ],
+      "equations": [
+        {
+          "label": "离散 SSAO 估计",
+          "terms": [
+            {
+              "text": "当可见深度位于候选 i 前面时为 1，否则为零。"
+            },
+            {
+              "text": "样本 i 的范围和可选方向权重。"
+            },
+            {
+              "text": "对比度控制；它改变了外观，而不是可见性证据。"
+            }
+          ]
+        }
+      ],
+      "callouts": [
+        {
+          "title": "不平等取决于惯例",
+          "text": "负前向视图空间、反向 Z 存储以及具有不同剪辑约定的 API 可以反转或以其他方式更改测试。在比较之前，将这两个值转换为一种记录的线性视图空间约定。"
+        }
+      ]
+    },
+    {
+      "heading": "噪声是采样策略的一部分",
+      "paragraphs": [
+        "小内核无法整合每个方向，因此固定模式会创建可见的带。旋转或抖动每个像素的图案会将这些频带分解为噪声。然后，深度和法线感知双边滤波器可以平滑来自同一表面的样本，同时比普通框模糊更好地保留轮廓和折痕。",
+        "时间累积可以跨帧重复使用证据，但它需要运动向量、拒绝测试和钳制以避免痕迹。半分辨率 SSAO 减少了纹理工作，但上采样必须再次尊重深度和法线以防止光晕。"
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "控制",
+            "增加它确实",
+            "常见故障"
+          ],
+          "rows": [
+            [
+              "内核大小",
+              "减少抽样方差",
+              "更多深度读取和着色器成本"
+            ],
+            [
+              "半径",
+              "捕捉附近较大的结构",
+              "光晕和比例不匹配"
+            ],
+            [
+              "偏差",
+              "减少自遮挡",
+              "接触阴影分离"
+            ],
+            [
+              "电源",
+              "使最终响应变暗",
+              "角落被压坏，视野不佳"
+            ],
+            [
+              "模糊半径",
+              "抑制噪音",
+              "跨越深度不连续性的出血"
+            ]
+          ],
+          "caption": "首先调整视图或世界单位中的半径；最后使用电源，因为它只会重塑输出。"
+        }
+      ]
+    },
+    {
+      "heading": "将工件读取为缺失信息",
+      "paragraphs": [
+        "明亮的边缘可能意味着遮挡物移出了屏幕。暗晕可能意味着大半径采样了不同的深度层。闪烁可能意味着稀疏内核随着几何体穿过像素移动而改变了覆盖范围。这些并不是随机的缺陷；而是随机的缺陷。每一个都指向当前深度图像未保留或滤波器混合不正确的信息。",
+        "因此，SSAO 作为局部接触和折痕术语最有说服力，而不是完全间接光可见性的替代品。保持其比例有限，将其与引擎的间接光模型结合起来，并在相机和物体移动时验证结果。"
+      ],
+      "bullets": [
+        "使用线性视图空间半径，使效果具有稳定的场景比例。",
+        "在大的深度差异变成光环之前拒绝或减轻它们的重量。",
+        "对稀疏内核使用边缘感知空间或时间过滤。",
+        "预计屏幕外和隐藏几何体会丢失遮挡。",
+        "将中心位置、法线、投影 UV、重建深度和二进制比较作为单独的视图进行调试。"
+      ]
+    }
+  ],
+  "references": [
+    {
+      "label": "McGuire 等人：Alchemy 屏幕空间环境遮光算法"
+    },
+    {
+      "label": "Bavoil、Sainz 和 Dimitrov：基于图像空间地平线的环境光遮挡"
+    },
+    {
+      "label": "Bavoil：现代实时渲染技术"
+    },
+    {
+      "label": "Ritschel 等人：图像空间中的近似动态全局照明"
+    }
+  ],
+  "closing": "SSAO 循环是一系列坐标空间契约：在视图空间中重建可见表面，围绕其法线旋转局部半球，将每个候选投影回深度缓冲区，在一个符号约定下比较线性深度，并在不跨越真实边缘的情况下过滤稀疏估计。大多数 SSAO 错误都是该链中的一个破裂的契约。"
+}

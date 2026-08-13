@@ -1,0 +1,206 @@
+{
+  "title": "该网站如何运作",
+  "abstract": "介绍本作品集、每日 GitHub Actions 管线，以及将可信来源转换为最新静态资讯页面的采集器。",
+  "category": "幕后花絮",
+  "imageAlt": "连接产品组合、GitHub Actions、GitHub Pages 和新闻源的图表",
+  "lede": "这个组合故意很小：浏览器中的纯 HTML、CSS 和 JavaScript，由专注的 TypeScript 收集器完成更繁重的工作。 GitHub 提供临时计算，而 GitHub Pages 只需提供静态文件。",
+  "sections": [
+    {
+      "heading": "一张图片中的页面",
+      "paragraphs": [
+        "该存储库是站点代码、组合项目、博客文章和可信新闻源列表的来源。 GitHub Actions 检查该源、刷新新闻并打包公共文件夹。然后，GitHub Pages 将生成的工件作为普通的静态网站提供。"
+      ],
+      "flow": {
+        "label": "网站发布流程",
+        "steps": [
+          {
+            "title": "存储库",
+            "text": "站点代码、内容文件和可信源 URL"
+          },
+          {
+            "title": "GitHub 操作",
+            "text": "通过推送、每日计划或手动请求启动"
+          },
+          {
+            "title": "收藏家",
+            "text": "获取、验证、规范化和删除重复文章"
+          },
+          {
+            "title": "页面神器",
+            "text": "打包浏览器就绪的公用文件夹"
+          },
+          {
+            "title": "直播网站",
+            "text": "GitHub Pages 提供最新的成功神器"
+          }
+        ]
+      }
+    },
+    {
+      "heading": "作品集页面如何运作",
+      "paragraphs": [
+        "浏览器首先加载单个索引页面。导航在“关于”、“简历”、“作品集”、“博客”、“新闻”和“联系人”之间切换，无需每次下载新布局。",
+        "每个组合项目都拥有一个包含其 JSON 记录和图像的材质文件夹。一个小索引仅列出那些每个项目的 JSON 路径；浏览器加载记录并创建卡片。博客文章使用相同的结构，因此文章的文本和图像保持在一起，而不是共享一个单一的内容文件。"
+      ],
+      "flow": {
+        "label": "作品集渲染流程",
+        "steps": [
+          {
+            "title": "内容 JSON",
+            "text": "项目标题、摘要、图像、类别和链接"
+          },
+          {
+            "title": "浏览器脚本",
+            "text": "获取数据并构建可访问的卡片"
+          },
+          {
+            "title": "投资组合网格",
+            "text": "页面上显示响应式预览"
+          }
+        ]
+      }
+    },
+    {
+      "heading": "为什么新闻每天早上都会刷新",
+      "paragraphs": [
+        "没有持续运行的投资组合服务器。下面的时间表要求 GitHub Actions 每天创建一次临时运行器。五个 cron 字段分别表示分钟、小时、月份、月份和星期几：0 选择小时的开始，21 选择 21:00 UTC，三个星号匹配每个日历日。",
+        "GitHub 在 UTC 中评估此时间表。日本标准时间为 UTC+9，因此 21:00 UTC 为第二天的 06:00 JST。计划执行是尽力而为：GitHub 记录了在重负载期间运行可能会延迟，因此 06:00 是每日目标，而不是确切的启动时间保证。",
+        "其他触发器也很有用。推送到master会发布代码或编写更改，而workflow_dispatch会在GitHub的操作界面中添加“运行工作流”按钮。"
+      ],
+      "codeBlocks": [
+        {
+          "file": ".github/workflows/pages.yml",
+          "language": "yaml",
+          "code": "on:\n  push:\n    branches:\n      - master\n  schedule:\n    # 21:00 UTC is 06:00 JST on the following day.\n    - cron: \"0 21 * * *\"\n  workflow_dispatch:"
+        }
+      ]
+    },
+    {
+      "heading": "GitHub runner 的作用",
+      "paragraphs": [
+        "每次运行都在干净的 Ubuntu 机器上启动。它检查最新的存储库提交，从锁定文件安装确切的依赖项版本，编译 TypeScript 作为构建检查，并运行静态收集器。当生成的新闻发生变化时，构建作业会将这些文件提交到 master，然后将公共目录作为 Pages 工件上传。",
+        "构建作业接收内容：仅写入，以便保存生成的新闻。单独的部署作业接收 page: write 和 id-token: write，并且在构建作业成功之前无法发布。使用工作流的 GITHUB_TOKEN 进行的提交不会启动另一个工作流运行，而skip-ci 标记也会在提交消息中记录该意图。"
+      ],
+      "codeBlocks": [
+        {
+          "file": ".github/workflows/pages.yml",
+          "language": "yaml",
+          "code": "- name: Collect news\n  run: npm run collect:static\n\n- name: Save collected news\n  run: |\n    git add --all public/content/information\n    git diff --cached --quiet && exit 0\n    git commit -m \"chore(news): refresh collected news [skip ci]\"\n    git push origin HEAD:master\n\n- name: Upload Pages artifact\n  uses: actions/upload-pages-artifact@v3\n  with:\n    path: public\n\n# A separate job publishes that artifact.\n- name: Deploy to GitHub Pages\n  uses: actions/deploy-pages@v4"
+        }
+      ],
+      "bullets": [
+        "推送使代码和编写更新可见。",
+        "即使没有人更改存储库，计划也会刷新新闻。",
+        "当立即收集有用时，可以使用手动运行。",
+        "并发运行被取消，因此只有最新的 Pages 部署才能完成。"
+      ]
+    },
+    {
+      "heading": "一个来源如何成为新闻卡片",
+      "paragraphs": [
+        "收集器一次读取一个 URL config/sources.txt。它首先尝试将响应解析为 RSS、Atom 或 JSON Feed。如果响应是网页，它会查找链接的提要；如果不存在可用的结构化提要，它会从 HTML 中提取候选文章。",
+        "默认情况下，标准化列表每个来源的候选人上限为 30 名。然后四名工作人员同时验证文章页面。已确认的 HTTP 404 或 410 响应以及标题或主标题看起来像软 404 的页面将被删除。",
+        "对于有效的 HTML 文章，收集器会从元数据、JSON-LD、时间元素、可见日期或日期形状的 URL 中恢复丢失的发布日期。它还会检查社交和文章图像，但仅在下载并测量宽度大于 480 像素后才保留预览。"
+      ],
+      "codeBlocks": [
+        {
+          "file": "src/collector.ts",
+          "language": "typescript",
+          "code": "const page = await fetchText(sourceUrl);\nlet items = parseFeed(page.body, page.url, page.contentType);\n\nif (!items) {\n  const feedUrl = discoverFeed(page.body, page.url);\n  if (feedUrl) {\n    try {\n      const feed = await fetchText(feedUrl);\n      items = parseFeed(feed.body, feed.url, feed.contentType);\n    } catch {\n      // Fall back to parsing the source page as HTML.\n    }\n  }\n}\n\nconst normalized = normalizeItems(\n  items ?? parseHtml(page.body, page.url),\n  page.url,\n  maxItems,\n);\nconst checked = await mapConcurrent(\n  normalized,\n  enrichmentConcurrency,\n  checkArticle,\n);\nreturn checked.filter((item) => item !== null);"
+        }
+      ],
+      "flow": {
+        "label": "自动化新闻采集流程",
+        "steps": [
+          {
+            "title": "来源清单",
+            "text": "可信源和网站 URL"
+          },
+          {
+            "title": "发现&解析",
+            "text": "RSS、Atom、JSON Feed 或 HTML"
+          },
+          {
+            "title": "验证和丰富",
+            "text": "删除无效链接、恢复日期、验证图像"
+          },
+          {
+            "title": "重复数据删除",
+            "text": "规范 URL 和确定性哈希"
+          },
+          {
+            "title": "项目文件夹",
+            "text": "每篇文章一条 JSON 记录加上一个小索引"
+          }
+        ]
+      }
+    },
+    {
+      "heading": "部署的 feed 是一个新的快照",
+      "paragraphs": [
+        "静态收集器故意打开内存中的 SQLite 数据库。它不会导入之前部署的 JSON 文件，因此每个工作流运行都会根据配置的源当前返回的文章重建摘要。规范的 URL 和稳定的哈希值可防止运行中出现重复，但首次看到的时间戳和内部行 ID 会在下一个运行程序中再次开始。",
+        "这使得新闻页面成为当前摘要而不是永久存档。生成的索引和每个项目的文件夹将提交到存储库并放置在页面工件中。如果每个源都失败并且没有收集到任何项目，则脚本会在提交和部署之前抛出异常，从而使上次保存的快照和上次成功的 Pages 工件保持不变。部分源故障不会停止运行，因此在稍后成功收集之前，源可能不会出现在保存的快照中。"
+      ],
+      "codeBlocks": [
+        {
+          "file": "src/static-collector.ts",
+          "language": "typescript",
+          "code": "const itemFiles = await Promise.all(items.map(async (item) => {\n  const itemFile = path.join(stagingItemsPath, item.uid, \"item.json\");\n  await writeJson(itemFile, item);\n  return `items/${item.uid}/item.json`;\n}));\n\nawait fs.rename(stagingItemsPath, itemsPath);\nawait writeJson(indexPath, {\n  generatedAt: new Date().toISOString(),\n  sources: sourceOptions,\n  items: itemFiles,\n});"
+        }
+      ]
+    },
+    {
+      "heading": "浏览器如何获取新部署",
+      "paragraphs": [
+        "GitHub Pages 将 public/content/information/index.json 和每个项目 JSON 文件作为普通静态资产提供服务。当“新闻”选项卡打开时，浏览器会请求具有无存储缓存的索引，加载列出的项目记录，然后构建源过滤器和文章卡。",
+        "“重新加载”按钮会重复该浏览器请求；它不会触发 GitHub Actions 或直接联系新闻网站。因此，在下一次成功的集合和页面部署之后会出现新发布的文章，然后在访问者的浏览器中加载或重新加载页面。"
+      ],
+      "codeBlocks": [
+        {
+          "file": "public/assets/js/information.js",
+          "language": "javascript",
+          "code": "const response = await fetch(\n  `${informationIndexUrl.href}?v=${Date.now()}`,\n  { cache: \"no-store\", headers: { accept: \"application/json\" } },\n);\nconst manifest = await response.json();\nitems = await Promise.all(\n  manifest.items.map((itemPath) => fetch(new URL(itemPath, informationIndexUrl)).then((item) => item.json())),\n);"
+        }
+      ]
+    },
+    {
+      "heading": "为什么采用这种架构",
+      "paragraphs": [
+        "没有应用程序服务器可以在生产中保持活动状态，也不需要访问者需要的数据库。 GitHub 为集合提供短期计算，GitHub Pages 提供普通静态文件。结果是廉价、可移植且具有弹性，而本地 Fastify 服务器和持久 SQLite 数据库在开发过程中仍然有用。",
+        "权衡是延迟、有限的历史记录以及每当生成的快照发生更改时自动存储库提交：更新在计划的工作流程和部署完成时到达，而不是立即到达，并且静态输出反映源的当前窗口。作为回报，部署的提要和存储库中保存的版本保持一致，并且可以通过普通的 Git 历史记录进行检查。"
+      ]
+    },
+    {
+      "heading": "参考资料和规格",
+      "paragraphs": [
+        "这些是站点使用的调度、部署和结构化源格式背后的主要文档。"
+      ],
+      "references": [
+        {
+          "title": "GitHub Actions：安排活动",
+          "description": "Cron 计时、UTC 默认值、默认分支行为以及可能的调度延迟。"
+        },
+        {
+          "title": "GitHub Pages：自定义工作流程",
+          "description": "有关构建、上传和部署 Pages 工件的官方指南。"
+        },
+        {
+          "title": "GitHub 部署页面操作",
+          "description": "正式部署操作、所需权限、环境和工件合同。"
+        },
+        {
+          "title": "RSS 2.0 规范",
+          "description": "收集器解析的 RSS 频道和项目格式。"
+        },
+        {
+          "title": "RFC 4287：Atom 联合格式",
+          "description": "Atom 提要和条目的 IETF 规范。"
+        },
+        {
+          "title": "JSON 提要 1.1",
+          "description": "基于 JSON 的提要格式与 RSS 和 Atom 一起支持。"
+        }
+      ]
+    }
+  ]
+}

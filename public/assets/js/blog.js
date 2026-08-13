@@ -5,9 +5,10 @@ const detailView = document.querySelector("[data-blog-detail-view]");
 const pageTitle = document.querySelector("[data-blog-page-title]");
 const intro = document.querySelector("[data-blog-intro]");
 const { element } = window.portfolioUi;
+const i18n = window.portfolioI18n;
 const siteRoot = new URL("../../", import.meta.url);
 const blogIndexUrl = new URL("content/blog/index.json", siteRoot);
-const defaultDocumentTitle = document.title;
+let sourcePosts = [];
 let posts = [];
 
 async function fetchJson(url) {
@@ -16,8 +17,29 @@ async function fetchJson(url) {
   return response.json();
 }
 
+async function fetchOptionalJson(url) {
+  const response = await fetch(url, { headers: { accept: "application/json" } });
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error(`Request failed (${response.status})`);
+  return response.json();
+}
+
+async function fetchPost(postPath) {
+  const sourceUrl = new URL(postPath, blogIndexUrl);
+  const source = await fetchJson(sourceUrl);
+  const extensionIndex = sourceUrl.pathname.lastIndexOf(".json");
+  const localeUrls = ["ja", "zh-CN"].map((locale) => {
+    const localized = new URL(sourceUrl);
+    localized.pathname = `${sourceUrl.pathname.slice(0, extensionIndex)}.${locale}.json`;
+    return localized;
+  });
+  const [ja, zhCN] = await Promise.all(localeUrls.map(fetchOptionalJson));
+  source.locales = { ...(source.locales ?? {}), ...(ja && { ja }), ...(zhCN && { "zh-CN": zhCN }) };
+  return source;
+}
+
 function formatDate(value) {
-  return new Intl.DateTimeFormat("en", {
+  return new Intl.DateTimeFormat(i18n.dateLocale, {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -29,7 +51,7 @@ function postCard(post, index) {
   const item = element("li", "blog-post-item");
   const link = element("a");
   link.href = `#blog/${encodeURIComponent(post.slug)}`;
-  link.setAttribute("aria-label", `Read ${post.title}`);
+  link.setAttribute("aria-label", i18n.t("blog.readLabel", { title: post.title }));
 
   const content = element("div", "blog-content");
   const meta = element("div", "blog-meta");
@@ -42,7 +64,7 @@ function postCard(post, index) {
   const title = element("h3", "h3 blog-item-title", post.title);
   const abstract = element("p", "blog-text", post.abstract);
   const footer = element("div", "blog-card-footer");
-  footer.append(element("span", "blog-read-link", "Read article \u2197"));
+  footer.append(element("span", "blog-read-link", i18n.t("blog.read")));
   content.append(meta, title, abstract, footer);
   if (post.cardImage) {
     const figure = element("figure", "blog-banner-box");
@@ -187,7 +209,7 @@ function referenceList(references) {
 
 function documentationLinks(links) {
   const aside = element("aside", "blog-doc-links");
-  aside.append(element("strong", "blog-doc-links-title", "Read with the docs open"));
+  aside.append(element("strong", "blog-doc-links-title", i18n.t("blog.docs")));
   const list = element("ul");
   for (const entry of links) {
     const item = element("li");
@@ -267,15 +289,15 @@ function articleSection(section, index) {
 function renderList() {
   listView.hidden = false;
   detailView.hidden = true;
-  pageTitle.textContent = "Blog";
+  pageTitle.textContent = i18n.t("blog.title");
   intro.hidden = false;
-  state.textContent = posts.length ? "" : "No blog posts are currently published.";
+  state.textContent = posts.length ? "" : i18n.t("blog.empty");
   grid.replaceChildren(...posts.map(postCard));
-  document.title = defaultDocumentTitle;
+  document.title = i18n.t("site.title");
 }
 
 function renderDetail(post) {
-  const back = element("a", "blog-back", "\u2190 All posts");
+  const back = element("a", "blog-back", i18n.t("blog.allPosts"));
   back.href = "#blog";
 
   const header = element("header", "blog-article-header");
@@ -296,21 +318,21 @@ function renderDetail(post) {
   post.sections.forEach((section, index) => body.append(articleSection(section, index)));
   if (post.references?.length) {
     body.append(articleSection(
-      { heading: "Sources and further reading", references: post.references },
+      { heading: i18n.t("blog.sources"), references: post.references },
       post.sections.length,
     ));
   }
 
   const closing = element("footer", "blog-article-footer");
   closing.append(
-    element("p", "", post.closing ?? "The useful result is not only the technique, but a clearer model of where its assumptions and trade-offs live."),
-    Object.assign(element("a", "blog-back blog-back-bottom", "Read more notes \u2192"), { href: "#blog" }),
+    element("p", "", post.closing ?? i18n.t("blog.defaultClosing")),
+    Object.assign(element("a", "blog-back blog-back-bottom", i18n.t("blog.more")), { href: "#blog" }),
   );
 
   detailView.replaceChildren(back, header, hero, body, closing);
   listView.hidden = true;
   detailView.hidden = false;
-  pageTitle.textContent = `Journal / ${String(posts.indexOf(post) + 1).padStart(3, "0")}`;
+  pageTitle.textContent = i18n.t("blog.journal", { number: String(posts.indexOf(post) + 1).padStart(3, "0") });
   intro.hidden = true;
   state.textContent = "";
   document.title = `${post.title} - Ziyuan Cao`;
@@ -327,7 +349,7 @@ function renderRoute() {
   if (post) renderDetail(post);
   else {
     renderList();
-    state.textContent = "That post could not be found.";
+    state.textContent = i18n.t("blog.notFound");
   }
 }
 
@@ -335,14 +357,17 @@ async function loadBlog() {
   try {
     const manifest = await fetchJson(blogIndexUrl);
     if (!Array.isArray(manifest.posts)) throw new Error("The blog index has an invalid format");
-    posts = await Promise.all(
-      manifest.posts.map((postPath) => fetchJson(new URL(postPath, blogIndexUrl))),
-    );
+    sourcePosts = await Promise.all(manifest.posts.map(fetchPost));
+    posts = sourcePosts.map(i18n.localizeContent);
     renderRoute();
   } catch (error) {
-    state.textContent = `Could not load blog posts. ${error.message}`;
+    state.textContent = i18n.t("blog.loadError", { message: error.message });
   }
 }
 
 window.addEventListener("hashchange", renderRoute);
+window.addEventListener("portfolio:localechange", () => {
+  posts = sourcePosts.map(i18n.localizeContent);
+  renderRoute();
+});
 loadBlog();

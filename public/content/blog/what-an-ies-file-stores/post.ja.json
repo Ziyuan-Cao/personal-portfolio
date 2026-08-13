@@ -1,0 +1,222 @@
+{
+  "title": "IES プロファイル: ファイル行からランタイム サンプリングまで",
+  "abstract": "IES ファイルがどのようにして絶対カンデラ テクスチャになるのか、そのテクスチャがどのようにサンプリングされるのか、その結果がソース スケーリングやライト メーターにどのように影響するのか。",
+  "category": "測光",
+  "imageAlt": "IES ファイルの行が角度カンデラ データに解析され、テクスチャにリサンプリングされました",
+  "lede": "IES プロファイルには、測定された垂直角度と水平角度でのカンデラ サンプルが保存されます。ランタイム パスは、これらの行を角度インデックス付きのテーブルに解析し、そのテーブルを 257 × 257 の R32F テクスチャにリサンプリングして、光からカメラの方向から指向性カンデラを検索します。",
+  "sections": [
+    {
+      "heading": "ファイルを行ごとに読み取ります",
+      "paragraphs": [
+        "LM-63 はトークンベースであるため、長いリストは物理行にまたがる可能性があります。概念的には、データはフォーマットとメタデータ、傾斜データ、測光フィールド、角度配列、カンデラ行の順に表示されます。"
+      ],
+      "codeBlocks": [
+        {
+          "file": "Conceptual LM-63 layout",
+          "language": "text",
+          "code": "IESNA:LM-63-2002\n[keywords and test metadata]\nTILT=NONE\nlamps lumensPerLamp candelaMultiplier verticalCount horizontalCount photometricType unitType width length height\nballastFactor futureUse inputWatts\n[vertical angles]\n[horizontal angles]\n[candela values for horizontal plane 0]\n[candela values for horizontal plane 1]\n..."
+        }
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "行またはグループ",
+            "定義"
+          ],
+          "rows": [
+            [
+              "イエズナ版",
+              "LM-63 リビジョンを識別します。"
+            ],
+            [
+              "キーワード",
+              "テスト、メーカー、カタログ、照明器具のメタデータ。"
+            ],
+            [
+              "チルト",
+              "補正なし、付属の補正テーブル、または外部チルト ファイル。"
+            ],
+            [
+              "測光フィールド",
+              "ランプ数、ランプあたりのルーメン、カンデラ乗数、角度数、測光タイプ、単位、およびエミッターの寸法。"
+            ],
+            [
+              "電界",
+              "バラスト係数、予約値、入力ワット。"
+            ],
+            [
+              "頂角θ",
+              "verticalCount サンプル。通常は 0° ～ 180° の一部またはすべてをカバーします。"
+            ],
+            [
+              "水平角φ",
+              "保存された対称範囲をカバーする C プレーンの数を水平にカウントします。"
+            ],
+            [
+              "カンデラロウ",
+              "水平面ごとに 1 行、verticalCount の強度サンプルがあります。"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "角度インデックス付きカンデラ テーブルをロードする",
+      "paragraphs": [
+        "間隔が不規則になる可能性があるため、光源の角度を維持してください。カンデラを水平方向の優先順序で格納するため、candela[p ×verticalCount + a] は水平面 p と垂直角度 a を扱います。テクスチャを作成する前に対称性を再構築します。"
+      ],
+      "codeBlocks": [
+        {
+          "file": "IESProfileData",
+          "language": "cpp",
+          "code": "struct IESProfileData\n{\n    float lumensPerLamp;\n    float candelaMultiplier;\n    float ballastFactor;\n    std::vector<float> verticalAnglesDeg;\n    std::vector<float> horizontalAnglesDeg;\n    std::vector<float> candela; // [horizontal][vertical]\n};"
+        }
+      ],
+      "equations": [
+        {
+          "label": "絶対カンデラ",
+          "terms": [
+            "I_IES はソーステーブルのサンプル、M_cd はカンデラ乗数、F_ballast はバラスト係数です。",
+            "ランプあたりのルーメンは解析されますが、この計算では使用されません。"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "プロファイルを 2D テクスチャとして再作成します",
+      "paragraphs": [
+        "257 × 257 の R32F テクスチャを作成します。各テクセルは、1 つの垂直角度と 1 つの水平 C 面角度の絶対カンデラを保存します。複製された水平端点は 0°/360° の継ぎ目を閉じます。"
+      ],
+      "equations": [
+        {
+          "label": "テクスチャ座標",
+          "terms": [
+            "θ = 180°u は 0° から 180° までの頂角です。",
+            "φ = 360°v は 0° から 360° までの水平角です。",
+            "T(u, v) = I_abs(θ, φ)."
+          ]
+        },
+        {
+          "label": "ソーステーブル補間",
+          "terms": [
+            "tθ = (θ − θ0) / (θ1 − θ0)、tφ = (φ − φ0) / (φ1 − φ0)。",
+            "I00、I10、I01、および I11 は、周囲の 4 つのソース サンプルです。"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "実行時の指向性カンデラのサンプル",
+      "paragraphs": [
+        "ライトからカメラへの方向をライトの測光基準に変換します。 F、U、R は光の前方、上、右の方向です。"
+      ],
+      "equations": [
+        {
+          "label": "ライトからカメラへの方向",
+          "terms": [
+            "d は正規化されたワールド空間の方向です。"
+          ]
+        },
+        {
+          "label": "垂直ルックアップ",
+          "terms": [
+            "u は前方角度を 0 から 1 にマッピングします。"
+          ]
+        },
+        {
+          "label": "水平C面ルックアップ",
+          "terms": [
+            "v 方位角を 0 ～ 1 の範囲にラップします。"
+          ]
+        },
+        {
+          "label": "指向性強度",
+          "terms": [
+            "テクスチャ ルックアップでは双線形フィルタリングを使用し、絶対カンデラを返します。"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "領域を変更せずに表示されているソースを拡大縮小します",
+      "paragraphs": [
+        "指向性カンデラにより、スクリーン空間のグレア源を拡大できます。これは、表示されている軸のみに影響します。物理的なエミッタ領域は変更されません。各画面空間軸は少なくとも 1.5​​ ピクセルに固定されます。"
+      ],
+      "equations": [
+        {
+          "label": "グレアスケール",
+          "terms": [
+            "αはScalingAreaAlphaです。オプションの制限 S = min(S, S_max) を適用します。",
+            "R_scaled = S R_screen および U_scaled = S U_screen。"
+          ]
+        }
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "エミッター",
+            "物理面積 (m²)"
+          ],
+          "rows": [
+            [
+              "長方形",
+              "A = 4wh × 10⁻⁴"
+            ],
+            [
+              "楕円",
+              "A = πwh × 10⁻⁴"
+            ],
+            [
+              "サークル",
+              "A = πr² × 10⁻⁴"
+            ]
+          ],
+          "caption": "w と h はセンチメートル単位の半分の長さです。 r は半径です。係数 10⁻⁴ は cm² を m² に変換します。"
+        }
+      ]
+    },
+    {
+      "heading": "明るさと指向性のメーター値を計算する",
+      "paragraphs": [
+        "輝度計は、投影されたエミッタ領域を使用してカンデラを輝度に変換します。指向性計はサンプリングされたカンデラを保持します。どちらもエミッタ マスク M と深さの可視性 V_d を適用し、ライトが重なる部分の最大値を維持します。"
+      ],
+      "equations": [
+        {
+          "label": "投影面積",
+          "terms": [
+            "A は物理的なエミッタ領域、c は視野角のコサインです。"
+          ]
+        },
+        {
+          "label": "明るさ計の輝度",
+          "terms": [
+            "I_ref = I(0°, 0°)。 L は cd/m² で測定されます。",
+            "光の色 C の場合、L_RGB = LC、L_meter = max(L_r, L_g, L_b) となります。",
+            "L_output = L_meter × M × V_d; L_final = max_i(L_output,i); L_final > L_threshold をテストします。"
+          ]
+        },
+        {
+          "label": "指向性計",
+          "terms": [
+            "I_final は cd 単位で測定されます。 I_final > I_threshold をテストします。"
+          ]
+        }
+      ],
+      "callouts": [
+        {
+          "title": "電流強度パス",
+          "text": "この実装では、絶対 IES カンデラを直接サンプリングします。結果に Unreal Engine の光の強度を乗算することはありません。"
+        }
+      ]
+    }
+  ],
+  "references": [
+    {
+      "label": "照明学会: ANSI/IES LM-63 規格リスト"
+    },
+    {
+      "label": "Epic Games: IES ライト プロファイルの使用"
+    }
+  ],
+  "closing": "パイプラインは直接的です。角度とカンデラを解析し、ファイル乗数を適用し、絶対カンデラを 2D テクスチャにリサンプリングし、ライトのランタイム ベースで指向性強度を回復します。"
+}

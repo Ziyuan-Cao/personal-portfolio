@@ -1,0 +1,206 @@
+{
+  "title": "このサイトの仕組み",
+  "abstract": "ポートフォリオ、毎日の GitHub Actions パイプライン、信頼できるフィードを新鮮な静的ニュース ページに変えるコレクターのガイド付きツアー。",
+  "category": "舞台裏",
+  "imageAlt": "ポートフォリオ、GitHub Actions、GitHub Pages、ニュースソースを接続する図",
+  "lede": "このポートフォリオは意図的に小さくなっており、ブラウザーにはプレーンな HTML、CSS、JavaScript が含まれており、重点を置いた TypeScript コレクターがより重い作業を実行します。 GitHub は一時的なコンピューティングを提供しますが、GitHub Pages は静的ファイルのみを提供する必要があります。",
+  "sections": [
+    {
+      "heading": "1枚の写真のページ",
+      "paragraphs": [
+        "リポジトリは、サイト コード、ポートフォリオ プロジェクト、ブログ投稿、および信頼できるニュース ソースのリストのソースです。 GitHub Actions はそのソースをチェックアウトし、ニュースを更新し、パブリック フォルダーをパッケージ化します。 GitHub Pages は、結果として得られるアーティファクトを通常の静的 Web サイトとして提供します。"
+      ],
+      "flow": {
+        "label": "Webサイト公開の流れ",
+        "steps": [
+          {
+            "title": "リポジトリ",
+            "text": "サイトコード、コンテンツファイル、および信頼できるソースURL"
+          },
+          {
+            "title": "GitHub アクション",
+            "text": "プッシュ、毎日のスケジュール、または手動リクエストに基づいて開始します"
+          },
+          {
+            "title": "コレクター",
+            "text": "記事の取得、検証、正規化、重複排除を行います。"
+          },
+          {
+            "title": "ページアーティファクト",
+            "text": "ブラウザー対応パブリック フォルダーをパッケージ化します。"
+          },
+          {
+            "title": "ライブウェブサイト",
+            "text": "GitHub Pages は最新の成功した成果物を提供します"
+          }
+        ]
+      }
+    },
+    {
+      "heading": "ポートフォリオページの仕組み",
+      "paragraphs": [
+        "ブラウザは最初に 1 つのインデックス ページを読み込みます。毎回新しいレイアウトをダウンロードすることなく、ナビゲーションは「概要」、「履歴書」、「ポートフォリオ」、「ブログ」、「ニュース」、「連絡先」の間で切り替わります。",
+        "各ポートフォリオ プロジェクトは、JSON レコードと画像を含むマテリアル フォルダーを所有します。小さなインデックスには、プロジェクトごとの JSON パスのみがリストされます。ブラウザはレコードをロードし、カードを作成します。ブログ投稿は同じ構造を使用するため、1 つのモノリシックなコンテンツ ファイルを共有するのではなく、記事のテキストと画像が一緒に保持されます。"
+      ],
+      "flow": {
+        "label": "ポートフォリオのレンダリングフロー",
+        "steps": [
+          {
+            "title": "コンテンツJSON",
+            "text": "プロジェクトのタイトル、要約、画像、カテゴリ、リンク"
+          },
+          {
+            "title": "ブラウザスクリプト",
+            "text": "データを取得し、アクセス可能なカードを構築します"
+          },
+          {
+            "title": "ポートフォリオグリッド",
+            "text": "レスポンシブなプレビューがページに表示されます"
+          }
+        ]
+      }
+    },
+    {
+      "heading": "なぜ毎朝ニュースが更新されるのか",
+      "paragraphs": [
+        "継続的に実行されているポートフォリオ サーバーはありません。以下のスケジュールでは、GitHub Actions に 1 日に 1 回一時ランナーを作成するように要求します。 5 つの cron フィールドは、分、時、日、月、曜日を意味します。0 は時間の始まりを選択し、21 は 21:00 UTC を選択し、3 つのアスタリスクはすべての暦日に一致します。",
+        "GitHub はこのスケジュールを UTC で評価します。日本標準時は UTC+9 なので、UTC 21:00 は翌日の JST 06:00 になります。スケジュールされた実行はベスト エフォートです。GitHub には、高負荷時には実行が遅れる可能性があることが記載されているため、正確な開始時間の保証ではなく、毎日 06:00 が目標となっています。",
+        "他のトリガーも便利です。マスターへのプッシュによりコードが公開されたり、変更が書き込まれたりしますが、workflow_dispatch により GitHub のアクション インターフェイスに [ワークフローの実行] ボタンが追加されます。"
+      ],
+      "codeBlocks": [
+        {
+          "file": ".github/workflows/pages.yml",
+          "language": "yaml",
+          "code": "on:\n  push:\n    branches:\n      - master\n  schedule:\n    # 21:00 UTC is 06:00 JST on the following day.\n    - cron: \"0 21 * * *\"\n  workflow_dispatch:"
+        }
+      ]
+    },
+    {
+      "heading": "GitHub ランナーの機能",
+      "paragraphs": [
+        "各実行はクリーンな Ubuntu マシンで開始されます。最新のリポジトリ コミットをチェックアウトし、ロックファイルから正確な依存関係バージョンをインストールし、ビルド チェックとして TypeScript をコンパイルし、静的コレクターを実行します。生成されたニュースが変更されると、ビルド ジョブはパブリック ディレクトリを Pages アーティファクトとしてアップロードする前に、それらのファイルをマスターにコミットします。",
+        "ビルド ジョブはコンテンツを受け取ります: 書き込みのみなので、生成されたニュースを保存できます。別のデプロイ ジョブはページ: write および id-token: write を受け取り、ビルド ジョブが成功するまで公開できません。ワークフローの GITHUB_TOKEN を使用して行われたコミットは、別のワークフローの実行を開始しませんが、skip-ci マーカーはそのインテントをコミット メッセージに記録します。"
+      ],
+      "codeBlocks": [
+        {
+          "file": ".github/workflows/pages.yml",
+          "language": "yaml",
+          "code": "- name: Collect news\n  run: npm run collect:static\n\n- name: Save collected news\n  run: |\n    git add --all public/content/information\n    git diff --cached --quiet && exit 0\n    git commit -m \"chore(news): refresh collected news [skip ci]\"\n    git push origin HEAD:master\n\n- name: Upload Pages artifact\n  uses: actions/upload-pages-artifact@v3\n  with:\n    path: public\n\n# A separate job publishes that artifact.\n- name: Deploy to GitHub Pages\n  uses: actions/deploy-pages@v4"
+        }
+      ],
+      "bullets": [
+        "プッシュにより、コードと書き込みの更新が表示されます。",
+        "誰もリポジトリを変更しない場合でも、スケジュールによりニュースが更新されます。",
+        "即時収集が便利な場合は、手動実行を使用できます。",
+        "同時実行はキャンセルされるため、最新の Pages デプロイのみが完了します。"
+      ]
+    },
+    {
+      "heading": "1 つの情報源がどのようにニュースカードになるのか",
+      "paragraphs": [
+        "コレクターは config/sources.txt を一度に 1 つの URL で読み取ります。まず、応答を RSS、Atom、または JSON フィードとして解析しようとします。応答が Web ページの場合は、リンクされたフィードが検索されます。使用可能な構造化フィードが存在しない場合は、HTML から記事候補を抽出します。",
+        "正規化されたリストは、デフォルトでソースあたり 30 候補に制限されています。その後、4 人の作業者が記事ページを同時に確認します。 HTTP 404 または 410 応答と、タイトルまたはメイン見出しがソフト 404 のように見えるページが削除されることを確認しました。",
+        "有効な HTML 記事の場合、コレクターはメタデータ、JSON-LD、時間要素、表示日付、または日付形式の URL から欠落している出版日を回復します。また、ソーシャル画像や記事画像も検査しますが、プレビューが保持されるのは、ダウンロードして幅が 480 ピクセルを超える場合のみです。"
+      ],
+      "codeBlocks": [
+        {
+          "file": "src/collector.ts",
+          "language": "typescript",
+          "code": "const page = await fetchText(sourceUrl);\nlet items = parseFeed(page.body, page.url, page.contentType);\n\nif (!items) {\n  const feedUrl = discoverFeed(page.body, page.url);\n  if (feedUrl) {\n    try {\n      const feed = await fetchText(feedUrl);\n      items = parseFeed(feed.body, feed.url, feed.contentType);\n    } catch {\n      // Fall back to parsing the source page as HTML.\n    }\n  }\n}\n\nconst normalized = normalizeItems(\n  items ?? parseHtml(page.body, page.url),\n  page.url,\n  maxItems,\n);\nconst checked = await mapConcurrent(\n  normalized,\n  enrichmentConcurrency,\n  checkArticle,\n);\nreturn checked.filter((item) => item !== null);"
+        }
+      ],
+      "flow": {
+        "label": "自動ニュース収集フロー",
+        "steps": [
+          {
+            "title": "ソースリスト",
+            "text": "信頼できるフィードと Web サイトの URL"
+          },
+          {
+            "title": "発見と解析",
+            "text": "RSS、Atom、JSON フィード、または HTML"
+          },
+          {
+            "title": "検証して充実させる",
+            "text": "デッドリンクの削除、日付の回復、画像の検証"
+          },
+          {
+            "title": "重複排除",
+            "text": "正規 URL と決定論的ハッシュ"
+          },
+          {
+            "title": "アイテムフォルダー",
+            "text": "記事ごとに 1 つの JSON レコードと小さなインデックス"
+          }
+        ]
+      }
+    },
+    {
+      "heading": "デプロイされたフィードは新しいスナップショットです",
+      "paragraphs": [
+        "静的コレクターは、メモリ内の SQLite データベースを意図的に開きます。以前にデプロイされた JSON ファイルはインポートされないため、ワークフローを実行するたびに、構成されたソースから現在返されている記事からダイジェストが再構築されます。正規 URL と安定したハッシュにより、その実行内での重複が防止されますが、最初に検出されたタイムスタンプと内部行 ID は次の実行時に再び開始されます。",
+        "これにより、ニュース ページは永久的なアーカイブではなく、現在のダイジェストになります。生成されたインデックスと項目ごとのフォルダーはリポジトリにコミットされ、ページ アーティファクトに配置されます。すべてのソースが失敗し、アイテムが収集されない場合、スクリプトはコミットとデプロイメントの前にスローされ、最後に保存されたスナップショットと最後に成功したページ アーティファクトの両方が変更されないままになります。ソースの部分的な障害が発生しても実行は停止しないため、後で収集が成功するまで、そのソースが保存されたスナップショットに存在しなくてもかまいません。"
+      ],
+      "codeBlocks": [
+        {
+          "file": "src/static-collector.ts",
+          "language": "typescript",
+          "code": "const itemFiles = await Promise.all(items.map(async (item) => {\n  const itemFile = path.join(stagingItemsPath, item.uid, \"item.json\");\n  await writeJson(itemFile, item);\n  return `items/${item.uid}/item.json`;\n}));\n\nawait fs.rename(stagingItemsPath, itemsPath);\nawait writeJson(indexPath, {\n  generatedAt: new Date().toISOString(),\n  sources: sourceOptions,\n  items: itemFiles,\n});"
+        }
+      ]
+    },
+    {
+      "heading": "ブラウザが新しいデプロイメントを取得する方法",
+      "paragraphs": [
+        "GitHub Pages は、public/content/information/index.json と項目ごとのすべての JSON ファイルを通常の静的アセットとして提供します。 [ニュース] タブが開くと、ブラウザーはストアなしキャッシュでインデックスをリクエストし、リストされたアイテム レコードをロードして、ソース フィルターと記事カードを構築します。",
+        "[再読み込み] ボタンはブラウザのリクエストを繰り返します。 GitHub Actions をトリガーしたり、ニュース サイトに直接連絡したりすることはありません。したがって、新しく公開された記事は、次に成功したコレクションとページのデプロイメントの後に表示され、その後、訪問者のブラウザーでページがロードまたはリロードされます。"
+      ],
+      "codeBlocks": [
+        {
+          "file": "public/assets/js/information.js",
+          "language": "javascript",
+          "code": "const response = await fetch(\n  `${informationIndexUrl.href}?v=${Date.now()}`,\n  { cache: \"no-store\", headers: { accept: \"application/json\" } },\n);\nconst manifest = await response.json();\nitems = await Promise.all(\n  manifest.items.map((itemPath) => fetch(new URL(itemPath, informationIndexUrl)).then((item) => item.json())),\n);"
+        }
+      ]
+    },
+    {
+      "heading": "なぜこのアーキテクチャなのか",
+      "paragraphs": [
+        "本番環境で稼働し続けるアプリケーション サーバーや、訪問者が必要とするデータベースはありません。 GitHub はコレクション用の短期間のコンピューティングを提供し、GitHub Pages は通常の静的ファイルを提供します。その結果、ローカルの Fastify サーバーと永続的な SQLite データベースが開発中に引き続き有用であると同時に、安価で移植可能で復元力が高くなります。",
+        "トレードオフは、遅延、履歴の制限、および生成されたスナップショットが変更されるたびに自動的にリポジトリがコミットされることです。更新は即座ではなく、スケジュールされたワークフローとデプロイメントが終了したときに到着し、静的な出力はソースの現在のウィンドウを反映します。その代わり、デプロイされたフィードとリポジトリに保存されたバージョンは調整されたままとなり、通常の Git 履歴を通じて検査できます。"
+      ]
+    },
+    {
+      "heading": "参考資料と仕様",
+      "paragraphs": [
+        "これらは、サイトで使用されるスケジュール、展開、および構造化フィード形式の背後にある主要なドキュメントです。"
+      ],
+      "references": [
+        {
+          "title": "GitHub アクション: イベントをスケジュールする",
+          "description": "Cron のタイミング、UTC のデフォルト、デフォルトのブランチの動作、およびスケジュール遅延の可能性。"
+        },
+        {
+          "title": "GitHub ページ: カスタム ワークフロー",
+          "description": "Pages アーティファクトの構築、アップロード、デプロイに関する公式ガイダンス。"
+        },
+        {
+          "title": "GitHub デプロイページアクション",
+          "description": "公式のデプロイメントアクション、必要な権限、環境、アーティファクトコントラクト。"
+        },
+        {
+          "title": "RSS2.0仕様",
+          "description": "コレクターによって解析された RSS チャネルとアイテムの形式。"
+        },
+        {
+          "title": "RFC 4287: Atom シンジケーション形式",
+          "description": "Atom フィードおよびエントリの IETF 仕様。"
+        },
+        {
+          "title": "JSON フィード 1.1",
+          "description": "RSS および Atom とともにサポートされる JSON ベースのフィード形式。"
+        }
+      ]
+    }
+  ]
+}

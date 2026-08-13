@@ -1,0 +1,4 @@
+interface:
+  display_name: "Translate Portfolio Content"
+  short_description: "Keep portfolio content complete in three languages"
+  default_prompt: "Use $translate-portfolio-content to translate and validate new or changed portfolio content."
