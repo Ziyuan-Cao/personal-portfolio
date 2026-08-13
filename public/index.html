@@ -48,7 +48,7 @@
         </figure>
 
         <div class="info-content">
-            <h1 class="name" title="Ziyuan Cao">Ziyuan Cao</h1>
+            <h1 class="name" data-i18n="profile.name">Ziyuan Cao</h1>
 
           <p class="title" data-i18n="profile.role">Game Engine Developer</p>
         </div>
@@ -98,6 +98,20 @@
           <li class="contact-item">
 
             <div class="icon-box">
+              <ion-icon name="phone-portrait-outline"></ion-icon>
+            </div>
+
+            <div class="contact-info">
+              <p class="contact-title" data-i18n="contact.phone">Phone</p>
+
+              <a href="tel:+8618926116063" class="contact-link">(+86) 189 2611 6063</a>
+            </div>
+
+          </li>
+
+          <li class="contact-item">
+
+            <div class="icon-box">
               <ion-icon name="calendar-outline"></ion-icon>
             </div>
 
@@ -130,20 +144,9 @@
         <ul class="social-list">
 
           <li class="social-item">
-            <a href="#" class="social-link">
-              <ion-icon name="logo-facebook"></ion-icon>
-            </a>
-          </li>
-
-          <li class="social-item">
-            <a href="#" class="social-link">
-              <ion-icon name="logo-twitter"></ion-icon>
-            </a>
-          </li>
-
-          <li class="social-item">
-            <a href="#" class="social-link">
-              <ion-icon name="logo-instagram"></ion-icon>
+            <a href="https://github.com/Ziyuan-Cao" class="social-link" target="_blank" rel="noopener noreferrer"
+              data-i18n-aria-label="social.github">
+              <ion-icon name="logo-github"></ion-icon>
             </a>
           </li>
 
@@ -181,15 +184,7 @@
         <ul class="navbar-list">
 
           <li class="navbar-item">
-            <button class="navbar-link  active" data-nav-link data-route="about" data-i18n="nav.about">About</button>
-          </li>
-
-          <li class="navbar-item">
-            <button class="navbar-link" data-nav-link data-route="resume" data-i18n="nav.resume">Resume</button>
-          </li>
-
-          <li class="navbar-item">
-            <button class="navbar-link" data-nav-link data-route="portfolio" data-i18n="nav.portfolio">Portfolio</button>
+            <button class="navbar-link" data-nav-link data-route="news" data-i18n="nav.news">News</button>
           </li>
 
           <li class="navbar-item">
@@ -197,7 +192,15 @@
           </li>
 
           <li class="navbar-item">
-            <button class="navbar-link" data-nav-link data-route="news" data-i18n="nav.news">News</button>
+            <button class="navbar-link" data-nav-link data-route="portfolio" data-i18n="nav.portfolio">Portfolio</button>
+          </li>
+
+          <li class="navbar-item">
+            <button class="navbar-link  active" data-nav-link data-route="about" data-i18n="nav.about">About</button>
+          </li>
+
+          <li class="navbar-item">
+            <button class="navbar-link" data-nav-link data-route="resume" data-i18n="nav.resume">Resume</button>
           </li>
 
           <li class="navbar-item">
@@ -249,6 +252,34 @@
 
               <div class="service-content-box">
                 <h4 class="h4 service-item-title" data-i18n="about.pipeline">Pipeline design</h4>
+
+                <p class="service-item-text" data-i18n="about.learning">Learning and building.</p>
+              </div>
+
+            </li>
+
+            <li class="service-item">
+
+              <div class="service-icon-box">
+                <img src="./assets/images/icon-app.svg" alt="" width="40">
+              </div>
+
+              <div class="service-content-box">
+                <h4 class="h4 service-item-title" data-i18n="about.animation">Animation development</h4>
+
+                <p class="service-item-text" data-i18n="about.learning">Learning and building.</p>
+              </div>
+
+            </li>
+
+            <li class="service-item">
+
+              <div class="service-icon-box">
+                <img src="./assets/images/icon-dev.svg" alt="" width="40">
+              </div>
+
+              <div class="service-content-box">
+                <h4 class="h4 service-item-title" data-i18n="about.uePlugin">UE plugin development</h4>
 
                 <p class="service-item-text" data-i18n="about.learning">Learning and building.</p>
               </div>
@@ -737,11 +768,11 @@
 
                       <div class="title-wrapper">
                           <h5 class="h5" data-i18n="resume.uePlugin">UE plugin development</h5>
-                          <data value="50">5%</data>
+                          <data value="40">40%</data>
                       </div>
 
                       <div class="ability-progress-bg">
-                          <div class="ability-progress-fill" style="width: 5%;"></div>
+                          <div class="ability-progress-fill" style="width: 40%;"></div>
                       </div>
 
                   </li>
@@ -902,7 +933,6 @@
         <header class="blog-header">
           <p class="blog-eyebrow" data-i18n="blog.eyebrow">Notes from the build</p>
           <h2 class="h2 article-title" data-blog-page-title data-i18n="blog.title">Blog</h2>
-          <p class="blog-intro" data-blog-intro data-i18n="blog.intro">How I build graphics tools, learn in public, and keep this corner of the web running.</p>
         </header>
 
         <div class="blog-state" role="status" data-blog-state data-i18n="blog.loading">Loading posts…</div>

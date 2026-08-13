@@ -3,7 +3,6 @@ const state = document.querySelector("[data-blog-state]");
 const listView = document.querySelector("[data-blog-list-view]");
 const detailView = document.querySelector("[data-blog-detail-view]");
 const pageTitle = document.querySelector("[data-blog-page-title]");
-const intro = document.querySelector("[data-blog-intro]");
 const { element } = window.portfolioUi;
 const i18n = window.portfolioI18n;
 const siteRoot = new URL("../../", import.meta.url);
@@ -290,7 +289,6 @@ function renderList() {
   listView.hidden = false;
   detailView.hidden = true;
   pageTitle.textContent = i18n.t("blog.title");
-  intro.hidden = false;
   state.textContent = posts.length ? "" : i18n.t("blog.empty");
   grid.replaceChildren(...posts.map(postCard));
   document.title = i18n.t("site.title");
@@ -333,9 +331,8 @@ function renderDetail(post) {
   listView.hidden = true;
   detailView.hidden = false;
   pageTitle.textContent = i18n.t("blog.journal", { number: String(posts.indexOf(post) + 1).padStart(3, "0") });
-  intro.hidden = true;
   state.textContent = "";
-  document.title = `${post.title} - Ziyuan Cao`;
+  document.title = `${post.title} - ${i18n.t("profile.name")}`;
 }
 
 function renderRoute() {
