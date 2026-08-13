@@ -1,5 +1,5 @@
 {
-  "id": "6e3346ac-ce19-480e-9864-c849905dd2e2",
+  "id": "a152ef83-14bb-4db4-b244-97c4a3b19ad0",
   "uid": "d28dedc1ea1ddeee5b396db115442c8565a3bf9485a24a144c4368e32391c235",
   "url": "https://unity.com/blog/albion-online-cross-platform-pvp-mmo-architecture",
   "canonicalUrl": "https://unity.com/blog/albion-online-cross-platform-pvp-mmo-architecture",
@@ -9,6 +9,6 @@
   "subtitle": "Learn about the technical architecture enabling Albion Online, a hardcore PvP MMO, to seamlessly scale across PC, mobile, and console. Get insights from Sandbox Interactive's engineers on their single Unity project, decoupled simulation layer, and cross-platform balancing approach.",
   "imageUrl": null,
   "publishedAt": "2026-05-12T00:00:00.000Z",
-  "firstSeenAt": "2026-08-13T10:59:26.424Z",
-  "lastSeenAt": "2026-08-13T10:59:26.424Z"
+  "firstSeenAt": "2026-08-13T21:40:37.636Z",
+  "lastSeenAt": "2026-08-13T21:40:37.636Z"
 }
