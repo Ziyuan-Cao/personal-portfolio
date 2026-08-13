@@ -1,5 +1,5 @@
 {
-  "id": "ddf69b92-87f0-4751-95ae-2dc365ba4e8c",
+  "id": "246c5df0-fd4a-42f0-8a4b-00ea7276db4c",
   "uid": "beea2a362d890b864577e2142043798efb0b106e76690748d03eb655e81fb3fb",
   "url": "https://devblogs.microsoft.com/directx/autosrpreview",
   "canonicalUrl": "https://devblogs.microsoft.com/directx/autosrpreview",
@@ -9,6 +9,6 @@
   "subtitle": "We previously introduced Automatic Super Resolution (Auto SR) on select Windows 11 Copilot+ PCs, to make games look sharper and play smoother. Today, we’re excited to give Xbox Insiders the opportunity to help us test and refine this feature on the ROG Xbox Ally X for docked play, where balancing framerate (FPS) and image quality can […] The post Automatic Super Resolution Preview Comes to the ROG Xbox Ally X for Docked Play appeared first on DirectX Developer Blog.",
   "imageUrl": "https://devblogs.microsoft.com/directx/wp-content/uploads/sites/42/2026/04/FH5_1440P_AutoSR_NoSound_still_01_full_web-scaled.webp",
   "publishedAt": "2026-04-30T16:00:12.000Z",
-  "firstSeenAt": "2026-08-12T04:21:53.063Z",
-  "lastSeenAt": "2026-08-12T04:21:53.063Z"
+  "firstSeenAt": "2026-08-12T21:41:15.775Z",
+  "lastSeenAt": "2026-08-12T21:41:15.775Z"
 }

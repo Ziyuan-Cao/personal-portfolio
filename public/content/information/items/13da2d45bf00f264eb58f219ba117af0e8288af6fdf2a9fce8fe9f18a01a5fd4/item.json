@@ -1,5 +1,5 @@
 {
-  "id": "b0c38b46-a621-4a8d-8bdf-ca615fcb7f0d",
+  "id": "0d285b55-7305-44e8-bd31-e33eaf369bdd",
   "uid": "13da2d45bf00f264eb58f219ba117af0e8288af6fdf2a9fce8fe9f18a01a5fd4",
   "url": "https://devblogs.microsoft.com/directx/advanced-shader-delivery-whats-new-at-gdc-2026",
   "canonicalUrl": "https://devblogs.microsoft.com/directx/advanced-shader-delivery-whats-new-at-gdc-2026",
@@ -9,6 +9,6 @@
   "subtitle": "Today we announced the innovation we’re bringing in solving shader compilation for the ecosystem at our GDC Talk: Advanced Shader Delivery for Windows. Want to find out what this means for solving shader compilation for your title and customers? Read on! State of the Industry Long shader compilation times and in-game shader stutter for D3D12 […] The post Advanced Shader Delivery: What’s New at GDC 2026 appeared first on DirectX Developer Blog.",
   "imageUrl": "https://devblogs.microsoft.com/directx/wp-content/uploads/sites/42/2026/03/store-ui.webp",
   "publishedAt": "2026-03-12T11:00:24.000Z",
-  "firstSeenAt": "2026-08-12T04:21:53.063Z",
-  "lastSeenAt": "2026-08-12T04:21:53.063Z"
+  "firstSeenAt": "2026-08-12T21:41:15.775Z",
+  "lastSeenAt": "2026-08-12T21:41:15.775Z"
 }
