@@ -24,6 +24,14 @@ function localeFilename(filename, locale) {
   return filename.replace(/\.json$/, `.${locale}.json`);
 }
 
+function titleDirectoryName(title) {
+  return title
+    .replace(/[<>:"/\\|?*]/g, " - ")
+    .replace(/\s+/g, " ")
+    .replace(/[ .]+$/, "")
+    .trim();
+}
+
 function validateOverlay(source, overlay, label, trail = "") {
   assert(overlay !== null && typeof overlay === typeof source, `${label}${trail} has a different value type`);
   if (Array.isArray(overlay)) {
@@ -84,6 +92,27 @@ function collectOwnedUrls(value, prefix, urls = []) {
   return urls;
 }
 
+function validateEquationExpressions(value, label, trail = "") {
+  if (Array.isArray(value)) {
+    value.forEach((entry, index) => validateEquationExpressions(entry, label, `${trail}[${index}]`));
+    return;
+  }
+  if (!value || typeof value !== "object") return;
+  for (const [key, entry] of Object.entries(value)) {
+    const nextTrail = `${trail}.${key}`;
+    if (key === "expression") {
+      const rows = Array.isArray(entry) ? entry : [entry];
+      assert(rows.length > 0, `${label}${nextTrail} must contain at least one equation row`);
+      assert(
+        rows.every((row) => typeof row === "string" && row.trim().length > 0),
+        `${label}${nextTrail} must be a non-empty string or an array of non-empty strings`,
+      );
+    } else {
+      validateEquationExpressions(entry, label, nextTrail);
+    }
+  }
+}
+
 async function assertOwnerDirectories(directory, expectedNames, label) {
   const actualNames = (await fs.readdir(directory, { withFileTypes: true }))
     .filter((entry) => entry.isDirectory())
@@ -123,12 +152,16 @@ async function validateBlog() {
     const filename = resolveListedFile(ownerRoot, listedPath);
     const post = await readJson(filename);
     const ownerDirectory = path.dirname(filename);
-    assert(path.basename(ownerDirectory) === post.slug, `Blog folder must match post slug: ${post.slug}`);
+    assert(
+      path.basename(ownerDirectory) === titleDirectoryName(post.title),
+      `Blog folder must match the sanitized English title: ${post.title}`,
+    );
     for (const publicUrl of collectOwnedUrls(post, "/content/blog/")) {
       const asset = resolvePublicUrl(publicUrl);
       assert(path.dirname(asset) === ownerDirectory, `Blog asset must live beside its post: ${publicUrl}`);
       await fs.access(asset);
     }
+    validateEquationExpressions(post, `Blog post ${post.slug}`);
     await validateTranslations(filename, post, ["title", "abstract", "category", "lede"], `Blog post ${post.slug}`);
   }
   return index.posts.length;

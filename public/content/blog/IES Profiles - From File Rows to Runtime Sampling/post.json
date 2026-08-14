@@ -4,7 +4,7 @@
   "abstract": "How an IES file becomes an absolute-candela texture, how that texture is sampled, and how the result drives source scaling and light meters.",
   "category": "Photometry",
   "publishedAt": "2026-08-09",
-  "image": "/content/blog/what-an-ies-file-stores/ies-file-anatomy.svg",
+  "image": "/content/blog/IES Profiles - From File Rows to Runtime Sampling/ies-file-anatomy.svg",
   "imageAlt": "IES file rows parsed into angular candela data and resampled into a texture",
   "lede": "An IES profile stores candela samples at measured vertical and horizontal angles. The runtime path parses those rows into an angle-indexed table, resamples the table into a 257 × 257 R32F texture, and looks up directional candela from the light-to-camera direction.",
   "sections": [

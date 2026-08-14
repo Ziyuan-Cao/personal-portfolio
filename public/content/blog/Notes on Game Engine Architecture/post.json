@@ -4,7 +4,7 @@
   "abstract": "A practical map of engine layers, subsystem lifetimes, asset loading, frame scheduling, and the boundaries that keep them manageable.",
   "category": "Engine architecture",
   "publishedAt": "2026-08-12",
-  "image": "/content/blog/notes-on-game-engine-architecture/engine-layers.svg",
+  "image": "/content/blog/Notes on Game Engine Architecture/engine-layers.svg",
   "imageAlt": "Five game engine layers connected by downward dependency arrows and a frame loop running beside them",
   "lede": "A game engine is not one large update function. It is a set of systems with different owners, lifetimes, update rates, and platform requirements. The architecture becomes understandable when those systems are arranged around three rules: dependencies point downward, resources outlive their users, and frame work is scheduled explicitly.",
   "sections": [

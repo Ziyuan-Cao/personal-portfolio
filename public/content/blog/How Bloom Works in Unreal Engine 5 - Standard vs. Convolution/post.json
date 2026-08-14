@@ -5,7 +5,7 @@
   "category": "Post processing",
   "publishedAt": "2026-08-09",
   "readingTime": "12 min read",
-  "image": "/content/blog/unreal-bloom-vs-psf-glare/bloom-vs-psf.svg",
+  "image": "/content/blog/How Bloom Works in Unreal Engine 5 - Standard vs. Convolution/bloom-vs-psf.svg",
   "imageAlt": "Unreal Engine 5 Standard Bloom blur pyramid compared with the FFT pipeline used by Convolution Bloom",
   "lede": "Unreal Engine 5 offers two ways to turn intense HDR highlights into visible halos. Standard Bloom builds several inexpensive Gaussian blurs at reduced resolutions and blends them together. Convolution Bloom spreads the image through a custom point-spread kernel, using an FFT to make a large convolution practical. Both begin with bright scene color, but they make very different tradeoffs in speed, control, and optical complexity.",
   "sections": [

@@ -5,7 +5,7 @@
   "category": "Lighting fundamentals",
   "publishedAt": "2026-08-09",
   "readingTime": "8 min read",
-  "image": "/content/blog/psf-glare-energy-unit-validation/psf-unit-audit.svg",
+  "image": "/content/blog/Unit of lighting and Convertion/psf-unit-audit.svg",
   "imageAlt": "A relationship map connecting lumen, candela, lux, and candela per square metre",
   "lede": "Lighting units describe different parts of the same system: total visible output, directional strength, light arriving at a surface, and the brightness that a surface presents to an eye or camera. A valid conversion therefore needs the missing geometry—solid angle, distance, incidence angle, illuminated area, or projected emitter area.",
   "sections": [
@@ -68,7 +68,7 @@
       "equations": [
         {
           "label": "Directional intensity",
-          "expression": "I = Φ / Ω    ⇔    Φ = IΩ",
+          "expression": "I = Φ / Ω",
           "terms": [
             {
               "symbol": "I",
@@ -86,9 +86,9 @@
         },
         {
           "label": "Isotropic source",
-          "expression": "Ω = 4π    ⇒    Φ = 4πI",
+          "expression": "Ω = 4π",
           "terms": [
-            "Φ = 4π(1000 cd) ≈ 12 566 lm"
+            "Ex: Φ = 4π(1000 cd) ≈ 12 566 lm"
           ]
         }
       ],
@@ -131,9 +131,13 @@
         },
         {
           "label": "Normal incidence",
-          "expression": "θ = 0    ⇒    cosθ = 1    ⇒    E = I / r²",
+          "expression": ["θ = 0",
+          "⇒    cosθ = 1",
+          "⇒    E = I / r²"
+          ],
           "terms": [
-            "I = 1000 cd, r = 2 m    ⇒    E = 1000 / 2² = 250 lx"
+            "I = 1000 cd, r = 2 m",
+            "⇒    E = 1000 / 2² = 250 lx"
           ]
         }
       ],
@@ -233,7 +237,9 @@
       "equations": [
         {
           "label": "Projected emitter area",
-          "expression": "I = LAₚ    ·    Aₚ = A cosθ    ⇒    I = LA cosθ",
+          "expression": [
+            "I = LAₚ    ·    Aₚ = A cosθ",
+            "⇒    I = LA cosθ"],
           "terms": [
             {
               "symbol": "Aₚ",
@@ -247,7 +253,9 @@
         },
         {
           "label": "Front-facing emitter",
-          "expression": "θ = 0    ⇒    L = I / A",
+          "expression": [
+            "θ = 0",
+            "⇒    L = I / A"],
           "terms": [
             "I = 1000 cd, A = 0.1 m²    ⇒    L = 10 000 cd/m²"
           ]
@@ -299,8 +307,7 @@
               "L = I/Aₚ",
               "cd/m²"
             ]
-          ],
-          "caption": "Every arrow names the geometric information required for the conversion."
+          ]
         }
       ],
       "equations": [

@@ -131,7 +131,10 @@ function codeBlock(block) {
 function equationBlock(equation) {
   const figure = element("figure", "blog-equation");
   if (equation.label) figure.append(element("figcaption", "blog-equation-label", equation.label));
-  figure.append(element("div", "blog-equation-expression", equation.expression));
+  const expression = element("div", "blog-equation-expression");
+  const rows = Array.isArray(equation.expression) ? equation.expression : [equation.expression];
+  for (const row of rows) expression.append(element("div", "blog-equation-expression-row", row));
+  figure.append(expression);
   if (equation.terms?.length) {
     const terms = element("dl", "blog-equation-terms");
     for (const term of equation.terms) {

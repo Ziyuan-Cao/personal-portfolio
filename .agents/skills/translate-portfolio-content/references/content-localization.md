@@ -20,6 +20,8 @@ Dynamic JavaScript must use `window.portfolioI18n.t("key", values)`. Use `{name}
 
 English files are complete canonical records. Locale files are overlays and may omit immutable fields, but every included array must retain the English array length and order.
 
+Name each blog owner directory after its canonical English `title`, while keeping `slug` as the stable route identifier. Replace Windows-forbidden characters (`< > : " / \\ | ? *`) with ` - `, collapse repeated whitespace, and remove trailing spaces or periods. Update the blog index and every owned asset URL when a title-based directory changes.
+
 Required portfolio overlay fields:
 
 ```json
@@ -47,7 +49,23 @@ Translate prose recursively in sections, including headings, paragraphs, bullets
 
 Do not translate: `slug`, `id`, `url`, `src`, `image`, `cardImage`, `publishedAt`, `readingTime`, `file`, `language`, `code`, `expression`, `symbol`, `icon`, `tone`, `type`, or `kind`.
 
+An equation `expression` may be one string or an array of row strings. Copy the complete value and row structure unchanged into an overlay whenever the field is included.
+
 ## Terminology
+
+### Protected English scientific terminology
+
+Before translating a technical post, derive a short glossary from its English source and any user-approved locale example. Preserve each glossary entry verbatim in Japanese and Simplified Chinese, including capitalization, punctuation, and unit notation. Apply the rule in headings, prose, labels, callouts, and table cells; localize only the surrounding grammar.
+
+For lighting and photometry content, use `Unit of lighting and Convertion` (`public/content/blog/Unit of lighting and Convertion/`) as the reference pattern. Keep these terms in English:
+
+- `lumen`, `candela`, `lux`, `nit`, `watt`, `Lambertian`
+- `lm`, `cd`, `lx`, `cd/m²`, `W`
+- Mathematical and physics notation such as `Φ`, `Ω`, `θ`, `ρ`, `π`, `I`, `E`, `L`, `A`, `Aₚ`, function names, subscripts, and superscripts
+
+Do not substitute localized names such as 流明, 坎德拉, 勒克斯, 尼特, 瓦特, ルーメン, カンデラ, ルクス, ニト, or ワット for protected English glossary terms. Extend the glossary per article rather than assuming this lighting list covers every physics or mathematics post.
+
+After drafting each overlay, search it for localized replacements of the protected glossary and restore the exact English terms. Keep established English technical terms that already appear in an approved locale overlay even when a common localized translation exists.
 
 Preferred Japanese terms:
 

@@ -13,10 +13,11 @@ Keep English (`en`) as the canonical source and maintain Japanese (`ja`) and Sim
 2. Inspect `git status` and the relevant English source files. Preserve unrelated changes.
 3. Finish or update the English source first.
 4. Translate every user-visible prose field into `post.ja.json` and `post.zh-CN.json`, or `project.ja.json` and `project.zh-CN.json` sibling files.
-5. Preserve array order and object shape. Never translate or change slugs, IDs, URLs, dates, asset paths, code, equations, symbols, file names, syntax labels, icon names, or style tokens.
-6. Review technical terminology and proper nouns manually. Keep Unreal Engine, DirectX, GitHub, Qt, Siv3D, PSF, SSR, and SSAO recognizable.
-7. For static UI copy, add the same key to all dictionaries in `public/assets/js/i18n.js`, then annotate the HTML or render it through `portfolioI18n.t(...)`.
-8. Run `npm test`, then preview all three locales. Check navigation, filters, dates, long headings, code blocks, tables, links, and mobile layout.
+5. Preserve array order and object shape. Never translate or change slugs, IDs, URLs, dates, asset paths, code, equations, symbols, file names, syntax labels, icon names, or style tokens. Keep equation `expression` values identical whether they are a string or an array of row strings.
+6. Build a protected English glossary from the source and any user-approved locale example before translating technical content. Keep every glossary term exactly in English inside Japanese and Chinese prose, headings, labels, and tables; translate only the surrounding language. Follow the scientific terminology rules in the reference.
+7. Review technical terminology and proper nouns manually. Keep Unreal Engine, DirectX, GitHub, Qt, Siv3D, PSF, SSR, and SSAO unchanged.
+8. For static UI copy, add the same key to all dictionaries in `public/assets/js/i18n.js`, then annotate the HTML or render it through `portfolioI18n.t(...)`.
+9. Run `npm test`, then preview all three locales. Check navigation, filters, dates, long headings, code blocks, equations, tables, links, and mobile layout.
 
 ## Drafting translations
 

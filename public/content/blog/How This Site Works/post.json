@@ -5,7 +5,7 @@
   "category": "Behind the scenes",
   "publishedAt": "2026-08-09",
   "readingTime": "10 min read",
-  "image": "/content/blog/how-this-site-works/site-system.svg",
+  "image": "/content/blog/How This Site Works/site-system.svg",
   "imageAlt": "Diagram connecting the portfolio, GitHub Actions, GitHub Pages, and news sources",
   "lede": "This portfolio is intentionally small: plain HTML, CSS, and JavaScript in the browser, with a focused TypeScript collector doing the heavier work. GitHub supplies the temporary compute, while GitHub Pages only has to serve static files.",
   "sections": [

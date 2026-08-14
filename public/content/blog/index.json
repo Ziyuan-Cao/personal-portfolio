@@ -1,12 +1,12 @@
 {
   "posts": [
-    "screen-space-reflections-visibility-bitmasks/post.json",
-    "notes-on-game-engine-architecture/post.json",
-    "ssao-view-space-sampling/post.json",
-    "what-an-ies-file-stores/post.json",
-    "angular-psf-glare-pipeline/post.json",
-    "unreal-bloom-vs-psf-glare/post.json",
-    "psf-glare-energy-unit-validation/post.json",
-    "how-this-site-works/post.json"
+    "Screen-Space Reflections - Ray Marching, Hit Tests, and Visibility Bitmasks/post.json",
+    "Notes on Game Engine Architecture/post.json",
+    "SSAO - From View-Space Samples to an Occlusion Term/post.json",
+    "IES Profiles - From File Rows to Runtime Sampling/post.json",
+    "Angular PSF Glare - From Texture to Final Composite/post.json",
+    "How Bloom Works in Unreal Engine 5 - Standard vs. Convolution/post.json",
+    "Unit of lighting and Convertion/post.json",
+    "How This Site Works/post.json"
   ]
 }

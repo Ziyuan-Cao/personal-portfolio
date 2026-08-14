@@ -4,7 +4,7 @@
   "abstract": "How SSR finds reflected scene color in a depth buffer, where it fails, and how visibility bitmasks improve SSAO and SSR-like diffuse indirect lighting without replacing mirror SSR.",
   "category": "Real-time rendering",
   "publishedAt": "2026-08-12",
-  "image": "/content/blog/screen-space-reflections-visibility-bitmasks/ssr-visibility-bitmask.svg",
+  "image": "/content/blog/Screen-Space Reflections - Ray Marching, Hit Tests, and Visibility Bitmasks/ssr-visibility-bitmask.svg",
   "imageAlt": "A reflected view-space ray crosses a depth buffer while a neighboring hemisphere slice records occluded and visible directions in a bitmask",
   "lede": "Screen-space reflections reuse the image the camera has already rendered. A shader reflects the view ray at a visible surface, walks that ray through the depth buffer, and samples scene color when the ray crosses another visible surface. The method is fast and fully dynamic, but it can only reflect information present in the current frame. A 2023 visibility-bitmask paper attacks a related problem: it replaces noisy SSR-like rays for diffuse indirect lighting and the single-horizon model of SSAO with a compact record of directional visibility.",
   "sections": [

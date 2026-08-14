@@ -4,7 +4,7 @@
   "abstract": "How Version 24 builds a solid-angle-normalized PSF and turns sampled source luminance into screen-space glare.",
   "category": "Perceptual rendering",
   "publishedAt": "2026-08-10",
-  "image": "/content/blog/angular-psf-glare-pipeline/angular-psf-glare.svg",
+  "image": "/content/blog/Angular PSF Glare - From Texture to Final Composite/angular-psf-glare.svg",
   "imageAlt": "Angular PSF components integrated into a normalized texture and accumulated as runtime glare",
   "lede": "This pipeline stores glare as angular density in sr⁻¹. Texture generation integrates four PSF components over each texel, normalizes their energy, and applies adaptation weights. Runtime sampling then converts area-light luminance into an additive glare result measured in cd/m².",
   "sections": [

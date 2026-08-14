@@ -4,7 +4,7 @@
   "abstract": "How a tangent-space hemisphere, projection, depth reconstruction, and range-weighted comparison produce screen-space ambient occlusion.",
   "category": "Real-time rendering",
   "publishedAt": "2026-08-12",
-  "image": "/content/blog/ssao-view-space-sampling/ssao-sampling.svg",
+  "image": "/content/blog/SSAO - From View-Space Samples to an Occlusion Term/ssao-sampling.svg",
   "imageAlt": "A view-space hemisphere projects sample points into a depth buffer where closer geometry contributes to ambient occlusion",
   "lede": "Screen-space ambient occlusion estimates how much nearby geometry hides the hemisphere above a visible surface. The shader never traces the complete scene. It builds candidate points around the current pixel in view space, projects each point back into the depth buffer, and asks whether the visible surface at that screen coordinate lies in front of the candidate.",
   "sections": [
