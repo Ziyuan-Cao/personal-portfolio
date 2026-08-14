@@ -1,5 +1,5 @@
 {
-  "id": "af544678-9fe8-4328-8199-e7fff127b49b",
+  "id": "ee02172e-54cc-464a-b42b-8f3b05682f79",
   "uid": "054707d8461dda4c8ffde6fb5c3c30a095d711be09c4c67438771435060955e2",
   "url": "https://gpuopen.com/learn/announcing-schola-v2-1",
   "canonicalUrl": "https://gpuopen.com/learn/announcing-schola-v2-1",
@@ -9,6 +9,6 @@
   "subtitle": "AMD Schola v2.1 deepens Unreal Engine integration, adding StateTree support, Kubernetes-oriented distributed training, stronger Minari workflows, and much more to streamline training and inference at scale.",
   "imageUrl": "https://gpuopen.com/images/schola-2-1-featured.BTHZI3lM.jpg",
   "publishedAt": "2026-05-19T06:04:00.000Z",
-  "firstSeenAt": "2026-08-14T02:23:44.117Z",
-  "lastSeenAt": "2026-08-14T02:23:44.117Z"
+  "firstSeenAt": "2026-08-14T02:26:04.542Z",
+  "lastSeenAt": "2026-08-14T02:26:04.542Z"
 }
