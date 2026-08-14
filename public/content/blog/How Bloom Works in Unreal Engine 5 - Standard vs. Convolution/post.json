@@ -154,19 +154,6 @@
       ]
     },
     {
-      "heading": "What Standard Bloom gives you",
-      "paragraphs": [
-        "Standard Bloom is well suited to real-time games because it is fast, stable, and easy to art-direct. Bloom Intensity scales the complete result. Threshold controls how bright a scene value must be before it contributes, with a one-unit transition region; setting the threshold to −1 allows every scene color to contribute. Each blur level also has Size and Tint controls, so nearby glow and broad haze can be shaped independently.",
-        "Its limitation is the same thing that makes it efficient: the final shape is assembled from smooth Gaussian scales. It cannot directly reproduce an arbitrary starburst, asymmetric diffraction pattern, or distinctive lens response. Epic also notes that Standard Bloom is not conservative, meaning it can increase the image's overall brightness."
-      ],
-      "bullets": [
-        "Use higher-resolution levels for small, tight bloom.",
-        "Use lower-resolution levels for broad bloom at a lower cost.",
-        "Use Tint to control both the color and contribution of each level.",
-        "Prefer Standard Bloom when frame time and predictable real-time behavior matter most."
-      ]
-    },
-    {
       "heading": "Convolution Bloom: the kernel defines the shape",
       "paragraphs": [
         "Convolution Bloom replaces the Gaussian pyramid with a two-dimensional kernel texture. The kernel describes how an optical system responds to a single point of light—its point spread function, or PSF. A centered bright point in the kernel can be surrounded by rings, streaks, colored scattering, or an asymmetric star pattern. When the scene is convolved with that kernel, every source pixel distributes part of its brightness to neighboring pixels according to the same shape.",
@@ -330,87 +317,6 @@
           ],
           "caption": "Large visual changes belong in the kernel image; the advanced settings are best used for smaller corrections."
         }
-      ],
-      "numberedSteps": [
-        {
-          "title": "Start with a high-dynamic-range kernel",
-          "text": "Use a centered, very bright impulse surrounded by the rings, rays, or haze you want the optical response to contain."
-        },
-        {
-          "title": "Preserve the source texture",
-          "text": "Disable mipmaps and texture streaming so Unreal does not substitute a degraded low-resolution kernel."
-        },
-        {
-          "title": "Set the center before tuning the scale",
-          "text": "Correct small UV alignment errors first; otherwise every bright source produces a displaced response."
-        },
-        {
-          "title": "Check the screen edges",
-          "text": "Increase Convolution Buffer only as much as needed to remove visible wraparound, because the buffer has a performance cost."
-        }
-      ]
-    },
-    {
-      "heading": "Standard vs. Convolution",
-      "paragraphs": [
-        "The choice is mainly about the response you need and the frame time you can afford. Standard Bloom approximates glow through a small number of smooth scales and has a clear performance advantage. Convolution Bloom spends more time to reproduce the structure encoded in a custom kernel and is intended for high-end hardware, in-game cinematics, or offline cinematic work.",
-        "Convolution is the better fit when a recognizable optical signature matters. Standard is the better default when bloom needs to look good across a real-time game without becoming a dominant post-process cost."
-      ],
-      "technicalTables": [
-        {
-          "columns": [
-            "Question",
-            "Standard Bloom",
-            "Convolution Bloom"
-          ],
-          "rows": [
-            [
-              "Core method",
-              "Multi-resolution Gaussian blur pyramid",
-              "Image convolution with a custom kernel"
-            ],
-            [
-              "Bloom shape",
-              "Smooth, multi-scale glow",
-              "Arbitrary PSF, starburst, or asymmetric response"
-            ],
-            [
-              "Acceleration",
-              "Downsampling and efficient Gaussian filtering",
-              "Fast Fourier Transform"
-            ],
-            [
-              "Performance",
-              "Faster",
-              "More expensive"
-            ],
-            [
-              "Energy behavior",
-              "Not conservative; may brighten the image overall",
-              "Documented by Epic as energy-conserving scatter"
-            ],
-            [
-              "Typical use",
-              "Most real-time game applications",
-              "High-end hardware and cinematic rendering"
-            ]
-          ],
-          "caption": "The custom kernel provides optical complexity; the blur pyramid provides speed."
-        }
-      ],
-      "callouts": [
-        {
-          "tone": "warning",
-          "title": "Convolution does not guarantee a physical camera model",
-          "text": "A kernel texture supplies the shape. Its physical interpretation still depends on how that texture was measured or authored, centered, scaled, and normalized."
-        }
-      ]
-    },
-    {
-      "heading": "The short decision rule",
-      "paragraphs": [
-        "Use Standard Bloom when you want a fast, controllable halo for normal gameplay. Tune the high-resolution levels for compact glow and the lower-resolution levels for wide haze. Use Convolution Bloom when the bloom must carry a specific optical pattern and the target hardware or cinematic budget can absorb the FFT-based filter.",
-        "In one line: Standard Bloom builds an efficient approximation from several Gaussian scales; Convolution Bloom applies the response encoded by a custom PSF kernel."
       ]
     }
   ],

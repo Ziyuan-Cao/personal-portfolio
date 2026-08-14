@@ -1,34 +1,34 @@
 {
   "title": "Bloom 在虚幻引擎 5 中的工作原理：标准与卷积",
-  "abstract": "虚幻引擎 5 的两种布隆方法的实际应用：标准布隆使用的快速多分辨率高斯金字塔和卷积布隆使用的 FFT 加速内核过滤。",
+  "abstract": "UE有两种Bloom方法：高斯模糊金字塔(DownSampling)和快速傅里叶变换(FFT)。",
   "category": "后处理",
-  "imageAlt": "虚幻引擎 5 标准 Bloom 模糊金字塔与 Convolution Bloom 使用的 FFT 管道对比",
-  "lede": "虚幻引擎 5 提供了两种将强烈的 HDR 高光转换为可见光晕的方法。标准布卢姆以降低的分辨率构建几个廉价的高斯模糊并将它们混合在一起。卷积布隆通过自定义点扩展内核扩展图像，使用 FFT 使大型卷积变得实用。两者都以明亮的场景颜色开始，但它们在速度、控制和光学复杂性方面做出了截然不同的权衡。",
+  "imageAlt": "虚幻引擎 5 标准 Bloom 高斯模糊金字塔与 Convolution Bloom 使用的 FFT 管道对比",
+  "lede": "虚幻引擎 5 提供了两种将 HDR 高光转换为可见光晕的方法。标准Bloom以降采样方式构建几张低分辨率的高斯模糊结果并将它们混合在一起。卷积Bloom通过FFT扩展高光。",
   "sections": [
     {
-      "heading": "花儿在做什么",
+      "heading": "Bloom是什么",
       "paragraphs": [
-        "显示器无法再现渲染的 HDR 场景可以包含的完整亮度范围。 Bloom 通过允许非常明亮的区域溢出到相邻像素来帮助传达缺失的强度。结果是发光标志周围熟悉的发光、镜面高光以及在较暗的背景下看到的灯光。",
-        "从概念上讲，Unreal 根据 HDR 场景颜色评估光晕，将光晕结果添加回场景，然后通过后处理管道的其余部分生成最终显示图像。曝光会影响哪些高光看起来足够强烈以进行绽放，而色调映射会压缩显示器的组合 HDR 结果。因此，Bloom 不仅仅是放置在完成的 LDR 图像上的软滤镜。"
+        "当人眼看直视非常亮的物体时会在视觉上产生光晕效果。由于显示器无法显示完整HDR亮度范围， Bloom模拟通过允许亮度非常高的区域溢出到相邻像素来帮助表现光晕效果。",
+        "从概念上讲，UE 根据 HDR 渲染结果的亮度计算出光晕结果，然后结合其他后处理过程生成最终显示图像。例如曝光会影响高光的输入，而色调映射会压缩显示器的 HDR 结果。因此Bloom不是只在 LDR 图像上的单层滤镜。"
       ],
       "flow": {
-        "label": "概念性Bloom管道",
+        "label": "Bloom管线",
         "steps": [
           {
             "title": "场景渲染",
-            "text": "材质和灯光产生 HDR 场景颜色"
+            "text": "渲染物体，材质和灯光得到 HDR 结果"
           },
           {
-            "title": "布卢姆源",
-            "text": "明亮的场景值驱动所选的绽放方法"
+            "title": "Bloom源",
+            "text": "从HDR结果提取高光源"
           },
           {
-            "title": "光扩散",
-            "text": "标准模糊金字塔或卷积核"
+            "title": "PSF扩散",
+            "text": "高斯模糊金字塔或FFT"
           },
           {
-            "title": "HDR复合",
-            "text": "Bloom 与场景颜色相结合"
+            "title": "混合",
+            "text": "Bloom结果与HDR结果混合"
           },
           {
             "title": "最终图像",
@@ -38,30 +38,32 @@
       },
       "docLinks": [
         {
-          "label": "Epic Games：在虚幻引擎中绽放",
-          "note": "标准 Bloom、Bloom Convolution、它们的控件和内核设置的官方描述。"
+          "label": "Epic Games: Bloom in Unreal Engine",
+          "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/bloom-in-unreal-engine",
+          "note": "The official description of Standard Bloom, Bloom Convolution, their controls, and kernel setup."
         },
         {
-          "label": "Epic Games：后期处理效果",
-          "note": "光晕、曝光、色调映射和后期处理体积的上下文。"
+          "label": "Epic Games: Post Process Effects",
+          "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/post-process-effects-in-unreal-engine",
+          "note": "Context for bloom, exposure, tone mapping, and Post Process Volumes."
         }
       ]
     },
     {
-      "heading": "标准布卢姆：高斯模糊金字塔",
+      "heading": "标准Bloom：高斯模糊金字塔",
       "paragraphs": [
-        "Standard Bloom 是 Unreal 面向性能的方法。它创建了几个模糊版本的光晕源并将它们组合起来。名为“模糊 1”到“模糊 5”的级别大约为屏幕分辨率的二分之一到三十秒。高分辨率级别可在高光附近产生紧凑的辉光；低分辨率水平产生宽广光晕的成本比全分辨率宽模糊要低得多。",
-        "每个级别都基于高斯形滤波器。参数 σ 控制扩散：较小的 σ 会产生较窄的光晕，而较大的 σ 会产生较宽且较柔和的光晕。 Unreal的多级结果可以理解为模糊图像的加权和，每个级别贡献不同的空间尺度。实际的渲染器比下面的方程更复杂，但该模型捕获了基本操作。"
+        "标准Bloom 是 UE 高性能的方法。它通过降采样创建1/2到1/32的高斯模糊的光晕结果源并将它们组合起来。高分辨率对应高光附近高亮度且紧凑的辉光；低分辨率则对应低亮度且宽广的光晕。",
+        "每个层级都经过高斯滤波平滑模糊。Unreal的多级结果可以理解为模糊图像的加权和，大致过程如下。"
       ],
       "equations": [
         {
           "label": "二维高斯",
           "terms": [
             {
-              "text": "控制模糊的半径和柔和度。"
+              "text": "控制模糊的半径和柔和度"
             },
             {
-              "text": "在每个图像像素周围采样的高斯核。"
+              "text": "在每个图像像素周围采样的高斯核"
             }
           ]
         },
@@ -69,47 +71,47 @@
           "label": "一级模糊",
           "terms": [
             {
-              "text": "阈值处理或源选择后的布隆源。"
+              "text": "阈值处理或源选择后的高光源"
             },
             {
-              "text": "级别 i 的下采样操作。"
+              "text": "级别 i 的降采样"
             },
             {
-              "text": "空间卷积。"
+              "text": "空间卷积"
             }
           ]
         },
         {
-          "label": "组合标准布卢姆",
+          "label": "组合",
           "terms": [
             {
-              "text": "每个级别的贡献，包括级别的强度和色调。"
+              "text": "每个级别的权重（贡献），包括级别的强度和色调"
             }
           ]
         }
       ],
       "flow": {
-        "label": "标准布卢姆路径",
+        "label": "标准Bloom过程",
         "steps": [
           {
-            "title": "HDR场景",
-            "text": "从明亮的场景颜色开始"
+            "title": "HDR结果",
+            "text": "渲染场景得到的HDR结果"
           },
           {
             "title": "阈值",
-            "text": "选择或加权产生开花的值"
+            "text": "选择或加权得到高光源"
           },
           {
-            "title": "下采样",
-            "text": "构建分辨率从 1/2 到 1/32 的关卡"
+            "title": "降采样",
+            "text": "构建分辨率从 1/2 到 1/32 的层级结果"
           },
           {
             "title": "高斯模糊",
-            "text": "以有用的半径过滤每个级别"
+            "text": "以半径过滤每个层级"
           },
           {
             "title": "上采样+组合",
-            "text": "将各个级别混合到最终的绽放中"
+            "text": "将各个级别混合到最终的Bloom结果中"
           }
         ]
       },
@@ -122,29 +124,16 @@
       ],
       "callouts": [
         {
-          "title": "为什么金字塔速度很快",
-          "text": "1/32 分辨率图像大约每 1,024 个全分辨率像素包含一个像素。这使得非常宽的低分辨率模糊比在全分辨率下应用类似的支持要便宜得多。"
+          "title": "性能",
+          "text": "1/32 分辨率图像的一个像素大约包含 1,024 个全分辨率像素。这使得低分辨率的模糊处理非常之快。"
         }
       ]
     },
     {
-      "heading": "Standard Bloom 能为您带来什么",
+      "heading": "卷积Bloom：kernel定义形状",
       "paragraphs": [
-        "Standard Bloom 非常适合实时游戏，因为它快速、稳定且易于艺术指导。绽放强度可缩放完整结果。阈值控制场景值在起作用之前必须有多亮，具有一个单位的过渡区域；将阈值设置为 -1 允许每种场景颜色做出贡献。每个模糊级别还具有“大小”和“色调”控件，因此可以独立塑造附近的辉光和广泛的雾霾。",
-        "它的局限性与它的高效性是一样的：最终的形状是由平滑的高斯尺度组装而成的。它无法直接再现任意星爆、不对称衍射图案或独特的镜头响应。 Epic 还指出，标准绽放并不保守，这意味着它可以增加图像的整体亮度。"
-      ],
-      "bullets": [
-        "对于小而紧密的光晕，请使用更高分辨率的级别。",
-        "使用较低的分辨率级别以较低的成本实现广泛的绽放。",
-        "使用色调来控制每个级别的颜色和贡献。",
-        "当帧时间和可预测的实时行为最重要时，首选标准 Bloom。"
-      ]
-    },
-    {
-      "heading": "卷积布隆：内核定义形状",
-      "paragraphs": [
-        "卷积布隆用二维核纹理代替高斯金字塔。内核描述了光学系统如何响应单点光——其点扩散函数（PSF）。内核中的中心亮点可以被环、条纹、彩色散射或不对称星形图案包围。当场景与该内核进行卷积时，每个源像素根据相同的形状将其部分亮度分配给相邻像素。",
-        "这就是为什么卷积布隆可以创建标准布隆无法产生的响应：星爆、定向条纹、复杂的透镜状散射和非对称光晕都直接来自内核图像。内核可以类似于相机或眼睛响应，但它的物理意义仅取决于用于构建它的数据和标准化。"
+        "卷积Bloom用2DTexture代替高斯模糊金字塔。kernel即点扩散函数（PSF）描述了光源如何呈现再肉眼上的效果。从中心亮点开始扩散出环、条纹、彩色散射或不对称星形图案。当场景与该kernel进行卷积时，每个源像素根据相同的形状将其部分亮度扩散到相邻像素。",
+        "这就是为什么卷积Bloom可以创建：星爆、定向条纹、复杂的透镜状散射和非对称光晕。kernel可以类似于相机或眼睛上的效果，但它的物理意义仅用于构建它的扩散方式。"
       ],
       "equations": [
         {
@@ -154,80 +143,80 @@
               "text": "源 HDR 图像。"
             },
             {
-              "text": "核纹理或点扩散函数。"
+              "text": "kernel的2DTexture或点扩散函数（PSF）"
             },
             {
-              "text": "卷积绽放结果。"
+              "text": "卷积Bloom结果。"
             }
           ]
         }
       ],
       "flow": {
-        "label": "卷积有什么作用",
+        "label": "图像空间的卷积过程",
         "steps": [
           {
-            "title": "点源",
-            "text": "一张明亮的图像样本"
+            "title": "高光源",
+            "text": "从HDR提取的高光源"
           },
           {
-            "title": "内核响应",
-            "text": "中心 PSF、星爆或散射图案"
+            "title": "kernel制作",
+            "text": "散射2DTexture，PSF"
           },
           {
-            "title": "分散每个像素",
-            "text": "缩放内核并将其放置在每个源样本上"
+            "title": "逐像素扩散（卷积）",
+            "text": "对每个高光源像素，根据相同的形状将其部分亮度扩散到相邻像素"
           },
           {
-            "title": "积累",
-            "text": "重叠响应形成绽放图像"
+            "title": "累加",
+            "text": "累加所有扩散结果"
           }
         ]
       }
     },
     {
-      "heading": "为什么 Unreal 使用 FFT",
+      "heading": "为什么使用 FFT",
       "paragraphs": [
-        "大内核使得直接空间卷积成本过高。 513 × 513 内核包含 263,169 个样本；测试每个输出像素的许多内核抽头并不是一个实用的全屏实时操作。",
-        "Unreal 通过快速傅立叶变换加速布隆卷积。卷积定理说图像空间中的卷积变成频率空间中的乘法。该引擎转换场景和内核，将它们的频率表示相乘，并将乘积转换回图像。结果仍然是 Scene * Kernel - 对于大型滤波器来说，FFT 是到达该结果的更有效途径。"
+        "大型的kernel使得直接空间卷积成本过高。 513 × 513 Kernel包含 263,169 个Sample；若对高光源例如1920 × 1080的每个像素点进行扩散将进行5千亿次采样和计算，无法达到实时。",
+        "UE通过快速傅立叶变换（FFT）加速卷积过程。卷积定理能够将图像空间中的卷积变成频率空间中的乘法。通过转换高光源和kernel到频率空间，再将它们的频率表示相乘，并将乘积转换回图像空间。结果与 Scene * Kernel 一样。 - 对于大型滤波器（Kernel）来说，FFT 是更快的选择。"
       ],
       "equations": [
         {
           "label": "卷积定理",
           "terms": [
-            "图像空间中的卷积变成频率空间中的逐元素乘法。"
+            "图像空间中的卷积变成频率空间中的逐像素乘法"
           ]
         },
         {
           "label": "FFT实现",
           "terms": [
             {
-              "text": "将相乘结果返回到图像空间的逆变换。"
+              "text": "逆变换（将相乘结果返回到图像空间）"
             }
           ]
         }
       ],
       "flow": {
-        "label": "卷积布隆路径",
+        "label": "FFT的Bloom过程",
         "steps": [
           {
-            "title": "布卢姆源",
-            "text": "待过滤的HDR图像"
+            "title": "高光源",
+            "text": "HDR提取出的高光源"
           },
           {
-            "title": "正向快速傅里叶变换",
-            "text": "转换源代码和内核"
+            "title": "正向FFT",
+            "text": "转换高光源和Kernel到频率空间"
           },
           {
             "title": "乘法",
-            "text": "组合频域值"
+            "text": "频率空间中逐像素相乘"
           },
           {
-            "title": "逆FFT",
+            "title": "逆向FFT",
             "text": "将结果返回到图像空间"
           },
           {
-            "title": "布鲁姆",
-            "text": "将成形响应与场景合成"
+            "title": "Bloom结果混合",
+            "text": "将Bloom结果与HDR结果混合"
           }
         ]
       },
@@ -240,149 +229,73 @@
       ],
       "callouts": [
         {
-          "title": "静态内核可以被缓存",
-          "text": "当内核不改变时，其变换后的表示可以被重用，而不是每帧都重新计算。 Unreal 通过 r.Bloom.CacheKernel 控制台变量公开 Bloom 内核缓存。"
+          "title": "静态Kernel可以被缓存",
+          "text": "当Kernel不改变时，其变换后的频率结果表示可以被重复利用，而不是每帧都重新计算。 UE 通过 r.Bloom.CacheKernel 控制台变量公开 Bloom 的Kernel缓存。"
         }
       ]
     },
     {
-      "heading": "设置卷积核",
+      "heading": "在UE中设置卷积Kernel",
       "paragraphs": [
-        "在 Post Process Volume 中的 Lens → Bloom → Method 下选择 Convolution，然后指定 Convolution Kernel 纹理。卷积比例更改相对于视口的响应大小，卷积中心校正内核的 UV 原点，卷积增强有选择地放大明亮源值，卷积缓冲区保留空间以防止 FFT 结果覆盖图像边界。",
-        "内核应被视为过滤器数据而不是普通的流式颜色纹理。 Epic 建议禁用 mip 生成并启用 Never Stream，以便全分辨率内核保持驻留。最热点通常应位于中心附近，并且有用的结构应占据图像的大部分。因为卷积是一个全图像滤波器，所以内核的中心需要比周围的值亮得多； Epic 建议使用 EXR 来满足所需的动态范围。"
+        "在 Post Process Volume 中的 Lens → Bloom → Method 下选择 Convolution，然后可以自定义指定 Convolution Kernel Texture。",
+        "Kernel应被视为过滤器数据而不是普通的Stream Texture。 Epic 建议禁用 mip 生成并 Never Stream，保证Kernel始终是全分辨率并存在于内存中。因为卷积是一个全图像滤波器，所以Texture的中心需要比周围的值亮得多，并且应该使用 EXR 来满足所需的动态范围。下面是卷积Bloom的控制参数。"
       ],
       "technicalTables": [
         {
           "columns": [
-            "控制",
-            "目的",
-            "实际谨慎"
+            "Control",
+            "Purpose",
+            "Practical caution"
           ],
           "rows": [
             [
-              "卷积核",
-              "定义光晕响应形状",
-              "保持全分辨率，无 mipmap 且无流媒体"
+              "Convolution Kernel",
+              "Defines the bloom response shape",
+              "Keep it at full resolution with no mipmaps and no streaming"
             ],
             [
-              "卷积尺度",
-              "更改相对于视口的内核大小",
-              "主要用于使花朵变小"
+              "Convolution Scale",
+              "Changes kernel size relative to the viewport",
+              "Primarily used to make the bloom smaller"
             ],
             [
-              "卷积中心",
-              "设置 UV 坐标中的内核原点",
-              "偏移会移动完整的光晕响应"
+              "Convolution Center",
+              "Sets the kernel origin in UV coordinates",
+              "Offsets move the complete bloom response"
             ],
             [
-              "卷积增强",
-              "在过滤之前放大选定的亮度范围",
-              "默认禁用；小心使用"
+              "Convolution Boost",
+              "Amplifies a selected brightness range before filtering",
+              "Disabled by default; use it carefully"
             ],
             [
-              "卷积缓冲器",
-              "防止图像边界出现环绕",
-              "更大的缓冲区会增加成本"
+              "Convolution Buffer",
+              "Prevents wraparound at the image boundary",
+              "Larger buffers increase cost"
             ]
           ],
-          "caption": "较大的视觉变化属于内核图像；高级设置最适合用于较小的校正。"
+          "caption": "Large visual changes belong in the kernel image; the advanced settings are best used for smaller corrections."
         }
-      ],
-      "numberedSteps": [
-        {
-          "title": "从高动态范围内核开始",
-          "text": "使用居中的、非常明亮的脉冲，周围环绕着您希望光学响应包含的环、光线或雾。"
-        },
-        {
-          "title": "保留源纹理",
-          "text": "禁用 mipmap 和纹理流，以便 Unreal 不会替换降级的低分辨率内核。"
-        },
-        {
-          "title": "调整比例之前设置中心",
-          "text": "首先纠正小的 UV 对准错误；否则每个明亮的光源都会产生位移响应。"
-        },
-        {
-          "title": "检查屏幕边缘",
-          "text": "仅根据消除可见环绕所需的量增加卷积缓冲区，因为缓冲区会产生性能成本。"
-        }
-      ]
-    },
-    {
-      "heading": "标准与卷积",
-      "paragraphs": [
-        "选择主要取决于您需要的响应和您可以承受的帧时间。标准布卢姆通过少量平滑尺度来近似发光，并具有明显的性能优势。 Convolution Bloom 花费更多时间来重现自定义内核中编码的结构，适用于高端硬件、游戏内电影或离线电影工作。",
-        "当可识别的光学特征很重要时，卷积是更合适的选择。当 Bloom 需要在实时游戏中看起来不错但又不想成为主要的后期处理成本时，标准是更好的默认值。"
-      ],
-      "technicalTables": [
-        {
-          "columns": [
-            "问题",
-            "标准布卢姆",
-            "卷积布隆"
-          ],
-          "rows": [
-            [
-              "核心方法",
-              "多分辨率高斯模糊金字塔",
-              "使用自定义内核进行图像卷积"
-            ],
-            [
-              "绽放形状",
-              "平滑、多尺度的发光",
-              "任意 PSF、星爆或不对称响应"
-            ],
-            [
-              "加速",
-              "下采样和高效高斯滤波",
-              "快速傅立叶变换"
-            ],
-            [
-              "性能",
-              "更快",
-              "更贵"
-            ],
-            [
-              "能量行为",
-              "不保守；可能会使图像整体变亮",
-              "被 Epic 记录为节能分散"
-            ],
-            [
-              "典型用途",
-              "大多数实时游戏应用程序",
-              "高端硬件和电影渲染"
-            ]
-          ],
-          "caption": "定制内核提供光学复杂性；模糊金字塔提供速度。"
-        }
-      ],
-      "callouts": [
-        {
-          "title": "卷积不能保证物理相机模型",
-          "text": "内核纹理提供形状。它的物理解释仍然取决于纹理的测量或创作、居中、缩放和标准化的方式。"
-        }
-      ]
-    },
-    {
-      "heading": "短决策规则",
-      "paragraphs": [
-        "当您想要在正常游戏中获得快速、可控的光环时，请使用标准光晕。调整高分辨率级别以获得紧凑发光，调整较低分辨率级别以获得宽雾。当光溢出必须携带特定的光学图案并且目标硬件或电影预算可以吸收基于 FFT 的滤波器时，请使用卷积光溢出。",
-        "一言以蔽之：标准布卢姆从几个高斯尺度构建了一个有效的近似；卷积 Bloom 应用由自定义 PSF 内核编码的响应。"
       ]
     }
   ],
   "references": [
     {
-      "label": "Epic Games：在虚幻引擎中绽放"
+      "label": "Epic Games: Bloom in Unreal Engine",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/bloom-in-unreal-engine"
     },
     {
-      "label": "Epic Games：虚幻引擎控制台变量参考"
+      "label": "Epic Games: Unreal Engine Console Variables Reference",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-console-variables-reference"
     },
     {
-      "label": "时间眩光：人眼散射的实时动态模拟"
+      "label": "Temporal Glare: Real-Time Dynamic Simulation of Scattering in the Human Eye",
+      "url": "https://people.compute.dtu.dk/jerf/papers/TemporalGlare.pdf"
     },
     {
-      "label": "Spencer 等人：数字图像的基于物理的眩光效果"
+      "label": "Spencer et al.: Physically-Based Glare Effects for Digital Images",
+      "url": "https://dl.acm.org/doi/10.1145/218380.218466"
     }
   ],
-  "closing": "标准布卢姆通过从下采样的高斯金字塔构造辉光来赢得速度。卷积 Bloom 通过 FFT 使用自定义内核过滤 HDR 源，从而在形状上获胜。选择与您需要的图像和您实际拥有的帧时间相匹配的方法。"
+  "closing": "标准Bloom通过从降采样的高斯金字塔来高速构造光晕效果。卷积 Bloom 通过 FFT 使用自定义Kernel过滤 HDR 高光源，得到更高质量的光晕效果。"
 }
