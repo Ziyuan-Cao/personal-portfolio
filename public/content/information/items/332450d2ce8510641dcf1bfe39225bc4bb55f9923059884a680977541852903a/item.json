@@ -1,5 +1,5 @@
 {
-  "id": "96b2bfab-71f6-4be1-a21c-1fa3d1fe2fb5",
+  "id": "bf5ac122-5086-4164-a594-485f07c9d773",
   "uid": "332450d2ce8510641dcf1bfe39225bc4bb55f9923059884a680977541852903a",
   "url": "https://gpuopen.com/learn/wmma-guide-amd-rdna-4-gpus-part-2",
   "canonicalUrl": "https://gpuopen.com/learn/wmma-guide-amd-rdna-4-gpus-part-2",
@@ -9,6 +9,6 @@
   "subtitle": "Achieve peak AMD RDNA™ 4 architecture memory bandwidth for low-precision GEMM by fusing WMMA to double the K dimension, enabling 128-bit loads for FP8/INT8, and matching hipBLAS results bit-for-bit.",
   "imageUrl": "https://gpuopen.com/images/wmma_rdna4_pt2b_featured.CdSF_7ru.jpg",
   "publishedAt": "2026-06-02T19:01:00.000Z",
-  "firstSeenAt": "2026-08-14T02:23:44.117Z",
-  "lastSeenAt": "2026-08-14T02:23:44.117Z"
+  "firstSeenAt": "2026-08-14T02:26:04.542Z",
+  "lastSeenAt": "2026-08-14T02:26:04.542Z"
 }
