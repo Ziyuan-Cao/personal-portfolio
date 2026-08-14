@@ -1,0 +1,14 @@
+{
+  "id": "10c6e92a-439e-4574-9f1e-7fd45d904b19",
+  "uid": "6c683ee9e70b43ce80d134c5478d28eafd2c63c949e01e8e1fc9f59efc60792e",
+  "url": "https://gpuopen.com/learn/minidxnn-v040-interactive-neural-texture-compression",
+  "canonicalUrl": "https://gpuopen.com/learn/minidxnn-v040-interactive-neural-texture-compression",
+  "sourceUrl": "https://gpuopen.com/feed",
+  "sourceName": "AMD GPUOpen",
+  "title": "MiniDXNN v0.4.0: Interactive neural texture compression on DirectX 12",
+  "subtitle": "MiniDXNN v0.4.0 introduces D3D12 Linear Algebra (SM 6.10) support, input encodings and neural texture compression, plus a real-time GUI app that trains and visualizes GPU-accelerated MLPs on DirectX® 12.",
+  "imageUrl": "https://gpuopen.com/images/featured-20665122-C_AMD_Compressonator_Lockup_RGB_Wht.B4V2pv9-.jpg",
+  "publishedAt": "2026-08-13T14:30:00.000Z",
+  "firstSeenAt": "2026-08-13T21:40:49.424Z",
+  "lastSeenAt": "2026-08-13T21:40:49.424Z"
+}
