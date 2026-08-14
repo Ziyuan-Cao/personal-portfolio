@@ -1,5 +1,5 @@
 {
-  "id": "649f608d-2beb-4db4-9101-3b758031d43d",
+  "id": "5924b1f8-7b0f-43ce-8ffd-53088cf70b62",
   "uid": "059dc33f75316c6efe3aae973b1dabc78293774608218cbbe9066b104bd79af0",
   "url": "https://www.khronos.org/blog/vulkan-ray-tracing-deprecating-host-side-acceleration-structure-builds",
   "canonicalUrl": "https://www.khronos.org/blog/vulkan-ray-tracing-deprecating-host-side-acceleration-structure-builds",
@@ -9,6 +9,6 @@
   "subtitle": "Vulkan is deprecating host-side ray tracing acceleration structure build commands in favor of a single, device-address-based path. This aligns Vulkan Ray Tracing with the direction of DirectX Raytracing, modern engine architecture, and hardware trends. In the six years since Vulkan Ray Tracing launched, the host-side path has seen limited adoption. Developers generally found it more cumbersome than helpful, while implementers had to maintain parallel host/GPU command models that increased complexity and created friction for future ray tracing API evolution.",
   "imageUrl": "https://www.khronos.org/images/jcogs_img/cache/vulkan_ray_tracing_deprecating_host_-_28de80_-_ade52cc9e2371411e2f6a5e18fb8664a9767175d_-_28de80_-_ade52cc9e2371411e2f6a5e18fb8664a9767175d.png",
   "publishedAt": "2026-07-08T13:00:00.000Z",
-  "firstSeenAt": "2026-08-13T21:40:25.594Z",
-  "lastSeenAt": "2026-08-13T21:40:25.594Z"
+  "firstSeenAt": "2026-08-14T02:23:13.705Z",
+  "lastSeenAt": "2026-08-14T02:23:13.705Z"
 }
