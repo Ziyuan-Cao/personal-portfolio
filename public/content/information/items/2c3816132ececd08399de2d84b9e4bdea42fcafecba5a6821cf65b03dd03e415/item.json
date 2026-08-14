@@ -1,5 +1,5 @@
 {
-  "id": "160f0b84-e62e-4465-9b16-1c6588968e07",
+  "id": "908f209a-ca96-4b6b-bbf7-19a7810a3894",
   "uid": "2c3816132ececd08399de2d84b9e4bdea42fcafecba5a6821cf65b03dd03e415",
   "url": "https://devblogs.microsoft.com/directx/announcing-agilitysdk-721-preview-and-more-shader-model-6-10-features",
   "canonicalUrl": "https://devblogs.microsoft.com/directx/announcing-agilitysdk-721-preview-and-more-shader-model-6-10-features",
@@ -9,6 +9,6 @@
   "subtitle": "Overview Today, we are pleased to announce Agility SDK 1.721-preview with new D3D features along with DXC 1.10.2605.4 adding VectorAccumulate to LinAlg in the existing Shader Model 6.10 preview. The previous 1.720-preview and SM 6.10 preview blog is still relevant, as all of its features are available here too. Here are the new features. More […] The post Announcing AgilitySDK 721 Preview and an addition to LinAlg in Shader Model 6.10 appeared first on DirectX Developer Blog.",
   "imageUrl": "https://devblogs.microsoft.com/directx/wp-content/uploads/sites/42/2017/01/XII_BLACK_1kx1k.jpg",
   "publishedAt": "2026-05-28T17:01:29.000Z",
-  "firstSeenAt": "2026-08-14T02:26:05.822Z",
-  "lastSeenAt": "2026-08-14T02:26:05.822Z"
+  "firstSeenAt": "2026-08-14T08:06:29.510Z",
+  "lastSeenAt": "2026-08-14T08:06:29.510Z"
 }
