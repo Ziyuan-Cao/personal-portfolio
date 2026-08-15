@@ -4,7 +4,7 @@
     "Notes on Game Engine Architecture/post.json",
     "SSAO - From View-Space Samples to an Occlusion Term/post.json",
     "IES Profiles - From File Rows to Runtime Sampling/post.json",
-    "Angular PSF Glare - From Texture to Final Composite/post.json",
+    "Convolution Bloom PSF - Kernel Computation - From Kernel Texture Generation to Convolution/post.json",
     "How Bloom Works in Unreal Engine 5 - Standard vs. Convolution/post.json",
     "Unit of lighting and Convertion/post.json",
     "How This Site Works/post.json"

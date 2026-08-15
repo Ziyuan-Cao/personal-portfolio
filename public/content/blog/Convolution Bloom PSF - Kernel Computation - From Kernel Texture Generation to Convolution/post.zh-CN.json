@@ -1,0 +1,338 @@
+{
+  "title": "卷积Bloom的PSF/Kernel计算：从Kernel Texture生成到卷积",
+  "abstract": "如何构建立体角归一化 PSF 并将采样的源亮度扩散成Bloom效果。",
+  "category": "后处理渲染",
+  "imageAlt": "预处理/计算 PSF/Kernel Texture并在运行时累积得到Bloom结果",
+  "lede": "管线将PSF预处理结果存储在Kernel texture中。每个Texel上由4种PSF结合，各种PSF又有各自进行加权和归一化。运行时使用随机采样减少卷积数达到实时效果。（本文未使用FFT进行快速卷积）",
+  "sections": [
+    {
+      "heading": "将纹理空间映射到视角角度",
+      "paragraphs": [
+        "点扩散函数PSF的计算是基于视角角度计算的。所以需要为Kernel Texture的每个wen素计算视角角度θ。",
+        "一般来说，Kernel Texture的长宽比是1:1的。对于纹理分辨率 N，令长宽的一半长度作为半径 H_tex = (N − 1) / 2 并且且允许输入控制最大视角 θ_max。最后，利用输入的虚拟焦距就能为每个Texel位置计算得到视角角度θ。"
+      ],
+      "equations": [
+        {
+          "label": "角度映射",
+          "terms": [
+            "f是焦距(视点到视平面的距离)",
+            "x和y是纹理中心的偏移量，θ是视角角度。",
+            "x 和 y 的原点是纹理中心",
+            " θ 是视角角度"
+          ]
+        },
+        {
+          "label": "Texel的立体角积分",
+          "terms": [
+            "J_Ω 是虚拟投影的立体角Jacobian",
+            "Ω_texel是Texel面积的立体角积分。（为了计算Texel面积所接收到的总能量，需要得到立体角积分以计算所受到的总方向强度）"
+          ]
+        },
+        {
+          "label": "单个Texel内的能量积分",
+          "terms": [
+            "结合上述的Ω_texel和F(θ)就能得到单个Texel内的能量积分",
+            "F(θ)是PSF",
+            "Δx和Δy是采样的宽度和高度，由Texel长宽/采样数​得出​（Kernel的中心衰减剧烈，需要大量采样（100次以上），在其他地方则可以只采样10次或以下）",
+            "w是梯形积分权重，从Texel边缘到中心->权重w从低到高​",
+            "权重例子:",
+            "0.25 ---- 0.5 ---- 0.5 ---- 0.25​",
+            " |          |        |          |​",
+            "0.5  ---- 1.0 ---- 1.0 ---- 0.5​",
+            " |          |        |          |​",
+            "0.5  ---- 1.0 ---- 1.0 ---- 0.5​",
+            " |          |        |          |​",
+            "0.25 ---- 0.5 ---- 0.5 ---- 0.25"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "4种PSF",
+      "paragraphs": [
+        "根据Spencer等人提出的物理模型（参考资料1），Kernel Texture是由4种PSF组成的：中心、内部、外部和波长色差"
+      ],
+      "equations": [
+        {
+          "label": "中心",
+          "terms": [
+            "光源区域"
+          ]
+        },
+        {
+          "label": "内部",
+          "terms": [
+            "快速衰减"
+          ]
+        },
+        {
+          "label": "外部",
+          "terms": [
+            "较慢的远距离扩散"
+          ]
+        },
+        {
+          "label": "波长色差",
+          "terms": [
+            "λ 以纳米为单位测量",
+            "该式子对 400 nm 至 700 nm 之间的波长进行采样"
+          ]
+        },
+        {
+          "label": "光谱颜色",
+          "terms": [
+            "利用CIE颜色匹配函数(参考资料2)将波长转换成颜色",
+            "再按下列公式将XYZ颜色空间转换为线性RGB颜色空间",
+            "R = max(3.2406X − 1.5372Y − 0.4986Z, 0)。",
+            "G = max(−0.9689X + 1.8758Y + 0.0415Z, 0)。",
+            "B = max(0.0557X − 0.2040Y + 1.0570Z, 0)。"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "能量的衰减和归一化",
+      "paragraphs": [
+        "在远近观察时接收到的光强差异非常大，为了在无论什么位置观察时扩散都能保持自然均匀，需要对Kernel进行归一化处理。"
+      ],
+      "equations": [
+        {
+          "label": "前3种PSF的归一化",
+          "terms": [
+            "K为PSF的种类",
+            "p为Texel"
+          ]
+        },
+        {
+          "label": "波长色差PSF的归一化",
+          "terms": [
+            "色差的归一化需要保证RGB分量除以相同值，以保证比例（颜色）不变。这里使用Y分量"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "添加条纹",
+      "paragraphs": [
+        "光在进入眼睛时，会受到睫毛遮挡从而产生条纹。实际情况中，根据视角的不同，条纹数量、长度和方向也会动态改变。这里只用简单条纹模拟"
+      ],
+      "equations": [
+        {
+          "label": "Texel到条纹的视角差计算",
+          "terms": [
+            "p为Texel",
+            "d为条纹的角度",
+            "a为Texel到条纹的投影长度",
+            "d⊥为Texel到条纹的垂直距离",
+            "f为焦距(视点到视平面的距离)",
+            "δ为条纹与Texel的视角差",
+            "仅当 a > 0 时，光线才起作用"
+          ]
+        },
+        {
+          "label": "Mask计算",
+          "terms": [
+            "w为条纹的角度宽度",
+            "w_inner为条纹中心高亮区域的角度宽度​",
+            "RandomIntensity_j为条纹的随机强度",
+            "Coverage_j为条纹的覆盖范围",
+            "M_raw(p)为未归一化的Mask值",
+            "M(p)为最终的Mask值"
+          ]
+        },
+        {
+          "label": "PSF应用条纹",
+          "expression": "F₁ ← F₁M_corona\nF₂ ← F₂M_corona\nF₃ ← F₃M_halo",
+          "terms": [
+            "F₁, F₂使用相同的条纹，F₃ 使用另外的条纹"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "立体角的能量密度",
+      "paragraphs": [
+        "由于Kernel Texture是固定大小的，为了在不同的分辨率下保持一致的视觉效果，需要计算出每个Texel的立体角能量密度。"
+      ],
+      "equations": [
+        {
+          "label": "立体角的能量密度",
+          "terms": [
+            "Ω_texel,p是Texel的立体角积分",
+            "Ê_k,p是归一化后的能量",
+            "P 是立体角的能量密度，单位为 sr⁻1"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "应用视觉适应权重",
+      "paragraphs": [
+        "根据参考资料1,4种PSF的结果需要根据视觉适应状态（白天，黄昏，夜晚）进行加权。"
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "State",
+            "w₀",
+            "w₁",
+            "w₂",
+            "w₃"
+          ],
+          "rows": [
+            [
+              "Photopic",
+              "0.384",
+              "0.478",
+              "0.138",
+              "0"
+            ],
+            [
+              "Mesopic",
+              "0.368",
+              "0.478",
+              "0.138",
+              "0.016"
+            ],
+            [
+              "Scotopic",
+              "0.282",
+              "0.478",
+              "0.207",
+              "0.033"
+            ]
+          ]
+        }
+      ],
+      "equations": [
+        {
+          "label": "最终Kernel结果",
+          "terms": [
+            "在工程上Kernel边缘强制为0"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "对每个高光源进行采样",
+      "paragraphs": [
+        "由于全屏卷积过于耗时，这里直接遍历每个灯光，在灯光位置周围采样高光源。"
+      ],
+      "equations": [
+        {
+          "label": "采样",
+          "terms": [
+            "frac只保留小数部分，RadicalInverse(i)是Halton序列的逆函数（保证更均匀分布），rotation是随机旋转角度",
+            "矩形灯：q = (2u − 1, 2v − 1)。",
+            "椭圆灯：q = √u(cos 2πv, sin 2πv)。"
+          ]
+        },
+        {
+          "label": "采样位置",
+          "terms": [
+            "p_light 灯光的屏幕空间位置",
+            "q 是上述的采样位置",
+            "采样位置保证在矩形灯或椭圆灯的内部"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "按光源面积对光源亮度进行加权",
+      "paragraphs": [
+        "光源是以亮度cd/m²为单位存储的。经过采样后需要保证采样点的亮度总和等于原亮度。因此在保留颜色比例的前提下，根据每个采样点在屏幕空间所占的光源面积进行加权。"
+      ],
+      "equations": [
+        {
+          "label": "屏幕空间光源面积",
+          "terms": [
+            "R_x是半长，R_y是半高",
+            "U_x是屏幕空间的右向单位向量，U_y是屏幕空间的上向单位向量",
+            "A_axis是投影的两个半轴形成的平行四边形面积,通过其转换可以得到矩形灯和椭圆灯的面积",
+            "A_sample是采样点在屏幕空间所占的面积"
+          ]
+        },
+        {
+          "label": "采样点的面积加权值",
+          "terms": [
+            "L_RGB是光源的颜色比例"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "运行时保持视角角度",
+      "paragraphs": [
+        "Kernel Texture是固定的，所以其对其采样是要随着视口的投影和分辨率的变化而变化。"
+      ],
+      "equations": [
+        {
+          "label": "Kernel 在屏幕空间的UV半尺寸计算",
+          "terms": [
+            "θ_max是Kernel的最大视角",
+            "P_x 和 P_y 是投影矩阵水平缩放和垂直缩放。",
+            "h_u 和 h_v是Kernel在屏幕空间的UV半尺寸，通过其可以获得Kernel Texture与视口的映射关系并采样"
+          ]
+        },
+        {
+          "label": "目标像素的立体角计算",
+          "terms": [
+            "W_view 和 H_view 是视口分辨率尺寸"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "累加合成",
+      "paragraphs": [
+        "每个采样的光源点都会向每个覆盖的像素扩散贡献亮度。"
+      ],
+      "equations": [
+        {
+          "label": "每个采样光源点的贡献",
+          "terms": [
+            "g 为输入参数控制结果亮度",
+            "W_sample,i为上述的采样点亮度",
+            "PSF(u_i,p)为Kernel的采样结果（能量密度）",
+            "Ω_pixel为立体角",
+            "L_PSF为最终Bloom值"
+          ]
+        },
+        {
+          "label": "最终合成",
+          "terms": [
+            "Bloom结果与HDR结果合成"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "最终Bloom结果",
+      "paragraphs": [
+        "运行时的结果。"
+      ],
+      "figures": [
+        {
+          "src": "/content/blog/Convolution Bloom PSF - Kernel Computation - From Kernel Texture Generation to Convolution/final-bloom-result.png",
+          "alt": "运行时画面：黑暗背景中的明亮光源周围形成宽广的PSF Bloom",
+          "caption": "截图分辨率为3839 × 2038、光源采样数N_s = 30下的最终运行时Bloom结果。截图的性能为42.44 FPS和23.56 ms。"
+        }
+      ]
+    }
+  ],
+  "references": [
+    {
+      "label": "Spencer et al., Physically-Based Glare Effects for Digital Images (1995)",
+      "url": "https://papers.cumincad.org/data/works/att/0b96.content.pdf"
+    },
+    {
+      "label": "CIE 1931 Colour Matching Functions (2° Observer)",
+      "url": "https://cie.co.at/datatable/cie-1931-colour-matching-functions-2-degree-observer"
+    },
+    {
+      "label": "DOI: Physically-Based Glare Effects for Digital Images",
+      "url": "https://doi.org/10.1145/218380.218466"
+    }
+  ],
+  "closing": "将PSF预处理结果存储在Kernel texture中。每个Texel上由4种PSF结合，各种PSF又有各自进行加权和归一化。运行时使用随机采样减少卷积数达到实时效果。从光源到Bloom的计算均通过立体角进行相关联。"
+}

@@ -1,0 +1,304 @@
+{
+  "title": "Convolution Bloom の PSF/Kernel 計算：Kernel Texture の生成から畳み込みまで",
+  "abstract": "立体角で正規化した PSF を構築し、サンプリングした光源輝度を Bloom 効果として拡散する方法。",
+  "category": "ポストプロセスレンダリング",
+  "imageAlt": "PSF/Kernel Texture を事前計算し、ランタイムで累積して得られる Bloom 結果",
+  "lede": "このパイプラインは、事前計算した PSF の結果を Kernel Texture に保存します。各 Texel は、それぞれ個別に重み付けと正規化を行った 4 種類の PSF を合成します。ランタイムでは、ランダムサンプリングによって畳み込み回数を削減し、リアルタイム処理を実現します。この手法では高速畳み込みに FFT を使用していません。",
+  "sections": [
+    {
+      "heading": "テクスチャ空間を視角へマッピングする",
+      "paragraphs": [
+        "点像分布関数 PSF は視角に基づいて評価されます。そのため、Kernel Texture の各 Texel について視角 θ を計算する必要があります。",
+        "一般に Kernel Texture のアスペクト比は 1:1 です。テクスチャ解像度を N とすると、幅と高さの半分を半径 H_tex = (N − 1) / 2 とし、最大視角 θ_max を入力として指定できるようにします。得られた仮想焦点距離を使うことで、各 Texel の位置を視角 θ にマッピングできます。"
+      ],
+      "equations": [
+        {
+          "label": "角度マッピング",
+          "terms": [
+            "f は焦点距離で、視点から像面までの距離です。",
+            "x と y はテクスチャ中心からのオフセットで、θ は視角です。",
+            "x と y の原点はテクスチャ中心です。",
+            "θ は視角です。"
+          ]
+        },
+        {
+          "label": "Texel の立体角積分",
+          "terms": [
+            "J_Ω は仮想投影における立体角の Jacobian です。",
+            "Ω_texel は Texel 面積に対する立体角積分です。その面積が受け取る方向強度の総量を計算するために必要です。"
+          ]
+        },
+        {
+          "label": "1 つの Texel 内のエネルギー積分",
+          "terms": [
+            "Ω_texel と F(θ) を組み合わせることで、1 つの Texel 内のエネルギー積分が得られます。",
+            "F(θ) は PSF です。",
+            "Δx と Δy はサンプルの幅と高さで、Texel の各辺をサンプル数で割って求めます。Kernel の中心部では急激に減衰するため 100 回以上のサンプリングが必要ですが、それ以外の領域では 10 回以下で十分です。",
+            "w は台形積分の重みです。Texel の境界から中心へ向かうほど大きくなります。",
+            "重みの例：",
+            "0.25 ---- 0.5 ---- 0.5 ---- 0.25",
+            " |          |        |          |",
+            "0.5  ---- 1.0 ---- 1.0 ---- 0.5",
+            " |          |        |          |",
+            "0.5  ---- 1.0 ---- 1.0 ---- 0.5",
+            " |          |        |          |",
+            "0.25 ---- 0.5 ---- 0.5 ---- 0.25"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "4 種類の PSF",
+      "paragraphs": [
+        "Spencer et al. が提案した物理モデル（参考資料 1）に基づき、Kernel Texture は中心、内側、外側、波長依存の色収差という 4 種類の PSF を合成します。"
+      ],
+      "equations": [
+        {
+          "label": "中心",
+          "terms": ["光源領域。"]
+        },
+        {
+          "label": "内側",
+          "terms": ["急速に減衰します。"]
+        },
+        {
+          "label": "外側",
+          "terms": ["より緩やかに、遠距離まで拡散します。"]
+        },
+        {
+          "label": "波長依存の色収差",
+          "terms": [
+            "λ は nanometres 単位です。",
+            "この式では 400 nm から 700 nm までの波長をサンプリングします。"
+          ]
+        },
+        {
+          "label": "スペクトルカラー",
+          "terms": [
+            "CIE 等色関数（参考資料 2）を使って各波長を色へ変換します。",
+            "続いて、次の式で XYZ color space から linear RGB color space へ変換します。",
+            "R = max(3.2406X − 1.5372Y − 0.4986Z, 0).",
+            "G = max(−0.9689X + 1.8758Y + 0.0415Z, 0).",
+            "B = max(0.0557X − 0.2040Y + 1.0570Z, 0)."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "エネルギーを減衰させて正規化する",
+      "paragraphs": [
+        "観察距離によって受け取る光強度は大きく変化します。どの位置から見ても拡散が自然で均一に見えるように、Kernel を正規化します。"
+      ],
+      "equations": [
+        {
+          "label": "最初の 3 種類の PSF の正規化",
+          "terms": [
+            "k は PSF の種類を表します。",
+            "p は Texel を表します。"
+          ]
+        },
+        {
+          "label": "色収差 PSF の正規化",
+          "terms": [
+            "色収差では比率、つまり色を維持するため、すべての RGB 成分を同じ値で割る必要があります。ここでは Y 成分を使用します。"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "ストリークを追加する",
+      "paragraphs": [
+        "光が目に入ると、まつ毛による遮蔽でストリークが生じます。実際には、視角に応じて本数、長さ、方向が動的に変化します。ここでは単純なストリークで近似します。"
+      ],
+      "equations": [
+        {
+          "label": "Texel とストリークの視角差",
+          "terms": [
+            "p は Texel の位置です。",
+            "d はストリークの方向です。",
+            "a はストリーク方向に沿った Texel の投影距離です。",
+            "d⊥ は Texel からストリークまでの垂直距離です。",
+            "f は焦点距離で、視点から像面までの距離です。",
+            "δ はストリークと Texel の視角差です。",
+            "ストリークが寄与するのは a > 0 の場合だけです。"
+          ]
+        },
+        {
+          "label": "Mask の計算",
+          "terms": [
+            "w はストリークの角度幅です。",
+            "w_inner はストリーク中心の高輝度領域の角度幅です。",
+            "RandomIntensity_j はストリークのランダム強度です。",
+            "Coverage_j はストリークのカバレッジです。",
+            "M_raw(p) は正規化前の Mask 値です。",
+            "M(p) は最終的な Mask 値です。"
+          ]
+        },
+        {
+          "label": "PSF にストリークを適用する",
+          "terms": [
+            "F₁ と F₂ は同じストリークを使用し、F₃ は別のストリークを使用します。"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "立体角あたりのエネルギー密度",
+      "paragraphs": [
+        "Kernel Texture のサイズは固定されているため、解像度が変わっても視覚結果を一貫させるには、各 Texel の立体角あたりのエネルギー密度を計算する必要があります。"
+      ],
+      "equations": [
+        {
+          "label": "立体角あたりのエネルギー密度",
+          "terms": [
+            "Ω_texel,p は Texel の立体角積分です。",
+            "Ê_k,p は正規化後のエネルギーです。",
+            "P は立体角あたりのエネルギー密度で、単位は sr⁻¹ です。"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "視覚順応の重みを適用する",
+      "paragraphs": [
+        "参考資料 1 に基づき、4 種類の PSF の結果を昼間、薄明、夜間という視覚順応状態に応じて重み付けします。"
+      ],
+      "technicalTables": [
+        {
+          "columns": ["State", "w₀", "w₁", "w₂", "w₃"],
+          "rows": [
+            ["Photopic", "0.384", "0.478", "0.138", "0"],
+            ["Mesopic", "0.368", "0.478", "0.138", "0.016"],
+            ["Scotopic", "0.282", "0.478", "0.207", "0.033"]
+          ]
+        }
+      ],
+      "equations": [
+        {
+          "label": "最終的な Kernel の結果",
+          "terms": [
+            "実装上、Kernel の境界は強制的に 0 にします。"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "各高輝度光源をサンプリングする",
+      "paragraphs": [
+        "全画面の畳み込みは負荷が高すぎるため、各ライトを直接走査し、その位置の周囲にある高輝度光源点をサンプリングします。"
+      ],
+      "equations": [
+        {
+          "label": "サンプリング",
+          "terms": [
+            "frac は小数部分だけを残します。RadicalInverse(i) は Halton sequence で使う逆関数で、より均一な分布を生成します。rotation はランダムな回転角です。",
+            "Rectangle light: q = (2u − 1, 2v − 1).",
+            "Ellipse light: q = √u(cos 2πv, sin 2πv)."
+          ]
+        },
+        {
+          "label": "サンプル位置",
+          "terms": [
+            "p_light はライトの screen-space 位置です。",
+            "q は上で求めたサンプル位置です。",
+            "サンプル位置は Rectangle light または Ellipse light の内側に収まります。"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "光源面積で光源輝度を重み付けする",
+      "paragraphs": [
+        "光源は cd/m² 単位の輝度として保存されます。サンプリング後も、各サンプルの輝度合計が元の輝度と等しくなる必要があります。そのため色の比率を維持したまま、各サンプルが screen space で占める光源面積に応じて重み付けします。"
+      ],
+      "equations": [
+        {
+          "label": "screen-space の光源面積",
+          "terms": [
+            "R_x は半幅、R_y は半高です。",
+            "U_x は screen-space の右向き unit vector、U_y は上向き unit vector です。",
+            "A_axis は投影された 2 本の半軸が作る平行四辺形の面積です。これを変換して Rectangle light または Ellipse light の面積を求めます。",
+            "A_sample は 1 サンプルが screen space で占める面積です。"
+          ]
+        },
+        {
+          "label": "面積で重み付けしたサンプル値",
+          "terms": [
+            "L_RGB は光源の色比率です。"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "ランタイムで視角を維持する",
+      "paragraphs": [
+        "Kernel Texture のサイズは固定されているため、サンプリング方法を viewport の投影と解像度に応じて変える必要があります。"
+      ],
+      "equations": [
+        {
+          "label": "Kernel の screen-space UV 半サイズ",
+          "terms": [
+            "θ_max は Kernel の最大視角です。",
+            "P_x と P_y は projection matrix の水平および垂直スケールです。",
+            "h_u と h_v は Kernel の screen-space UV 半サイズです。これにより、サンプリングに使う Kernel Texture と viewport のマッピングが得られます。"
+          ]
+        },
+        {
+          "label": "出力先 pixel の立体角",
+          "terms": [
+            "W_view と H_view は viewport の解像度です。"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "累積して合成する",
+      "paragraphs": [
+        "サンプリングした各光源点は、カバーするすべての pixel へ輝度を拡散します。"
+      ],
+      "equations": [
+        {
+          "label": "サンプリングした各光源点の寄与",
+          "terms": [
+            "g は結果の輝度を制御する入力パラメータです。",
+            "W_sample,i は上で求めたサンプル輝度です。",
+            "PSF(u_i,p) は Kernel のサンプリング結果であり、エネルギー密度を表します。",
+            "Ω_pixel は立体角です。",
+            "L_PSF は最終的な Bloom 値です。"
+          ]
+        },
+        {
+          "label": "最終合成",
+          "terms": [
+            "Bloom の結果を HDR の結果と合成します。"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "最終的な Bloom 結果",
+      "paragraphs": [
+        "このフレームは、サンプリングした光源の寄与を累積し、HDR scene と合成した後のランタイム出力です。明るい光源はコンパクトな中心を保ち、その周囲に PSF による広く滑らかなグレアが形成されています。"
+      ],
+      "figures": [
+        {
+          "src": "/content/blog/Convolution Bloom PSF - Kernel Computation - From Kernel Texture Generation to Convolution/final-bloom-result.png",
+          "alt": "暗い背景の中で、明るい円形光源の周囲に広い PSF Bloom が生じているランタイムフレーム",
+          "caption": "3839 × 2038 解像度、光源サンプル数 N_s = 30 での最終的なランタイム Bloom 結果。キャプチャ時のパフォーマンス表示は 42.44 FPS、23.56 ms です。"
+        }
+      ]
+    }
+  ],
+  "references": [
+    {
+      "label": "Spencer et al., Physically-Based Glare Effects for Digital Images (1995)"
+    },
+    {
+      "label": "CIE 1931 Colour Matching Functions (2° Observer)"
+    },
+    {
+      "label": "DOI: Physically-Based Glare Effects for Digital Images"
+    }
+  ],
+  "closing": "事前計算した PSF の結果を Kernel Texture に保存し、各 Texel で個別に重み付けと正規化を行った 4 種類の PSF を合成します。ランタイムでは、ランダムサンプリングで畳み込み回数を削減し、リアルタイムの Bloom 効果を実現します。光源から最終的な Bloom までを一貫して結び付けるのが立体角です。"
+}

@@ -1,0 +1,318 @@
+{
+  "slug": "angular-psf-glare-pipeline",
+  "title": "Convolution Bloom PSF/Kernel Computation: From Kernel Texture Generation to Convolution",
+  "abstract": "How to build a solid-angle-normalized PSF and spread sampled source luminance into a Bloom effect.",
+  "category": "Post-processing rendering",
+  "publishedAt": "2026-08-10",
+  "image": "/content/blog/Convolution Bloom PSF - Kernel Computation - From Kernel Texture Generation to Convolution/angular-psf-glare.svg",
+  "imageAlt": "A PSF/Kernel Texture precomputed and accumulated into a Bloom result at runtime",
+  "lede": "The pipeline stores the precomputed PSF result in a Kernel Texture. Each Texel combines four PSFs, each with its own weighting and normalization. At runtime, randomized sampling reduces the number of convolution operations enough for real-time rendering. This approach does not use an FFT for fast convolution.",
+  "sections": [
+    {
+      "heading": "Map texture space to visual angle",
+      "paragraphs": [
+        "A point spread function, or PSF, is evaluated by visual angle. The visual angle θ therefore needs to be calculated for every Texel in the Kernel Texture.",
+        "A Kernel Texture generally has a 1:1 aspect ratio. For texture resolution N, use half its width and height as the radius H_tex = (N − 1) / 2, and expose the maximum visual angle θ_max as an input. The resulting virtual focal length maps every Texel position to a visual angle θ."
+      ],
+      "equations": [
+        {
+          "label": "Angle mapping",
+          "expression": "f = H_tex / tan(θ_max)\nr = √(x² + y²)\nθ = atan(r / f) × 180° / π",
+          "terms": [
+            "f is the focal length, measured from the viewpoint to the image plane.",
+            "x and y are offsets from the texture center, and θ is the visual angle.",
+            "The origin of x and y is the texture center.",
+            "θ is the visual angle."
+          ]
+        },
+        {
+          "label": "Texel solid-angle integral",
+          "expression": "J_Ω(x, y) = f / (f² + x² + y²)^(3/2)\nΩ_texel = ∫_texel J_Ω(x, y) dxdy",
+          "terms": [
+            "J_Ω is the solid-angle Jacobian of the virtual projection.",
+            "Ω_texel is the solid-angle integral over the Texel area. It is required to compute the total directional intensity received by that area."
+          ]
+        },
+        {
+          "label": "Energy integral within one Texel",
+          "expression": "E = F(θ)Ω_texel\nE = Σ F(θ) × J_Ω × w_x × w_y × Δx × Δy",
+          "terms": [
+            "Combining Ω_texel with F(θ) gives the energy integral within one Texel.",
+            "F(θ) is the PSF.",
+            "Δx and Δy are the sample width and height, obtained by dividing the Texel dimensions by the sample count. Because the Kernel falls off sharply at its center, that region needs at least 100 samples; elsewhere, 10 or fewer samples are sufficient.",
+            "w is the trapezoidal-integration weight. It increases from the Texel boundary toward the center.",
+            "Example weights:",
+            "0.25 ---- 0.5 ---- 0.5 ---- 0.25",
+            " |          |        |          |",
+            "0.5  ---- 1.0 ---- 1.0 ---- 0.5",
+            " |          |        |          |",
+            "0.5  ---- 1.0 ---- 1.0 ---- 0.5",
+            " |          |        |          |",
+            "0.25 ---- 0.5 ---- 0.5 ---- 0.25"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Four PSFs",
+      "paragraphs": [
+        "Following the physical model proposed by Spencer et al. (Reference 1), the Kernel Texture combines four PSFs: central, inner, outer, and wavelength-dependent chromatic aberration."
+      ],
+      "equations": [
+        {
+          "label": "Central",
+          "expression": "F₀(θ) = 2.61 × 10⁶ × exp[−(θ / 0.02)²]",
+          "terms": ["The light-source region."]
+        },
+        {
+          "label": "Inner",
+          "expression": "F₁(θ) = 20.91 / (θ + 0.02)³",
+          "terms": ["Rapid falloff."]
+        },
+        {
+          "label": "Outer",
+          "expression": "F₂(θ) = 72.37 / (θ + 0.02)²",
+          "terms": ["Slower, longer-range spread."]
+        },
+        {
+          "label": "Wavelength-dependent chromatic aberration",
+          "expression": "θ_peak(λ) = 3° × λ / 568\nF₃(θ, λ) = 436.9 × (568 / λ) × exp[−19.75(θ − θ_peak)²]",
+          "terms": [
+            "λ is measured in nanometres.",
+            "The expression samples wavelengths from 400 nm to 700 nm."
+          ]
+        },
+        {
+          "label": "Spectral color",
+          "expression": "XYZ(θ) = ∫₄₀₀⁷⁰⁰ CIE(λ) × F₃(θ, λ) dλ",
+          "terms": [
+            "The CIE color-matching functions (Reference 2) convert each wavelength into color.",
+            "The following formulas then convert XYZ color space to linear RGB color space.",
+            "R = max(3.2406X − 1.5372Y − 0.4986Z, 0).",
+            "G = max(−0.9689X + 1.8758Y + 0.0415Z, 0).",
+            "B = max(0.0557X − 0.2040Y + 1.0570Z, 0)."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Fade and normalize the energy",
+      "paragraphs": [
+        "The received light intensity varies greatly with viewing distance. The Kernel is normalized so that its spread remains natural and uniform regardless of the viewing position."
+      ],
+      "equations": [
+        {
+          "label": "Normalization of the first three PSFs",
+          "expression": "Ê_k,p = E_k,p / Σ_p E_k,p,  k ∈ {0, 1, 2}",
+          "terms": ["k identifies the PSF.", "p identifies the Texel."]
+        },
+        {
+          "label": "Normalization of the chromatic-aberration PSF",
+          "expression": "Y_p = 0.2126R + 0.7152G + 0.0722B\nÊ₃,p = E₃,p / Σ_p Y_p",
+          "terms": [
+            "Chromatic aberration must divide every RGB component by the same value so that their ratio, and therefore the color, remains unchanged. The Y component is used here."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Add streaks",
+      "paragraphs": [
+        "When light enters the eye, eyelashes can occlude it and produce streaks. In reality, their count, length, and direction change with the viewing angle. This implementation uses simple streaks as an approximation."
+      ],
+      "equations": [
+        {
+          "label": "Visual-angle difference from a Texel to a streak",
+          "expression": "a = p · d\nd_⊥ = |p_xd_y − p_yd_x|\nδ = asin[d_⊥ / √(|p|² + f²)] × 180° / π",
+          "terms": [
+            "p is the Texel position.",
+            "d is the streak direction.",
+            "a is the projected distance from the Texel along the streak.",
+            "d⊥ is the perpendicular distance from the Texel to the streak.",
+            "f is the focal length, measured from the viewpoint to the image plane.",
+            "δ is the visual-angle difference between the streak and the Texel.",
+            "A streak contributes only when a > 0."
+          ]
+        },
+        {
+          "label": "Mask computation",
+          "expression": "w_inner = 0.2w\nCoverage = 1 − smoothstep(w_inner, w, δ)\nM_raw(p) = Σ_j Coverage_j × RandomIntensity_j\nM(p) = lerp[1, clamp(M_raw(p), 0, 4), 0.25]",
+          "terms": [
+            "w is the angular width of the streak.",
+            "w_inner is the angular width of the highlighted center of the streak.",
+            "RandomIntensity_j is the random intensity of a streak.",
+            "Coverage_j is the coverage of a streak.",
+            "M_raw(p) is the unnormalized Mask value.",
+            "M(p) is the final Mask value."
+          ]
+        },
+        {
+          "label": "Apply streaks to the PSFs",
+          "expression": "F₁ ← F₁M_corona\nF₂ ← F₂M_corona\nF₃ ← F₃M_halo",
+          "terms": ["F₁ and F₂ use the same streaks, while F₃ uses a separate set."]
+        }
+      ]
+    },
+    {
+      "heading": "Energy density per solid angle",
+      "paragraphs": [
+        "Because the Kernel Texture has a fixed size, the solid-angle energy density of each Texel must be calculated to keep the visual result consistent across resolutions."
+      ],
+      "equations": [
+        {
+          "label": "Energy density per solid angle",
+          "expression": "P_k,p = Ê_k,p / Ω_texel,p",
+          "terms": [
+            "Ω_texel,p is the Texel solid-angle integral.",
+            "Ê_k,p is the normalized energy.",
+            "P is the energy density per solid angle, measured in sr⁻¹."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Apply visual-adaptation weights",
+      "paragraphs": [
+        "According to Reference 1, the four PSF results are weighted by the visual-adaptation state: daylight, twilight, or night."
+      ],
+      "technicalTables": [
+        {
+          "columns": ["State", "w₀", "w₁", "w₂", "w₃"],
+          "rows": [
+            ["Photopic", "0.384", "0.478", "0.138", "0"],
+            ["Mesopic", "0.368", "0.478", "0.138", "0.016"],
+            ["Scotopic", "0.282", "0.478", "0.207", "0.033"]
+          ]
+        }
+      ],
+      "equations": [
+        {
+          "label": "Final Kernel result",
+          "expression": "Core = w₀P₀\nCorona = w₁P₁ + w₂P₂\nHalo_RGB = w₃P₃,RGB\nPSF_RGB = EnergyScale × [(Core + Corona)(1, 1, 1) + Halo_RGB]",
+          "terms": ["In the implementation, the Kernel boundary is forced to zero."]
+        }
+      ]
+    },
+    {
+      "heading": "Sample each bright source",
+      "paragraphs": [
+        "A full-screen convolution is too expensive, so the implementation iterates over each light and samples bright source points around its position."
+      ],
+      "equations": [
+        {
+          "label": "Sampling",
+          "expression": "u = (i + 0.5) / N_s\nv = frac[RadicalInverse(i) + rotation]",
+          "terms": [
+            "frac retains only the fractional part, RadicalInverse(i) is the inverse function used for the Halton sequence to produce a more uniform distribution, and rotation is a random rotation angle.",
+            "Rectangle light: q = (2u − 1, 2v − 1).",
+            "Ellipse light: q = √u(cos 2πv, sin 2πv)."
+          ]
+        },
+        {
+          "label": "Sample position",
+          "expression": "p_sample = p_light + q",
+          "terms": [
+            "p_light is the screen-space position of the light.",
+            "q is the sample position defined above.",
+            "The sample position remains inside the rectangle or ellipse light."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Weight source luminance by source area",
+      "paragraphs": [
+        "The light source is stored as luminance in cd/m². After sampling, the total luminance of the samples must equal the original luminance. While preserving the color ratio, each sample is therefore weighted by the light-source area it covers in screen space."
+      ],
+      "equations": [
+        {
+          "label": "Screen-space light-source area",
+          "expression": "A_axis = |R_xU_y − R_yU_x|\nA_rectangle = 4A_axis\nA_ellipse = πA_axis\nA_sample = A_emitter / N_s",
+          "terms": [
+            "R_x is the half-width, and R_y is the half-height.",
+            "U_x is the screen-space right unit vector, and U_y is the screen-space up unit vector.",
+            "A_axis is the parallelogram area formed by the two projected half-axes. It is converted into the area of a rectangle or ellipse light.",
+            "A_sample is the screen-space area represented by one sample."
+          ]
+        },
+        {
+          "label": "Area-weighted sample value",
+          "expression": "W_sample = L_RGB × A_sample",
+          "terms": ["L_RGB is the color ratio of the light source."]
+        }
+      ]
+    },
+    {
+      "heading": "Preserve visual angle at runtime",
+      "paragraphs": [
+        "The Kernel Texture has a fixed size, so its sampling must change with viewport projection and resolution."
+      ],
+      "equations": [
+        {
+          "label": "Kernel screen-space UV half-size",
+          "expression": "h_u = 0.5 × tan(θ_max) × P_x\nh_v = 0.5 × tan(θ_max) × P_y",
+          "terms": [
+            "θ_max is the maximum visual angle of the Kernel.",
+            "P_x and P_y are the horizontal and vertical projection-matrix scales.",
+            "h_u and h_v are the screen-space UV half-sizes of the Kernel. They define the mapping between the Kernel Texture and the viewport for sampling."
+          ]
+        },
+        {
+          "label": "Destination-pixel solid angle",
+          "expression": "Ω_pixel = 4 / (W_view × H_view × P_x × P_y)",
+          "terms": ["W_view and H_view are the viewport resolution dimensions."]
+        }
+      ]
+    },
+    {
+      "heading": "Accumulate and composite",
+      "paragraphs": ["Each sampled source point spreads luminance to every covered pixel."],
+      "equations": [
+        {
+          "label": "Contribution of each sampled source point",
+          "expression": "ΔL_i,p = W_sample,i × PSF(u_i,p) × Ω_pixel × g\nL_PSF,p = Σ_lights Σ_samples ΔL_i,p",
+          "terms": [
+            "g is an input parameter that controls the output luminance.",
+            "W_sample,i is the sample luminance calculated above.",
+            "PSF(u_i,p) is the sampled Kernel result, expressed as energy density.",
+            "Ω_pixel is the solid angle.",
+            "L_PSF is the final Bloom value."
+          ]
+        },
+        {
+          "label": "Final composite",
+          "expression": "C_final = C_scene + L_PSF",
+          "terms": ["The Bloom result is composited with the HDR result."]
+        }
+      ]
+    },
+    {
+      "heading": "Final Bloom result",
+      "paragraphs": [
+        "This frame shows the runtime output after the sampled source contributions have been accumulated and composited with the HDR scene. The bright source retains a compact core while the PSF produces a broad, smooth glare around it."
+      ],
+      "figures": [
+        {
+          "src": "/content/blog/Convolution Bloom PSF - Kernel Computation - From Kernel Texture Generation to Convolution/final-bloom-result.png",
+          "alt": "Runtime frame showing a bright circular source surrounded by a broad PSF Bloom against a dark background",
+          "caption": "Final runtime Bloom result at 3839 × 2038 resolution with a source sample count of N_s = 30. The captured performance overlay reports 42.44 FPS and 23.56 ms."
+        }
+      ]
+    }
+  ],
+  "references": [
+    {
+      "label": "Spencer et al., Physically-Based Glare Effects for Digital Images (1995)",
+      "url": "https://papers.cumincad.org/data/works/att/0b96.content.pdf"
+    },
+    {
+      "label": "CIE 1931 Colour Matching Functions (2° Observer)",
+      "url": "https://cie.co.at/datatable/cie-1931-colour-matching-functions-2-degree-observer"
+    },
+    {
+      "label": "DOI: Physically-Based Glare Effects for Digital Images",
+      "url": "https://doi.org/10.1145/218380.218466"
+    }
+  ],
+  "closing": "The precomputed PSF result is stored in a Kernel Texture, where each Texel combines four independently weighted and normalized PSFs. At runtime, randomized sampling reduces the convolution count enough for a real-time Bloom effect. Solid angle provides the consistent link from the light source to the final Bloom result."
+}
