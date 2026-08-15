@@ -1,5 +1,5 @@
 {
-  "id": "95cb3946-b243-455c-83fe-d415c3d1e9b4",
+  "id": "c4e056ec-6963-4e85-929a-0fa3ded11582",
   "uid": "a4238a3f95f74a2e8e463f2bd507d5fa13b28c3cb662c0f22809115ed6873580",
   "url": "https://www.khronos.org/blog/opencl-cooperative-matrix-extensions-are-here",
   "canonicalUrl": "https://www.khronos.org/blog/opencl-cooperative-matrix-extensions-are-here",
@@ -9,6 +9,6 @@
   "subtitle": "The OpenCL Working Group has published a draft extension (cl_khr_cooperative_matrix) that brings cooperative matrix operations—a key technology for accelerating ML inference—to OpenCL, developed in collaboration with Arm, Intel, and Qualcomm. A companion extension to expose these capabilities directly in the OpenCL C language is also in progress, and the community is invited to review both drafts and provide feedback before they are finalized.",
   "imageUrl": "https://www.khronos.org/images/jcogs_img/cache/opencl_banner_1400x600_-_28de80_-_ade52cc9e2371411e2f6a5e18fb8664a9767175d.jpg",
   "publishedAt": "2026-04-29T13:00:00.000Z",
-  "firstSeenAt": "2026-08-14T02:25:39.359Z",
-  "lastSeenAt": "2026-08-14T02:25:39.359Z"
+  "firstSeenAt": "2026-08-14T21:21:10.486Z",
+  "lastSeenAt": "2026-08-14T21:21:10.486Z"
 }
