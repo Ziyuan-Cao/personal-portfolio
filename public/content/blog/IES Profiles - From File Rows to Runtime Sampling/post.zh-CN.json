@@ -137,13 +137,13 @@
     }
   ],
   "references": [
-    {"label": "Illuminating Engineering Society: ANSI/IES LM-63 standard listing"},
-    {"label": "Epic Games: Using IES Light Profiles"},
-    {"label": "Epic Games API: UTextureLightProfile"},
-    {"label": "Epic Games API: FIESConverter"},
-    {"label": "Unreal Engine 4.22 source: IESLoader.cpp"},
-    {"label": "CIE International Lighting Vocabulary: luminous intensity"},
-    {"label": "CIE International Lighting Vocabulary: luminance"}
+    {"label": "Illuminating Engineering Society: ANSI/IES LM-63 standard listing", "url": "https://store.ies.org/product/approved-method-ies-standard-file-format-for-the-electronic-transfer-of-photometric-data-and-related-information/"},
+    {"label": "Epic Games: Using IES Light Profiles", "url": "https://dev.epicgames.com/documentation/unreal-engine/using-ies-light-profiles-in-unreal-engine?lang=en-US"},
+    {"label": "Epic Games API: UTextureLightProfile", "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Engine/UTextureLightProfile"},
+    {"label": "Epic Games API: FIESConverter", "url": "https://dev.epicgames.com/documentation/unreal-engine/API/Runtime/IESFile/FIESConverter"},
+    {"label": "Unreal Engine 4.22 source: IESLoader.cpp", "url": "https://github.com/folgerwang/UnrealEngine/blob/release/Engine/Source/Editor/UnrealEd/Private/Factories/IESLoader.cpp"},
+    {"label": "CIE International Lighting Vocabulary: luminous intensity", "url": "https://cie.co.at/eilvterm/17-21-045"},
+    {"label": "CIE International Lighting Vocabulary: luminance", "url": "https://www.cie.co.at/eilvterm/17-21-050"}
   ],
   "closing": "LM-63 提供 I(θ, φ)，自定义 Texture保存方向强度cd，运行时利用方向进行采样。"
 }
