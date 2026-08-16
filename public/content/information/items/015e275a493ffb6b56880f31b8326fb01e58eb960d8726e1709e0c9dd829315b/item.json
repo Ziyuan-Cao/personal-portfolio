@@ -1,5 +1,5 @@
 {
-  "id": "6009277f-3804-4593-bcf4-142bf43a5d5a",
+  "id": "0c5d2268-41ca-4384-97c3-91494e5b9daa",
   "uid": "015e275a493ffb6b56880f31b8326fb01e58eb960d8726e1709e0c9dd829315b",
   "url": "https://blog.iclr.cc/2025/12/03/iclr-2026-response-to-security-incident",
   "canonicalUrl": "https://blog.iclr.cc/2025/12/03/iclr-2026-response-to-security-incident",
@@ -9,6 +9,6 @@
   "subtitle": "This post is an update on a major security incident in the ICLR 2026 peer review process and our response. A quick overview of timeline and activities related to the security incident is as follows: On Nov 27, ICLR was notified of an OpenReview API exploit capable of leaking the otherwise anonymous names of authors, […]",
   "imageUrl": null,
   "publishedAt": "2025-12-03T15:30:50.000Z",
-  "firstSeenAt": "2026-08-16T05:38:46.242Z",
-  "lastSeenAt": "2026-08-16T05:38:46.242Z"
+  "firstSeenAt": "2026-08-16T10:07:54.834Z",
+  "lastSeenAt": "2026-08-16T10:07:54.834Z"
 }
