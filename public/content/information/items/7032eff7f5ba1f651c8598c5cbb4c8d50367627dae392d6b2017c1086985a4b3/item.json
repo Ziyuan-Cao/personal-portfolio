@@ -1,5 +1,5 @@
 {
-  "id": "dfd396eb-b36d-454b-9f32-9ebb095c459a",
+  "id": "c1b70ff0-eb6e-4c83-b556-4f2afbf68bc7",
   "uid": "7032eff7f5ba1f651c8598c5cbb4c8d50367627dae392d6b2017c1086985a4b3",
   "url": "https://www.khronos.org/blog/vulkan-sc-sdk-released-an-integrated-toolchain-for-vulkan-safety-critical-development",
   "canonicalUrl": "https://www.khronos.org/blog/vulkan-sc-sdk-released-an-integrated-toolchain-for-vulkan-safety-critical-development",
@@ -9,6 +9,6 @@
   "subtitle": "Developers building safety-critical applications can now get started with Vulkan® SC faster than ever. The new Vulkan SC SDK is a simpler way to install and use a comprehensive set of tools and utilities to leverage the Vulkan SC ecosystem. With installers for Linux and Windows, the SDK makes it easy for developers to get up and running quickly, whether they are just getting started with Vulkan SC or building on existing deployments.",
   "imageUrl": "https://www.khronos.org/images/jcogs_img/cache/2026-blog-vulkansc-banner_-_28de80_-_ade52cc9e2371411e2f6a5e18fb8664a9767175d.png",
   "publishedAt": "2026-05-06T13:00:00.000Z",
-  "firstSeenAt": "2026-08-16T10:07:32.897Z",
-  "lastSeenAt": "2026-08-16T10:07:32.897Z"
+  "firstSeenAt": "2026-08-16T21:15:51.631Z",
+  "lastSeenAt": "2026-08-16T21:15:51.631Z"
 }
