@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
-  <title id="title">What Rendering Actually Does: a 30-part source guide</title>
+  <title id="title">What Rendering Actually Does: a 34-part source guide</title>
   <desc id="desc">Four connected rendering parts move from scene creation through visibility and light transport to post-processing and display, with three sources attached to every keyword.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#07121f"/><stop offset="0.55" stop-color="#10253a"/><stop offset="1" stop-color="#08141f"/></linearGradient>
@@ -9,7 +9,7 @@
   <rect width="1600" height="900" rx="42" fill="url(#bg)"/>
   <g opacity=".16" stroke="#a7c7e7" stroke-width="1"><path d="M80 150H1520M80 300H1520M80 450H1520M80 600H1520M80 750H1520"/><path d="M200 80V820M500 80V820M1100 80V820M1400 80V820"/></g>
   <text x="110" y="128" fill="#e8f3ff" font-family="Inter,Segoe UI,sans-serif" font-size="48" font-weight="700">WHAT RENDERING ACTUALLY DOES</text>
-  <text x="110" y="176" fill="#8fb1cf" font-family="Inter,Segoe UI,sans-serif" font-size="24">30 keyword groups · 389 keyword entries · 3 sources for every keyword</text>
+  <text x="110" y="176" fill="#8fb1cf" font-family="Inter,Segoe UI,sans-serif" font-size="24">34 keyword groups · 444 keyword entries · 3 sources for every keyword</text>
   <path d="M230 445H1370" fill="none" stroke="url(#line)" stroke-width="9" stroke-linecap="round" filter="url(#glow)"/>
   <g font-family="Inter,Segoe UI,sans-serif">
     <g transform="translate(240 445)"><circle r="34" fill="#5eead4"/><text x="0" y="8" text-anchor="middle" fill="#06211e" font-size="24" font-weight="700">01</text><text x="0" y="-75" text-anchor="middle" fill="#dcfffa" font-size="21" font-weight="700">SCENE CREATION</text><text x="0" y="78" text-anchor="middle" fill="#9fc9c3" font-size="17">representation · assets · terrain</text></g>

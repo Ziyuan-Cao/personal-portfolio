@@ -1,8 +1,42 @@
 {
-  "title": "レンダリングが実際に行うこと：30部構成のキーワード資料ガイド",
-  "abstract": "シーン作成からディスプレイ表示までを30組のレンダリング用語で整理し、すべてのキーワードに一次資料または公式資料を3件ずつ付けたガイドです。",
+  "title": "レンダリングが実際に行うこと：34部構成のキーワード資料ガイド",
+  "abstract": "シーン作成からディスプレイ表示までを34組のレンダリング用語で整理し、すべてのキーワードに一次資料または公式資料を3件ずつ付けたガイドです。",
   "category": "レンダリング・リサーチガイド",
-  "imageAlt": "シーン作成、可視性、光輸送、ディスプレイ出力にまたがる30のレンダリングトピック",
-  "lede": "提供された30部構成のレンダリング用語本文をそのまま保持し、各キーワードの下に一次研究、規範仕様、公式実装ドキュメントへのリンクを3件ずつ追加しています。",
-  "closing": "30部構成の用語集を研究マップへ変換しました。各キーワードから、その定義や実装を支える論文、仕様、プロダクション資料へ直接進めます。"
+  "imageAlt": "シーン作成、可視性、光輸送、ディスプレイ出力にまたがる34のレンダリングトピック",
+  "lede": "提供された30部構成のレンダリング用語本文をそのまま保持し、Hair、Fog、Water、Particleのライティングに焦点を当てた節を追加しました。各キーワードの下に一次研究、規範仕様、公式実装ドキュメントへのリンクを3件ずつ掲載しています。",
+  "sections": [
+    {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+    {
+      "heading": "Hair レンダリングとライティング",
+      "paragraphs": [
+        "Hair strands, hair cards, groom, fiber scattering, longitudinal roughness, azimuthal roughness, melanin absorption, primary highlight, secondary highlight, multiple scattering, deep opacity maps, hair transmittance, strand voxelization, hair self-shadowing.",
+        "Hairのライティングは、通常のsurface BRDFではなくfiber transportの問題です。プロダクションrendererはsub-pixel coverageを表現し、各strandの周囲でlongitudinal scatteringとazimuthal scatteringを評価し、melaninまたはアーティスト向けパラメータによるabsorptionをモデル化し、密なgroomを通るtransmissionとself-shadowingを維持する必要があります。"
+      ]
+    },
+    {}, {}, {}, {}, {}, {},
+    {
+      "heading": "Fog レンダリングとライティング",
+      "paragraphs": [
+        "Fog density, extinction coefficient, single scattering, multiple scattering, phase function, anisotropy, transmittance, froxel grid, volumetric shadowing, light shafts, temporal reprojection, local fog volume, heterogeneous volume, sparse volume texture.",
+        "Fogは、participating mediaがview rayに沿うradianceを減衰させ、環境から散乱した光を加えることで可視化されます。リアルタイムシステムは通常、このlight transportをcamera-aligned froxel gridへ離散化し、lightとshadowの情報を注入し、camera方向へ積分して、低解像度の結果をtemporal reprojectionで安定化します。"
+      ]
+    },
+    {}, {},
+    {
+      "heading": "Water surfaceとunderwater lighting",
+      "paragraphs": [
+        "Water BSDF, Fresnel reflection, Snell refraction, spectral absorption, volume scattering, phase function, surface normal spectrum, environment reflection, underwater lighting, refractive caustics, foam shading, single-layer water.",
+        "Waterのライティングはdielectric boundaryとparticipating mediumを結び付けます。surfaceはnormal distributionからreflection pathとrefraction pathを選び、水面下を進んだ距離がabsorption、in-scattering、underwater color、refractive causticsの可視性を決めます。"
+      ]
+    },
+    {
+      "heading": "Particle レンダリングとライティング",
+      "paragraphs": [
+        "Particle sprite, billboard, mesh particle, ribbon particle, GPU particle, particle material, soft particle, alpha blending, order-independent transparency, particle sorting, overdraw, lit translucency, particle self-shadowing, particle light, volumetric particle.",
+        "Particle simulationが提供するのはpositionとattributeであり、rendererはsprite、mesh、ribbon、light、volumetric representationのいずれかを選択します。透明Particleには、sortingまたは近似compositing、overdrawによる反復fragment処理、translucent media向けの低解像度lightingまたはshadow structureという三つの独立したコストがあります。"
+      ]
+    },
+    {}, {}, {}, {}, {}, {}, {}
+  ],
+  "closing": "30部構成の用語集を研究マップへ変換し、Hair、Fog、Water、Particleのライティングを追加しました。各キーワードから、その定義や実装を支える論文、仕様、プロダクション資料へ直接進めます。"
 }

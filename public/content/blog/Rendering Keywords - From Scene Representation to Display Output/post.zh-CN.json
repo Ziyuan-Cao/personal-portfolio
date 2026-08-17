@@ -1,8 +1,42 @@
 {
-  "title": "渲染实际做了什么：30部分关键词资料指南",
-  "abstract": "从场景创建到显示呈现的30组渲染关键词；每个关键词都附有三条原始研究或官方资料链接。",
+  "title": "渲染实际做了什么：34部分关键词资料指南",
+  "abstract": "从场景创建到显示呈现的34组渲染关键词；每个关键词都附有三条原始研究或官方资料链接。",
   "category": "渲染研究指南",
-  "imageAlt": "横跨场景创建、可见性、光传输与显示输出的30个渲染主题",
-  "lede": "本文完整保留所提供的30部分渲染术语正文，并在每个关键词下添加三条原始研究、规范标准或官方实现文档链接。",
-  "closing": "这些资料把30部分术语表变成一张研究地图：每个关键词都能直接通往定义或实现它的论文、规范和生产文档。"
+  "imageAlt": "横跨场景创建、可见性、光传输与显示输出的34个渲染主题",
+  "lede": "本文完整保留所提供的30部分渲染术语正文，并新增专门讨论Hair、Fog、Water与Particle光照的章节。每个关键词下都提供三条原始研究、规范标准或官方实现文档链接。",
+  "sections": [
+    {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+    {
+      "heading": "Hair渲染与光照",
+      "paragraphs": [
+        "Hair strands, hair cards, groom, fiber scattering, longitudinal roughness, azimuthal roughness, melanin absorption, primary highlight, secondary highlight, multiple scattering, deep opacity maps, hair transmittance, strand voxelization, hair self-shadowing.",
+        "Hair光照属于fiber transport问题，而不是普通的surface BRDF。生产级renderer需要表示sub-pixel coverage，计算每根strand周围的longitudinal scattering与azimuthal scattering，用melanin或美术参数描述absorption，并在密集groom中保留transmission与self-shadowing。"
+      ]
+    },
+    {}, {}, {}, {}, {}, {},
+    {
+      "heading": "Fog渲染与光照",
+      "paragraphs": [
+        "Fog density, extinction coefficient, single scattering, multiple scattering, phase function, anisotropy, transmittance, froxel grid, volumetric shadowing, light shafts, temporal reprojection, local fog volume, heterogeneous volume, sparse volume texture.",
+        "当participating media沿view ray衰减radiance，并加入从环境散射而来的光时，Fog才会显现。实时系统通常把这种light transport离散到camera-aligned froxel grid中，注入light与shadow信息，朝camera方向积分，再用temporal reprojection稳定低分辨率结果。"
+      ]
+    },
+    {}, {},
+    {
+      "heading": "Water surface与underwater lighting",
+      "paragraphs": [
+        "Water BSDF, Fresnel reflection, Snell refraction, spectral absorption, volume scattering, phase function, surface normal spectrum, environment reflection, underwater lighting, refractive caustics, foam shading, single-layer water.",
+        "Water光照把dielectric boundary与participating medium结合起来。surface依据normal distribution选择reflection path与refraction path，而光在水面下传播的距离决定absorption、in-scattering、underwater color以及refractive caustics的可见程度。"
+      ]
+    },
+    {
+      "heading": "Particle渲染与光照",
+      "paragraphs": [
+        "Particle sprite, billboard, mesh particle, ribbon particle, GPU particle, particle material, soft particle, alpha blending, order-independent transparency, particle sorting, overdraw, lit translucency, particle self-shadowing, particle light, volumetric particle.",
+        "Particle simulation只提供position与attribute；renderer仍需选择sprite、mesh、ribbon、light或volumetric representation。透明Particle会产生三类独立成本：sorting或近似compositing、overdraw带来的重复fragment工作，以及面向translucent media的低分辨率lighting或shadow structure。"
+      ]
+    },
+    {}, {}, {}, {}, {}, {}, {}
+  ],
+  "closing": "这些资料把原有30部分术语表扩展为研究地图，并加入Hair、Fog、Water与Particle光照。每个关键词都能直接通往定义或实现它的论文、规范和生产文档。"
 }

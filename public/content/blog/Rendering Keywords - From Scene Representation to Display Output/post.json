@@ -1,12 +1,12 @@
 {
   "slug": "rendering-keywords-scene-to-display",
   "title": "Rendering Keywords: From Scene Representation to Display Output",
-  "abstract": "Thirty rendering keyword groups, from scene creation to display presentation, with three primary or official sources attached to every keyword.",
+  "abstract": "Thirty-four rendering keyword groups, from scene creation to display presentation, with three primary or official sources attached to every keyword.",
   "category": "Rendering research guide",
   "publishedAt": "2026-08-17",
   "image": "/content/blog/Rendering Keywords - From Scene Representation to Display Output/rendering-keywords.svg",
-  "imageAlt": "Thirty rendering topics arranged across scene creation, visibility, light transport, and display output",
-  "lede": "This source guide preserves the supplied 30-part rendering vocabulary exactly. Under every keyword, it adds three links to primary research, normative specifications, or official implementation documentation.",
+  "imageAlt": "Thirty-four rendering topics arranged across scene creation, visibility, light transport, and display output",
+  "lede": "This source guide preserves the supplied 30-part rendering vocabulary exactly and adds focused sections on hair, fog, water, and particle lighting. Under every keyword, it provides three links to primary research, normative specifications, or official implementation documentation.",
   "sourceCatalog": {
     "s01a": {
       "label": "OpenUSD glossary",
@@ -451,6 +451,102 @@
     "s30c": {
       "label": "Vulkan Window System Integration",
       "url": "https://github.khronos.org/Vulkan-Site/spec/latest/chapters/VK_KHR_surface/wsi.html"
+    },
+    "hair01": {
+      "label": "A Data-Driven Light Scattering Model for Hair",
+      "url": "https://graphics.pixar.com/library/DataDrivenHairScattering/paper.pdf"
+    },
+    "hair02": {
+      "label": "A Practical and Controllable Hair and Fur Model for Production Path Tracing",
+      "url": "https://media.disneyanimation.com/uploads/production/publication_asset/177/asset/a.pdf"
+    },
+    "hair03": {
+      "label": "PBRT: Scattering from Hair",
+      "url": "https://pbr-book.org/4ed/Reflection_Models/Scattering_from_Hair"
+    },
+    "hair04": {
+      "label": "Unreal Engine Hair Rendering and Simulation",
+      "url": "https://dev.epicgames.com/documentation/unreal-engine/hair-rendering-and-simulation-in-unreal-engine?lang=en-US"
+    },
+    "hair05": {
+      "label": "Unreal Engine Groom Strands",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/groom-strands-in-unreal-engine"
+    },
+    "hair06": {
+      "label": "Unreal Engine Groom Scalability and Performance",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/groom-scalability-and-performance-with-unreal-engine"
+    },
+    "hair07": {
+      "label": "Importance Sampling of Reflections from Hair Fibers",
+      "url": "https://graphics.pixar.com/library/ImportanceSamplingHair/paper.pdf"
+    },
+    "water01": {
+      "label": "Elemental Characters: Bringing Water to Life",
+      "url": "https://graphics.pixar.com/library/ElementalWater/paper.pdf"
+    },
+    "water02": {
+      "label": "Caustic Connection Strategies for Bidirectional Path Tracing",
+      "url": "https://graphics.pixar.com/library/CausticConnections/paper.pdf"
+    },
+    "water03": {
+      "label": "Unreal Engine Single Layer Water Shading Model",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/single-layer-water-shading-model-in-unreal-engine"
+    },
+    "water04": {
+      "label": "Unreal Engine Water Surface Rendering",
+      "url": "https://dev.epicgames.com/documentation/unreal-engine/water-meshing-system-and-surface-rendering-in-unreal-engine?lang=en-US"
+    },
+    "fog01": {
+      "label": "Rendering Participating Media Using Path Graphs",
+      "url": "https://arxiv.org/abs/2404.11894"
+    },
+    "fog02": {
+      "label": "Unreal Engine Volumetric Fog",
+      "url": "https://dev.epicgames.com/documentation/unreal-engine/volumetric-fog-in-unreal-engine?lang=en-US"
+    },
+    "fog03": {
+      "label": "Unreal Engine Local Fog Volumes",
+      "url": "https://dev.epicgames.com/documentation/unreal-engine/local-fog-volumes-in-unreal-engine?lang=en-US"
+    },
+    "fog04": {
+      "label": "Unreal Engine Heterogeneous Volumes",
+      "url": "https://dev.epicgames.com/documentation/unreal-engine/heterogeneous-volumes-in-unreal-engine?lang=en-US"
+    },
+    "fog05": {
+      "label": "NeuralVDB",
+      "url": "https://research.nvidia.com/labs/prl/neuralvdb/neuralvdb2024.pdf"
+    },
+    "particle01": {
+      "label": "Neural Moment Transparency",
+      "url": "https://gtsopus.github.io/assets/files/Tsopouridis2024_NeuralMomentTransparency_Eurographics.pdf"
+    },
+    "particle02": {
+      "label": "Particle System in WebGPU",
+      "url": "https://www.cg.tuwien.ac.at/research/publications/2023/PETER-2023-PSW/"
+    },
+    "particle03": {
+      "label": "Unreal Engine Niagara Renderers",
+      "url": "https://dev.epicgames.com/documentation/unreal-engine/render-module-reference-for-niagara-effects-in-unreal-engine?lang=en-US"
+    },
+    "particle04": {
+      "label": "Unreal Engine Lit Translucency",
+      "url": "https://dev.epicgames.com/documentation/unreal-engine/lit-translucency-in-unreal-engine"
+    },
+    "particle05": {
+      "label": "Unreal Engine Particle Lights",
+      "url": "https://dev.epicgames.com/documentation/unreal-engine/how-to-create-particle-effects-that-emit-light-in-niagara-for-unreal-engine?lang=en-US"
+    },
+    "particle06": {
+      "label": "Unreal Engine Material Properties",
+      "url": "https://dev.epicgames.com/documentation/unreal-engine/unreal-engine-material-properties?lang=en-US"
+    },
+    "particle07": {
+      "label": "Attribute-Aware RBFs for Time-Series Particle Volumes",
+      "url": "https://doi.org/10.1109/TVCG.2023.3327366"
+    },
+    "particle08": {
+      "label": "Improved Moment Shadow Maps for Translucent Occluders",
+      "url": "https://jcgt.org/published/0006/01/03/"
     }
   },
   "sections": [
@@ -975,6 +1071,56 @@
       ]
     },
     {
+      "heading": "Hair rendering and lighting",
+      "paragraphs": [
+        "Hair strands, hair cards, groom, fiber scattering, longitudinal roughness, azimuthal roughness, melanin absorption, primary highlight, secondary highlight, multiple scattering, deep opacity maps, hair transmittance, strand voxelization, hair self-shadowing.",
+        "Hair lighting is a fiber-transport problem rather than an ordinary surface BRDF. A production renderer must represent sub-pixel coverage, evaluate longitudinal and azimuthal scattering around each strand, model absorption through melanin or artist parameters, and preserve transmission and self-shadowing through a dense groom."
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Hair strands",
+            "hair cards",
+            "groom"
+          ],
+          "sourceIds": [
+            "hair02",
+            "hair04",
+            "hair05"
+          ]
+        },
+        {
+          "keywords": [
+            "fiber scattering",
+            "longitudinal roughness",
+            "azimuthal roughness",
+            "melanin absorption",
+            "primary highlight",
+            "secondary highlight",
+            "multiple scattering"
+          ],
+          "sourceIds": [
+            "hair01",
+            "hair03",
+            "hair07"
+          ]
+        },
+        {
+          "keywords": [
+            "deep opacity maps",
+            "hair transmittance",
+            "strand voxelization",
+            "hair self-shadowing"
+          ],
+          "sourceIds": [
+            "hair02",
+            "hair05",
+            "hair06"
+          ]
+        }
+      ]
+    },
+    {
       "heading": "Direct lighting and light sampling",
       "paragraphs": [
         "   Directional light, point light, spot light, area light, environment light, emissive geometry, image-based lighting, IBL, importance sampling, multiple importance sampling, MIS, many-light sampling."
@@ -1167,6 +1313,56 @@
       ]
     },
     {
+      "heading": "Fog rendering and lighting",
+      "paragraphs": [
+        "Fog density, extinction coefficient, single scattering, multiple scattering, phase function, anisotropy, transmittance, froxel grid, volumetric shadowing, light shafts, temporal reprojection, local fog volume, heterogeneous volume, sparse volume texture.",
+        "Fog becomes visible when participating media remove radiance along the view ray and add light scattered from the environment. Real-time systems usually discretize that transport into a camera-aligned froxel grid, inject light and shadow information, integrate toward the camera, and stabilize the low-resolution result with temporal reprojection."
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Fog density",
+            "extinction coefficient",
+            "single scattering",
+            "multiple scattering",
+            "phase function",
+            "anisotropy",
+            "transmittance"
+          ],
+          "sourceIds": [
+            "s21a",
+            "s21b",
+            "fog01"
+          ]
+        },
+        {
+          "keywords": [
+            "froxel grid",
+            "volumetric shadowing",
+            "light shafts",
+            "temporal reprojection",
+            "local fog volume"
+          ],
+          "sourceIds": [
+            "fog01",
+            "fog02",
+            "fog03"
+          ]
+        },
+        {
+          "keywords": [
+            "heterogeneous volume",
+            "sparse volume texture"
+          ],
+          "sourceIds": [
+            "s21c",
+            "fog04",
+            "fog05"
+          ]
+        }
+      ]
+    },
+    {
       "heading": "Sky, atmosphere, and clouds",
       "paragraphs": [
         "   Rayleigh scattering, Mie scattering, ozone absorption, aerial perspective, atmospheric transmittance, sky-view LUT, transmittance LUT, precomputed atmosphere, volumetric cloud, cloud density, cloud ray marching, cloud shadowing.",
@@ -1227,6 +1423,105 @@
             "s23a",
             "s23b",
             "s23c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Water surface and underwater lighting",
+      "paragraphs": [
+        "Water BSDF, Fresnel reflection, Snell refraction, spectral absorption, volume scattering, phase function, surface normal spectrum, environment reflection, underwater lighting, refractive caustics, foam shading, single-layer water.",
+        "Water lighting couples a dielectric boundary to a participating medium. The surface selects reflected and refracted paths from its normal distribution, while the traveled distance below the surface controls absorption, in-scattering, underwater color, and the visibility of refractive caustics."
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Water BSDF",
+            "Fresnel reflection",
+            "Snell refraction",
+            "spectral absorption",
+            "volume scattering",
+            "phase function",
+            "single-layer water"
+          ],
+          "sourceIds": [
+            "s20c",
+            "s21a",
+            "water03"
+          ]
+        },
+        {
+          "keywords": [
+            "surface normal spectrum",
+            "environment reflection",
+            "foam shading"
+          ],
+          "sourceIds": [
+            "s23a",
+            "water01",
+            "water04"
+          ]
+        },
+        {
+          "keywords": [
+            "underwater lighting",
+            "refractive caustics"
+          ],
+          "sourceIds": [
+            "water01",
+            "water02",
+            "water03"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Particle rendering and lighting",
+      "paragraphs": [
+        "Particle sprite, billboard, mesh particle, ribbon particle, GPU particle, particle material, soft particle, alpha blending, order-independent transparency, particle sorting, overdraw, lit translucency, particle self-shadowing, particle light, volumetric particle.",
+        "A particle simulation only supplies positions and attributes; a renderer still chooses a sprite, mesh, ribbon, light, or volumetric representation. Transparent particles then expose three separate costs: sorting or approximate compositing, repeated fragment work from overdraw, and low-resolution lighting or shadow structures for translucent media."
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Particle sprite",
+            "billboard",
+            "mesh particle",
+            "ribbon particle",
+            "GPU particle",
+            "particle material",
+            "soft particle"
+          ],
+          "sourceIds": [
+            "particle02",
+            "particle03",
+            "particle06"
+          ]
+        },
+        {
+          "keywords": [
+            "alpha blending",
+            "order-independent transparency",
+            "particle sorting",
+            "overdraw"
+          ],
+          "sourceIds": [
+            "s20a",
+            "particle01",
+            "particle03"
+          ]
+        },
+        {
+          "keywords": [
+            "lit translucency",
+            "particle self-shadowing",
+            "particle light",
+            "volumetric particle"
+          ],
+          "sourceIds": [
+            "particle04",
+            "particle05",
+            "particle08"
           ]
         }
       ]
@@ -1438,5 +1733,5 @@
       ]
     }
   ],
-  "closing": "These sources turn the 30-part vocabulary into a research map: each keyword now has a direct path into the papers, specifications, and production documentation that define or implement it."
+  "closing": "These sources turn the original 30-part vocabulary and four new lighting sections into a research map: each keyword now has a direct path into the papers, specifications, and production documentation that define or implement it."
 }
