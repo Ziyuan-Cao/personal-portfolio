@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">What Rendering Actually Does: a 30-part source guide</title>
+  <desc id="desc">Four connected rendering parts move from scene creation through visibility and light transport to post-processing and display, with three sources attached to every keyword.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#07121f"/><stop offset="0.55" stop-color="#10253a"/><stop offset="1" stop-color="#08141f"/></linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5eead4"/><stop offset="0.36" stop-color="#60a5fa"/><stop offset="0.7" stop-color="#a78bfa"/><stop offset="1" stop-color="#f59e0b"/></linearGradient>
+    <filter id="glow" x="-20%" y="-100%" width="140%" height="300%"><feGaussianBlur stdDeviation="9" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="1600" height="900" rx="42" fill="url(#bg)"/>
+  <g opacity=".16" stroke="#a7c7e7" stroke-width="1"><path d="M80 150H1520M80 300H1520M80 450H1520M80 600H1520M80 750H1520"/><path d="M200 80V820M500 80V820M1100 80V820M1400 80V820"/></g>
+  <text x="110" y="128" fill="#e8f3ff" font-family="Inter,Segoe UI,sans-serif" font-size="48" font-weight="700">WHAT RENDERING ACTUALLY DOES</text>
+  <text x="110" y="176" fill="#8fb1cf" font-family="Inter,Segoe UI,sans-serif" font-size="24">30 keyword groups · 389 keyword entries · 3 sources for every keyword</text>
+  <path d="M230 445H1370" fill="none" stroke="url(#line)" stroke-width="9" stroke-linecap="round" filter="url(#glow)"/>
+  <g font-family="Inter,Segoe UI,sans-serif">
+    <g transform="translate(240 445)"><circle r="34" fill="#5eead4"/><text x="0" y="8" text-anchor="middle" fill="#06211e" font-size="24" font-weight="700">01</text><text x="0" y="-75" text-anchor="middle" fill="#dcfffa" font-size="21" font-weight="700">SCENE CREATION</text><text x="0" y="78" text-anchor="middle" fill="#9fc9c3" font-size="17">representation · assets · terrain</text></g>
+    <g transform="translate(615 445)"><circle r="34" fill="#60a5fa"/><text x="0" y="8" text-anchor="middle" fill="#071b32" font-size="24" font-weight="700">02</text><text x="0" y="-75" text-anchor="middle" fill="#e3f0ff" font-size="21" font-weight="700">GEOMETRY &amp; VISIBILITY</text><text x="0" y="78" text-anchor="middle" fill="#a9c3df" font-size="17">camera · rasterization · rays</text></g>
+    <g transform="translate(1000 445)"><circle r="34" fill="#a78bfa"/><text x="0" y="8" text-anchor="middle" fill="#1b1037" font-size="24" font-weight="700">03</text><text x="0" y="-75" text-anchor="middle" fill="#f1eaff" font-size="21" font-weight="700">LIGHT TRANSPORT</text><text x="0" y="78" text-anchor="middle" fill="#c7b9e0" font-size="17">materials · lighting · media</text></g>
+    <g transform="translate(1370 445)"><circle r="34" fill="#f59e0b"/><text x="0" y="8" text-anchor="middle" fill="#2d1902" font-size="24" font-weight="700">04</text><text x="0" y="-75" text-anchor="middle" fill="#fff3d5" font-size="21" font-weight="700">DISPLAY</text><text x="0" y="78" text-anchor="middle" fill="#e3bd7d" font-size="17">reconstruction · color · output</text></g>
+  </g>
+  <g transform="translate(110 700)" font-family="Inter,Segoe UI,sans-serif"><rect width="1380" height="104" rx="22" fill="#0c1d2d" stroke="#31516d"/><text x="32" y="42" fill="#e8f3ff" font-size="20" font-weight="700">SOURCES BY KEYWORD</text><text x="32" y="76" fill="#91abc2" font-size="18">primary research · normative specifications · official implementation documentation</text><circle cx="1278" cy="52" r="17" fill="#5eead4"/><circle cx="1323" cy="52" r="17" fill="#60a5fa"/><circle cx="1368" cy="52" r="17" fill="#f59e0b"/></g>
+</svg>

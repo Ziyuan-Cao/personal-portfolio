@@ -231,6 +231,55 @@ function documentationLinks(links) {
   return aside;
 }
 
+function appendInlineMarkdownLinks(container, text) {
+  const pattern = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+  let cursor = 0;
+  let match;
+  while ((match = pattern.exec(text)) !== null) {
+    if (match.index > cursor) container.append(document.createTextNode(text.slice(cursor, match.index)));
+    const link = element("a", "blog-inline-link", match[1]);
+    link.href = match[2];
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    container.append(link);
+    cursor = pattern.lastIndex;
+  }
+  if (cursor < text.length) container.append(document.createTextNode(text.slice(cursor)));
+}
+
+function keywordSources(groups, sourceCatalog) {
+  const aside = element("aside", "blog-keyword-sources");
+  aside.append(element("strong", "blog-keyword-sources-title", i18n.t("blog.keywordSources")));
+  const list = element("div", "blog-keyword-source-list");
+
+  for (const group of groups) {
+    const sources = group.sourceIds.map((id) => sourceCatalog[id]).filter(Boolean);
+    for (const keyword of group.keywords) {
+      const item = element("section", "blog-keyword-source-item");
+      item.append(element("h3", "blog-keyword-source-keyword", keyword));
+      const links = element("ul");
+      for (const source of sources) {
+        const listItem = element("li");
+        const link = element("a", "", source.label);
+        link.href = source.url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        const icon = document.createElement("ion-icon");
+        icon.setAttribute("name", "open-outline");
+        icon.setAttribute("aria-hidden", "true");
+        link.append(icon);
+        listItem.append(link);
+        links.append(listItem);
+      }
+      item.append(links);
+      list.append(item);
+    }
+  }
+
+  aside.append(list);
+  return aside;
+}
+
 function numberedStepList(steps) {
   const list = element("ol", "blog-numbered-steps");
   for (const step of steps) {
@@ -245,8 +294,9 @@ function numberedStepList(steps) {
   return list;
 }
 
-function articleSection(section, index) {
+function articleSection(section, index, sourceCatalog = {}) {
   const container = element("section", "blog-article-section");
+  if (section.partLabel) container.append(element("p", "blog-part-label", section.partLabel));
   const headingRow = element("div", "blog-section-heading");
   headingRow.append(
     element("span", "blog-section-number", String(index + 1).padStart(2, "0")),
@@ -255,7 +305,13 @@ function articleSection(section, index) {
   container.append(headingRow);
 
   for (const paragraph of section.paragraphs ?? []) {
-    container.append(element("p", "", paragraph));
+    const node = element("p");
+    appendInlineMarkdownLinks(node, paragraph);
+    container.append(node);
+  }
+
+  if (section.keywordSourceGroups?.length) {
+    container.append(keywordSources(section.keywordSourceGroups, sourceCatalog));
   }
 
   if (section.docLinks?.length) container.append(documentationLinks(section.docLinks));
@@ -316,7 +372,7 @@ function renderDetail(post) {
 
   const body = element("div", "blog-article-body");
   body.append(element("p", "blog-article-lede", post.lede));
-  post.sections.forEach((section, index) => body.append(articleSection(section, index)));
+  post.sections.forEach((section, index) => body.append(articleSection(section, index, post.sourceCatalog)));
   if (post.references?.length) {
     body.append(articleSection(
       { heading: i18n.t("blog.sources"), references: post.references },

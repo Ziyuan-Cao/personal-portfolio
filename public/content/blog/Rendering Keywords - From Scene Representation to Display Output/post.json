@@ -1,0 +1,1442 @@
+{
+  "slug": "rendering-keywords-scene-to-display",
+  "title": "Rendering Keywords: From Scene Representation to Display Output",
+  "abstract": "Thirty rendering keyword groups, from scene creation to display presentation, with three primary or official sources attached to every keyword.",
+  "category": "Rendering research guide",
+  "publishedAt": "2026-08-17",
+  "image": "/content/blog/Rendering Keywords - From Scene Representation to Display Output/rendering-keywords.svg",
+  "imageAlt": "Thirty rendering topics arranged across scene creation, visibility, light transport, and display output",
+  "lede": "This source guide preserves the supplied 30-part rendering vocabulary exactly. Under every keyword, it adds three links to primary research, normative specifications, or official implementation documentation.",
+  "sourceCatalog": {
+    "s01a": {
+      "label": "OpenUSD glossary",
+      "url": "https://openusd.org/release/glossary.html"
+    },
+    "s01b": {
+      "label": "glTF 2.0 specification",
+      "url": "https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html"
+    },
+    "s01c": {
+      "label": "Autodesk FBX SDK reference",
+      "url": "https://help.autodesk.com/cloudhelp/2020/ENU/FBX-API-Reference/cpp_ref/index.html"
+    },
+    "s01d": {
+      "label": "OpenUSD introduction",
+      "url": "https://openusd.org/release/intro.html"
+    },
+    "s01e": {
+      "label": "OpenUSD performance guidance",
+      "url": "https://openusd.org/release/maxperf.html"
+    },
+    "s01f": {
+      "label": "Khronos glTF tutorial",
+      "url": "https://github.khronos.org/glTF-Tutorials/gltfTutorial/gltfTutorial_001_Introduction.html"
+    },
+    "s01g": {
+      "label": "Khronos glTF Validator",
+      "url": "https://github.com/KhronosGroup/glTF-Validator"
+    },
+    "s01h": {
+      "label": "Autodesk FBX Developer Help",
+      "url": "https://help.autodesk.com/cloudhelp/2020/ENU/FBX-Developer-Help/index.html"
+    },
+    "s01i": {
+      "label": "Blender FBX importer and exporter",
+      "url": "https://docs.blender.org/manual/en/latest/addons/import_export/scene_fbx.html"
+    },
+    "s01j": {
+      "label": "Wavefront OBJ format description",
+      "url": "https://www.loc.gov/preservation/digital/formats/fdd/fdd000507.shtml"
+    },
+    "s01k": {
+      "label": "Blender OBJ importer and exporter",
+      "url": "https://docs.blender.org/manual/en/latest/files/import_export/obj.html"
+    },
+    "s01l": {
+      "label": "Assimp OBJ loader documentation",
+      "url": "https://assimp-docs.readthedocs.io/en/latest/"
+    },
+    "s02a": {
+      "label": "PBRT: Triangle Meshes",
+      "url": "https://www.pbr-book.org/4ed/Shapes/Triangle_Meshes"
+    },
+    "s02b": {
+      "label": "Vulkan vertex input",
+      "url": "https://docs.vulkan.org/spec/latest/chapters/fxvertex.html"
+    },
+    "s02c": {
+      "label": "glTF meshes and attributes",
+      "url": "https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#meshes"
+    },
+    "s03a": {
+      "label": "Vulkan image sampling",
+      "url": "https://docs.vulkan.org/spec/latest/chapters/textures.html"
+    },
+    "s03b": {
+      "label": "Vulkan samplers",
+      "url": "https://docs.vulkan.org/spec/latest/chapters/samplers.html"
+    },
+    "s03c": {
+      "label": "MaterialX specification",
+      "url": "https://materialx.org/assets/MaterialX.v1.38D1.Spec.pdf"
+    },
+    "s04a": {
+      "label": "Geometry Clipmaps",
+      "url": "https://developer.nvidia.com/gpugems/gpugems2/part-i-geometric-complexity/chapter-2-terrain-rendering-using-gpu-based-geometry"
+    },
+    "s04b": {
+      "label": "Unreal Engine World Partition HLOD",
+      "url": "https://dev.epicgames.com/documentation/unreal-engine/world-partition---hierarchical-level-of-detail-in-unreal-engine"
+    },
+    "s04c": {
+      "label": "Unreal Engine Virtual Texturing",
+      "url": "https://dev.epicgames.com/documentation/unreal-engine/virtual-texturing-in-unreal-engine?lang=en-US"
+    },
+    "s05a": {
+      "label": "NeRF",
+      "url": "https://www.ecva.net/papers/eccv_2020/papers_ECCV/papers/123460392.pdf"
+    },
+    "s05b": {
+      "label": "3D Gaussian Splatting",
+      "url": "https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/3d_gaussian_splatting_low.pdf"
+    },
+    "s05c": {
+      "label": "OpenVDB overview",
+      "url": "https://www.openvdb.org/documentation/doxygen/overview.html"
+    },
+    "s05d": {
+      "label": "Point-Based Graphics",
+      "url": "https://cgl.ethz.ch/publications/tutorials/eg2002/"
+    },
+    "s05e": {
+      "label": "Point Cloud Library documentation",
+      "url": "https://pointclouds.org/documentation/"
+    },
+    "s05f": {
+      "label": "Open3D point-cloud documentation",
+      "url": "https://www.open3d.org/docs/release/tutorial/geometry/pointcloud.html"
+    },
+    "s05g": {
+      "label": "Sphere Tracing",
+      "url": "https://doi.org/10.1007/BF01900343"
+    },
+    "s05h": {
+      "label": "OpenVDB tools reference",
+      "url": "https://www.openvdb.org/documentation/doxygen/tools.html"
+    },
+    "s05i": {
+      "label": "NeRF project page",
+      "url": "https://www.matthewtancik.com/nerf"
+    },
+    "s05j": {
+      "label": "Nerfstudio documentation",
+      "url": "https://docs.nerf.studio/"
+    },
+    "s05k": {
+      "label": "3D Gaussian Splatting publication",
+      "url": "https://doi.org/10.1145/3592433"
+    },
+    "s05l": {
+      "label": "3D Gaussian Splatting reference implementation",
+      "url": "https://github.com/graphdeco-inria/gaussian-splatting"
+    },
+    "s05m": {
+      "label": "Differentiable Rendering survey",
+      "url": "https://arxiv.org/abs/2006.12057"
+    },
+    "s05n": {
+      "label": "Mitsuba 2",
+      "url": "https://doi.org/10.1145/3355089.3356498"
+    },
+    "s05o": {
+      "label": "Mitsuba 3 documentation",
+      "url": "https://mitsuba.readthedocs.io/en/latest/"
+    },
+    "s06a": {
+      "label": "PBRT: Transformations",
+      "url": "https://www.pbr-book.org/4ed/Geometry_and_Transformations/Transformations"
+    },
+    "s06b": {
+      "label": "Vulkan vertex post-processing",
+      "url": "https://docs.vulkan.org/spec/latest/chapters/vertexpostproc.html"
+    },
+    "s06c": {
+      "label": "Direct3D transformation pipeline",
+      "url": "https://learn.microsoft.com/en-us/windows/win32/dxtecharts/the-direct3d-transformation-pipeline"
+    },
+    "s07a": {
+      "label": "PBRT: Projective Camera Models",
+      "url": "https://www.pbr-book.org/4ed/Cameras_and_Film/Projective_Camera_Models"
+    },
+    "s07b": {
+      "label": "Vulkan depth guide",
+      "url": "https://docs.vulkan.org/guide/latest/depth.html"
+    },
+    "s07c": {
+      "label": "Visualizing Depth Precision",
+      "url": "https://developer.nvidia.com/blog/visualizing-depth-precision/"
+    },
+    "s08a": {
+      "label": "Vulkan shader specification",
+      "url": "https://docs.vulkan.org/spec/latest/chapters/shaders.html"
+    },
+    "s08b": {
+      "label": "DirectX Mesh Shader specification",
+      "url": "https://microsoft.github.io/DirectX-Specs/d3d/MeshShader.html"
+    },
+    "s08c": {
+      "label": "Vulkan mesh shader proposal",
+      "url": "https://docs.vulkan.org/features/latest/features/proposals/VK_EXT_mesh_shader.html"
+    },
+    "s09a": {
+      "label": "Hierarchical Z-Buffer Visibility",
+      "url": "https://www.cs.princeton.edu/courses/archive/spring01/cs598b/papers/greene93.pdf"
+    },
+    "s09b": {
+      "label": "Vulkan multi-draw indirect",
+      "url": "https://docs.vulkan.org/samples/latest/samples/performance/multi_draw_indirect/README.html"
+    },
+    "s09c": {
+      "label": "Unreal Engine Nanite",
+      "url": "https://dev.epicgames.com/documentation/unreal-engine/nanite-virtualized-geometry-in-unreal-engine"
+    },
+    "s10a": {
+      "label": "Vulkan primitive rasterization",
+      "url": "https://docs.vulkan.org/spec/latest/chapters/primsrast.html"
+    },
+    "s10b": {
+      "label": "Vulkan vertex post-processing",
+      "url": "https://docs.vulkan.org/spec/latest/chapters/vertexpostproc.html"
+    },
+    "s10c": {
+      "label": "Vulkan framebuffer operations",
+      "url": "https://docs.vulkan.org/spec/latest/chapters/framebuffer.html"
+    },
+    "s11a": {
+      "label": "DirectX Raytracing specification",
+      "url": "https://microsoft.github.io/DirectX-Specs/d3d/Raytracing.html"
+    },
+    "s11b": {
+      "label": "Vulkan ray traversal",
+      "url": "https://docs.vulkan.org/spec/latest/chapters/raytraversal.html"
+    },
+    "s11c": {
+      "label": "Vulkan acceleration structures",
+      "url": "https://docs.vulkan.org/spec/latest/chapters/accelstructures.html"
+    },
+    "s12a": {
+      "label": "The Rendering Equation",
+      "url": "https://doi.org/10.1145/15886.15902"
+    },
+    "s12b": {
+      "label": "PBRT: Radiometry",
+      "url": "https://pbr-book.org/4ed/Radiometry%2C_Spectra%2C_and_Color/Radiometry"
+    },
+    "s12c": {
+      "label": "PBRT: The Light Transport Equation",
+      "url": "https://www.pbr-book.org/4ed/Light_Transport_I_Surface_Reflection/The_Light_Transport_Equation"
+    },
+    "s13a": {
+      "label": "Clustered Deferred and Forward Shading",
+      "url": "https://diglib.eg.org/items/6342d4d6-5220-4376-a5c6-a153058f4a3c"
+    },
+    "s13b": {
+      "label": "Visibility Buffer Rendering with Material Graphs",
+      "url": "https://jcgt.org/published/0002/02/04/"
+    },
+    "s13c": {
+      "label": "Unreal Engine Forward Shading Renderer",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/forward-shading-renderer-in-unreal-engine"
+    },
+    "s14a": {
+      "label": "Physically Based Shading at Disney",
+      "url": "https://media.disneyanimation.com/uploads/production/publication_asset/48/asset/s2012_pbs_disney_brdf_notes_v3.pdf"
+    },
+    "s14b": {
+      "label": "PBRT: Microfacet Theory",
+      "url": "https://www.pbr-book.org/4ed/Reflection_Models/Roughness_Using_Microfacet_Theory"
+    },
+    "s14c": {
+      "label": "MaterialX PBR specification",
+      "url": "https://materialx.org/assets/MaterialX.v1.38.PBRSpec.pdf"
+    },
+    "s15a": {
+      "label": "Physically Based Shading at Disney",
+      "url": "https://disneyanimation.com/publications/physically-based-shading-at-disney/"
+    },
+    "s15b": {
+      "label": "MaterialX PBR specification",
+      "url": "https://materialx.org/assets/MaterialX.v1.38D1.PBRSpec.pdf"
+    },
+    "s15c": {
+      "label": "Unreal Engine shading models",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/shading-models-in-unreal-engine"
+    },
+    "s16a": {
+      "label": "Multiple Importance Sampling",
+      "url": "https://doi.org/10.1145/218380.218498"
+    },
+    "s16b": {
+      "label": "PBRT: Light Sampling",
+      "url": "https://www.pbr-book.org/4ed/Light_Sources/Light_Sampling"
+    },
+    "s16c": {
+      "label": "ReSTIR DI",
+      "url": "https://research.nvidia.com/publication/2020-07_spatiotemporal-reservoir-resampling-real-time-ray-tracing-dynamic-direct"
+    },
+    "s17a": {
+      "label": "Casting Curved Shadows on Curved Surfaces",
+      "url": "https://doi.org/10.1145/965139.807402"
+    },
+    "s17b": {
+      "label": "Percentage-Closer Filtering",
+      "url": "https://www.eng.utah.edu/~cs5610/handouts/reeves87.pdf"
+    },
+    "s17c": {
+      "label": "Unreal Engine Virtual Shadow Maps",
+      "url": "https://dev.epicgames.com/documentation/unreal-engine/virtual-shadow-maps-in-unreal-engine"
+    },
+    "s18a": {
+      "label": "The Rendering Equation",
+      "url": "https://doi.org/10.1145/15886.15902"
+    },
+    "s18b": {
+      "label": "PBRT: Path Tracer Implementation",
+      "url": "https://www.pbr-book.org/4ed/Wavefront_Rendering_on_GPUs/Path_Tracer_Implementation"
+    },
+    "s18c": {
+      "label": "ReSTIR GI",
+      "url": "https://research.nvidia.com/publication/2021-06_restir-gi-path-resampling-real-time-path-tracing"
+    },
+    "s19a": {
+      "label": "An Efficient Representation for Irradiance Environment Maps",
+      "url": "https://graphics.stanford.edu/papers/envmap/envmap.pdf"
+    },
+    "s19b": {
+      "label": "Dynamic Diffuse Global Illumination",
+      "url": "https://jcgt.org/published/0008/02/01/"
+    },
+    "s19c": {
+      "label": "Unreal Engine Lumen",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/lumen-global-illumination-and-reflections-in-unreal-engine"
+    },
+    "s20a": {
+      "label": "Weighted Blended Order-Independent Transparency",
+      "url": "https://www.jcgt.org/published/0002/02/09/"
+    },
+    "s20b": {
+      "label": "Vulkan framebuffer blending",
+      "url": "https://docs.vulkan.org/spec/latest/chapters/framebuffer.html"
+    },
+    "s20c": {
+      "label": "PBRT: Dielectric BSDF",
+      "url": "https://pbr-book.org/4ed/Reflection_Models/Dielectric_BSDF"
+    },
+    "s21a": {
+      "label": "PBRT: Volume Scattering",
+      "url": "https://www.pbr-book.org/4ed/Volume_Scattering"
+    },
+    "s21b": {
+      "label": "Production Volume Rendering",
+      "url": "https://graphics.pixar.com/library/ProductionVolumeRendering/paper.pdf"
+    },
+    "s21c": {
+      "label": "Unreal Engine Sparse Volume Textures",
+      "url": "https://dev.epicgames.com/documentation/unreal-engine/sparse-volume-textures-in-unreal-engine?lang=en-US"
+    },
+    "s22a": {
+      "label": "Precomputed Atmospheric Scattering",
+      "url": "https://doi.org/10.1111/j.1467-8659.2008.01245.x"
+    },
+    "s22b": {
+      "label": "A Scalable and Production Ready Sky and Atmosphere Rendering Technique",
+      "url": "https://sebh.github.io/publications/egsr2020.pdf"
+    },
+    "s22c": {
+      "label": "Unreal Engine Sky Atmosphere",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/sky-atmosphere-component-in-unreal-engine"
+    },
+    "s23a": {
+      "label": "Effective Water Simulation from Physical Models",
+      "url": "https://developer.nvidia.com/gpugems/gpugems/part-i-natural-effects/chapter-1-effective-water-simulation-physical-models"
+    },
+    "s23b": {
+      "label": "Generalizing Shallow Water Simulations",
+      "url": "https://research.nvidia.com/labs/prl/shallow-water-simulation/files/Dispersive_Waves_in_SWE.pdf"
+    },
+    "s23c": {
+      "label": "Unreal Engine Water Surface Rendering",
+      "url": "https://dev.epicgames.com/documentation/unreal-engine/water-meshing-system-and-surface-rendering-in-unreal-engine?lang=en-US"
+    },
+    "s24a": {
+      "label": "High Dynamic Range Photographs",
+      "url": "https://www.pauldebevec.com/Research/HDR/"
+    },
+    "s24b": {
+      "label": "OpenEXR Technical Introduction",
+      "url": "https://openexr.com/en/latest/TechnicalIntroduction.html"
+    },
+    "s24c": {
+      "label": "Unreal Engine Auto Exposure",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/auto-exposure-in-unreal-engine"
+    },
+    "s25a": {
+      "label": "Photographic Tone Reproduction for Digital Images",
+      "url": "https://w3.impa.br/~lvelho/ip02/papers/reinhard/tonemap.pdf"
+    },
+    "s25b": {
+      "label": "ACES 2 Output Transforms",
+      "url": "https://docs.acescentral.com/system-components/output-transforms/"
+    },
+    "s25c": {
+      "label": "OpenColorIO displays and views",
+      "url": "https://opencolorio.readthedocs.io/en/latest/guides/authoring/displays_views.html"
+    },
+    "s26a": {
+      "label": "The Alchemy Screen-Space Ambient Obscurance Algorithm",
+      "url": "https://research.nvidia.com/sites/default/files/pubs/2011-08_The-Alchemy-Screen-space/paper.pdf"
+    },
+    "s26b": {
+      "label": "Efficient GPU Screen-Space Ray Tracing",
+      "url": "https://jcgt.org/published/0003/04/04/"
+    },
+    "s26c": {
+      "label": "Unreal Engine Screen Space Reflections",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/screen-space-reflections-in-unreal-engine"
+    },
+    "s27a": {
+      "label": "A Survey of Temporal Antialiasing Techniques",
+      "url": "https://diglib.eg.org/items/cfa6a05c-53b3-4ee1-979d-48abc6225f6b"
+    },
+    "s27b": {
+      "label": "Unreal Engine Temporal Super Resolution",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/temporal-super-resolution-in-unreal-engine"
+    },
+    "s27c": {
+      "label": "AMD FidelityFX Super Resolution",
+      "url": "https://gpuopen.com/manuals/fsr_sdk/techniques/super-resolution-temporal/"
+    },
+    "s28a": {
+      "label": "Spatiotemporal Variance-Guided Filtering",
+      "url": "https://research.nvidia.com/sites/default/files/pubs/2017-07_Spatiotemporal-Variance-Guided-Filtering%3A/svgf_preprint.pdf"
+    },
+    "s28b": {
+      "label": "NVIDIA Ray Tracing documentation",
+      "url": "https://docs.nvidia.com/ray-tracing/index.html"
+    },
+    "s28c": {
+      "label": "Intel Open Image Denoise",
+      "url": "https://www.openimagedenoise.org/documentation.html"
+    },
+    "s29a": {
+      "label": "Real-Time Postprocess Depth of Field",
+      "url": "https://developer.nvidia.com/gpugems/gpugems/part-iv-image-processing/chapter-23-depth-field-survey-techniques"
+    },
+    "s29b": {
+      "label": "Unreal Engine Post Process Effects",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/post-process-effects-in-unreal-engine"
+    },
+    "s29c": {
+      "label": "Unreal Engine Bloom",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/bloom-in-unreal-engine"
+    },
+    "s30a": {
+      "label": "ITU-R BT.2100",
+      "url": "https://www.itu.int/rec/R-REC-BT.2100"
+    },
+    "s30b": {
+      "label": "W3C sRGB specification",
+      "url": "https://www.w3.org/Graphics/Color/srgb"
+    },
+    "s30c": {
+      "label": "Vulkan Window System Integration",
+      "url": "https://github.khronos.org/Vulkan-Site/spec/latest/chapters/VK_KHR_surface/wsi.html"
+    }
+  },
+  "sections": [
+    {
+      "partLabel": "Part 1: Scene creation and representation",
+      "heading": "Scene graph and asset interchange",
+      "paragraphs": [
+        "OpenUSD, USD Stage, Prim, layers, composition arcs, references, payloads, variants, instancing, glTF, FBX, OBJ.",
+        "USD is especially relevant for large production scenes because it describes how assets are assembled and overridden, rather than merely storing one mesh. [OpenUSD concepts](https://openusd.org/release/glossary.html), [glTF 2.0 specification](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html)"
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "OpenUSD",
+            "USD Stage",
+            "Prim",
+            "layers",
+            "composition arcs",
+            "references",
+            "payloads",
+            "variants",
+            "instancing"
+          ],
+          "sourceIds": [
+            "s01a",
+            "s01d",
+            "s01e"
+          ]
+        },
+        {
+          "keywords": [
+            "glTF"
+          ],
+          "sourceIds": [
+            "s01b",
+            "s01f",
+            "s01g"
+          ]
+        },
+        {
+          "keywords": [
+            "FBX"
+          ],
+          "sourceIds": [
+            "s01c",
+            "s01h",
+            "s01i"
+          ]
+        },
+        {
+          "keywords": [
+            "OBJ"
+          ],
+          "sourceIds": [
+            "s01j",
+            "s01k",
+            "s01l"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Geometry representation",
+      "paragraphs": [
+        "Mesh primitives, triangle topology, vertex buffer, index buffer, vertex attributes, normals, tangents, vertex colors, skinning, morph targets, procedural geometry."
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Mesh primitives",
+            "triangle topology",
+            "vertex buffer",
+            "index buffer",
+            "vertex attributes",
+            "normals",
+            "tangents",
+            "vertex colors",
+            "skinning",
+            "morph targets",
+            "procedural geometry"
+          ],
+          "sourceIds": [
+            "s02a",
+            "s02b",
+            "s02c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Textures and material assets",
+      "paragraphs": [
+        "UV mapping, texels, texture samplers, mipmaps, texture filtering, normal maps, displacement maps, texture compression, channel packing, material graphs, shader graphs."
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "UV mapping",
+            "texels",
+            "texture samplers",
+            "mipmaps",
+            "texture filtering",
+            "normal maps",
+            "displacement maps",
+            "texture compression",
+            "channel packing",
+            "material graphs",
+            "shader graphs"
+          ],
+          "sourceIds": [
+            "s03a",
+            "s03b",
+            "s03c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Large-world and terrain representation",
+      "paragraphs": [
+        "Heightfield, heightmap, weightmap, terrain tiles, quadtree, geometry clipmaps, continuous geo-mipmapping, LOD, HLOD, world partition, geometry streaming, virtual texturing, runtime virtual textures.",
+        "Modern large-world systems combine geometry LOD with streaming and partitioning. [Unreal Engine Landscape overview](https://dev.epicgames.com/documentation/en-us/unreal-engine/landscape-overview)"
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Heightfield",
+            "heightmap",
+            "weightmap",
+            "terrain tiles",
+            "quadtree",
+            "geometry clipmaps",
+            "continuous geo-mipmapping",
+            "LOD",
+            "HLOD",
+            "world partition",
+            "geometry streaming",
+            "virtual texturing",
+            "runtime virtual textures"
+          ],
+          "sourceIds": [
+            "s04a",
+            "s04b",
+            "s04c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Modern alternative scene representations",
+      "paragraphs": [
+        "Point cloud, voxel, signed distance field, surfel, neural radiance field, NeRF, radiance field, 3D Gaussian Splatting, splat rasterization, differentiable rendering, novel-view synthesis.",
+        "3DGS should be presented as a learned scene representation and visibility-aware splatting method, not as an ordinary mesh file format. [Original 3D Gaussian Splatting paper](https://doi.org/10.1145/3592433)"
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Point cloud",
+            "surfel"
+          ],
+          "sourceIds": [
+            "s05d",
+            "s05e",
+            "s05f"
+          ]
+        },
+        {
+          "keywords": [
+            "voxel",
+            "signed distance field"
+          ],
+          "sourceIds": [
+            "s05c",
+            "s05g",
+            "s05h"
+          ]
+        },
+        {
+          "keywords": [
+            "neural radiance field",
+            "NeRF",
+            "radiance field",
+            "novel-view synthesis"
+          ],
+          "sourceIds": [
+            "s05a",
+            "s05i",
+            "s05j"
+          ]
+        },
+        {
+          "keywords": [
+            "3D Gaussian Splatting",
+            "splat rasterization"
+          ],
+          "sourceIds": [
+            "s05b",
+            "s05k",
+            "s05l"
+          ]
+        },
+        {
+          "keywords": [
+            "differentiable rendering"
+          ],
+          "sourceIds": [
+            "s05m",
+            "s05n",
+            "s05o"
+          ]
+        }
+      ]
+    },
+    {
+      "partLabel": "Part 2: Geometry, camera, and visibility",
+      "heading": "Coordinate spaces",
+      "paragraphs": [
+        "Object space, local space, world space, view space, eye space, clip space, normalized device coordinates, NDC, screen space, viewport space, framebuffer coordinates."
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Object space",
+            "local space",
+            "world space",
+            "view space",
+            "eye space",
+            "clip space",
+            "normalized device coordinates",
+            "NDC",
+            "screen space",
+            "viewport space",
+            "framebuffer coordinates"
+          ],
+          "sourceIds": [
+            "s06a",
+            "s06b",
+            "s06c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Camera and projection",
+      "paragraphs": [
+        "Model matrix, view matrix, projection matrix, model-view-projection matrix, MVP, homogeneous coordinates, perspective projection, orthographic projection, field of view, aspect ratio, near plane, far plane, perspective divide, viewport transform, reverse-Z."
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Model matrix",
+            "view matrix",
+            "projection matrix",
+            "model-view-projection matrix",
+            "MVP",
+            "homogeneous coordinates",
+            "perspective projection",
+            "orthographic projection",
+            "field of view",
+            "aspect ratio",
+            "near plane",
+            "far plane",
+            "perspective divide",
+            "viewport transform",
+            "reverse-Z"
+          ],
+          "sourceIds": [
+            "s07a",
+            "s07b",
+            "s07c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Programmable geometry pipeline",
+      "paragraphs": [
+        "Vertex shader, primitive assembly, tessellation, geometry shader, amplification shader, task shader, mesh shader, meshlet, primitive shader.",
+        "Mesh shaders reorganize geometry into small meshlet batches and allow GPU-side primitive generation and culling. [DirectX Mesh Shader specification](https://microsoft.github.io/DirectX-Specs/d3d/MeshShader.html)"
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Vertex shader",
+            "primitive assembly",
+            "tessellation",
+            "geometry shader",
+            "amplification shader",
+            "task shader",
+            "mesh shader",
+            "meshlet",
+            "primitive shader"
+          ],
+          "sourceIds": [
+            "s08a",
+            "s08b",
+            "s08c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Culling and level of detail",
+      "paragraphs": [
+        "Back-face culling, frustum culling, occlusion culling, hierarchical Z-buffer, Hi-Z, depth pyramid, LOD selection, HLOD, cluster culling, GPU-driven rendering, indirect drawing, virtualized geometry, Nanite.",
+        "Nanite is a useful modern case study because it uses hierarchical geometry clusters, streaming, and visibility-driven detail selection. [Nanite documentation](https://dev.epicgames.com/documentation/en-us/unreal-engine/nanite-in-unreal-engine)"
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Back-face culling",
+            "frustum culling",
+            "occlusion culling",
+            "hierarchical Z-buffer",
+            "Hi-Z",
+            "depth pyramid",
+            "LOD selection",
+            "HLOD",
+            "cluster culling",
+            "GPU-driven rendering",
+            "indirect drawing",
+            "virtualized geometry",
+            "Nanite"
+          ],
+          "sourceIds": [
+            "s09a",
+            "s09b",
+            "s09c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Rasterization and fragment generation",
+      "paragraphs": [
+        "   Primitive clipping, triangle setup, rasterization, coverage, fragment, sample, barycentric interpolation, perspective-correct interpolation, scissor test, depth test, stencil test, early-Z, blending, framebuffer, render target, MSAA.",
+        "   Rasterization is the missing central stage in the original draft. [Vulkan rasterization specification](https://docs.vulkan.org/spec/latest/chapters/primsrast.html)"
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Primitive clipping",
+            "triangle setup",
+            "rasterization",
+            "coverage",
+            "fragment",
+            "sample",
+            "barycentric interpolation",
+            "perspective-correct interpolation",
+            "scissor test",
+            "depth test",
+            "stencil test",
+            "early-Z",
+            "blending",
+            "framebuffer",
+            "render target",
+            "MSAA"
+          ],
+          "sourceIds": [
+            "s10a",
+            "s10b",
+            "s10c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Ray traversal and visibility",
+      "paragraphs": [
+        "   Primary ray, shadow ray, secondary ray, ray–triangle intersection, acceleration structure, bounding-volume hierarchy, BVH, bottom-level acceleration structure, BLAS, top-level acceleration structure, TLAS, ray query, closest-hit shader, any-hit shader.",
+        "   [DirectX Raytracing specification](https://microsoft.github.io/DirectX-Specs/d3d/Raytracing.html)"
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Primary ray",
+            "shadow ray",
+            "secondary ray",
+            "ray–triangle intersection",
+            "acceleration structure",
+            "bounding-volume hierarchy",
+            "BVH",
+            "bottom-level acceleration structure",
+            "BLAS",
+            "top-level acceleration structure",
+            "TLAS",
+            "ray query",
+            "closest-hit shader",
+            "any-hit shader"
+          ],
+          "sourceIds": [
+            "s11a",
+            "s11b",
+            "s11c"
+          ]
+        }
+      ]
+    },
+    {
+      "partLabel": "Part 3: Shading and light transport",
+      "heading": "Radiometry and the rendering equation",
+      "paragraphs": [
+        "   Radiant flux, irradiance, radiance, solid angle, emitted radiance, incident radiance, outgoing radiance, rendering equation, light transport equation, local illumination, global illumination.",
+        "   The rendering equation provides the mathematical center of the article: outgoing light combines emission with reflected incoming light. [PBRT light transport equation](https://www.pbr-book.org/4ed/Light_Transport_I_Surface_Reflection/The_Light_Transport_Equation)"
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Radiant flux",
+            "irradiance",
+            "radiance",
+            "solid angle",
+            "emitted radiance",
+            "incident radiance",
+            "outgoing radiance",
+            "rendering equation",
+            "light transport equation",
+            "local illumination",
+            "global illumination"
+          ],
+          "sourceIds": [
+            "s12a",
+            "s12b",
+            "s12c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Renderer organization",
+      "paragraphs": [
+        "   Forward rendering, deferred rendering, forward+, clustered forward shading, tiled shading, G-buffer, visibility buffer, material pass, lighting pass, render graph."
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Forward rendering",
+            "deferred rendering",
+            "forward+",
+            "clustered forward shading",
+            "tiled shading",
+            "G-buffer",
+            "visibility buffer",
+            "material pass",
+            "lighting pass",
+            "render graph"
+          ],
+          "sourceIds": [
+            "s13a",
+            "s13b",
+            "s13c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Physically based material models",
+      "paragraphs": [
+        "   PBR, BRDF, BSDF, BTDF, BSSRDF, BxDF, Lambert, microfacet model, GGX, Trowbridge–Reitz distribution, normal-distribution function, NDF, Fresnel term, Smith masking-shadowing, energy conservation."
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "PBR",
+            "BRDF",
+            "BSDF",
+            "BTDF",
+            "BSSRDF",
+            "BxDF",
+            "Lambert",
+            "microfacet model",
+            "GGX",
+            "Trowbridge–Reitz distribution",
+            "normal-distribution function",
+            "NDF",
+            "Fresnel term",
+            "Smith masking-shadowing",
+            "energy conservation"
+          ],
+          "sourceIds": [
+            "s14a",
+            "s14b",
+            "s14c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Material parameters and specialized lobes",
+      "paragraphs": [
+        "   Base color, albedo, metallic, roughness, specular, normal, emissive, ambient occlusion, index of refraction, anisotropy, clearcoat, sheen, iridescence, transmission, thin-film interference, subsurface scattering, layered materials, hair shading.",
+        "   Modern “principled” materials collect these behaviors into an artist-facing model. [Disney Principled BRDF](https://disneyanimation.com/publications/physically-based-shading-at-disney/), [Khronos physically based material parameters](https://registry.khronos.org/ANARI/specs/1.1/ANARI-1.1.html)"
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Base color",
+            "albedo",
+            "metallic",
+            "roughness",
+            "specular",
+            "normal",
+            "emissive",
+            "ambient occlusion",
+            "index of refraction",
+            "anisotropy",
+            "clearcoat",
+            "sheen",
+            "iridescence",
+            "transmission",
+            "thin-film interference",
+            "subsurface scattering",
+            "layered materials",
+            "hair shading"
+          ],
+          "sourceIds": [
+            "s15a",
+            "s15b",
+            "s15c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Direct lighting and light sampling",
+      "paragraphs": [
+        "   Directional light, point light, spot light, area light, environment light, emissive geometry, image-based lighting, IBL, importance sampling, multiple importance sampling, MIS, many-light sampling."
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Directional light",
+            "point light",
+            "spot light",
+            "area light",
+            "environment light",
+            "emissive geometry",
+            "image-based lighting",
+            "IBL",
+            "importance sampling",
+            "multiple importance sampling",
+            "MIS",
+            "many-light sampling"
+          ],
+          "sourceIds": [
+            "s16a",
+            "s16b",
+            "s16c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Shadow methods",
+      "paragraphs": [
+        "   Shadow map, percentage-closer filtering, PCF, PCSS, cascaded shadow maps, CSM, variance shadow maps, exponential variance shadow maps, EVSM, virtual shadow maps, ray-traced shadows, distance-field shadows, contact shadows.",
+        "   “VSM” is ambiguous: it can mean Variance Shadow Maps or the newer Virtual Shadow Maps. The blog must spell out which one is intended. [Modern Unreal Engine shadow methods](https://dev.epicgames.com/documentation/en-us/unreal-engine/shadowing-in-unreal-engine)"
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Shadow map",
+            "percentage-closer filtering",
+            "PCF",
+            "PCSS",
+            "cascaded shadow maps",
+            "CSM",
+            "variance shadow maps",
+            "exponential variance shadow maps",
+            "EVSM",
+            "virtual shadow maps",
+            "ray-traced shadows",
+            "distance-field shadows",
+            "contact shadows"
+          ],
+          "sourceIds": [
+            "s17a",
+            "s17b",
+            "s17c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Global illumination and path sampling",
+      "paragraphs": [
+        "   Indirect illumination, diffuse bounce, glossy bounce, Monte Carlo integration, path tracing, bidirectional path tracing, Russian roulette, next-event estimation, ReSTIR DI, ReSTIR GI, reservoir sampling, spatiotemporal sample reuse.",
+        "   ReSTIR extends the draft’s ray-tracing discussion with modern sample reuse for many lights and indirect paths. [ReSTIR DI](https://research.nvidia.com/publication/2020-07_spatiotemporal-reservoir-resampling-real-time-ray-tracing-dynamic-direct), [ReSTIR GI](https://research.nvidia.com/publication/2021-06_restir-gi-path-resampling-real-time-path-tracing)"
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Indirect illumination",
+            "diffuse bounce",
+            "glossy bounce",
+            "Monte Carlo integration",
+            "path tracing",
+            "bidirectional path tracing",
+            "Russian roulette",
+            "next-event estimation",
+            "ReSTIR DI",
+            "ReSTIR GI",
+            "reservoir sampling",
+            "spatiotemporal sample reuse"
+          ],
+          "sourceIds": [
+            "s18a",
+            "s18b",
+            "s18c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Baked and cached lighting",
+      "paragraphs": [
+        "   Lightmap, baked global illumination, irradiance volume, light probe, reflection probe, radiance probe, irradiance cache, radiance cache, spherical harmonics, precomputed radiance transfer, PRT, radiosity, dynamic diffuse global illumination, DDGI, neural radiance cache, Lumen.",
+        "   Spherical harmonics approximate low-frequency directional lighting; they do not store arbitrary lighting exactly."
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Lightmap",
+            "baked global illumination",
+            "irradiance volume",
+            "light probe",
+            "reflection probe",
+            "radiance probe",
+            "irradiance cache",
+            "radiance cache",
+            "spherical harmonics",
+            "precomputed radiance transfer",
+            "PRT",
+            "radiosity",
+            "dynamic diffuse global illumination",
+            "DDGI",
+            "neural radiance cache",
+            "Lumen"
+          ],
+          "sourceIds": [
+            "s19a",
+            "s19b",
+            "s19c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Transparency and transmission",
+      "paragraphs": [
+        "   Alpha testing, alpha masking, alpha blending, sorted transparency, order-independent transparency, OIT, depth peeling, weighted blended OIT, refraction, Fresnel reflection, Beer–Lambert absorption, thickness, caustics."
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Alpha testing",
+            "alpha masking",
+            "alpha blending",
+            "sorted transparency",
+            "order-independent transparency",
+            "OIT",
+            "depth peeling",
+            "weighted blended OIT",
+            "refraction",
+            "Fresnel reflection",
+            "Beer–Lambert absorption",
+            "thickness",
+            "caustics"
+          ],
+          "sourceIds": [
+            "s20a",
+            "s20b",
+            "s20c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Participating media, fog, smoke, and fire",
+      "paragraphs": [
+        "   Participating media, extinction, absorption, emission, in-scattering, out-scattering, scattering coefficient, phase function, Henyey–Greenstein phase function, transmittance, optical depth, single scattering, multiple scattering, ray marching, delta tracking, null scattering, froxel, voxel grid, sparse volume texture, OpenVDB.",
+        "   Particle simulation and volume rendering should be separated: one determines how material moves, while the other determines how light travels through it. [PBRT volume scattering](https://www.pbr-book.org/4ed/Volume_Scattering)"
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Participating media",
+            "extinction",
+            "absorption",
+            "emission",
+            "in-scattering",
+            "out-scattering",
+            "scattering coefficient",
+            "phase function",
+            "Henyey–Greenstein phase function",
+            "transmittance",
+            "optical depth",
+            "single scattering",
+            "multiple scattering",
+            "ray marching",
+            "delta tracking",
+            "null scattering",
+            "froxel",
+            "voxel grid",
+            "sparse volume texture",
+            "OpenVDB"
+          ],
+          "sourceIds": [
+            "s21a",
+            "s21b",
+            "s21c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Sky, atmosphere, and clouds",
+      "paragraphs": [
+        "   Rayleigh scattering, Mie scattering, ozone absorption, aerial perspective, atmospheric transmittance, sky-view LUT, transmittance LUT, precomputed atmosphere, volumetric cloud, cloud density, cloud ray marching, cloud shadowing.",
+        "   [Physically based sky atmosphere](https://dev.epicgames.com/documentation/en-us/unreal-engine/sky-atmosphere-component-in-unreal-engine), [Volumetric cloud rendering](https://dev.epicgames.com/documentation/unreal-engine/volumetric-cloud-component-in-unreal-engine)"
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Rayleigh scattering",
+            "Mie scattering",
+            "ozone absorption",
+            "aerial perspective",
+            "atmospheric transmittance",
+            "sky-view LUT",
+            "transmittance LUT",
+            "precomputed atmosphere",
+            "volumetric cloud",
+            "cloud density",
+            "cloud ray marching",
+            "cloud shadowing"
+          ],
+          "sourceIds": [
+            "s22a",
+            "s22b",
+            "s22c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Water rendering and simulation",
+      "paragraphs": [
+        "   Fresnel reflection, refraction, absorption, underwater scattering, surface normals, wave spectrum, FFT ocean, Gerstner waves, shallow-water equations, screen-space reflection, planar reflection, ray-traced reflection, caustics, foam, spray, SPH, FLIP simulation.",
+        "   Water shading and water simulation should be separate subsections. A renderer can shade an animated wave surface without running a physically accurate fluid simulation."
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Fresnel reflection",
+            "refraction",
+            "absorption",
+            "underwater scattering",
+            "surface normals",
+            "wave spectrum",
+            "FFT ocean",
+            "Gerstner waves",
+            "shallow-water equations",
+            "screen-space reflection",
+            "planar reflection",
+            "ray-traced reflection",
+            "caustics",
+            "foam",
+            "spray",
+            "SPH",
+            "FLIP simulation"
+          ],
+          "sourceIds": [
+            "s23a",
+            "s23b",
+            "s23c"
+          ]
+        }
+      ]
+    },
+    {
+      "partLabel": "Part 4: Post-processing and display",
+      "heading": "HDR buffers, exposure, and adaptation",
+      "paragraphs": [
+        "   Scene-linear HDR, floating-point render target, luminance, exposure value, EV, pre-exposure, auto exposure, luminance histogram, eye adaptation, local exposure."
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Scene-linear HDR",
+            "floating-point render target",
+            "luminance",
+            "exposure value",
+            "EV",
+            "pre-exposure",
+            "auto exposure",
+            "luminance histogram",
+            "eye adaptation",
+            "local exposure"
+          ],
+          "sourceIds": [
+            "s24a",
+            "s24b",
+            "s24c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Tone mapping and color management",
+      "paragraphs": [
+        "   Tone mapping, Reinhard operator, filmic tone mapping, ACES, scene-referred color, display-referred color, color grading, 3D LUT, white balance, gamut mapping, gamut compression.",
+        "   ACES 2 separates its Output Transform into a rendering transform and display encoding, which is a useful distinction between choosing the image’s appearance and encoding it for a device. [ACES Output Transforms](https://docs.acescentral.com/system-components/output-transforms/)"
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Tone mapping",
+            "Reinhard operator",
+            "filmic tone mapping",
+            "ACES",
+            "scene-referred color",
+            "display-referred color",
+            "color grading",
+            "3D LUT",
+            "white balance",
+            "gamut mapping",
+            "gamut compression"
+          ],
+          "sourceIds": [
+            "s25a",
+            "s25b",
+            "s25c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Screen-space lighting approximations",
+      "paragraphs": [
+        "   SSAO, HBAO, GTAO, SSR, SSGI, screen-space shadows, depth pyramid, normal buffer, temporal accumulation, off-screen information loss."
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "SSAO",
+            "HBAO",
+            "GTAO",
+            "SSR",
+            "SSGI",
+            "screen-space shadows",
+            "depth pyramid",
+            "normal buffer",
+            "temporal accumulation",
+            "off-screen information loss"
+          ],
+          "sourceIds": [
+            "s26a",
+            "s26b",
+            "s26c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Anti-aliasing and image reconstruction",
+      "paragraphs": [
+        "   Supersampling, SSAA, MSAA, FXAA, SMAA, TAA, TAAU, temporal jitter, motion vectors, reprojection, history rejection, disocclusion, dynamic resolution, temporal upscaling, TSR, FSR, XeSS, DLSS Super Resolution.",
+        "   Modern temporal reconstruction uses information from multiple frames and therefore depends heavily on correct motion vectors. [Unreal Engine Temporal Super Resolution](https://dev.epicgames.com/documentation/en-us/unreal-engine/temporal-super-resolution-in-unreal-engine)"
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Supersampling",
+            "SSAA",
+            "MSAA",
+            "FXAA",
+            "SMAA",
+            "TAA",
+            "TAAU",
+            "temporal jitter",
+            "motion vectors",
+            "reprojection",
+            "history rejection",
+            "disocclusion",
+            "dynamic resolution",
+            "temporal upscaling",
+            "TSR",
+            "FSR",
+            "XeSS",
+            "DLSS Super Resolution"
+          ],
+          "sourceIds": [
+            "s27a",
+            "s27b",
+            "s27c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Ray-tracing denoising and neural reconstruction",
+      "paragraphs": [
+        "   Spatial denoising, temporal denoising, variance estimation, sample accumulation, firefly removal, neural denoising, ray reconstruction, DLSS Ray Reconstruction, neural rendering."
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Spatial denoising",
+            "temporal denoising",
+            "variance estimation",
+            "sample accumulation",
+            "firefly removal",
+            "neural denoising",
+            "ray reconstruction",
+            "DLSS Ray Reconstruction",
+            "neural rendering"
+          ],
+          "sourceIds": [
+            "s28a",
+            "s28b",
+            "s28c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Camera and lens effects",
+      "paragraphs": [
+        "   Bloom, convolution bloom, depth of field, circle of confusion, bokeh, motion blur, lens flare, vignette, chromatic aberration, film grain."
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Bloom",
+            "convolution bloom",
+            "depth of field",
+            "circle of confusion",
+            "bokeh",
+            "motion blur",
+            "lens flare",
+            "vignette",
+            "chromatic aberration",
+            "film grain"
+          ],
+          "sourceIds": [
+            "s29a",
+            "s29b",
+            "s29c"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Display encoding and presentation",
+      "paragraphs": [
+        "   Linear RGB, sRGB, transfer function, OETF, EOTF, SDR, HDR10, PQ, HLG, display primaries, white point, bit depth, quantization, dithering, swapchain, presentation."
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Linear RGB",
+            "sRGB",
+            "transfer function",
+            "OETF",
+            "EOTF",
+            "SDR",
+            "HDR10",
+            "PQ",
+            "HLG",
+            "display primaries",
+            "white point",
+            "bit depth",
+            "quantization",
+            "dithering",
+            "swapchain",
+            "presentation"
+          ],
+          "sourceIds": [
+            "s30a",
+            "s30b",
+            "s30c"
+          ]
+        }
+      ]
+    }
+  ],
+  "closing": "These sources turn the 30-part vocabulary into a research map: each keyword now has a direct path into the papers, specifications, and production documentation that define or implement it."
+}
