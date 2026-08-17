@@ -1,5 +1,5 @@
 {
-  "id": "9a539f43-ffbc-4add-affe-0da65bc12df7",
+  "id": "98855507-6622-439d-8590-9c6361e490a3",
   "uid": "4540428f3777b3dd9b4cd0067a22ee74aa3687a96dfa5338196e3249e2e60a52",
   "url": "https://gpuopen.com/learn/wmma-guide-amd-rdna-4-gpus-part-1",
   "canonicalUrl": "https://gpuopen.com/learn/wmma-guide-amd-rdna-4-gpus-part-1",
@@ -9,6 +9,6 @@
   "subtitle": "Practical guide to fusing GEMMs on AMD RDNA™ 4 architecture, covering WMMA layout, a transpose-by-swapping A/B technique, HIP sample code, and hipBLAS-verified results used in Llama.cpp.",
   "imageUrl": "https://gpuopen.com/images/wmma_rdna4_pt1b_featured.DzaFBi3a.jpg",
   "publishedAt": "2026-06-02T19:00:00.000Z",
-  "firstSeenAt": "2026-08-17T14:06:59.252Z",
-  "lastSeenAt": "2026-08-17T14:06:59.252Z"
+  "firstSeenAt": "2026-08-17T14:44:20.997Z",
+  "lastSeenAt": "2026-08-17T14:44:20.997Z"
 }
