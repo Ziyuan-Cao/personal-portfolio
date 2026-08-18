@@ -1,5 +1,5 @@
 {
-  "id": "560a40da-4161-4530-ae87-f2671f7a2fba",
+  "id": "508fe253-d4cf-4c67-a1cb-5f36762acefd",
   "uid": "964bcc80061f46009edb69071a2414966f8e446716a5f9981603fb7dd54f53ea",
   "url": "https://www.khronos.org/blog/new-vulkan-game-engine-tutorial-build-your-own-production-ready-rendering-engine",
   "canonicalUrl": "https://www.khronos.org/blog/new-vulkan-game-engine-tutorial-build-your-own-production-ready-rendering-engine",
@@ -9,6 +9,6 @@
   "subtitle": "The Vulkan Working Group at Khronos has published Building a Simple Game Engine, a new in-depth tutorial for developers ready to move beyond the basics and into professional-grade engine development. The series builds on the Core Vulkan Tutorial, guiding you through architectural principles and design patterns purpose-built for Vulkan-based rendering engines — helping you design clean, modular systems that scale with your project.",
   "imageUrl": "https://www.khronos.org/images/jcogs_img/cache/2026-blog-vulkan-game-engine-tutorial_-_28de80_-_ade52cc9e2371411e2f6a5e18fb8664a9767175d.png",
   "publishedAt": "2026-02-25T14:00:00.000Z",
-  "firstSeenAt": "2026-08-17T21:21:30.524Z",
-  "lastSeenAt": "2026-08-17T21:21:30.524Z"
+  "firstSeenAt": "2026-08-18T21:19:30.174Z",
+  "lastSeenAt": "2026-08-18T21:19:30.174Z"
 }

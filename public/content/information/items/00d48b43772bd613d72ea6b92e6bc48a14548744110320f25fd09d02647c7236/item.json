@@ -1,5 +1,5 @@
 {
-  "id": "6bf2a1d4-119f-4e73-9885-5ff49fbabe15",
+  "id": "bcbb698a-e5f1-4762-afb4-33f32a746030",
   "uid": "00d48b43772bd613d72ea6b92e6bc48a14548744110320f25fd09d02647c7236",
   "url": "https://devblogs.microsoft.com/directx/d3d12-linalg-preview",
   "canonicalUrl": "https://devblogs.microsoft.com/directx/d3d12-linalg-preview",
@@ -9,6 +9,6 @@
   "subtitle": "Welcome to the D3D12 LinAlg Matrix Preview release! Today, we are excited to announce the preview release for the D3D12 Linear Algebra APIs! This feature set unlocks comprehensive hardware acceleration for Matrix-oriented operations across various use cases. Previously, we announced the WaveMMA and Cooperative Vectors features which supported narrow matrix operation use cases; the LinAlg […] The post D3D12 LinAlg Matrix Preview appeared first on DirectX Developer Blog.",
   "imageUrl": "https://devblogs.microsoft.com/directx/wp-content/uploads/sites/42/2017/01/XII_BLACK_1kx1k.jpg",
   "publishedAt": "2026-04-27T17:00:50.000Z",
-  "firstSeenAt": "2026-08-17T21:21:53.298Z",
-  "lastSeenAt": "2026-08-17T21:21:53.298Z"
+  "firstSeenAt": "2026-08-18T21:20:01.867Z",
+  "lastSeenAt": "2026-08-18T21:20:01.867Z"
 }

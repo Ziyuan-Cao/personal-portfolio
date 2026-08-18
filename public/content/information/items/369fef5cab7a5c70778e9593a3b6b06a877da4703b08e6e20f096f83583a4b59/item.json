@@ -1,5 +1,5 @@
 {
-  "id": "7fd70754-3c66-463f-873a-6f583058e519",
+  "id": "11451240-03d8-46c7-9c12-80b04dcff0d3",
   "uid": "369fef5cab7a5c70778e9593a3b6b06a877da4703b08e6e20f096f83583a4b59",
   "url": "https://gpuopen.com/learn/post-mortem-gpu-crash-debugging-with-llms",
   "canonicalUrl": "https://gpuopen.com/learn/post-mortem-gpu-crash-debugging-with-llms",
@@ -9,6 +9,6 @@
   "subtitle": "The new AMD RGD MCP Server connects LLM agents to AMD's GPU crash analysis pipeline, turning a single prompt into root-cause analysis and source-code fix suggestions.",
   "imageUrl": "https://gpuopen.com/images/gpu_crash_debug_llm_blog_workflow_fix.DCmgM3Op.jpg",
   "publishedAt": "2026-07-14T12:00:00.000Z",
-  "firstSeenAt": "2026-08-17T21:21:52.901Z",
-  "lastSeenAt": "2026-08-17T21:21:52.901Z"
+  "firstSeenAt": "2026-08-18T21:20:01.119Z",
+  "lastSeenAt": "2026-08-18T21:20:01.119Z"
 }

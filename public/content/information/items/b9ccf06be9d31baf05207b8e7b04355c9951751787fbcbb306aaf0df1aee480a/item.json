@@ -1,5 +1,5 @@
 {
-  "id": "d72faf82-d51d-45a7-8063-84f0aba65d09",
+  "id": "f0d9fa28-f7c5-434f-8c25-34ec105c47c3",
   "uid": "b9ccf06be9d31baf05207b8e7b04355c9951751787fbcbb306aaf0df1aee480a",
   "url": "https://unity.com/blog/meet-the-unity-cli",
   "canonicalUrl": "https://unity.com/blog/meet-the-unity-cli",
@@ -9,6 +9,6 @@
   "subtitle": "Install editors, automate CI, and drive a running Editor or dev build from the terminal. The Unity CLI and com.unity.pipeline package give scripts and AI agents a fast, structured way to operate Unity.",
   "imageUrl": null,
   "publishedAt": "2026-07-20T00:00:00.000Z",
-  "firstSeenAt": "2026-08-17T21:21:36.835Z",
-  "lastSeenAt": "2026-08-17T21:21:36.835Z"
+  "firstSeenAt": "2026-08-18T21:19:42.308Z",
+  "lastSeenAt": "2026-08-18T21:19:42.308Z"
 }
