@@ -1,0 +1,45 @@
+{
+  "title": "硬件、计算机系统、GPU 架构、CUDA 与 RHI",
+  "abstract": "从 CPU、内存、闪存、总线、进程、页、线程和锁，一直连接到 GPU、CUDA、RHI，以及 OpenGL、Direct3D 11/12 与 Vulkan 差异的系统指南。",
+  "category": "硬件与图形系统指南",
+  "imageAlt": "CPU 和内存层级通过互连连接 GPU，再分支到 OpenGL、Direct3D、Vulkan 与引擎 RHI",
+  "lede": "渲染性能从渲染器以下的层级开始。CPU 调度、内存局部性、存储、互连、操作系统隔离、GPU 层级和 API 提交共同决定有效工作何时到达设备。本文保留 Cuda 和 Valkan 原词，同时指出正式名称 CUDA 与 Vulkan，补充必要架构概念，并区分 AI 系统研究和确定性的硬件、OS、图形 API 契约。",
+  "sections": [
+    {
+      "heading": "计算机系统：计算、内存、存储与互连",
+      "paragraphs": [
+        "计算机系统不是单个处理器，而是层级结构。CPU 执行指令，缓存保存邻近数据，DRAM 容纳工作集，闪存持久保存数据，总线和一致性互连负责组件通信。",
+        "性能由必经路径中最慢的一段决定。延迟表示一次操作耗时，带宽表示单位时间传输量，并发则用其他工作隐藏等待。"
+      ]
+    },
+    {
+      "heading": "进程、页、线程与同步",
+      "paragraphs": [
+        "操作系统把硬件转换为隔离的执行上下文。进程拥有虚拟地址空间和资源，线程是可共享进程状态的调度执行流，页是映射和保护粒度。",
+        "多线程通过共享内存通信。锁建立临界区，原子操作提供带顺序的不可分更新，futex 让竞争线程休眠而不是持续自旋。"
+      ]
+    },
+    {
+      "heading": "GPU 架构：通过层级并行获得吞吐量",
+      "paragraphs": [
+        "GPU 用单线程延迟换取总吞吐量。大量 SM 或 Compute Unit 调度 Warp/Wavefront，在某些组等待内存时切换到其他就绪组。",
+        "寄存器和共享内存快速但有限，并会限制占用率；全局显存容量大但访问昂贵；合并访问和分块复用把带宽转化为有效计算。"
+      ]
+    },
+    {
+      "heading": "CUDA：把 Kernel 映射到 NVIDIA GPU",
+      "paragraphs": [
+        "CUDA 是 NVIDIA 的通用 GPU 计算平台。Host 以 Thread Block Grid 启动 Kernel，硬件把 Block 独立调度到 SM，再划分为 Warp。",
+        "正确程序必须尊重同步范围。Block Barrier 不同步其他 Block，不同 Stream 需要显式依赖；PTX 是虚拟 ISA，不保证源码与机器指令一一对应。"
+      ]
+    },
+    {
+      "heading": "RHI 与图形 API：OpenGL、Direct3D 11/12、Vulkan",
+      "paragraphs": [
+        "RHI 是引擎自有的图形 API 抽象，统一资源、管线、命令、同步和呈现概念，再由后端翻译到不同平台 API。",
+        "OpenGL 与 Direct3D 11 让驱动推断更多状态；Direct3D 12 与 Vulkan 则把命令记录、资源状态、内存、描述符、队列和同步更明确地交给应用。"
+      ]
+    }
+  ],
+  "closing": "一帧会跨越进程、线程、页、缓存、总线、GPU 与 RHI 等所有权边界。OpenGL 和 Direct3D 11 把更多责任交给驱动，而 Direct3D 12 与 Vulkan 在提供控制的同时，也把正确性证明交还给引擎。"
+}

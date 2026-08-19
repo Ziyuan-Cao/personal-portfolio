@@ -1,0 +1,1300 @@
+{
+  "slug": "animation-systems-vertices-cages-rigs-deformation-motion",
+  "title": "Animation Systems - Vertices, Cages, Rigs, Deformation, and Motion",
+  "abstract": "A representation-first guide to vertex and cage animation, rigs and skinning, FK/IK and retargeting, skin and muscle deformation, hair simulation, facial controls, and runtime transformations.",
+  "category": "Animation research guide",
+  "publishedAt": "2026-08-20",
+  "image": "/content/blog/Animation Systems - Vertices, Cages, Rigs, Deformation, and Motion/animation-systems.svg",
+  "imageAlt": "One character mesh progresses from vertex samples and a control cage through a skeleton, muscles, hair strands, facial shapes, and a motion trajectory",
+  "lede": "Animation systems differ mainly in what they control: final vertices, a surrounding cage, a joint hierarchy, physical tissue, strands, semantic facial shapes, or time-varying transforms. This guide preserves the supplied vocabulary—including the ambiguous term GX—adds the missing production concepts around it, and connects each group to foundational documentation, primary papers, equations, and current AI research without treating learned output as a substitute for runtime contracts.",
+  "sourceCatalog": {
+    "aGltf": {
+      "label": "glTF 2.0 specification: meshes, skins, and animation",
+      "url": "https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html"
+    },
+    "aVatSidefx": {
+      "label": "SideFX Vertex Animation Textures 3.0",
+      "url": "https://www.sidefx.com/docs/houdini/nodes/out/labs--vertex_animation_textures-3.0.html"
+    },
+    "aVatUnreal": {
+      "label": "Unreal Engine Vertex Animation Tool",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/vertex-animation-tool-in-unreal-engine"
+    },
+    "aAnimateMesh": {
+      "label": "AnimateAnyMesh (2025)",
+      "url": "https://arxiv.org/abs/2506.09982"
+    },
+    "a4Deform": {
+      "label": "4Deform (CVPR 2025)",
+      "url": "https://cvpr.thecvf.com/virtual/2025/poster/34436"
+    },
+    "aV2m4": {
+      "label": "V2M4: 4D mesh animation from video (ICCV 2025)",
+      "url": "https://windvchen.github.io/V2M4/"
+    },
+    "aCageSurvey": {
+      "label": "Cage-based deformation survey (Computer Graphics Forum 2024)",
+      "url": "https://onlinelibrary.wiley.com/doi/10.1111/cgf.15060"
+    },
+    "aGreen": {
+      "label": "Green Coordinates",
+      "url": "https://www.cs.tau.ac.il/~dcor/articles/2008/Green-Coordinates.pdf"
+    },
+    "aDeformer": {
+      "label": "GPU Gems: Deformers",
+      "url": "https://developer.nvidia.com/gpugems/gpugems/part-vi-beyond-triangles/chapter-42-deformers"
+    },
+    "aCageFlex": {
+      "label": "Flexible 3D cage-based deformation (2025)",
+      "url": "https://arxiv.org/abs/2501.14068"
+    },
+    "aPolyGreen": {
+      "label": "Polynomial 3D Green coordinates (2025)",
+      "url": "https://www.sciencedirect.com/science/article/pii/S0097849325002298"
+    },
+    "aSkinning": {
+      "label": "Skinning: Real-time Shape Deformation",
+      "url": "https://skinning.org/direct-methods.pdf"
+    },
+    "aDqs": {
+      "label": "Dual Quaternion Skinning",
+      "url": "https://users.cs.utah.edu/~ladislav/dq/index.html"
+    },
+    "aPinocchio": {
+      "label": "Pinocchio: Automatic Rigging",
+      "url": "https://people.csail.mit.edu/ibaran/papers/2007-SIGGRAPH-Pinocchio.pdf"
+    },
+    "aGeodesic": {
+      "label": "Geodesic Voxel Binding",
+      "url": "https://diglib.eg.org/items/3d3458d9-bdf2-41c7-8b84-5da16b5cd637"
+    },
+    "aIkRig": {
+      "label": "Unreal Engine IK Rig",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-ik-rig"
+    },
+    "aRetarget": {
+      "label": "Unreal Engine IK Rig retargeting",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/ik-rig-animation-retargeting-in-unreal-engine"
+    },
+    "aRigAnything": {
+      "label": "RigAnything (2025)",
+      "url": "https://arxiv.org/abs/2502.09615"
+    },
+    "aUniRig": {
+      "label": "UniRig (2025)",
+      "url": "https://arxiv.org/abs/2504.12451"
+    },
+    "aStar": {
+      "label": "STaR motion retargeting (ICCV 2025)",
+      "url": "https://openaccess.thecvf.com/content/ICCV2025/html/Yang_STaR_Seamless_Spatial-Temporal_Aware_Motion_Retargeting_with_Penetration_and_Consistency_ICCV_2025_paper.html"
+    },
+    "aPsd": {
+      "label": "Pose Space Deformation",
+      "url": "https://doi.org/10.1145/344779.344862"
+    },
+    "aPixar": {
+      "label": "Dynamic Deformables: Implementation and Production Practicalities",
+      "url": "https://graphics.pixar.com/library/DynamicDeformablesSiggraph2020/paper.pdf"
+    },
+    "aNdg": {
+      "label": "Neural deformation gradients for skin (2026)",
+      "url": "https://graphics.rocks/publications/2026-ndg.pdf"
+    },
+    "aPhysSkin": {
+      "label": "PhysSkin: Physics-informed neural skinning (2026)",
+      "url": "https://arxiv.org/abs/2603.23194"
+    },
+    "aCutCell": {
+      "label": "A Geodesic Cut-Cell Prior for Neural Skinning (2026)",
+      "url": "https://arxiv.org/abs/2608.11272"
+    },
+    "aRods": {
+      "label": "Discrete Elastic Rods",
+      "url": "https://www.cs.columbia.edu/cg/rods/"
+    },
+    "aAdmmHair": {
+      "label": "GPU ADMM for hair simulation",
+      "url": "https://research.nvidia.com/labs/prl/admm_hair/"
+    },
+    "aCosserat": {
+      "label": "Stable Cosserat Rods (SIGGRAPH 2025)",
+      "url": "https://jerryhsu.io/projects/StableCosseratRods/"
+    },
+    "aQuaffure": {
+      "label": "Quaffure: Neural Hair Simulation (CVPR 2025)",
+      "url": "https://openaccess.thecvf.com/content/CVPR2025/html/Stuyck_Quaffure_Real-Time_Quasi-Static_Neural_Hair_Simulation_CVPR_2025_paper.html"
+    },
+    "aHairFormer": {
+      "label": "HairFormer (2025)",
+      "url": "https://arxiv.org/abs/2507.12600"
+    },
+    "aSimAvatar": {
+      "label": "SimAvatar (CVPR 2025)",
+      "url": "https://openaccess.thecvf.com/content/CVPR2025/html/Li_SimAvatar_Simulation-Ready_Avatars_with_Layered_Hair_and_Clothing_CVPR_2025_paper.html"
+    },
+    "aFacs": {
+      "label": "Facial Action Coding System",
+      "url": "https://www.paulekman.com/facial-action-coding-system/"
+    },
+    "aBlend": {
+      "label": "Performance Driven Facial Animation",
+      "url": "https://graphics.stanford.edu/~echuang/face/"
+    },
+    "aFlame": {
+      "label": "FLAME parametric head model",
+      "url": "https://flame.is.tue.mpg.de/index.html"
+    },
+    "aMorphDoc": {
+      "label": "Khronos morph-target facial animation tutorial",
+      "url": "https://github.khronos.org/Vulkan-Site/tutorial/latest/Advanced_glTF/Morph_Targets_Facial_Animation/01_introduction.html"
+    },
+    "aOmniFace": {
+      "label": "OmniFaceRig (2026)",
+      "url": "https://arxiv.org/abs/2606.08043"
+    },
+    "aGaussianSpeech": {
+      "label": "GaussianSpeech (ICCV 2025)",
+      "url": "https://openaccess.thecvf.com/content/ICCV2025/papers/Aneja_GaussianSpeech_Audio-Driven_Personalized_3D_Gaussian_Avatars_ICCV_2025_paper.pdf"
+    },
+    "aAudioFace": {
+      "label": "Audio2Face-3D (2025)",
+      "url": "https://arxiv.org/abs/2508.16401"
+    },
+    "aQuaternion": {
+      "label": "Animating rotation with quaternion curves",
+      "url": "https://www.cise.ufl.edu/research/lok/teaching/dcvef05/papers/shoemake-quaternions.pdf"
+    },
+    "aMotionMatch": {
+      "label": "Unreal Engine Motion Matching",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/motion-matching-in-unreal-engine"
+    },
+    "aMotionCraft": {
+      "label": "MotionCraft (AAAI 2025)",
+      "url": "https://ojs.aaai.org/index.php/AAAI/article/view/32183"
+    },
+    "aMoma": {
+      "label": "MoMADiff (2025)",
+      "url": "https://arxiv.org/abs/2505.11013"
+    },
+    "aPolicy": {
+      "label": "Policy-space diffusion for physics-based character animation (2025)",
+      "url": "https://pure.etsmtl.ca/en/publications/policy-space-diffusion-for-physics-based-character-animation/"
+    }
+  },
+  "sections": [
+    {
+      "heading": "Vertex-based animation: move the final samples",
+      "paragraphs": [
+        "Vertex-based animation stores or computes the deformed position of each mesh vertex directly. It represents arbitrary motion—including cloth, fluid surfaces, destruction, and scanned performance—but depends on stable vertex identity when frames are interpolated or compressed.",
+        "Mesh caches keep explicit positions; morph targets store deltas from a base mesh; vertex animation textures move per-frame data into textures for GPU playback. All three trade rig editability for faithful reproduction of the sampled surface."
+      ],
+      "equations": [
+        {
+          "label": "Morph-target deformation",
+          "expression": "x′ᵢ = xᵢ + Σ_k w_k Δxᵢk",
+          "terms": [
+            "Each weight w_k scales one per-vertex target delta."
+          ]
+        }
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Vertex base",
+            "per-vertex animation",
+            "vertex delta",
+            "topology consistency",
+            "interpolation"
+          ],
+          "summary": "Direct vertex motion requires correspondence and a clear rule for blending samples.",
+          "sourceIds": [
+            "aGltf",
+            "aVatSidefx",
+            "aVatUnreal"
+          ],
+          "details": [
+            {
+              "keyword": "Vertex base",
+              "explanation": "Animation whose primary output is the position or attribute of each vertex rather than a skeleton transform.",
+              "aiNote": "AI can infer dense vertex trajectories or deform arbitrary meshes, but playback still needs stable correspondence, topology, interpolation, and compression."
+            },
+            {
+              "keyword": "per-vertex animation",
+              "explanation": "Any method that updates individual mesh vertices from cached frames, textures, targets, or a deformation model.",
+              "aiNote": "AI can infer dense vertex trajectories or deform arbitrary meshes, but playback still needs stable correspondence, topology, interpolation, and compression."
+            },
+            {
+              "keyword": "vertex delta",
+              "explanation": "The offset between a base vertex and its deformed target position.",
+              "equation": {
+                "expression": "Δxᵢ=xᵢ,target-xᵢ,base",
+                "note": "Deltas can be linearly combined."
+              },
+              "aiNote": "AI can infer dense vertex trajectories or deform arbitrary meshes, but playback still needs stable correspondence, topology, interpolation, and compression."
+            },
+            {
+              "keyword": "topology consistency",
+              "explanation": "A requirement that vertex count, ordering, and connectivity remain compatible across cached frames.",
+              "aiNote": "AI can infer dense vertex trajectories or deform arbitrary meshes, but playback still needs stable correspondence, topology, interpolation, and compression."
+            },
+            {
+              "keyword": "interpolation",
+              "explanation": "Evaluation between sampled frames or targets to avoid stepwise motion.",
+              "equation": {
+                "expression": "x(t)=(1-α)x₀+αx₁",
+                "note": "Linear interpolation assumes corresponding vertices."
+              },
+              "aiNote": "AI can infer dense vertex trajectories or deform arbitrary meshes, but playback still needs stable correspondence, topology, interpolation, and compression."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "mesh cache",
+            "point cache",
+            "geometry cache",
+            "morph target",
+            "Vertex Animation Texture",
+            "VAT",
+            "compression",
+            "GPU playback"
+          ],
+          "summary": "Caches and textures package direct deformation for storage and efficient runtime evaluation.",
+          "sourceIds": [
+            "aVatSidefx",
+            "aVatUnreal",
+            "aGltf"
+          ],
+          "details": [
+            {
+              "keyword": "mesh cache",
+              "explanation": "A sequence of complete mesh samples storing time-varying geometry.",
+              "aiNote": "AI can infer dense vertex trajectories or deform arbitrary meshes, but playback still needs stable correspondence, topology, interpolation, and compression."
+            },
+            {
+              "keyword": "point cache",
+              "explanation": "A compact frame sequence of per-point positions, usually assuming unchanged topology.",
+              "aiNote": "AI can infer dense vertex trajectories or deform arbitrary meshes, but playback still needs stable correspondence, topology, interpolation, and compression."
+            },
+            {
+              "keyword": "geometry cache",
+              "explanation": "A broader cached animation asset that may include topology, normals, and other changing attributes.",
+              "aiNote": "AI can infer dense vertex trajectories or deform arbitrary meshes, but playback still needs stable correspondence, topology, interpolation, and compression."
+            },
+            {
+              "keyword": "morph target",
+              "explanation": "A named set of vertex deltas blended onto a base mesh for expressions or corrective deformation.",
+              "aiNote": "AI can infer dense vertex trajectories or deform arbitrary meshes, but playback still needs stable correspondence, topology, interpolation, and compression."
+            },
+            {
+              "keyword": "Vertex Animation Texture",
+              "explanation": "A texture encoding per-vertex position, normal, or rotation over animation frames.",
+              "aiNote": "AI can infer dense vertex trajectories or deform arbitrary meshes, but playback still needs stable correspondence, topology, interpolation, and compression."
+            },
+            {
+              "keyword": "VAT",
+              "explanation": "The common abbreviation for Vertex Animation Texture playback.",
+              "aiNote": "AI can infer dense vertex trajectories or deform arbitrary meshes, but playback still needs stable correspondence, topology, interpolation, and compression."
+            },
+            {
+              "keyword": "compression",
+              "explanation": "Quantization, prediction, PCA, or texture packing used to reduce deformation storage and bandwidth.",
+              "aiNote": "AI can infer dense vertex trajectories or deform arbitrary meshes, but playback still needs stable correspondence, topology, interpolation, and compression."
+            },
+            {
+              "keyword": "GPU playback",
+              "explanation": "Vertex-shader or compute evaluation that reads cached deformation without per-character CPU skinning.",
+              "aiNote": "AI can infer dense vertex trajectories or deform arbitrary meshes, but playback still needs stable correspondence, topology, interpolation, and compression."
+            }
+          ]
+        }
+      ],
+      "aiResearch": {
+        "summary": "AnimateAnyMesh learns motion transfer to arbitrary meshes, 4Deform reconstructs dynamic surfaces, and V2M4 produces temporally consistent 4D meshes from video. Their outputs still need a vertex/cache representation for editing and playback.",
+        "sourceIds": [
+          "aAnimateMesh",
+          "a4Deform",
+          "aV2m4"
+        ]
+      }
+    },
+    {
+      "heading": "Cage-based animation: deform through coordinates",
+      "paragraphs": [
+        "A cage surrounds the detailed mesh with a small set of control vertices. Each embedded point is expressed as coordinates relative to the cage, so moving the coarse control shape deforms thousands of interior or surface vertices with a smooth, low-dimensional edit.",
+        "The coordinate family determines behavior. Mean-value and harmonic coordinates emphasize smooth interpolation; Green coordinates also account for cage-face normals and can better reproduce affine and detail-preserving deformation. A poor cage can still fold, invert, or create unintuitive global influence."
+      ],
+      "equations": [
+        {
+          "label": "Generalized barycentric reconstruction",
+          "expression": "x = Σ_j φ_j(x) c_j,   Σ_j φ_j(x)=1",
+          "terms": [
+            "Rest-space weights φ_j reconstruct a point from cage controls c_j; animated controls produce x′."
+          ]
+        }
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Cage base",
+            "control cage",
+            "FFD",
+            "lattice",
+            "coordinate weights",
+            "smoothness",
+            "detail preservation"
+          ],
+          "summary": "A low-resolution control structure exposes broad shape edits while coordinates carry them to the detailed mesh.",
+          "sourceIds": [
+            "aCageSurvey",
+            "aDeformer",
+            "aGreen"
+          ],
+          "details": [
+            {
+              "keyword": "Cage base",
+              "explanation": "Animation driven by moving a coarse enclosing control mesh whose influence is transferred to embedded geometry.",
+              "aiNote": "Learned deformation fields can replace or initialize cage control, while cage coordinates remain a compact deterministic editing interface with predictable locality."
+            },
+            {
+              "keyword": "control cage",
+              "explanation": "A low-polygon closed or near-closed mesh used as the deformation handle set.",
+              "aiNote": "Learned deformation fields can replace or initialize cage control, while cage coordinates remain a compact deterministic editing interface with predictable locality."
+            },
+            {
+              "keyword": "FFD",
+              "explanation": "Free-Form Deformation embeds geometry in a parametric lattice and deforms it by moving lattice controls.",
+              "aiNote": "Learned deformation fields can replace or initialize cage control, while cage coordinates remain a compact deterministic editing interface with predictable locality."
+            },
+            {
+              "keyword": "lattice",
+              "explanation": "A regular control grid used to bend, taper, twist, or squash embedded geometry.",
+              "aiNote": "Learned deformation fields can replace or initialize cage control, while cage coordinates remain a compact deterministic editing interface with predictable locality."
+            },
+            {
+              "keyword": "coordinate weights",
+              "explanation": "Precomputed coefficients relating each detailed vertex to cage vertices, faces, or cells.",
+              "aiNote": "Learned deformation fields can replace or initialize cage control, while cage coordinates remain a compact deterministic editing interface with predictable locality."
+            },
+            {
+              "keyword": "smoothness",
+              "explanation": "Continuity of the resulting deformation across the embedded surface.",
+              "aiNote": "Learned deformation fields can replace or initialize cage control, while cage coordinates remain a compact deterministic editing interface with predictable locality."
+            },
+            {
+              "keyword": "detail preservation",
+              "explanation": "Retention of small-scale features while the cage performs a broad low-frequency edit.",
+              "aiNote": "Learned deformation fields can replace or initialize cage control, while cage coordinates remain a compact deterministic editing interface with predictable locality."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "generalized barycentric coordinates",
+            "mean-value coordinates",
+            "harmonic coordinates",
+            "Green coordinates",
+            "deformation transfer"
+          ],
+          "summary": "Coordinate systems differ in positivity, locality, reproduction, boundary behavior, and support for cage faces.",
+          "sourceIds": [
+            "aCageSurvey",
+            "aGreen",
+            "aPolyGreen"
+          ],
+          "details": [
+            {
+              "keyword": "generalized barycentric coordinates",
+              "explanation": "Weights extending barycentric interpolation from a simplex to a general polygonal or polyhedral cage.",
+              "aiNote": "Learned deformation fields can replace or initialize cage control, while cage coordinates remain a compact deterministic editing interface with predictable locality."
+            },
+            {
+              "keyword": "mean-value coordinates",
+              "explanation": "Closed-form generalized coordinates with smooth interpolation for suitable cages.",
+              "aiNote": "Learned deformation fields can replace or initialize cage control, while cage coordinates remain a compact deterministic editing interface with predictable locality."
+            },
+            {
+              "keyword": "harmonic coordinates",
+              "explanation": "Weights obtained by solving Laplace equations with boundary conditions on the cage.",
+              "equation": {
+                "expression": "∇²φ_j=0",
+                "note": "Boundary values assign influence to each cage handle."
+              },
+              "aiNote": "Learned deformation fields can replace or initialize cage control, while cage coordinates remain a compact deterministic editing interface with predictable locality."
+            },
+            {
+              "keyword": "Green coordinates",
+              "explanation": "Coordinates using cage vertices and face normals to reproduce affine transformations and preserve detail.",
+              "aiNote": "Learned deformation fields can replace or initialize cage control, while cage coordinates remain a compact deterministic editing interface with predictable locality."
+            },
+            {
+              "keyword": "deformation transfer",
+              "explanation": "Mapping a deformation observed on one control or source shape onto another target surface.",
+              "aiNote": "Learned deformation fields can replace or initialize cage control, while cage coordinates remain a compact deterministic editing interface with predictable locality."
+            }
+          ]
+        }
+      ],
+      "aiResearch": {
+        "summary": "Direct cage research remains active—recent work improves flexible cage construction and polynomial Green coordinates—but the hottest learning work usually predicts deformation fields or meshes. Those learned outputs can be controlled or compressed by cages rather than making cages obsolete.",
+        "sourceIds": [
+          "aCageFlex",
+          "aPolyGreen",
+          "a4Deform"
+        ]
+      }
+    },
+    {
+      "heading": "Rig-based animation: hierarchy, skinning, IK, and retargeting",
+      "paragraphs": [
+        "A rig separates control from deformation. A joint hierarchy evaluates local transforms into global bone transforms; skin weights map those transforms to the mesh; FK, IK, constraints, and controls let animators pose the hierarchy; retargeting maps motion between different skeleton proportions.",
+        "Automatic rigging predicts or fits a skeleton, while automatic skinning assigns influences. They are related but different optimization problems. The supplied term GX is preserved below, but it is not a standardized rigging acronym in the cited specifications or papers; a project must define it explicitly before it can be implemented."
+      ],
+      "equations": [
+        {
+          "label": "Linear blend skinning",
+          "expression": "x′ᵢ = Σ_j wᵢj (G_j B_j⁻¹) xᵢ,   Σ_j wᵢj=1",
+          "terms": [
+            "G_j is the current global joint transform and B_j the bind transform."
+          ]
+        },
+        {
+          "label": "Jacobian IK update",
+          "expression": "Δθ = J⁺(x_target-x_end)",
+          "terms": [
+            "J⁺ is a pseudoinverse or damped least-squares inverse."
+          ]
+        }
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "rig base",
+            "skeleton",
+            "joint hierarchy",
+            "bone",
+            "bind pose",
+            "inverse bind matrix",
+            "local transform",
+            "global transform"
+          ],
+          "summary": "Hierarchy and bind transforms define the deterministic coordinate system used by every skinned frame.",
+          "sourceIds": [
+            "aGltf",
+            "aSkinning",
+            "aDqs"
+          ],
+          "details": [
+            {
+              "keyword": "rig base",
+              "explanation": "Animation controlled by a structured hierarchy, constraints, and deformers rather than direct final-vertex edits.",
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            },
+            {
+              "keyword": "skeleton",
+              "explanation": "A hierarchy of joints representing articulated pose and serving as a deformation control structure.",
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            },
+            {
+              "keyword": "joint hierarchy",
+              "explanation": "Parent–child relationships through which local transforms compose into model-space transforms.",
+              "equation": {
+                "expression": "G_j=G_parent L_j",
+                "note": "Evaluation proceeds from the root outward."
+              },
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            },
+            {
+              "keyword": "bone",
+              "explanation": "The conceptual segment between joints; runtime formats usually store joint transforms rather than a physical bone volume.",
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            },
+            {
+              "keyword": "bind pose",
+              "explanation": "The reference pose in which the mesh and skeleton are associated and skin weights are authored.",
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            },
+            {
+              "keyword": "inverse bind matrix",
+              "explanation": "A matrix that moves a vertex from model space into a joint's bind-local space before current pose is applied.",
+              "equation": {
+                "expression": "M_skin,j=G_j B_j⁻¹",
+                "note": "This removes the bind transform then applies the animated transform."
+              },
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            },
+            {
+              "keyword": "local transform",
+              "explanation": "A joint transform relative to its parent.",
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            },
+            {
+              "keyword": "global transform",
+              "explanation": "The composed transform of a joint in model or world space.",
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "weight/skinning",
+            "skin weights",
+            "LBS",
+            "DQS",
+            "auto skinning",
+            "heat weights",
+            "geodesic voxel binding"
+          ],
+          "summary": "Skinning blends joint influence; automatic binding estimates those influences from geometry and skeleton placement.",
+          "sourceIds": [
+            "aSkinning",
+            "aDqs",
+            "aGeodesic"
+          ],
+          "details": [
+            {
+              "keyword": "weight/skinning",
+              "explanation": "The assignment and evaluation of bone influences that deform mesh vertices with an animated skeleton.",
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            },
+            {
+              "keyword": "skin weights",
+              "explanation": "Nonnegative per-vertex joint coefficients, usually normalized to sum to one.",
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            },
+            {
+              "keyword": "LBS",
+              "explanation": "Linear Blend Skinning averages transformed positions and is fast, but can collapse volume at twists and bends.",
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            },
+            {
+              "keyword": "DQS",
+              "explanation": "Dual Quaternion Skinning blends rigid transforms in dual-quaternion space to reduce candy-wrapper collapse.",
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            },
+            {
+              "keyword": "auto skinning",
+              "explanation": "Automatic generation or refinement of vertex-to-joint influence weights.",
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            },
+            {
+              "keyword": "heat weights",
+              "explanation": "Binding weights derived from a diffusion analogy in which bones act as heat sources inside the mesh.",
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            },
+            {
+              "keyword": "geodesic voxel binding",
+              "explanation": "Automatic weights based on approximate interior distances through a voxelized character.",
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "auto rigging",
+            "GX",
+            "FK",
+            "IK",
+            "end effector",
+            "Jacobian IK",
+            "CCD IK",
+            "IK/FK blending",
+            "retargeting",
+            "retarget pose",
+            "chain mapping"
+          ],
+          "summary": "Rig construction, pose solving, and retargeting operate on the same hierarchy but solve distinct tasks.",
+          "sourceIds": [
+            "aPinocchio",
+            "aIkRig",
+            "aRetarget"
+          ],
+          "details": [
+            {
+              "keyword": "auto rigging",
+              "explanation": "Automatic placement of joints, construction of hierarchy and controls, and sometimes simultaneous skin binding.",
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            },
+            {
+              "keyword": "GX",
+              "explanation": "Not a standardized rigging or animation acronym in glTF, Unreal IK Rig, or the cited rigging literature. Treat it as project-local—possibly a label for a global transform—only after its schema defines the meaning.",
+              "aiNote": "AI cannot resolve an undefined project acronym reliably; training data may guess a meaning and silently produce an incompatible rig."
+            },
+            {
+              "keyword": "FK",
+              "explanation": "Forward kinematics computes descendant poses from authored joint rotations and translations.",
+              "equation": {
+                "expression": "G_j=G_root∏ L_k",
+                "note": "The product follows the chain from root to joint."
+              },
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            },
+            {
+              "keyword": "IK",
+              "explanation": "Inverse kinematics solves joint parameters so one or more end effectors reach targets under constraints.",
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            },
+            {
+              "keyword": "end effector",
+              "explanation": "A controlled terminal point such as a hand, foot, or tool tip used as an IK objective.",
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            },
+            {
+              "keyword": "Jacobian IK",
+              "explanation": "An iterative solver using derivatives of end-effector position with respect to joint parameters.",
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            },
+            {
+              "keyword": "CCD IK",
+              "explanation": "Cyclic Coordinate Descent rotates joints one at a time from the end of a chain toward the root.",
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            },
+            {
+              "keyword": "IK/FK blending",
+              "explanation": "Blending or matching between direct joint animation and target-driven solving without visible pops.",
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            },
+            {
+              "keyword": "retargeting",
+              "explanation": "Transfer of motion between skeletons with different rest poses, proportions, names, or topology.",
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            },
+            {
+              "keyword": "retarget pose",
+              "explanation": "A reference alignment that removes systematic orientation differences between source and target skeletons.",
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            },
+            {
+              "keyword": "chain mapping",
+              "explanation": "Semantic correspondence between source and target joint chains, such as left arm to left arm.",
+              "aiNote": "Generative rigging and skinning models can propose skeletons, joints, and weights; bind transforms, hierarchy evaluation, and runtime skinning remain exact contracts."
+            }
+          ]
+        }
+      ],
+      "aiResearch": {
+        "summary": "RigAnything and UniRig generate skeletons and skinning for varied 3D assets, while STaR addresses spatial and temporal failures during neural retargeting. These models automate authoring but still emit conventional hierarchies, weights, and motion mappings.",
+        "sourceIds": [
+          "aRigAnything",
+          "aUniRig",
+          "aStar"
+        ]
+      }
+    },
+    {
+      "heading": "Skin deformation: correctives, helper bones, and muscle",
+      "paragraphs": [
+        "Skin deformation begins where basic skinning fails. Helper bones distribute twist or preserve a silhouette; pose-space correctives add sculpted offsets at difficult joint configurations; muscle and flesh systems model bulging, sliding, volume, and secondary motion beneath the skin.",
+        "These layers should be ordered deliberately: skeleton motion provides the pose, muscles or volumetric tissue generate structure, helper transforms and correctives repair art-directed regions, and the final skin surface is evaluated for collision and rendering."
+      ],
+      "equations": [
+        {
+          "label": "Pose-space corrective",
+          "expression": "x′ = x_skin + Σ_k φ_k(θ) Δx_k",
+          "terms": [
+            "φ_k weights corrective shapes from the current pose coordinates θ."
+          ]
+        },
+        {
+          "label": "Continuum muscle/tissue equilibrium",
+          "expression": "M ẍ + C ẋ + f_int(x,a) = f_ext",
+          "terms": [
+            "Activation a changes internal stress or rest configuration."
+          ]
+        }
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Skin deformation",
+            "corrective blendshape",
+            "pose-space deformation",
+            "helper bone",
+            "twist bone",
+            "volume preservation",
+            "bulge",
+            "sliding"
+          ],
+          "summary": "Corrective layers repair predictable artifacts of linear skeleton-driven deformation.",
+          "sourceIds": [
+            "aPsd",
+            "aSkinning",
+            "aDqs"
+          ],
+          "details": [
+            {
+              "keyword": "Skin deformation",
+              "explanation": "The complete mapping from animation controls and physical tissue state to the visible character surface.",
+              "aiNote": "Neural correctives can learn pose-dependent shape, but helper structures, volume constraints, and tissue mechanics remain useful controls outside the training distribution."
+            },
+            {
+              "keyword": "corrective blendshape",
+              "explanation": "A sculpted vertex-delta shape activated to repair a specific pose or deformation failure.",
+              "aiNote": "Neural correctives can learn pose-dependent shape, but helper structures, volume constraints, and tissue mechanics remain useful controls outside the training distribution."
+            },
+            {
+              "keyword": "pose-space deformation",
+              "explanation": "A method that interpolates corrective shapes as a function of joint pose rather than time.",
+              "aiNote": "Neural correctives can learn pose-dependent shape, but helper structures, volume constraints, and tissue mechanics remain useful controls outside the training distribution."
+            },
+            {
+              "keyword": "helper bone",
+              "explanation": "An extra joint or transform added for deformation control rather than anatomical articulation.",
+              "aiNote": "Neural correctives can learn pose-dependent shape, but helper structures, volume constraints, and tissue mechanics remain useful controls outside the training distribution."
+            },
+            {
+              "keyword": "twist bone",
+              "explanation": "A helper that distributes axial rotation along a limb to avoid concentrated skin collapse.",
+              "aiNote": "Neural correctives can learn pose-dependent shape, but helper structures, volume constraints, and tissue mechanics remain useful controls outside the training distribution."
+            },
+            {
+              "keyword": "volume preservation",
+              "explanation": "A deformation goal that limits unnatural shrinking or swelling around bends and twists.",
+              "equation": {
+                "expression": "det(F)≈1",
+                "note": "The deformation gradient determinant measures local volume change."
+              },
+              "aiNote": "Neural correctives can learn pose-dependent shape, but helper structures, volume constraints, and tissue mechanics remain useful controls outside the training distribution."
+            },
+            {
+              "keyword": "bulge",
+              "explanation": "Outward shape change caused by flexion or muscle contraction.",
+              "aiNote": "Neural correctives can learn pose-dependent shape, but helper structures, volume constraints, and tissue mechanics remain useful controls outside the training distribution."
+            },
+            {
+              "keyword": "sliding",
+              "explanation": "Relative motion of skin, fascia, fat, or muscle layers instead of forcing them to share one deformation field.",
+              "aiNote": "Neural correctives can learn pose-dependent shape, but helper structures, volume constraints, and tissue mechanics remain useful controls outside the training distribution."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "muscle system",
+            "muscle activation",
+            "FEM",
+            "tissue layer",
+            "flesh simulation"
+          ],
+          "summary": "Physical layers generate pose-dependent volume and secondary motion from anatomical or simplified material models.",
+          "sourceIds": [
+            "aPixar",
+            "aPsd",
+            "aNdg"
+          ],
+          "details": [
+            {
+              "keyword": "muscle system",
+              "explanation": "A set of anatomical or art-directed actuators whose contraction shapes surrounding tissue and skin.",
+              "aiNote": "Neural correctives can learn pose-dependent shape, but helper structures, volume constraints, and tissue mechanics remain useful controls outside the training distribution."
+            },
+            {
+              "keyword": "muscle activation",
+              "explanation": "A control signal that changes active stress, fiber contraction, or target muscle shape.",
+              "aiNote": "Neural correctives can learn pose-dependent shape, but helper structures, volume constraints, and tissue mechanics remain useful controls outside the training distribution."
+            },
+            {
+              "keyword": "FEM",
+              "explanation": "Finite elements discretize muscle and flesh continua and derive forces from strain-energy models.",
+              "aiNote": "Neural correctives can learn pose-dependent shape, but helper structures, volume constraints, and tissue mechanics remain useful controls outside the training distribution."
+            },
+            {
+              "keyword": "tissue layer",
+              "explanation": "A material layer such as muscle, fat, fascia, or skin with distinct stiffness and sliding behavior.",
+              "aiNote": "Neural correctives can learn pose-dependent shape, but helper structures, volume constraints, and tissue mechanics remain useful controls outside the training distribution."
+            },
+            {
+              "keyword": "flesh simulation",
+              "explanation": "Dynamic deformation of soft tissue driven by skeleton motion, muscle forces, inertia, damping, and contact.",
+              "aiNote": "Neural correctives can learn pose-dependent shape, but helper structures, volume constraints, and tissue mechanics remain useful controls outside the training distribution."
+            }
+          ]
+        }
+      ],
+      "aiResearch": {
+        "summary": "Recent work learns deformation gradients, adds physics-informed skin motion, and gives neural skinning an interior geodesic cut-cell prior. The strongest systems still expose mechanics or structural constraints so learned deformation respects volume and contact.",
+        "sourceIds": [
+          "aNdg",
+          "aPhysSkin",
+          "aCutCell"
+        ]
+      }
+    },
+    {
+      "heading": "Hair simulation: rods, guides, and collisions",
+      "paragraphs": [
+        "A hair strand is a slender elastic rod with stretch, bend, twist, damping, gravity, wind, and contact. Simulating every visible fiber is expensive, so production grooms animate sparse guide hairs and reconstruct follower motion while guarding against interpolation that cuts through the head or other strands.",
+        "Discrete elastic rods and Cosserat rods express orientation and curvature along the strand. Real-time methods simplify the model, solve constraints in parallel, or use neural surrogates, but collision and friction remain the difference between a convincing groom and a cloud of independent lines."
+      ],
+      "equations": [
+        {
+          "label": "Rod elastic energy",
+          "expression": "E = ½∫(k_s ε² + k_b|κ-κ₀|² + k_t(τ-τ₀)²) ds",
+          "terms": [
+            "The terms penalize stretch ε, curvature κ, and twist τ."
+          ]
+        }
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "hair simulation",
+            "hair strand",
+            "guide hair",
+            "follower interpolation",
+            "groom",
+            "mass–spring",
+            "Discrete Elastic Rods",
+            "Cosserat rod"
+          ],
+          "summary": "A groom reduces many visible fibers to a tractable set of simulated strand controls and a reconstruction rule.",
+          "sourceIds": [
+            "aRods",
+            "aAdmmHair",
+            "aCosserat"
+          ],
+          "details": [
+            {
+              "keyword": "hair simulation",
+              "explanation": "Dynamic evolution of strand shape under elasticity, inertia, damping, fields, and contact.",
+              "aiNote": "Neural hair models can predict equilibrium or dynamics in milliseconds; rod mechanics, collision, damping, and guide structure still define physical plausibility."
+            },
+            {
+              "keyword": "hair strand",
+              "explanation": "A curve-like fiber with position and often orientation or material frame sampled along its length.",
+              "aiNote": "Neural hair models can predict equilibrium or dynamics in milliseconds; rod mechanics, collision, damping, and guide structure still define physical plausibility."
+            },
+            {
+              "keyword": "guide hair",
+              "explanation": "A simulated representative strand used to drive nearby follower strands.",
+              "aiNote": "Neural hair models can predict equilibrium or dynamics in milliseconds; rod mechanics, collision, damping, and guide structure still define physical plausibility."
+            },
+            {
+              "keyword": "follower interpolation",
+              "explanation": "Reconstruction of dense strand motion from neighboring guides and local offsets.",
+              "aiNote": "Neural hair models can predict equilibrium or dynamics in milliseconds; rod mechanics, collision, damping, and guide structure still define physical plausibility."
+            },
+            {
+              "keyword": "groom",
+              "explanation": "The authored collection of scalp regions, guides, clumps, density, width, and styling attributes defining hair.",
+              "aiNote": "Neural hair models can predict equilibrium or dynamics in milliseconds; rod mechanics, collision, damping, and guide structure still define physical plausibility."
+            },
+            {
+              "keyword": "mass–spring",
+              "explanation": "A strand approximation connecting point masses with stretch and bend springs.",
+              "aiNote": "Neural hair models can predict equilibrium or dynamics in milliseconds; rod mechanics, collision, damping, and guide structure still define physical plausibility."
+            },
+            {
+              "keyword": "Discrete Elastic Rods",
+              "explanation": "A geometric rod model representing bending and twisting on a sampled centerline with material frames.",
+              "aiNote": "Neural hair models can predict equilibrium or dynamics in milliseconds; rod mechanics, collision, damping, and guide structure still define physical plausibility."
+            },
+            {
+              "keyword": "Cosserat rod",
+              "explanation": "A rod continuum carrying both centerline position and cross-section orientation, supporting stretch, shear, bend, and twist.",
+              "aiNote": "Neural hair models can predict equilibrium or dynamics in milliseconds; rod mechanics, collision, damping, and guide structure still define physical plausibility."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "stretch",
+            "bend",
+            "twist",
+            "damping",
+            "strand collision",
+            "friction",
+            "wind coupling"
+          ],
+          "summary": "Elastic and contact terms turn strand curves into a coherent material attached to a moving character.",
+          "sourceIds": [
+            "aRods",
+            "aAdmmHair",
+            "aCosserat"
+          ],
+          "details": [
+            {
+              "keyword": "stretch",
+              "explanation": "Change in strand segment length, usually assigned very high stiffness for hair.",
+              "aiNote": "Neural hair models can predict equilibrium or dynamics in milliseconds; rod mechanics, collision, damping, and guide structure still define physical plausibility."
+            },
+            {
+              "keyword": "bend",
+              "explanation": "Change in centerline curvature responsible for straight, wavy, or curly shape.",
+              "aiNote": "Neural hair models can predict equilibrium or dynamics in milliseconds; rod mechanics, collision, damping, and guide structure still define physical plausibility."
+            },
+            {
+              "keyword": "twist",
+              "explanation": "Rotation of the strand material frame around its tangent.",
+              "aiNote": "Neural hair models can predict equilibrium or dynamics in milliseconds; rod mechanics, collision, damping, and guide structure still define physical plausibility."
+            },
+            {
+              "keyword": "damping",
+              "explanation": "Energy loss added to suppress unresolved oscillation and match material response.",
+              "equation": {
+                "expression": "F_d=-c v",
+                "note": "Linear damping opposes motion."
+              },
+              "aiNote": "Neural hair models can predict equilibrium or dynamics in milliseconds; rod mechanics, collision, damping, and guide structure still define physical plausibility."
+            },
+            {
+              "keyword": "strand collision",
+              "explanation": "Contact tests and constraints between hair, body, clothing, and other strands.",
+              "aiNote": "Neural hair models can predict equilibrium or dynamics in milliseconds; rod mechanics, collision, damping, and guide structure still define physical plausibility."
+            },
+            {
+              "keyword": "friction",
+              "explanation": "Tangential resistance that holds clumps together and prevents unlimited sliding at contacts.",
+              "aiNote": "Neural hair models can predict equilibrium or dynamics in milliseconds; rod mechanics, collision, damping, and guide structure still define physical plausibility."
+            },
+            {
+              "keyword": "wind coupling",
+              "explanation": "Sampling air velocity along strands and applying drag or lift from relative motion.",
+              "aiNote": "Neural hair models can predict equilibrium or dynamics in milliseconds; rod mechanics, collision, damping, and guide structure still define physical plausibility."
+            }
+          ]
+        }
+      ],
+      "aiResearch": {
+        "summary": "Quaffure predicts quasi-static hair deformation in real time, HairFormer learns dynamic strand behavior, and SimAvatar generates simulation-ready hair and clothing layers. These methods accelerate or create grooms while retaining strand structure and physical supervision.",
+        "sourceIds": [
+          "aQuaffure",
+          "aHairFormer",
+          "aSimAvatar"
+        ]
+      }
+    },
+    {
+      "heading": "Face animation: semantic controls and blend shapes",
+      "paragraphs": [
+        "Face animation needs both fine geometry and interpretable controls. Blend shapes add weighted vertex deltas, joints handle jaw and eye motion, and FACS action units describe visible muscle actions independently of a particular character mesh.",
+        "Performance capture estimates these controls from video; audio-driven systems predict timing from speech; retargeting maps them to a new face. Correctives remain important because independently authored blend shapes are not linearly independent and combinations can collapse lips, cheeks, or eyelids."
+      ],
+      "equations": [
+        {
+          "label": "Blend-shape face",
+          "expression": "x_face = x_neutral + Σ_k w_k b_k + Σ_l c_l(w) r_l",
+          "terms": [
+            "b_k are primary shapes and r_l pose- or combination-space correctives."
+          ]
+        }
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "face animation",
+            "FACS",
+            "action unit",
+            "neutral pose",
+            "jaw joint",
+            "eye gaze"
+          ],
+          "summary": "Semantic face controls separate expression intent from the final mesh representation.",
+          "sourceIds": [
+            "aFacs",
+            "aFlame",
+            "aBlend"
+          ],
+          "details": [
+            {
+              "keyword": "face animation",
+              "explanation": "Time-varying expression, speech articulation, gaze, and head-related facial deformation.",
+              "aiNote": "Audio- and video-driven models estimate facial controls or dynamic avatars, while FACS, blendshapes, and parametric heads remain editable semantic interfaces."
+            },
+            {
+              "keyword": "FACS",
+              "explanation": "Facial Action Coding System, a taxonomy describing visible facial actions through action units.",
+              "aiNote": "Audio- and video-driven models estimate facial controls or dynamic avatars, while FACS, blendshapes, and parametric heads remain editable semantic interfaces."
+            },
+            {
+              "keyword": "action unit",
+              "explanation": "A coded facial movement associated with contraction of one or more muscle regions.",
+              "aiNote": "Audio- and video-driven models estimate facial controls or dynamic avatars, while FACS, blendshapes, and parametric heads remain editable semantic interfaces."
+            },
+            {
+              "keyword": "neutral pose",
+              "explanation": "The reference expression from which identity and expression offsets are measured.",
+              "aiNote": "Audio- and video-driven models estimate facial controls or dynamic avatars, while FACS, blendshapes, and parametric heads remain editable semantic interfaces."
+            },
+            {
+              "keyword": "jaw joint",
+              "explanation": "A skeletal control for mandibular rotation and translation that provides structure for mouth motion.",
+              "aiNote": "Audio- and video-driven models estimate facial controls or dynamic avatars, while FACS, blendshapes, and parametric heads remain editable semantic interfaces."
+            },
+            {
+              "keyword": "eye gaze",
+              "explanation": "Orientation and convergence controls for eyes, often coupled to lids and head motion.",
+              "aiNote": "Audio- and video-driven models estimate facial controls or dynamic avatars, while FACS, blendshapes, and parametric heads remain editable semantic interfaces."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "blend shape",
+            "morph target",
+            "delta shape",
+            "blend weight",
+            "corrective shape",
+            "performance capture",
+            "expression retargeting",
+            "FLAME",
+            "audio-driven animation"
+          ],
+          "summary": "Blendshape and parametric models provide editable targets for captured or generated facial performance.",
+          "sourceIds": [
+            "aBlend",
+            "aMorphDoc",
+            "aFlame"
+          ],
+          "details": [
+            {
+              "keyword": "blend shape",
+              "explanation": "A basis shape whose vertex deltas are added to a neutral face with a scalar weight.",
+              "aiNote": "Audio- and video-driven models estimate facial controls or dynamic avatars, while FACS, blendshapes, and parametric heads remain editable semantic interfaces."
+            },
+            {
+              "keyword": "morph target",
+              "explanation": "Runtime interchange term for a set of position, normal, or tangent deltas blended into a mesh.",
+              "aiNote": "Audio- and video-driven models estimate facial controls or dynamic avatars, while FACS, blendshapes, and parametric heads remain editable semantic interfaces."
+            },
+            {
+              "keyword": "delta shape",
+              "explanation": "The per-vertex difference between one expression target and the neutral mesh.",
+              "aiNote": "Audio- and video-driven models estimate facial controls or dynamic avatars, while FACS, blendshapes, and parametric heads remain editable semantic interfaces."
+            },
+            {
+              "keyword": "blend weight",
+              "explanation": "A scalar activation controlling how much one target contributes.",
+              "aiNote": "Audio- and video-driven models estimate facial controls or dynamic avatars, while FACS, blendshapes, and parametric heads remain editable semantic interfaces."
+            },
+            {
+              "keyword": "corrective shape",
+              "explanation": "An additional target activated by a pose or combination to repair nonlinear interactions.",
+              "aiNote": "Audio- and video-driven models estimate facial controls or dynamic avatars, while FACS, blendshapes, and parametric heads remain editable semantic interfaces."
+            },
+            {
+              "keyword": "performance capture",
+              "explanation": "Estimation of head, eye, expression, and speech motion from an actor's recorded performance.",
+              "aiNote": "Audio- and video-driven models estimate facial controls or dynamic avatars, while FACS, blendshapes, and parametric heads remain editable semantic interfaces."
+            },
+            {
+              "keyword": "expression retargeting",
+              "explanation": "Mapping source facial motion onto a target with different proportions, controls, or blendshape basis.",
+              "aiNote": "Audio- and video-driven models estimate facial controls or dynamic avatars, while FACS, blendshapes, and parametric heads remain editable semantic interfaces."
+            },
+            {
+              "keyword": "FLAME",
+              "explanation": "A learned parametric head model separating identity, expression, pose, and articulated jaw/neck factors.",
+              "aiNote": "Audio- and video-driven models estimate facial controls or dynamic avatars, while FACS, blendshapes, and parametric heads remain editable semantic interfaces."
+            },
+            {
+              "keyword": "audio-driven animation",
+              "explanation": "Prediction of facial motion from speech audio, usually focused on lip timing plus learned coarticulation and expression priors.",
+              "aiNote": "Audio- and video-driven models estimate facial controls or dynamic avatars, while FACS, blendshapes, and parametric heads remain editable semantic interfaces."
+            }
+          ]
+        }
+      ],
+      "aiResearch": {
+        "summary": "OmniFaceRig targets transferable facial rigging, GaussianSpeech builds personalized audio-driven Gaussian avatars, and Audio2Face-3D predicts expressive 3D facial motion from speech. Semantic controls remain valuable for direction and correction even when inference is neural.",
+        "sourceIds": [
+          "aOmniFace",
+          "aGaussianSpeech",
+          "aAudioFace"
+        ]
+      }
+    },
+    {
+      "heading": "Animation transformations: from keys to character motion",
+      "paragraphs": [
+        "Animation transformations describe how values change through time and hierarchy. Translation, rotation, and scale form local TRS transforms; parent composition produces global motion; keyframes and splines define curves; blending combines clips; root motion and motion warping connect authored displacement to gameplay targets.",
+        "Rotation needs special treatment. Euler angles are readable but order-dependent and can gimbal lock; quaternions avoid that singular representation and support shortest-path spherical interpolation. Motion matching and generative motion choose or synthesize poses, but the selected pose still enters this deterministic transform pipeline."
+      ],
+      "equations": [
+        {
+          "label": "TRS composition",
+          "expression": "M_local = T(t) R(q) S(s),   M_global = M_parent M_local",
+          "terms": [
+            "The engine's vector convention determines multiplication order, but it must be consistent."
+          ]
+        },
+        {
+          "label": "Quaternion SLERP",
+          "expression": "slerp(q₀,q₁,α)=sin((1-α)Ω)/sinΩ q₀ + sin(αΩ)/sinΩ q₁",
+          "terms": [
+            "cosΩ=q₀·q₁ after choosing the shortest quaternion sign."
+          ]
+        }
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "animation transformation",
+            "translation",
+            "rotation",
+            "scale",
+            "local transform",
+            "global transform",
+            "hierarchy composition",
+            "Euler angles",
+            "quaternion",
+            "SLERP",
+            "TRS matrix"
+          ],
+          "summary": "Transforms define pose values and their exact parent-to-child composition.",
+          "sourceIds": [
+            "aGltf",
+            "aQuaternion",
+            "aSkinning"
+          ],
+          "details": [
+            {
+              "keyword": "animation transformation",
+              "explanation": "A time-varying mapping of position, orientation, scale, or another animatable property.",
+              "aiNote": "Generative motion models can synthesize or select movement, but transform composition, quaternion interpolation, root motion, and runtime blending stay deterministic."
+            },
+            {
+              "keyword": "translation",
+              "explanation": "A displacement vector that changes position without orientation or size.",
+              "aiNote": "Generative motion models can synthesize or select movement, but transform composition, quaternion interpolation, root motion, and runtime blending stay deterministic."
+            },
+            {
+              "keyword": "rotation",
+              "explanation": "An orientation change represented by angles, matrices, quaternions, or exponential coordinates.",
+              "aiNote": "Generative motion models can synthesize or select movement, but transform composition, quaternion interpolation, root motion, and runtime blending stay deterministic."
+            },
+            {
+              "keyword": "scale",
+              "explanation": "Axis-wise or uniform size change; nonuniform scale complicates rotation, normals, and retargeting.",
+              "aiNote": "Generative motion models can synthesize or select movement, but transform composition, quaternion interpolation, root motion, and runtime blending stay deterministic."
+            },
+            {
+              "keyword": "local transform",
+              "explanation": "A node transform relative to its parent.",
+              "aiNote": "Generative motion models can synthesize or select movement, but transform composition, quaternion interpolation, root motion, and runtime blending stay deterministic."
+            },
+            {
+              "keyword": "global transform",
+              "explanation": "A node transform after all ancestors have been composed.",
+              "aiNote": "Generative motion models can synthesize or select movement, but transform composition, quaternion interpolation, root motion, and runtime blending stay deterministic."
+            },
+            {
+              "keyword": "hierarchy composition",
+              "explanation": "Ordered multiplication of parent and child transforms to evaluate a scene or skeleton tree.",
+              "aiNote": "Generative motion models can synthesize or select movement, but transform composition, quaternion interpolation, root motion, and runtime blending stay deterministic."
+            },
+            {
+              "keyword": "Euler angles",
+              "explanation": "Three ordered axial rotations that are intuitive to author but order-dependent and subject to gimbal lock.",
+              "aiNote": "Generative motion models can synthesize or select movement, but transform composition, quaternion interpolation, root motion, and runtime blending stay deterministic."
+            },
+            {
+              "keyword": "quaternion",
+              "explanation": "A four-component unit representation of 3D rotation with smooth composition and interpolation.",
+              "equation": {
+                "expression": "q=(w,x,y,z), |q|=1",
+                "note": "q and -q encode the same orientation."
+              },
+              "aiNote": "Generative motion models can synthesize or select movement, but transform composition, quaternion interpolation, root motion, and runtime blending stay deterministic."
+            },
+            {
+              "keyword": "SLERP",
+              "explanation": "Spherical linear interpolation following a constant-angular-speed arc between rotations.",
+              "aiNote": "Generative motion models can synthesize or select movement, but transform composition, quaternion interpolation, root motion, and runtime blending stay deterministic."
+            },
+            {
+              "keyword": "TRS matrix",
+              "explanation": "A transform composed from translation, rotation, and scale components.",
+              "aiNote": "Generative motion models can synthesize or select movement, but transform composition, quaternion interpolation, root motion, and runtime blending stay deterministic."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "keyframe",
+            "interpolation",
+            "cubic spline",
+            "animation blending",
+            "additive animation",
+            "root motion",
+            "motion warping",
+            "state machine",
+            "blend space",
+            "motion matching"
+          ],
+          "summary": "Curve evaluation and runtime selection turn stored clips into responsive continuous motion.",
+          "sourceIds": [
+            "aGltf",
+            "aMotionMatch",
+            "aQuaternion"
+          ],
+          "details": [
+            {
+              "keyword": "keyframe",
+              "explanation": "A timestamped authored or captured value from which intermediate animation is evaluated.",
+              "aiNote": "Generative motion models can synthesize or select movement, but transform composition, quaternion interpolation, root motion, and runtime blending stay deterministic."
+            },
+            {
+              "keyword": "interpolation",
+              "explanation": "A rule for values between keys, such as step, linear, cubic, or quaternion spherical interpolation.",
+              "aiNote": "Generative motion models can synthesize or select movement, but transform composition, quaternion interpolation, root motion, and runtime blending stay deterministic."
+            },
+            {
+              "keyword": "cubic spline",
+              "explanation": "A piecewise cubic curve using tangents to provide smooth values and velocities across keys.",
+              "equation": {
+                "expression": "p(t)=h₀₀p₀+h₁₀m₀+h₀₁p₁+h₁₁m₁",
+                "note": "Hermite basis functions blend endpoints and tangents."
+              },
+              "aiNote": "Generative motion models can synthesize or select movement, but transform composition, quaternion interpolation, root motion, and runtime blending stay deterministic."
+            },
+            {
+              "keyword": "animation blending",
+              "explanation": "Weighted combination of poses or clips, commonly normalized per joint or organized by layers.",
+              "aiNote": "Generative motion models can synthesize or select movement, but transform composition, quaternion interpolation, root motion, and runtime blending stay deterministic."
+            },
+            {
+              "keyword": "additive animation",
+              "explanation": "A delta pose applied on top of a base pose for aim, recoil, breathing, or correction.",
+              "aiNote": "Generative motion models can synthesize or select movement, but transform composition, quaternion interpolation, root motion, and runtime blending stay deterministic."
+            },
+            {
+              "keyword": "root motion",
+              "explanation": "Character displacement and orientation extracted from the animation's root rather than generated solely by gameplay code.",
+              "aiNote": "Generative motion models can synthesize or select movement, but transform composition, quaternion interpolation, root motion, and runtime blending stay deterministic."
+            },
+            {
+              "keyword": "motion warping",
+              "explanation": "Runtime adjustment of a clip's trajectory or selected bones so a motion reaches a gameplay target.",
+              "aiNote": "Generative motion models can synthesize or select movement, but transform composition, quaternion interpolation, root motion, and runtime blending stay deterministic."
+            },
+            {
+              "keyword": "state machine",
+              "explanation": "A graph of animation states and transition rules driven by gameplay conditions.",
+              "aiNote": "Generative motion models can synthesize or select movement, but transform composition, quaternion interpolation, root motion, and runtime blending stay deterministic."
+            },
+            {
+              "keyword": "blend space",
+              "explanation": "A continuous map from parameters such as speed and direction to weighted animation samples.",
+              "aiNote": "Generative motion models can synthesize or select movement, but transform composition, quaternion interpolation, root motion, and runtime blending stay deterministic."
+            },
+            {
+              "keyword": "motion matching",
+              "explanation": "Runtime search that selects a database pose matching current trajectory and pose features, then transitions to its continuation.",
+              "aiNote": "Generative motion models can synthesize or select movement, but transform composition, quaternion interpolation, root motion, and runtime blending stay deterministic."
+            }
+          ]
+        }
+      ],
+      "aiResearch": {
+        "summary": "MotionCraft generates controllable character motion, MoMADiff focuses on multi-object interaction, and policy-space diffusion produces physics-based control policies. These models change how motion is proposed; transforms, interpolation, and blending still determine runtime execution.",
+        "sourceIds": [
+          "aMotionCraft",
+          "aMoma",
+          "aPolicy"
+        ]
+      }
+    }
+  ],
+  "closing": "Vertex and cage systems control shape directly; rigs factor motion through a hierarchy and weights; correctives, muscle, hair, and facial systems restore the deformation that simple transforms cannot express; the runtime transform stack turns every authored or generated result into continuous motion. AI now automates capture, rigging, skinning, retargeting, and synthesis, but editable representations and deterministic evaluation remain the bridge from a research result to a production character."
+}

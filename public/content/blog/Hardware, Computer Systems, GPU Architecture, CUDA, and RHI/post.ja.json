@@ -1,0 +1,45 @@
+{
+  "title": "Hardware、Computer System、GPU Architecture、CUDA、RHI",
+  "abstract": "CPU、memory、flash、bus、process、page、thread、lockからGPU、CUDA、RHI、OpenGL、Direct3D 11/12、Vulkanまでを一つのData Pathとして整理するGuideです。",
+  "category": "Hardware・Graphics System Guide",
+  "imageAlt": "CPUとMemory HierarchyがInterconnectでGPUへ接続され、OpenGL、Direct3D、Vulkan、Engine RHIへ分岐する図",
+  "lede": "Rendering性能はRendererより下の層から始まります。CPU Scheduling、Memory Locality、Storage、Interconnect、OS Isolation、GPU Hierarchy、API Submissionが、いつDeviceへ有効なWorkを届けられるかを決めます。本稿はCudaとValkanという提供語を保持しつつ、公式名CUDAとVulkanを示し、必要なArchitecture用語と最新AI System研究を追加します。",
+  "sections": [
+    {
+      "heading": "Computer system：Compute、Memory、Storage、Interconnect",
+      "paragraphs": [
+        "Computer systemは単一ProcessorではなくHierarchyです。CPUがInstructionを実行し、cacheが近いDataを保持し、DRAMがWorking Setを、flashがPersistent Dataを保存し、busやCoherent FabricがComponent間を接続します。",
+        "性能は必要なPathの最遅段階で決まります。latencyは一操作の待ち時間、bandwidthは単位時間のData量であり、concurrencyは待ち時間を別のWorkで隠すために使われます。"
+      ]
+    },
+    {
+      "heading": "Process、Page、Thread、Synchronization",
+      "paragraphs": [
+        "OSはHardwareを分離されたExecution Contextへ変えます。processはVirtual Address SpaceとResourceを所有し、threadはそのStateを共有できるScheduling単位、pageはMappingとProtectionの単位です。",
+        "MultithreadではShared Memoryを通じて通信します。lockはCritical Sectionを作り、atomicはOrdering付きの不可分Operationを提供し、futexはContended ThreadをSleepさせます。"
+      ]
+    },
+    {
+      "heading": "GPU structure：Hierarchical ParallelismによるThroughput",
+      "paragraphs": [
+        "GPUはSingle-thread latencyよりAggregate throughputを優先します。多数のSMやCompute UnitがWarp/WavefrontをScheduleし、Memory待ちの間に別Groupを実行します。",
+        "registerとshared memoryは高速ですが限られ、occupancyを制約します。global memoryは大容量ですが高価であり、coalescingとTilingがBandwidthを有効なWorkへ変えます。"
+      ]
+    },
+    {
+      "heading": "CUDA：KernelをNVIDIA GPUへMappingする",
+      "paragraphs": [
+        "CUDAはNVIDIAのGeneral-purpose GPU Computing Platformです。HostがThread BlockのGridとしてKernelをLaunchし、HardwareがBlockをSMへ配置し、Warpへ分割します。",
+        "Scopeを守る必要があります。Block Barrierは別Blockを同期せず、Stream外の順序にはDependencyが必要です。PTXはVirtual ISAであり、SourceとMachine Instructionの一対一対応ではありません。"
+      ]
+    },
+    {
+      "heading": "RHIとGraphics API：OpenGL、Direct3D 11/12、Vulkan",
+      "paragraphs": [
+        "RHIはEngineが所有するGraphics API抽象です。共通のResource、Pipeline、Command、Synchronization、Presentationを定義し、Backendが各Platform APIへ変換します。",
+        "OpenGLとDirect3D 11はDriverが多くのStateを推論し、Direct3D 12とVulkanはCommand Recording、Resource State、Memory、Descriptor、Queue、SynchronizationをApplicationへ明示します。"
+      ]
+    }
+  ],
+  "closing": "FrameはProcess、Thread、Page、cache、bus、GPU、RHIというOwnership境界を横断します。OpenGLとDirect3D 11はDriverへ多くを委ね、Direct3D 12とVulkanはControlと同時にCorrectnessの責任をEngineへ戻します。"
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Keyword Blog"
+  short_description: "Build explained, sourced keyword research blogs"
+  default_prompt: "Use $research-keyword-blog to preserve my outline, explain every keyword with useful equations, research current AI connections and primary sources, and write the portfolio post."

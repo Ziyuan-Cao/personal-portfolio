@@ -1,0 +1,1575 @@
+{
+  "slug": "physical-simulation-particles-wind-volumes-water-cloth-collision",
+  "title": "Physical Simulation - Particles, Wind, Volumes, Water, Cloth, and Collision",
+  "abstract": "A mechanics-first guide to particles, wind, fog, clouds, water and oceans, fire and explosions, cloth and fibers, and the full collision pipeline—with equations, primary sources, and current AI research.",
+  "category": "Physical simulation research guide",
+  "publishedAt": "2026-08-20",
+  "image": "/content/blog/Physical Simulation - Particles, Wind, Volumes, Water, Cloth, and Collision/physical-simulation.svg",
+  "imageAlt": "A particle stream crosses wind and cloud fields, becomes an ocean wave and fire plume, drapes into cloth, and reaches a collision boundary",
+  "lede": "Physical simulation turns authored state into motion by advancing conservation laws, forces, constraints, phase changes, and contacts through time. This guide follows eight production-scale domains without pretending one solver fits all of them. Every keyword has a short definition, an equation where it adds information, an honest AI-research note, and a shared source group only when the same papers or documentation truly support the concepts together.",
+  "sourceCatalog": {
+    "pNiagara": {
+      "label": "Unreal Engine Niagara overview",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/overview-of-niagara-effects-for-unreal-engine"
+    },
+    "pPbd": {
+      "label": "Position Based Dynamics survey",
+      "url": "https://matthias-research.github.io/pages/publications/PBDTutorial2017-CourseNotes.pdf"
+    },
+    "pXpbd": {
+      "label": "XPBD: Position-Based Simulation of Compliant Constrained Dynamics",
+      "url": "https://doi.org/10.1145/2994258.2994272"
+    },
+    "pNeuralMpm": {
+      "label": "NeuralMPM (TMLR 2025)",
+      "url": "https://openreview.net/forum?id=zSK81A2hxQ"
+    },
+    "pWonder": {
+      "label": "WonderPlay (ICCV 2025)",
+      "url": "https://openaccess.thecvf.com/content/ICCV2025/html/Li_WonderPlay_Dynamic_3D_Scene_Generation_from_a_Single_Image_and_ICCV_2025_paper.html"
+    },
+    "pFluidGpu": {
+      "label": "GPU Gems: Fast Fluid Dynamics Simulation",
+      "url": "https://developer.nvidia.com/gpugems/gpugems/part-vi-beyond-triangles/chapter-38-fast-fluid-dynamics-simulation-gpu"
+    },
+    "pFluid3d": {
+      "label": "GPU Gems 3: Real-Time Simulation and Rendering of 3D Fluids",
+      "url": "https://developer.nvidia.com/gpugems/gpugems3/part-v-physics-simulation/chapter-30-real-time-simulation-and-rendering-3d-fluids"
+    },
+    "pDiffWind": {
+      "label": "DiffWind: Differentiable Wind Simulation (ICLR 2026)",
+      "url": "https://zju3dv.github.io/DiffWind/"
+    },
+    "pWinDiNet": {
+      "label": "WinDiNet: Wind Field Inference (2026)",
+      "url": "https://arxiv.org/abs/2603.21210"
+    },
+    "pSmoke": {
+      "label": "Visual Simulation of Smoke",
+      "url": "https://www.research.autodesk.com/publications/visual-simulation-of-smoke/"
+    },
+    "pOpenVdb": {
+      "label": "OpenVDB overview",
+      "url": "https://www.openvdb.org/documentation/doxygen/overview.html"
+    },
+    "pNeuralFluid": {
+      "label": "Neural Fluid Simulation on Geometric Surfaces (ICLR 2025)",
+      "url": "https://openreview.net/forum?id=58lbAsXCoZ"
+    },
+    "pPinr": {
+      "label": "Physics-informed neural representation for fluid simulation (2025)",
+      "url": "https://www.sciencedirect.com/science/article/pii/S0925231224020216"
+    },
+    "pCloudMl": {
+      "label": "Machine-learning cloud tomography (Scientific Reports 2025)",
+      "url": "https://www.nature.com/articles/s41598-025-90169-y"
+    },
+    "pCloudDiff": {
+      "label": "Light-transport-aware diffusion for volume reconstruction (2025)",
+      "url": "https://arxiv.org/abs/2501.05226"
+    },
+    "pOcean": {
+      "label": "Tessendorf: Simulating Ocean Water",
+      "url": "https://jtessen.people.clemson.edu/reports/papers_files/coursenotes2002.pdf"
+    },
+    "pWaterGpu": {
+      "label": "GPU Gems: Effective Water Simulation from Physical Models",
+      "url": "https://developer.nvidia.com/gpugems/gpugems/part-i-natural-effects/chapter-1-effective-water-simulation-physical-models"
+    },
+    "pSph": {
+      "label": "Particle-based fluid simulation for interactive applications",
+      "url": "https://diglib.eg.org/items/fb9edf26-94b0-4302-8cfc-52632841cae7"
+    },
+    "pApic": {
+      "label": "The Affine Particle-In-Cell Method",
+      "url": "https://arxiv.org/abs/1603.06188"
+    },
+    "pShallow": {
+      "label": "Generalizing Shallow Water Simulations with Dispersive Surface Waves",
+      "url": "https://research.nvidia.com/labs/prl/shallow-water-simulation/"
+    },
+    "pWaterAi": {
+      "label": "Unsupervised water-surface reconstruction (NeurIPS 2025)",
+      "url": "https://openreview.net/forum?id=4MKIaHbmGO"
+    },
+    "pRefrac": {
+      "label": "RefracGS: Refractive Gaussian Splatting (2026)",
+      "url": "https://arxiv.org/abs/2603.21695"
+    },
+    "pFire": {
+      "label": "Physically Based Modeling and Animation of Fire",
+      "url": "https://www-graphics.stanford.edu/papers/fire-sg02/"
+    },
+    "pFds": {
+      "label": "NIST Fire Dynamics Simulator manuals",
+      "url": "https://pages.nist.gov/fds/manuals.html"
+    },
+    "pFireX": {
+      "label": "Fire-X: Differentiable Fire Simulation (SIGGRAPH Asia 2025)",
+      "url": "https://helgewrede.github.io/firex/"
+    },
+    "pTorchFire": {
+      "label": "PyTorchFire: Differentiable Wildfire Simulation (2025)",
+      "url": "https://arxiv.org/abs/2502.18738"
+    },
+    "pDeepFlame": {
+      "label": "DeepFlame: Neural combustion modeling (2025)",
+      "url": "https://arxiv.org/abs/2508.18969"
+    },
+    "pCloth": {
+      "label": "Large Steps in Cloth Simulation",
+      "url": "https://publications.ri.cmu.edu/large-steps-in-cloth-simulation"
+    },
+    "pYarn": {
+      "label": "Interactive yarn-level cloth simulation",
+      "url": "https://graphics.stanford.edu/projects/yarnsim/"
+    },
+    "pClothCollision": {
+      "label": "Robust Treatment of Collisions, Contact and Friction for Cloth Animation",
+      "url": "https://visionsystems.stanford.edu/papers/cloth-sig02/cloth.pdf"
+    },
+    "pPgc": {
+      "label": "PGC: Physics-Based Gaussian Cloth (CVPR 2025)",
+      "url": "https://openaccess.thecvf.com/content/CVPR2025/html/Guo_PGC_Physics-Based_Gaussian_Cloth_from_a_Single_Pose_CVPR_2025_paper.html"
+    },
+    "pSimAvatar": {
+      "label": "SimAvatar (CVPR 2025)",
+      "url": "https://openaccess.thecvf.com/content/CVPR2025/html/Li_SimAvatar_Simulation-Ready_Avatars_with_Layered_Hair_and_Clothing_CVPR_2025_paper.html"
+    },
+    "pSaft": {
+      "label": "SAFT: Differentiable fabric simulation (ICCV 2025)",
+      "url": "https://openaccess.thecvf.com/content/ICCV2025/html/Stotko_SAFT_Shape_and_Appearance_of_Fabrics_from_Template_via_Differentiable_ICCV_2025_paper.html"
+    },
+    "pBox2d": {
+      "label": "Box2D collision documentation",
+      "url": "https://box2d.org/documentation/md_collision.html"
+    },
+    "pKdop": {
+      "label": "Discrete Orientation Polytopes for collision detection",
+      "url": "https://doi.org/10.1109/VRAIS.1998.658428"
+    },
+    "pCcd": {
+      "label": "Exact continuous collision detection",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4283478/"
+    },
+    "pDiffCollision": {
+      "label": "Robust differentiable collision handling (2025)",
+      "url": "https://arxiv.org/abs/2511.06267"
+    },
+    "pNeuralContact": {
+      "label": "Few-shot neural contact simulation (2026)",
+      "url": "https://arxiv.org/abs/2603.06218"
+    },
+    "pDiffSoft": {
+      "label": "Differentiable soft robotics with frictional contact (2025)",
+      "url": "https://arxiv.org/abs/2501.18956"
+    }
+  },
+  "sections": [
+    {
+      "heading": "Particle simulation: state, integration, and constraints",
+      "paragraphs": [
+        "A particle is a compact moving state, not a rendering primitive. Its position, velocity, mass, age, and custom attributes are advanced by forces or constraints; a separate renderer later chooses sprites, meshes, ribbons, strands, or volume splats.",
+        "The practical loop is spawn, accumulate forces, integrate, solve constraints and collisions, retire dead particles, then publish the state to rendering. A fixed or carefully bounded time step is essential because a visually plausible emitter can still become numerically unstable when frame time changes."
+      ],
+      "flow": {
+        "label": "Particle update",
+        "steps": [
+          "Emit and initialize state",
+          "Accumulate forces and drag",
+          "Integrate velocity and position",
+          "Project constraints and contacts",
+          "Cull, compact, and render"
+        ]
+      },
+      "equations": [
+        {
+          "label": "Semi-implicit Euler",
+          "expression": [
+            "vₙ₊₁ = vₙ + Δt F(xₙ,vₙ)/m",
+            "xₙ₊₁ = xₙ + Δt vₙ₊₁"
+          ],
+          "terms": [
+            "Updating position with the new velocity is usually more stable than explicit Euler for the same cost."
+          ]
+        },
+        {
+          "label": "XPBD multiplier update",
+          "expression": "Δλ = (-C(x) - α̃λ) / (Σᵢ wᵢ|∇Cᵢ|² + α̃),   α̃ = α/Δt²",
+          "terms": [
+            "Compliance α gives a constraint a physical softness that is less dependent on iteration count and time step."
+          ]
+        }
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "particle",
+            "particle state",
+            "emitter",
+            "lifetime"
+          ],
+          "summary": "These terms define the data-oriented lifecycle shared by production particle systems.",
+          "sourceIds": [
+            "pNiagara",
+            "pPbd"
+          ],
+          "details": [
+            {
+              "keyword": "particle",
+              "explanation": "A point sample carrying dynamic state such as position, velocity, mass, temperature, or phase.",
+              "equation": {
+                "expression": "pᵢ = (xᵢ, vᵢ, mᵢ, …)",
+                "note": "The exact state vector depends on the phenomenon."
+              },
+              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+            },
+            {
+              "keyword": "particle state",
+              "explanation": "The complete per-particle variables read and written during one simulation step.",
+              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+            },
+            {
+              "keyword": "emitter",
+              "explanation": "A rule that creates particles with an initial distribution of positions, velocities, ages, and attributes.",
+              "equation": {
+                "expression": "Nspawn ≈ rate · Δt",
+                "note": "Fractional spawn counts are usually accumulated across frames."
+              },
+              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+            },
+            {
+              "keyword": "lifetime",
+              "explanation": "The simulated duration after which a particle is removed or recycled.",
+              "equation": {
+                "expression": "ageₙ₊₁ = ageₙ + Δt",
+                "note": "A particle dies when age reaches lifetime."
+              },
+              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "force accumulation",
+            "gravity",
+            "drag",
+            "fixed time step",
+            "explicit Euler",
+            "semi-implicit Euler",
+            "Verlet integration"
+          ],
+          "summary": "Newtonian forces and discrete integrators determine how particle state advances.",
+          "sourceIds": [
+            "pPbd",
+            "pXpbd",
+            "pNiagara"
+          ],
+          "details": [
+            {
+              "keyword": "force accumulation",
+              "explanation": "The sum of gravity, drag, fields, contacts, and authored forces before integration.",
+              "equation": {
+                "expression": "F = Σⱼ Fⱼ",
+                "note": "All forces must use consistent units."
+              },
+              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+            },
+            {
+              "keyword": "gravity",
+              "explanation": "A constant acceleration applied to massive particles.",
+              "equation": {
+                "expression": "F_g = m g",
+                "note": "Mass cancels when gravity is the only force."
+              },
+              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+            },
+            {
+              "keyword": "drag",
+              "explanation": "Velocity-dependent resistance from a surrounding medium.",
+              "equation": {
+                "expression": "F_d = -½ρC_dA|v_rel|v_rel",
+                "note": "Quadratic drag opposes relative motion."
+              },
+              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+            },
+            {
+              "keyword": "fixed time step",
+              "explanation": "A constant simulation interval that makes stability and tuning predictable.",
+              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+            },
+            {
+              "keyword": "explicit Euler",
+              "explanation": "An inexpensive first-order update that uses the old velocity for the new position and can inject energy.",
+              "equation": {
+                "expression": "xₙ₊₁=xₙ+Δt vₙ",
+                "note": "Simple but fragile for stiff forces."
+              },
+              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+            },
+            {
+              "keyword": "semi-implicit Euler",
+              "explanation": "A first-order method that updates velocity before position, improving stability for many mechanical systems.",
+              "equation": {
+                "expression": "v′=v+Δt a; x′=x+Δt v′",
+                "note": "Often the default real-time integrator."
+              },
+              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+            },
+            {
+              "keyword": "Verlet integration",
+              "explanation": "A position-based update that implicitly stores velocity through consecutive positions.",
+              "equation": {
+                "expression": "xₙ₊₁=2xₙ-xₙ₋₁+aₙΔt²",
+                "note": "Convenient for constraints and simple damping."
+              },
+              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "constraint",
+            "PBD",
+            "XPBD",
+            "neighbor search",
+            "spatial hash",
+            "GPU compute"
+          ],
+          "summary": "Constraint projection and spatial acceleration turn independent points into interacting materials at scale.",
+          "sourceIds": [
+            "pPbd",
+            "pXpbd",
+            "pNeuralMpm"
+          ],
+          "details": [
+            {
+              "keyword": "constraint",
+              "explanation": "A scalar or vector condition that restricts allowed particle configurations.",
+              "equation": {
+                "expression": "C(x)=0 or C(x)≥0",
+                "note": "Equality and inequality constraints cover joints and contacts."
+              },
+              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+            },
+            {
+              "keyword": "PBD",
+              "explanation": "Position Based Dynamics iteratively projects positions to satisfy constraints, favoring robustness and direct control.",
+              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+            },
+            {
+              "keyword": "XPBD",
+              "explanation": "Extended PBD adds compliance and a persistent multiplier so stiffness behaves more consistently across time steps and iteration counts.",
+              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+            },
+            {
+              "keyword": "neighbor search",
+              "explanation": "A query that finds nearby particles for density, cohesion, collision, or constraint evaluation.",
+              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+            },
+            {
+              "keyword": "spatial hash",
+              "explanation": "A grid-keyed table that places particles into cells so neighborhood queries avoid all-pairs work.",
+              "equation": {
+                "expression": "cell(x)=⌊x/h⌋",
+                "note": "Cell width h is chosen near the interaction radius."
+              },
+              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+            },
+            {
+              "keyword": "GPU compute",
+              "explanation": "Parallel kernels that update large particle arrays, usually with compaction and grid building between stages.",
+              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+            }
+          ]
+        }
+      ],
+      "aiResearch": {
+        "summary": "NeuralMPM learns material-point evolution as a fast surrogate, while WonderPlay uses coarse physics to condition generative video. Both retain an explicit notion of state and physical evolution rather than treating particles as decorative pixels.",
+        "sourceIds": [
+          "pNeuralMpm",
+          "pWonder"
+        ]
+      }
+    },
+    {
+      "heading": "Wind: a velocity field coupled to objects",
+      "paragraphs": [
+        "Wind is best represented as a time-varying velocity field. A procedural gust is sufficient for foliage or particles; smoke, sails, and dense crowds need spatial variation, turbulence, and a coupling law that converts relative air motion into drag and lift.",
+        "Grid solvers advect velocity, add viscosity and forces, and project the result to remove divergence. Artists often layer divergence-free noise and moving gust envelopes over a coarse flow because a fully resolved atmospheric simulation is rarely affordable."
+      ],
+      "equations": [
+        {
+          "label": "Incompressible Navier–Stokes",
+          "expression": [
+            "∂u/∂t + (u·∇)u = -∇p/ρ + ν∇²u + f",
+            "∇·u = 0"
+          ],
+          "terms": [
+            "u is velocity, p pressure, ν kinematic viscosity, and f external acceleration."
+          ]
+        }
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "wind",
+            "velocity field",
+            "gust",
+            "turbulence",
+            "vorticity confinement"
+          ],
+          "summary": "A wind model stores air motion and adds controlled variation across space and time.",
+          "sourceIds": [
+            "pFluidGpu",
+            "pFluid3d",
+            "pDiffWind"
+          ],
+          "details": [
+            {
+              "keyword": "wind",
+              "explanation": "Moving air represented by a vector velocity sampled at each simulated point.",
+              "aiNote": "Differentiable and learned flow models can infer or optimize wind fields; conservation, boundary conditions, and force coupling still determine whether the result behaves physically."
+            },
+            {
+              "keyword": "velocity field",
+              "explanation": "A function assigning a velocity vector to every position and time.",
+              "equation": {
+                "expression": "u=u(x,t)",
+                "note": "Particles sample the field; Eulerian solvers store it on a grid."
+              },
+              "aiNote": "Differentiable and learned flow models can infer or optimize wind fields; conservation, boundary conditions, and force coupling still determine whether the result behaves physically."
+            },
+            {
+              "keyword": "gust",
+              "explanation": "A localized, time-limited increase or redirection of wind speed.",
+              "aiNote": "Differentiable and learned flow models can infer or optimize wind fields; conservation, boundary conditions, and force coupling still determine whether the result behaves physically."
+            },
+            {
+              "keyword": "turbulence",
+              "explanation": "Multi-scale, irregular motion that transfers energy through eddies and creates rapidly varying forces.",
+              "aiNote": "Differentiable and learned flow models can infer or optimize wind fields; conservation, boundary conditions, and force coupling still determine whether the result behaves physically."
+            },
+            {
+              "keyword": "vorticity confinement",
+              "explanation": "A numerical force that restores small swirling motion lost to grid dissipation.",
+              "equation": {
+                "expression": "f_vort=εh(N×ω)",
+                "note": "ω=∇×u and N points toward increasing vorticity magnitude."
+              },
+              "aiNote": "Differentiable and learned flow models can infer or optimize wind fields; conservation, boundary conditions, and force coupling still determine whether the result behaves physically."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "advection",
+            "diffusion",
+            "pressure projection",
+            "divergence-free",
+            "drag force",
+            "lift force",
+            "fluid–structure interaction"
+          ],
+          "summary": "These operations transport wind, enforce incompressibility, and transfer momentum to solids.",
+          "sourceIds": [
+            "pFluidGpu",
+            "pFluid3d",
+            "pWinDiNet"
+          ],
+          "details": [
+            {
+              "keyword": "advection",
+              "explanation": "Transport of velocity or another quantity by the flow itself.",
+              "equation": {
+                "expression": "Dq/Dt=∂q/∂t+u·∇q",
+                "note": "The material derivative follows the moving air."
+              },
+              "aiNote": "Differentiable and learned flow models can infer or optimize wind fields; conservation, boundary conditions, and force coupling still determine whether the result behaves physically."
+            },
+            {
+              "keyword": "diffusion",
+              "explanation": "Viscous spreading that smooths velocity gradients.",
+              "equation": {
+                "expression": "∂u/∂t=ν∇²u",
+                "note": "Higher viscosity damps small-scale motion faster."
+              },
+              "aiNote": "Differentiable and learned flow models can infer or optimize wind fields; conservation, boundary conditions, and force coupling still determine whether the result behaves physically."
+            },
+            {
+              "keyword": "pressure projection",
+              "explanation": "A Poisson solve that subtracts a pressure gradient from provisional velocity to make it incompressible.",
+              "equation": {
+                "expression": "∇²p=(ρ/Δt)∇·u*",
+                "note": "Then u=u*-(Δt/ρ)∇p."
+              },
+              "aiNote": "Differentiable and learned flow models can infer or optimize wind fields; conservation, boundary conditions, and force coupling still determine whether the result behaves physically."
+            },
+            {
+              "keyword": "divergence-free",
+              "explanation": "A velocity field with zero local volume expansion for incompressible flow.",
+              "equation": {
+                "expression": "∇·u=0",
+                "note": "This is enforced after advection and forces."
+              },
+              "aiNote": "Differentiable and learned flow models can infer or optimize wind fields; conservation, boundary conditions, and force coupling still determine whether the result behaves physically."
+            },
+            {
+              "keyword": "drag force",
+              "explanation": "Force parallel to relative airflow that pushes an object toward the local wind velocity.",
+              "equation": {
+                "expression": "F_d∝|u-v|(u-v)",
+                "note": "Area and drag coefficient scale the result."
+              },
+              "aiNote": "Differentiable and learned flow models can infer or optimize wind fields; conservation, boundary conditions, and force coupling still determine whether the result behaves physically."
+            },
+            {
+              "keyword": "lift force",
+              "explanation": "Force largely perpendicular to relative flow, important for sheets, wings, and leaves.",
+              "equation": {
+                "expression": "|F_l|=½ρC_lA|v_rel|²",
+                "note": "Its direction depends on surface orientation."
+              },
+              "aiNote": "Differentiable and learned flow models can infer or optimize wind fields; conservation, boundary conditions, and force coupling still determine whether the result behaves physically."
+            },
+            {
+              "keyword": "fluid–structure interaction",
+              "explanation": "Two-way coupling in which air moves an object and the object's motion changes the flow.",
+              "aiNote": "Differentiable and learned flow models can infer or optimize wind fields; conservation, boundary conditions, and force coupling still determine whether the result behaves physically."
+            }
+          ]
+        }
+      ],
+      "aiResearch": {
+        "summary": "DiffWind differentiates through wind simulation so observed motion can optimize aerodynamic conditions; WinDiNet infers dense wind from sparse measurements. These methods target inverse estimation and acceleration, not the removal of boundary conditions or conservation constraints.",
+        "sourceIds": [
+          "pDiffWind",
+          "pWinDiNet"
+        ]
+      }
+    },
+    {
+      "heading": "Fog: transported density in a participating medium",
+      "paragraphs": [
+        "Fog simulation produces a density field; fog rendering converts that field into extinction and in-scattered light. Keeping those responsibilities separate matters: advection, diffusion, buoyancy, sources, and dissipation evolve the medium, while the renderer integrates transmittance along camera and light rays.",
+        "An Eulerian grid is natural for broad fog banks and smoke-like motion. Sparse volume storage avoids allocating empty space, and a simulation-to-render handoff records density, temperature, velocity, and optional emission without baking lighting into the physical state."
+      ],
+      "equations": [
+        {
+          "label": "Advection–diffusion with sources",
+          "expression": "∂ρ_f/∂t + u·∇ρ_f = κ∇²ρ_f + S - dρ_f",
+          "terms": [
+            "ρ_f is fog density, κ diffusion, S sources, and d dissipation."
+          ]
+        },
+        {
+          "label": "Beer–Lambert transmittance",
+          "expression": "T(s)=exp(-∫₀ˢ σ_t(x) dx)",
+          "terms": [
+            "Rendering maps simulated density to extinction σ_t."
+          ]
+        }
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Fog",
+            "participating medium",
+            "density field",
+            "extinction",
+            "scattering",
+            "simulation-to-render handoff"
+          ],
+          "summary": "The simulated scalar density becomes optical coefficients only when the renderer evaluates the participating medium.",
+          "sourceIds": [
+            "pSmoke",
+            "pOpenVdb",
+            "pFluid3d"
+          ],
+          "details": [
+            {
+              "keyword": "Fog",
+              "explanation": "A suspended aerosol represented in simulation by density and flow, and in rendering by absorption and scattering.",
+              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+            },
+            {
+              "keyword": "participating medium",
+              "explanation": "A volume that can absorb, emit, or scatter light inside space rather than only at surfaces.",
+              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+            },
+            {
+              "keyword": "density field",
+              "explanation": "A scalar value over space describing how much fog occupies each region.",
+              "equation": {
+                "expression": "ρ_f=ρ_f(x,t)",
+                "note": "Density is typically sampled from a grid or sparse volume."
+              },
+              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+            },
+            {
+              "keyword": "extinction",
+              "explanation": "Loss of radiance through absorption plus out-scattering.",
+              "equation": {
+                "expression": "σ_t=σ_a+σ_s",
+                "note": "Optical coefficients may be proportional to simulated density."
+              },
+              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+            },
+            {
+              "keyword": "scattering",
+              "explanation": "Redirection of light by fog particles, producing visible shafts and ambient haze.",
+              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+            },
+            {
+              "keyword": "simulation-to-render handoff",
+              "explanation": "Export of physical fields such as density, temperature, velocity, and emission into a renderable volume format.",
+              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "Eulerian grid",
+            "advection–diffusion",
+            "buoyancy",
+            "dissipation",
+            "sparse volume",
+            "OpenVDB"
+          ],
+          "summary": "Grid transport evolves fog while sparse storage carries only active regions.",
+          "sourceIds": [
+            "pSmoke",
+            "pOpenVdb",
+            "pFluidGpu"
+          ],
+          "details": [
+            {
+              "keyword": "Eulerian grid",
+              "explanation": "A fixed lattice whose cells store density, velocity, and other quantities as material flows through them.",
+              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+            },
+            {
+              "keyword": "advection–diffusion",
+              "explanation": "Combined transport by bulk velocity and smoothing by molecular or numerical diffusion.",
+              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+            },
+            {
+              "keyword": "buoyancy",
+              "explanation": "Vertical force from density or temperature differences relative to the surrounding air.",
+              "equation": {
+                "expression": "f_b≈(α(T-T₀)-βρ_f)g",
+                "note": "Coefficients are usually art-directed in graphics solvers."
+              },
+              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+            },
+            {
+              "keyword": "dissipation",
+              "explanation": "A controlled decay that prevents density and temperature from persisting forever.",
+              "equation": {
+                "expression": "ρ′=ρe^{-dΔt}",
+                "note": "Exponential decay is stable and time-step aware."
+              },
+              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+            },
+            {
+              "keyword": "sparse volume",
+              "explanation": "A volume representation that allocates data only near active fog, smoke, or fire cells.",
+              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+            },
+            {
+              "keyword": "OpenVDB",
+              "explanation": "A hierarchical sparse volume structure and interchange library widely used for effects fields.",
+              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+            }
+          ]
+        }
+      ],
+      "aiResearch": {
+        "summary": "Recent neural fluid representations compress continuous dynamics or learn evolution on complex surfaces. They can reduce storage or accelerate repeated solves, but the fog-specific meaning still comes from transported density and its optical mapping.",
+        "sourceIds": [
+          "pNeuralFluid",
+          "pPinr",
+          "pWonder"
+        ]
+      }
+    },
+    {
+      "heading": "Clouds: moisture, temperature, and phase change",
+      "paragraphs": [
+        "A cloud is not only noise. A compact physical model transports water vapor and temperature, condenses vapor when local humidity exceeds saturation, evaporates cloud water when air becomes undersaturated, and feeds latent heat back into buoyancy.",
+        "Games often combine a coarse weather map with procedural detail because cloud microphysics spans scales that cannot be resolved in real time. The useful division is physical fields for evolution and coverage, then shaped noise for sub-grid structure—not noise pretending to be the entire simulation."
+      ],
+      "equations": [
+        {
+          "label": "Condensation tendency",
+          "expression": "C = k_c max(q_v - q_sat(T,p), 0)",
+          "terms": [
+            "q_v is vapor mixing ratio and q_sat is saturation at local temperature and pressure."
+          ]
+        }
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "cloud",
+            "humidity",
+            "temperature",
+            "condensation",
+            "evaporation",
+            "cloud water content"
+          ],
+          "summary": "Thermodynamic state and reversible phase change decide where cloud mass appears and disappears.",
+          "sourceIds": [
+            "pFluidGpu",
+            "pFluid3d",
+            "pOpenVdb"
+          ],
+          "details": [
+            {
+              "keyword": "cloud",
+              "explanation": "A visible volume of condensed water droplets or ice crystals carried by atmospheric flow.",
+              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+            },
+            {
+              "keyword": "humidity",
+              "explanation": "The amount of water vapor in air, often stored as a mixing ratio or relative humidity.",
+              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+            },
+            {
+              "keyword": "temperature",
+              "explanation": "A transported thermodynamic field that changes saturation, density, and buoyancy.",
+              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+            },
+            {
+              "keyword": "condensation",
+              "explanation": "Conversion of excess vapor into cloud water when saturation is exceeded.",
+              "equation": {
+                "expression": "Δq_c=min(q_v-q_sat, available vapor)",
+                "note": "Condensed mass is removed from vapor and added to cloud water."
+              },
+              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+            },
+            {
+              "keyword": "evaporation",
+              "explanation": "Conversion of cloud water back into vapor when the air is undersaturated.",
+              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+            },
+            {
+              "keyword": "cloud water content",
+              "explanation": "The mass or mixing ratio of condensed water stored in each cell.",
+              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "buoyancy",
+            "Eulerian solver",
+            "weather map",
+            "procedural noise",
+            "cloud microphysics",
+            "volumetric density"
+          ],
+          "summary": "Large-scale dynamics set coverage; procedural structure fills unresolved visual scales.",
+          "sourceIds": [
+            "pFluidGpu",
+            "pOpenVdb",
+            "pCloudMl"
+          ],
+          "details": [
+            {
+              "keyword": "buoyancy",
+              "explanation": "Acceleration from density differences, including temperature and moisture effects, that drives cloud rise and convection.",
+              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+            },
+            {
+              "keyword": "Eulerian solver",
+              "explanation": "A fixed-grid solver used to advect velocity, moisture, temperature, and condensed water.",
+              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+            },
+            {
+              "keyword": "weather map",
+              "explanation": "A low-resolution field controlling coverage, cloud type, precipitation, or storm movement over large areas.",
+              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+            },
+            {
+              "keyword": "procedural noise",
+              "explanation": "Band-limited detail added below the simulation resolution to shape edges and internal density.",
+              "aiNote": "AI generators can synthesize plausible cloud texture, but procedural detail is still a controllable and temporally coherent production tool."
+            },
+            {
+              "keyword": "cloud microphysics",
+              "explanation": "The unresolved processes governing droplet nucleation, growth, phase change, and precipitation.",
+              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+            },
+            {
+              "keyword": "volumetric density",
+              "explanation": "The final spatial field sampled by a volume renderer after dynamics and detail synthesis.",
+              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+            }
+          ]
+        }
+      ],
+      "aiResearch": {
+        "summary": "Current AI work is strongest at observing and reconstructing clouds: machine-learning tomography estimates 3D structure, while light-transport-aware diffusion recovers volumes from images. These are inverse problems; they complement rather than replace moisture and phase-change simulation.",
+        "sourceIds": [
+          "pCloudMl",
+          "pCloudDiff"
+        ]
+      }
+    },
+    {
+      "heading": "Water and ocean: free surfaces across scales",
+      "paragraphs": [
+        "Water methods are chosen by scale. Spectral FFT oceans and Gerstner waves describe kilometers of deep-water surface efficiently; shallow-water equations capture coastlines and height-field flow; SPH and particle-in-cell families handle splashes, breaking waves, and strongly changing topology.",
+        "No single representation covers the whole shot. A practical ocean couples a large spectral surface to local free-surface simulation, then seeds foam and spray from curvature, vorticity, or breaking-wave criteria. Conservation and boundary exchange are more important than hiding the seam with extra noise."
+      ],
+      "equations": [
+        {
+          "label": "Spectral ocean synthesis",
+          "expression": "h(x,t)=Σ_k h̃(k,t)e^{i k·x}",
+          "terms": [
+            "An inverse FFT evaluates many wave modes efficiently."
+          ]
+        },
+        {
+          "label": "SPH density estimate",
+          "expression": "ρᵢ=Σⱼ mⱼW(|xᵢ-xⱼ|,h)",
+          "terms": [
+            "The smoothing kernel W reconstructs density from neighboring particles."
+          ]
+        }
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "water",
+            "ocean",
+            "free surface",
+            "height field",
+            "wave spectrum",
+            "FFT ocean",
+            "Gerstner waves"
+          ],
+          "summary": "Surface models trade topological freedom for enormous spatial coverage and fast evaluation.",
+          "sourceIds": [
+            "pOcean",
+            "pWaterGpu",
+            "pShallow"
+          ],
+          "details": [
+            {
+              "keyword": "water",
+              "explanation": "An approximately incompressible fluid whose motion is governed by momentum, pressure, gravity, and boundaries.",
+              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+            },
+            {
+              "keyword": "ocean",
+              "explanation": "A large water domain where wind-driven waves span many wavelengths and often use a statistical spectrum.",
+              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+            },
+            {
+              "keyword": "free surface",
+              "explanation": "The moving interface between water and air where pressure and kinematic boundary conditions apply.",
+              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+            },
+            {
+              "keyword": "height field",
+              "explanation": "A single-valued surface elevation over a horizontal plane; efficient but unable to represent overturning waves.",
+              "equation": {
+                "expression": "z=h(x,y,t)",
+                "note": "One height exists for each horizontal position."
+              },
+              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+            },
+            {
+              "keyword": "wave spectrum",
+              "explanation": "A distribution of energy over wave number and direction derived from wind and sea state.",
+              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+            },
+            {
+              "keyword": "FFT ocean",
+              "explanation": "A spectral surface that evolves complex wave amplitudes and evaluates the height field with inverse FFTs.",
+              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+            },
+            {
+              "keyword": "Gerstner waves",
+              "explanation": "Analytic trochoidal waves that displace points horizontally and vertically, producing controllable sharp crests.",
+              "equation": {
+                "expression": "x′=x+Σ Q_iA_i d_i cosθ_i; z′=Σ A_i sinθ_i",
+                "note": "θ_i=k_i·x-ω_it+φ_i."
+              },
+              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "shallow-water equations",
+            "SPH",
+            "PIC",
+            "FLIP",
+            "APIC",
+            "level set",
+            "pressure projection",
+            "surface tension",
+            "foam",
+            "spray",
+            "two-way coupling"
+          ],
+          "summary": "Local solvers support boundaries, splashes, and topology changes that a height field cannot represent.",
+          "sourceIds": [
+            "pSph",
+            "pApic",
+            "pFluid3d"
+          ],
+          "details": [
+            {
+              "keyword": "shallow-water equations",
+              "explanation": "Depth-averaged conservation equations for flows whose horizontal scale is much larger than depth.",
+              "equation": {
+                "expression": "∂h/∂t+∇·(hu)=0",
+                "note": "The momentum equation adds gravity and bed effects."
+              },
+              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+            },
+            {
+              "keyword": "SPH",
+              "explanation": "Smoothed Particle Hydrodynamics reconstructs fluid quantities from moving particle neighborhoods.",
+              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+            },
+            {
+              "keyword": "PIC",
+              "explanation": "Particle-In-Cell transfers particle momentum to a grid for solving, then interpolates grid velocity back to particles with strong damping.",
+              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+            },
+            {
+              "keyword": "FLIP",
+              "explanation": "A PIC variant that transfers grid velocity changes back to particles, preserving energy but allowing noise.",
+              "equation": {
+                "expression": "v_p′=v_p+I(u_grid′-u_grid)",
+                "note": "I interpolates the grid update to the particle."
+              },
+              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+            },
+            {
+              "keyword": "APIC",
+              "explanation": "Affine PIC augments each particle with a local affine velocity field to reduce both PIC damping and FLIP noise.",
+              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+            },
+            {
+              "keyword": "level set",
+              "explanation": "A signed scalar field whose zero isosurface tracks the water–air interface.",
+              "equation": {
+                "expression": "φ(x)=0",
+                "note": "Negative and positive signs identify the two sides."
+              },
+              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+            },
+            {
+              "keyword": "pressure projection",
+              "explanation": "The incompressibility solve that removes divergent velocity and enforces solid boundaries.",
+              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+            },
+            {
+              "keyword": "surface tension",
+              "explanation": "Interface force that minimizes surface area and dominates small droplets and capillary waves.",
+              "equation": {
+                "expression": "Δp=σκ",
+                "note": "Pressure jump equals tension σ times curvature κ."
+              },
+              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+            },
+            {
+              "keyword": "foam",
+              "explanation": "Entrained air and bubbles produced near breaking, aerated, or turbulent water.",
+              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+            },
+            {
+              "keyword": "spray",
+              "explanation": "Ballistic droplets detached from the main free surface and often simulated as secondary particles.",
+              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+            },
+            {
+              "keyword": "two-way coupling",
+              "explanation": "Momentum exchange in which water moves solids and solids displace or redirect the fluid.",
+              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+            }
+          ]
+        }
+      ],
+      "aiResearch": {
+        "summary": "Recent learning methods infer water surfaces or reconstruct refractive scenes from observations. They are valuable for capture and inverse graphics, while SPH, FLIP/APIC, spectra, and shallow-water solvers remain the mechanisms for controllable forward dynamics.",
+        "sourceIds": [
+          "pWaterAi",
+          "pRefrac",
+          "pNeuralMpm"
+        ]
+      }
+    },
+    {
+      "heading": "Fire and explosion: reacting flow and pressure",
+      "paragraphs": [
+        "Fire is a reacting flow: fuel and oxidizer create heat and products, hot gas rises, soot carries visible emission, and radiation loses energy. An explosion adds a rapid energy release that can produce compressible flow, a shock front, and a pressure impulse before the later buoyant plume behaves more like ordinary fire and smoke.",
+        "Entertainment solvers often simplify chemistry into progress variables and artist controls. That is reasonable when the model keeps its bookkeeping clear: reaction consumes fuel, heat changes temperature and density, soot is transported, and an explosion's early pressure wave is not confused with a slow incompressible plume."
+      ],
+      "equations": [
+        {
+          "label": "Reaction progress",
+          "expression": "∂Y_f/∂t + u·∇Y_f = D∇²Y_f - ω̇",
+          "terms": [
+            "Y_f is fuel fraction and ω̇ the reaction rate."
+          ]
+        },
+        {
+          "label": "Blast overpressure decay (conceptual)",
+          "expression": "Δp(r,t)=p_peak(r) f(t-t_arrival)",
+          "terms": [
+            "Production models often use an authored pressure pulse unless a compressible solver resolves the shock."
+          ]
+        }
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "fire",
+            "fuel",
+            "oxidizer",
+            "temperature",
+            "reaction rate",
+            "combustion",
+            "heat release",
+            "soot",
+            "blackbody emission",
+            "pyro solver"
+          ],
+          "summary": "A reduced combustion model transports reactants and products while converting reaction progress into heat and visible fields.",
+          "sourceIds": [
+            "pFire",
+            "pFds",
+            "pFluid3d"
+          ],
+          "details": [
+            {
+              "keyword": "fire",
+              "explanation": "Visible reacting gas whose motion, heat, soot, and radiation are coupled.",
+              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+            },
+            {
+              "keyword": "fuel",
+              "explanation": "A transported material fraction consumed by the combustion reaction.",
+              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+            },
+            {
+              "keyword": "oxidizer",
+              "explanation": "Usually oxygen-bearing air required for combustion and mixed with fuel before reaction.",
+              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+            },
+            {
+              "keyword": "temperature",
+              "explanation": "Thermal state controlling buoyancy, reaction rates, emission color, and cooling.",
+              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+            },
+            {
+              "keyword": "reaction rate",
+              "explanation": "The amount of reactant converted per unit time and volume.",
+              "equation": {
+                "expression": "ω̇≈A e^{-E_a/(RT)}Y_f^aY_o^b",
+                "note": "Arrhenius kinetics are often reduced or art-directed in graphics."
+              },
+              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+            },
+            {
+              "keyword": "combustion",
+              "explanation": "Exothermic conversion of fuel and oxidizer into products, heat, and sometimes soot.",
+              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+            },
+            {
+              "keyword": "heat release",
+              "explanation": "Energy added by reaction, increasing temperature and driving expansion or buoyancy.",
+              "equation": {
+                "expression": "Q̇=H_c ω̇",
+                "note": "H_c is heat released per unit reacted fuel."
+              },
+              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+            },
+            {
+              "keyword": "soot",
+              "explanation": "Carbonaceous particulate transported by the flow and used as a smoke and emission carrier.",
+              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+            },
+            {
+              "keyword": "blackbody emission",
+              "explanation": "Thermal spectrum used to map hot soot temperature to emitted radiance and color.",
+              "equation": {
+                "expression": "B_λ(T)=2hc²/λ⁵ · 1/(e^{hc/(λkT)}-1)",
+                "note": "Planck's law gives spectral radiance."
+              },
+              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+            },
+            {
+              "keyword": "pyro solver",
+              "explanation": "A production effects solver combining grid fluid motion, combustion controls, temperature, fuel, soot, and sparse storage.",
+              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "explosion",
+            "compressible Euler equations",
+            "shock wave",
+            "blast pressure",
+            "sparse grid"
+          ],
+          "summary": "Explosions require compressibility during the fast pressure event, then often transition to a buoyant sparse-volume plume.",
+          "sourceIds": [
+            "pFds",
+            "pFireX",
+            "pFire"
+          ],
+          "details": [
+            {
+              "keyword": "explosion",
+              "explanation": "A rapid energy release causing expansion, pressure loading, fragmentation, heat, and a subsequent plume.",
+              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+            },
+            {
+              "keyword": "compressible Euler equations",
+              "explanation": "Conservation of mass, momentum, and total energy for inviscid compressible flow.",
+              "equation": {
+                "expression": "∂U/∂t+∇·F(U)=S",
+                "note": "U contains density, momentum, and energy."
+              },
+              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+            },
+            {
+              "keyword": "shock wave",
+              "explanation": "A thin moving discontinuity with abrupt jumps in pressure, density, temperature, and velocity.",
+              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+            },
+            {
+              "keyword": "blast pressure",
+              "explanation": "Transient overpressure that applies an outward impulse to nearby bodies before the slower gas flow arrives.",
+              "equation": {
+                "expression": "J=∫Δp(t)dt",
+                "note": "Pressure impulse J drives the first rigid-body response."
+              },
+              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+            },
+            {
+              "keyword": "sparse grid",
+              "explanation": "A grid allocating only active fire, smoke, or shock regions to reduce memory and compute.",
+              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+            }
+          ]
+        }
+      ],
+      "aiResearch": {
+        "summary": "Fire-X makes visual fire simulation differentiable for parameter fitting; PyTorchFire and DeepFlame explore differentiable wildfire and neural combustion components. Their value is inverse control and acceleration, while reaction and conservation states remain explicit.",
+        "sourceIds": [
+          "pFireX",
+          "pTorchFire",
+          "pDeepFlame"
+        ]
+      }
+    },
+    {
+      "heading": "Cloth and fiber: shells, yarns, and contact",
+      "paragraphs": [
+        "Cloth is a thin anisotropic structure: it resists stretching strongly, shears differently along warp and weft, bends easily, and develops detail through contact. Triangle-shell, FEM, mass–spring, PBD, and XPBD models approximate those energies at different cost and controllability.",
+        "Fiber or yarn-level simulation moves below the homogenized sheet and resolves interlocking loops and friction. It produces characteristic knit and weave behavior, but requires much more geometry and collision work. Most real-time systems therefore use shell dynamics plus material parameters measured or tuned for the fabric."
+      ],
+      "equations": [
+        {
+          "label": "Elastic energy",
+          "expression": "E(x)=E_stretch+E_shear+E_bend",
+          "terms": [
+            "Internal force follows f_int=-∂E/∂x."
+          ]
+        },
+        {
+          "label": "Implicit integration",
+          "expression": "(M-Δt² ∂f/∂x)Δv = Δt(f+Δt(∂f/∂x)v)",
+          "terms": [
+            "Solving a linearized system permits larger steps for stiff cloth."
+          ]
+        }
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "cloth",
+            "mass–spring",
+            "triangle shell",
+            "FEM",
+            "stretching",
+            "shearing",
+            "bending",
+            "anisotropy",
+            "implicit integration",
+            "PBD",
+            "XPBD"
+          ],
+          "summary": "Sheet models encode cloth through elastic energies or constraints on a triangle mesh.",
+          "sourceIds": [
+            "pCloth",
+            "pPbd",
+            "pXpbd"
+          ],
+          "details": [
+            {
+              "keyword": "cloth",
+              "explanation": "A thin deformable surface with high in-plane stiffness, low bending stiffness, and frequent self-contact.",
+              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+            },
+            {
+              "keyword": "mass–spring",
+              "explanation": "A network of point masses connected by stretch, shear, and bend springs.",
+              "equation": {
+                "expression": "F_s=-k(|x|-l₀)x/|x|",
+                "note": "Spring stiffness and rest length define the force."
+              },
+              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+            },
+            {
+              "keyword": "triangle shell",
+              "explanation": "A discretized thin surface whose membrane and bending energies are evaluated on triangles and edges.",
+              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+            },
+            {
+              "keyword": "FEM",
+              "explanation": "Finite Element Method discretizes continuum strain energy into elements and derives forces from material laws.",
+              "equation": {
+                "expression": "f_int=-∂E/∂x",
+                "note": "The energy may be anisotropic and nonlinear."
+              },
+              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+            },
+            {
+              "keyword": "stretching",
+              "explanation": "Resistance to length changes along the fabric surface.",
+              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+            },
+            {
+              "keyword": "shearing",
+              "explanation": "Resistance to changes in the angle between material directions.",
+              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+            },
+            {
+              "keyword": "bending",
+              "explanation": "Resistance to curvature changes, commonly evaluated across adjacent triangle edges.",
+              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+            },
+            {
+              "keyword": "anisotropy",
+              "explanation": "Direction-dependent behavior that distinguishes warp, weft, and bias response.",
+              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+            },
+            {
+              "keyword": "implicit integration",
+              "explanation": "A time update that solves for forces at the new state, enabling larger steps for stiff cloth.",
+              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+            },
+            {
+              "keyword": "PBD",
+              "explanation": "A robust projection method that enforces cloth constraints directly on positions.",
+              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+            },
+            {
+              "keyword": "XPBD",
+              "explanation": "A compliant constraint formulation that makes material stiffness less dependent on solver settings.",
+              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "fiber",
+            "yarn-level simulation",
+            "friction",
+            "self-collision",
+            "tearing"
+          ],
+          "summary": "Sub-structure and contact create the folds, locking, and failure modes that distinguish fabrics.",
+          "sourceIds": [
+            "pYarn",
+            "pClothCollision",
+            "pXpbd"
+          ],
+          "details": [
+            {
+              "keyword": "fiber",
+              "explanation": "A slender material strand; many fibers form yarn and interlaced yarns form fabric.",
+              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+            },
+            {
+              "keyword": "yarn-level simulation",
+              "explanation": "Explicit simulation of knitted or woven yarn paths rather than a homogenized sheet.",
+              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+            },
+            {
+              "keyword": "friction",
+              "explanation": "Tangential contact resistance that controls sliding, fold locking, and yarn interaction.",
+              "equation": {
+                "expression": "|F_t|≤μ|F_n|",
+                "note": "Coulomb friction caps tangential force by normal load."
+              },
+              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+            },
+            {
+              "keyword": "self-collision",
+              "explanation": "Detection and response preventing distant parts of the same cloth from passing through each other.",
+              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+            },
+            {
+              "keyword": "tearing",
+              "explanation": "Topological separation triggered when strain, stress, or a damage variable exceeds a threshold.",
+              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+            }
+          ]
+        }
+      ],
+      "aiResearch": {
+        "summary": "PGC reconstructs a simulation-ready garment with Gaussian appearance, SimAvatar generates separable garment and hair assets, and SAFT optimizes fabric dynamics through differentiable simulation. These systems increasingly connect learned capture to conventional physical assets.",
+        "sourceIds": [
+          "pPgc",
+          "pSimAvatar",
+          "pSaft"
+        ]
+      }
+    },
+    {
+      "heading": "Collision: broad phase, intersection, and push out",
+      "paragraphs": [
+        "Collision handling is a pipeline. The broad phase rejects obviously separated pairs with cheap bounding volumes; the narrow phase computes actual separation or penetration; continuous collision detection checks motion between frames; the response stage applies impulses, friction, or positional correction.",
+        "AABB and k-DOP are not competing full solvers. They are bounding volumes used to organize candidate tests, often inside a BVH. Push out is a positional repair based on contact normal and penetration depth; it should complement velocity response, not silently replace time-of-impact handling."
+      ],
+      "equations": [
+        {
+          "label": "Normal impulse",
+          "expression": "j = -(1+e)(v_rel·n) / (m_A⁻¹+m_B⁻¹+rotational terms)",
+          "terms": [
+            "Apply ±jn to change velocity; e is restitution."
+          ]
+        },
+        {
+          "label": "Positional correction",
+          "expression": "Δx = β max(d-slop,0) n",
+          "terms": [
+            "d is penetration depth and β limits aggressive push out."
+          ]
+        }
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "collision",
+            "broad phase",
+            "AABB",
+            "KDOP",
+            "k-DOP",
+            "BVH",
+            "spatial partitioning"
+          ],
+          "summary": "Bounding volumes and hierarchies cheaply reduce millions of possible object pairs to a manageable candidate set.",
+          "sourceIds": [
+            "pBox2d",
+            "pKdop",
+            "pCcd"
+          ],
+          "details": [
+            {
+              "keyword": "collision",
+              "explanation": "The detection and response process that prevents simulated bodies from occupying incompatible space.",
+              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+            },
+            {
+              "keyword": "broad phase",
+              "explanation": "A conservative candidate search using cheap bounds before exact geometry tests.",
+              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+            },
+            {
+              "keyword": "AABB",
+              "explanation": "Axis-aligned bounding box stored as minimum and maximum coordinates; overlap is tested independently per axis.",
+              "equation": {
+                "expression": "overlap ⇔ max_A≥min_B and max_B≥min_A on x,y,z",
+                "note": "Failure on any axis separates the boxes."
+              },
+              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+            },
+            {
+              "keyword": "KDOP",
+              "explanation": "Common informal spelling of k-DOP, a convex bound defined by extrema along a fixed set of k plane-normal directions.",
+              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+            },
+            {
+              "keyword": "k-DOP",
+              "explanation": "A discrete-orientation polytope that fits objects more tightly than an AABB while retaining interval overlap tests.",
+              "equation": {
+                "expression": "[min_i,max_i] for i=1…k/2",
+                "note": "Each direction pair defines one projection interval."
+              },
+              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+            },
+            {
+              "keyword": "BVH",
+              "explanation": "A bounding-volume hierarchy whose internal nodes enclose descendants so entire branches can be rejected.",
+              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+            },
+            {
+              "keyword": "spatial partitioning",
+              "explanation": "A grid, tree, sweep, or hash that organizes objects by space to avoid all-pairs testing.",
+              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "intersection",
+            "narrow phase",
+            "SAT",
+            "GJK",
+            "EPA",
+            "discrete collision detection",
+            "CCD",
+            "time of impact"
+          ],
+          "summary": "The narrow phase asks whether actual shapes overlap and, for moving shapes, when contact first occurs.",
+          "sourceIds": [
+            "pBox2d",
+            "pCcd",
+            "pKdop"
+          ],
+          "details": [
+            {
+              "keyword": "intersection",
+              "explanation": "A geometric query asking whether two shapes share any point or whether a ray crosses a primitive.",
+              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+            },
+            {
+              "keyword": "narrow phase",
+              "explanation": "Accurate pairwise testing that returns contact features, distance, normal, or penetration after broad-phase pruning.",
+              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+            },
+            {
+              "keyword": "SAT",
+              "explanation": "Separating Axis Theorem: two convex shapes are disjoint if any candidate axis has non-overlapping projection intervals.",
+              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+            },
+            {
+              "keyword": "GJK",
+              "explanation": "An iterative support-mapping algorithm that computes separation or detects intersection between convex shapes via the Minkowski difference.",
+              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+            },
+            {
+              "keyword": "EPA",
+              "explanation": "Expanding Polytope Algorithm extends an intersecting GJK simplex to estimate penetration normal and depth.",
+              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+            },
+            {
+              "keyword": "discrete collision detection",
+              "explanation": "Testing geometry only at sampled simulation states; fast objects can tunnel between states.",
+              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+            },
+            {
+              "keyword": "CCD",
+              "explanation": "Continuous collision detection checks swept motion over a time interval to prevent tunneling.",
+              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+            },
+            {
+              "keyword": "time of impact",
+              "explanation": "The earliest normalized time in a step at which two moving shapes touch.",
+              "equation": {
+                "expression": "t_hit=min{t∈[0,1] | distance(A(t),B(t))=0}",
+                "note": "A solver advances to this event before response."
+              },
+              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "push out",
+            "contact normal",
+            "penetration depth",
+            "contact manifold",
+            "impulse",
+            "restitution",
+            "Coulomb friction",
+            "positional correction"
+          ],
+          "summary": "Contact geometry drives velocity impulses and a limited positional repair.",
+          "sourceIds": [
+            "pBox2d",
+            "pClothCollision",
+            "pCcd"
+          ],
+          "details": [
+            {
+              "keyword": "push out",
+              "explanation": "A direct positional displacement along a contact normal used to reduce existing overlap.",
+              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+            },
+            {
+              "keyword": "contact normal",
+              "explanation": "A unit direction along which the shapes should separate and normal impulse is applied.",
+              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+            },
+            {
+              "keyword": "penetration depth",
+              "explanation": "The minimum translation distance estimated to separate overlapping shapes along the chosen normal.",
+              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+            },
+            {
+              "keyword": "contact manifold",
+              "explanation": "A compact set of persistent contact points representing an extended patch between two bodies.",
+              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+            },
+            {
+              "keyword": "impulse",
+              "explanation": "An instantaneous momentum change used to enforce non-penetrating velocity at contact.",
+              "equation": {
+                "expression": "Δp=J",
+                "note": "Linear velocity changes by J/m."
+              },
+              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+            },
+            {
+              "keyword": "restitution",
+              "explanation": "A coefficient controlling normal bounce by relating separating and approaching speeds.",
+              "equation": {
+                "expression": "v_sep=-e v_approach",
+                "note": "e=0 is inelastic; e=1 preserves normal speed."
+              },
+              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+            },
+            {
+              "keyword": "Coulomb friction",
+              "explanation": "A tangential impulse constrained by the normal impulse and friction coefficient.",
+              "equation": {
+                "expression": "|j_t|≤μj_n",
+                "note": "Static friction stays inside the cone; sliding reaches the limit."
+              },
+              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+            },
+            {
+              "keyword": "positional correction",
+              "explanation": "A bounded post-solve displacement that removes accumulated overlap without adding excessive energy.",
+              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+            }
+          ]
+        }
+      ],
+      "aiResearch": {
+        "summary": "Recent differentiable collision work focuses on stable gradients through contact, while few-shot neural simulators learn local contact behavior from sparse examples. Geometry-based broad and narrow phases remain essential for coverage and safety.",
+        "sourceIds": [
+          "pDiffCollision",
+          "pNeuralContact",
+          "pDiffSoft"
+        ]
+      }
+    }
+  ],
+  "closing": "Particles provide moving samples; wind and volumetric solvers transport fields; clouds add phase change; oceans connect spectra to local free surfaces; fire couples reaction and flow; cloth turns thin-material energy into folds; collision keeps every representation mutually consistent. Modern AI is most useful as an inverse model, asset generator, or surrogate around these mechanisms—not as a reason to stop defining state, units, boundaries, conservation, and contact."
+}

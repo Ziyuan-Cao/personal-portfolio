@@ -1,0 +1,1328 @@
+{
+  "slug": "hardware-computer-systems-gpu-cuda-rhi",
+  "title": "Hardware, Computer Systems, GPU Architecture, CUDA, and RHI",
+  "abstract": "A systems-to-graphics guide connecting CPU, memory, flash, buses, processes, pages, threads, locks, GPU execution, CUDA, RHI design, and the practical differences among OpenGL, Direct3D 11, Direct3D 12, and Vulkan.",
+  "category": "Hardware and graphics systems guide",
+  "publishedAt": "2026-08-20",
+  "image": "/content/blog/Hardware, Computer Systems, GPU Architecture, CUDA, and RHI/hardware-system-rhi.svg",
+  "imageAlt": "A CPU and memory hierarchy feed a GPU through an interconnect, then branch into OpenGL, Direct3D, Vulkan, and an engine RHI",
+  "lede": "Rendering performance starts below the renderer. CPU scheduling, memory locality, storage, interconnects, operating-system isolation, GPU hierarchy, and API submission all determine when useful work reaches the device. This guide preserves the supplied vocabulary—including Cuda and Valkan—while identifying the official names CUDA and Vulkan, adding the missing architectural terms, and separating current AI-systems research from deterministic hardware, OS, and graphics-API contracts.",
+  "sourceCatalog": {
+    "intelSdm": {
+      "label": "Intel 64 and IA-32 Architectures Software Developer Manuals",
+      "url": "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html"
+    },
+    "intelOpt": {
+      "label": "Intel 64 and IA-32 Architectures Optimization Reference Manual",
+      "url": "https://www.intel.com.tw/content/dam/doc/manual/64-ia-32-architectures-optimization-manual.pdf"
+    },
+    "linuxMm": {
+      "label": "Linux kernel memory-management concepts",
+      "url": "https://docs.kernel.org/admin-guide/mm/concepts.html"
+    },
+    "nvme": {
+      "label": "NVM Express specifications",
+      "url": "https://nvmexpress.org/specifications/"
+    },
+    "cxl": {
+      "label": "Compute Express Link 4.0 specification",
+      "url": "https://computeexpresslink.org/wp-content/uploads/2026/02/CXL-Specification_rev4p0_ver1p0_2026February26_clean_evalcopy_v2.pdf"
+    },
+    "pci": {
+      "label": "Intel PCI Express architecture resources",
+      "url": "https://www.intel.com/content/www/us/en/io/pci-express/pci-express-architecture-devnet-resources.html"
+    },
+    "clone": {
+      "label": "Linux clone(2) manual",
+      "url": "https://man7.org/linux/man-pages/man2/clone.2.html"
+    },
+    "pthreads": {
+      "label": "Linux pthreads(7) manual",
+      "url": "https://man7.org/linux/man-pages/man7/pthreads.7.html"
+    },
+    "processAddr": {
+      "label": "Linux kernel process-address documentation",
+      "url": "https://docs.kernel.org/mm/process_addrs.html"
+    },
+    "cppAtomic": {
+      "label": "C++ working draft: atomics",
+      "url": "https://eel.is/c++draft/atomics"
+    },
+    "linuxLock": {
+      "label": "Linux kernel locking documentation",
+      "url": "https://www.kernel.org/doc/html/next/locking/index.html"
+    },
+    "futex": {
+      "label": "Linux futex(2) manual",
+      "url": "https://man7.org/linux/man-pages/man2/futex.2.html"
+    },
+    "cudaGuide": {
+      "label": "CUDA Programming Guide 13.2",
+      "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/pdf/cuda-programming-guide.pdf"
+    },
+    "cudaBest": {
+      "label": "CUDA C++ Best Practices Guide",
+      "url": "https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/"
+    },
+    "hopper": {
+      "label": "NVIDIA Hopper architecture in depth",
+      "url": "https://developer.nvidia.com/blog/nvidia-hopper-architecture-in-depth/"
+    },
+    "rdna": {
+      "label": "AMD RDNA performance guide",
+      "url": "https://gpuopen.com/learn/rdna-performance-guide/"
+    },
+    "ptx": {
+      "label": "Parallel Thread Execution ISA",
+      "url": "https://docs.nvidia.com/cuda/parallel-thread-execution/"
+    },
+    "cudaMem": {
+      "label": "CUDA C++ memory model",
+      "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/05-appendices/cuda-cpp-memory-model.html"
+    },
+    "unrealRhi": {
+      "label": "Unreal Engine parallel rendering and RHI",
+      "url": "https://dev.epicgames.com/documentation/unreal-engine/parallel-rendering-overview-for-unreal-engine"
+    },
+    "gl": {
+      "label": "Khronos OpenGL registry and OpenGL 4.6 specification",
+      "url": "https://registry.khronos.org/OpenGL/index_gl.php"
+    },
+    "d3d11": {
+      "label": "Microsoft Direct3D 11 documentation",
+      "url": "https://learn.microsoft.com/en-us/windows/win32/direct3d11/atoc-dx-graphics-direct3d-11"
+    },
+    "d3dPort": {
+      "label": "Microsoft: Porting from Direct3D 11 to Direct3D 12",
+      "url": "https://learn.microsoft.com/en-us/windows/win32/direct3d12/porting-from-direct3d-11-to-direct3d-12"
+    },
+    "d3dCpu": {
+      "label": "Direct3D 12 CPU efficiency specification",
+      "url": "https://microsoft.github.io/DirectX-Specs/d3d/CPUEfficiency.html"
+    },
+    "vkSpec": {
+      "label": "Vulkan specification",
+      "url": "https://docs.vulkan.org/spec/latest/index.html"
+    },
+    "vkGuide": {
+      "label": "Khronos Vulkan Guide",
+      "url": "https://docs.vulkan.org/guide/latest/"
+    },
+    "vkSync": {
+      "label": "Vulkan synchronization and cache control",
+      "url": "https://docs.vulkan.org/spec/latest/chapters/synchronization.html"
+    },
+    "aiBeluga": {
+      "label": "Beluga: CXL-based KV-cache memory architecture (2025)",
+      "url": "https://arxiv.org/abs/2511.20172"
+    },
+    "aiBlink": {
+      "label": "Blink: CPU-free LLM inference with GPU and SmartNIC (2026)",
+      "url": "https://arxiv.org/abs/2604.07609"
+    },
+    "aiCohet": {
+      "label": "Cohet: CXL-driven coherent heterogeneous computing (2025)",
+      "url": "https://arxiv.org/abs/2511.23011"
+    },
+    "aiNano": {
+      "label": "NanoFlow (OSDI 2025)",
+      "url": "https://www.usenix.org/conference/osdi25/presentation/zhu-kan"
+    },
+    "aiDist": {
+      "label": "DistServe (OSDI 2024)",
+      "url": "https://www.usenix.org/conference/osdi24/presentation/zhong-yinmin"
+    },
+    "aiVllm": {
+      "label": "vLLM and PagedAttention",
+      "url": "https://arxiv.org/abs/2309.06180"
+    },
+    "aiFlash3": {
+      "label": "FlashAttention-3 (2024)",
+      "url": "https://arxiv.org/abs/2407.08608"
+    },
+    "aiTk": {
+      "label": "ThunderKittens (2024)",
+      "url": "https://arxiv.org/abs/2410.20399"
+    },
+    "aiHip": {
+      "label": "HipKittens (2025)",
+      "url": "https://arxiv.org/abs/2511.08083"
+    },
+    "aiKernel": {
+      "label": "KernelBench (ICML 2025)",
+      "url": "https://openreview.net/forum?id=yeoN1iQT1x"
+    },
+    "aiAstra": {
+      "label": "Astra: Multi-agent GPU-kernel optimization (2025)",
+      "url": "https://arxiv.org/abs/2509.07506"
+    }
+  },
+  "sections": [
+    {
+      "heading": "Computer system: compute, memory, storage, and interconnect",
+      "paragraphs": [
+        "A computer system is a hierarchy, not a single processor. The CPU executes instructions, caches keep recent data close, DRAM holds the active working set, flash-backed storage preserves data without power, and buses or coherent fabrics move commands and bytes between components.",
+        "Performance follows the slowest required path. A fast CPU can still wait on cache misses, page faults, storage reads, or transfers to an accelerator. Latency describes how long one operation takes; bandwidth describes how much data can move per unit time; concurrency is needed to hide one with useful work from another."
+      ],
+      "equations": [
+        {
+          "label": "Transfer time",
+          "expression": "t_transfer ≈ latency + bytes / bandwidth",
+          "terms": [
+            "Small transfers are latency-bound; large transfers approach the link's sustainable bandwidth."
+          ]
+        },
+        {
+          "label": "Amdahl's law",
+          "expression": "S(N)=1 / ((1-p)+p/N)",
+          "terms": [
+            "p is the parallel fraction and N the available parallel resources."
+          ]
+        }
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Computer system",
+            "CPU",
+            "core",
+            "ISA",
+            "instruction pipeline",
+            "out-of-order execution"
+          ],
+          "summary": "Processor manuals connect the architectural instruction contract to cores and the microarchitecture that schedules those instructions.",
+          "sourceIds": [
+            "intelSdm",
+            "intelOpt"
+          ],
+          "details": [
+            {
+              "keyword": "Computer system",
+              "explanation": "The complete arrangement of processors, memory, storage, interconnects, devices, firmware, operating system, and software.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            },
+            {
+              "keyword": "CPU",
+              "explanation": "The general-purpose processor that fetches, decodes, schedules, and retires instructions while coordinating memory and I/O.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            },
+            {
+              "keyword": "core",
+              "explanation": "An independently executing CPU engine with its own architectural state and usually private caches.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            },
+            {
+              "keyword": "ISA",
+              "explanation": "Instruction Set Architecture: the software-visible instruction, register, privilege, and memory contract implemented by a processor.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            },
+            {
+              "keyword": "instruction pipeline",
+              "explanation": "Stages that overlap fetch, decode, issue, execute, memory access, and retirement across different instructions.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            },
+            {
+              "keyword": "out-of-order execution",
+              "explanation": "Dynamic scheduling that executes ready instructions before older stalled ones while retiring results in architectural order.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "memory",
+            "RAM",
+            "DRAM",
+            "cache",
+            "memory hierarchy",
+            "cache line",
+            "latency",
+            "bandwidth",
+            "working set"
+          ],
+          "summary": "CPU and kernel documentation describe a tiered memory path whose locality determines effective cost.",
+          "sourceIds": [
+            "intelOpt",
+            "linuxMm",
+            "intelSdm"
+          ],
+          "details": [
+            {
+              "keyword": "memory",
+              "explanation": "Addressable storage used by instructions; the word may refer broadly to registers, caches, DRAM, or persistent memory depending on context.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            },
+            {
+              "keyword": "RAM",
+              "explanation": "Random-access memory: storage addressed without sequential media access, commonly implemented as volatile DRAM for system memory.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            },
+            {
+              "keyword": "DRAM",
+              "explanation": "Dense volatile memory that stores bits in refreshed capacitor cells and supplies the CPU's main memory.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            },
+            {
+              "keyword": "cache",
+              "explanation": "A smaller, faster store that keeps copies of recently or nearby accessed memory blocks.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            },
+            {
+              "keyword": "memory hierarchy",
+              "explanation": "Ordered storage levels trading capacity for latency, from registers and caches through DRAM to persistent storage.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            },
+            {
+              "keyword": "cache line",
+              "explanation": "The fixed-size block transferred and coherently tracked by a cache.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            },
+            {
+              "keyword": "latency",
+              "explanation": "Elapsed time from issuing an operation until its required result becomes usable.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            },
+            {
+              "keyword": "bandwidth",
+              "explanation": "Sustainable amount of data transferred per unit time.",
+              "equation": {
+                "expression": "B=bytes/time",
+                "note": "Peak specification and application-observed bandwidth are different."
+              },
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            },
+            {
+              "keyword": "working set",
+              "explanation": "The subset of data actively reused over an interval; performance improves when it fits a fast memory level.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "flash",
+            "NAND flash",
+            "SSD",
+            "NVMe",
+            "persistent storage"
+          ],
+          "summary": "NAND provides non-volatile media, SSDs package it behind a controller, and NVMe defines the host-facing command and transport architecture.",
+          "sourceIds": [
+            "nvme",
+            "pci"
+          ],
+          "details": [
+            {
+              "keyword": "flash",
+              "explanation": "Electrically erasable non-volatile semiconductor storage; NAND flash is the dominant SSD medium.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            },
+            {
+              "keyword": "NAND flash",
+              "explanation": "Flash organized for dense page reads and writes plus block erasure, requiring wear management and error correction.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            },
+            {
+              "keyword": "SSD",
+              "explanation": "A solid-state drive combining flash packages, controller, firmware, mapping tables, queues, and an external interface.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            },
+            {
+              "keyword": "NVMe",
+              "explanation": "A storage command set and transport family designed for parallel non-volatile-memory queues, commonly over PCIe.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            },
+            {
+              "keyword": "persistent storage",
+              "explanation": "Storage whose contents survive power loss, unlike ordinary DRAM.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "bus",
+            "PCIe",
+            "CXL",
+            "DMA",
+            "coherency",
+            "NUMA"
+          ],
+          "summary": "PCIe moves I/O transactions; CXL builds coherent cache and memory protocols on the same physical foundation; DMA lets devices transfer without CPU copying each byte.",
+          "sourceIds": [
+            "pci",
+            "cxl",
+            "linuxMm"
+          ],
+          "details": [
+            {
+              "keyword": "bus",
+              "explanation": "A shared or switched communication fabric carrying addresses, data, commands, and completion signals between components.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            },
+            {
+              "keyword": "PCIe",
+              "explanation": "A packetized point-to-point I/O interconnect linking CPUs, GPUs, SSDs, network adapters, and other devices.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            },
+            {
+              "keyword": "CXL",
+              "explanation": "Compute Express Link, a PCIe-physical-layer family adding cache-coherent and memory-semantic protocols for accelerators and memory devices.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            },
+            {
+              "keyword": "DMA",
+              "explanation": "Direct Memory Access, where a device transfers data to or from memory without the CPU executing a load/store loop for every byte.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            },
+            {
+              "keyword": "coherency",
+              "explanation": "Rules that keep cached copies of the same memory location mutually consistent across participating agents.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            },
+            {
+              "keyword": "NUMA",
+              "explanation": "Non-Uniform Memory Access: a system in which memory latency and bandwidth depend on which processor or device owns the memory.",
+              "aiNote": "AI changes the workload and pressure on the component, not the component's architectural definition. Current systems research uses memory tiering, direct I/O, and heterogeneous links to keep model state near the compute that needs it."
+            }
+          ]
+        }
+      ],
+      "aiResearch": {
+        "summary": "Beluga places LLM KV cache in CXL-attached memory, Cohet studies coherent heterogeneous pools, and Blink removes the CPU from steady-state inference by combining SmartNIC I/O with a persistent GPU kernel. These projects expose system topology as an AI performance variable.",
+        "sourceIds": [
+          "aiBeluga",
+          "aiCohet",
+          "aiBlink"
+        ]
+      }
+    },
+    {
+      "heading": "Process, page, thread, and synchronization",
+      "paragraphs": [
+        "The operating system turns hardware into isolated execution contexts. A process owns a virtual address space and resources; threads are schedulable execution streams that can share that process state; pages are the granularity by which virtual addresses are mapped and protected.",
+        "Multithreading introduces communication through shared memory. Locks create critical sections, atomics create indivisible operations with explicit ordering, and condition variables or futexes let a thread sleep instead of spinning. Correctness requires a happens-before relation; performance additionally requires low contention and cache-friendly ownership."
+      ],
+      "equations": [
+        {
+          "label": "Virtual-address split",
+          "expression": "virtual_address = virtual_page_number · page_size + page_offset",
+          "terms": [
+            "The TLB caches recent page-table translations from virtual page number to physical frame."
+          ]
+        }
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "process",
+            "address space",
+            "virtual memory",
+            "page",
+            "page table",
+            "TLB",
+            "page fault",
+            "copy-on-write"
+          ],
+          "summary": "Linux represents isolated process memory as virtual ranges mapped through hierarchical page tables and serviced on faults.",
+          "sourceIds": [
+            "processAddr",
+            "linuxMm",
+            "clone"
+          ],
+          "details": [
+            {
+              "keyword": "process",
+              "explanation": "An isolated program instance with a virtual address space, handles, security identity, and one or more threads.",
+              "aiNote": "AI serving systems actively reuse OS ideas such as paging, scheduling, isolation, and asynchronous pipelines, but process, page, thread, and lock semantics remain operating-system and language contracts."
+            },
+            {
+              "keyword": "address space",
+              "explanation": "The set of virtual addresses and mapped regions visible to a process.",
+              "aiNote": "AI serving systems actively reuse OS ideas such as paging, scheduling, isolation, and asynchronous pipelines, but process, page, thread, and lock semantics remain operating-system and language contracts."
+            },
+            {
+              "keyword": "virtual memory",
+              "explanation": "An abstraction that maps process-visible virtual addresses to physical memory or backing storage with protection and sharing.",
+              "aiNote": "AI serving systems actively reuse OS ideas such as paging, scheduling, isolation, and asynchronous pipelines, but process, page, thread, and lock semantics remain operating-system and language contracts."
+            },
+            {
+              "keyword": "page",
+              "explanation": "A fixed-size virtual or physical memory block used for mapping, protection, paging, and allocation.",
+              "aiNote": "AI serving systems actively reuse OS ideas such as paging, scheduling, isolation, and asynchronous pipelines, but process, page, thread, and lock semantics remain operating-system and language contracts."
+            },
+            {
+              "keyword": "page table",
+              "explanation": "A hierarchical data structure mapping virtual pages to physical frames and access flags.",
+              "aiNote": "AI serving systems actively reuse OS ideas such as paging, scheduling, isolation, and asynchronous pipelines, but process, page, thread, and lock semantics remain operating-system and language contracts."
+            },
+            {
+              "keyword": "TLB",
+              "explanation": "Translation Lookaside Buffer, a cache of recent virtual-to-physical address translations.",
+              "aiNote": "AI serving systems actively reuse OS ideas such as paging, scheduling, isolation, and asynchronous pipelines, but process, page, thread, and lock semantics remain operating-system and language contracts."
+            },
+            {
+              "keyword": "page fault",
+              "explanation": "A CPU exception raised when translation is absent or violates access rules, allowing the OS to load, allocate, copy, or reject the page.",
+              "aiNote": "AI serving systems actively reuse OS ideas such as paging, scheduling, isolation, and asynchronous pipelines, but process, page, thread, and lock semantics remain operating-system and language contracts."
+            },
+            {
+              "keyword": "copy-on-write",
+              "explanation": "Sharing read-only physical pages until a writer faults and receives a private copy.",
+              "aiNote": "AI serving systems actively reuse OS ideas such as paging, scheduling, isolation, and asynchronous pipelines, but process, page, thread, and lock semantics remain operating-system and language contracts."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "thread",
+            "scheduler",
+            "context switch",
+            "multithread",
+            "parallelism",
+            "concurrency"
+          ],
+          "summary": "Threads share process resources but retain independent execution state that the scheduler maps onto CPU cores.",
+          "sourceIds": [
+            "pthreads",
+            "clone",
+            "intelOpt"
+          ],
+          "details": [
+            {
+              "keyword": "thread",
+              "explanation": "A schedulable execution stream with registers and stack that commonly shares its process address space and handles.",
+              "aiNote": "AI serving systems actively reuse OS ideas such as paging, scheduling, isolation, and asynchronous pipelines, but process, page, thread, and lock semantics remain operating-system and language contracts."
+            },
+            {
+              "keyword": "scheduler",
+              "explanation": "The OS policy and mechanism that chooses which runnable thread executes on which processor and when.",
+              "aiNote": "AI serving systems actively reuse OS ideas such as paging, scheduling, isolation, and asynchronous pipelines, but process, page, thread, and lock semantics remain operating-system and language contracts."
+            },
+            {
+              "keyword": "context switch",
+              "explanation": "Saving one execution context and restoring another, potentially disturbing caches and address-translation state.",
+              "aiNote": "AI serving systems actively reuse OS ideas such as paging, scheduling, isolation, and asynchronous pipelines, but process, page, thread, and lock semantics remain operating-system and language contracts."
+            },
+            {
+              "keyword": "multithread",
+              "explanation": "A program design using multiple threads to overlap work, wait states, or independent tasks.",
+              "aiNote": "AI serving systems actively reuse OS ideas such as paging, scheduling, isolation, and asynchronous pipelines, but process, page, thread, and lock semantics remain operating-system and language contracts."
+            },
+            {
+              "keyword": "parallelism",
+              "explanation": "Simultaneous execution of multiple operations on different hardware resources.",
+              "aiNote": "AI serving systems actively reuse OS ideas such as paging, scheduling, isolation, and asynchronous pipelines, but process, page, thread, and lock semantics remain operating-system and language contracts."
+            },
+            {
+              "keyword": "concurrency",
+              "explanation": "Multiple tasks making progress over overlapping time, whether or not they execute simultaneously.",
+              "aiNote": "AI serving systems actively reuse OS ideas such as paging, scheduling, isolation, and asynchronous pipelines, but process, page, thread, and lock semantics remain operating-system and language contracts."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "lock",
+            "mutex",
+            "spinlock",
+            "atomic",
+            "memory ordering",
+            "data race",
+            "deadlock",
+            "false sharing",
+            "lock-free",
+            "futex"
+          ],
+          "summary": "Language atomics define ordering, while OS mutex and futex mechanisms block contended threads and kernel locking documentation covers lower-level primitives.",
+          "sourceIds": [
+            "cppAtomic",
+            "linuxLock",
+            "futex"
+          ],
+          "details": [
+            {
+              "keyword": "lock",
+              "explanation": "A synchronization rule that grants controlled access to shared state or a critical section.",
+              "aiNote": "AI serving systems actively reuse OS ideas such as paging, scheduling, isolation, and asynchronous pipelines, but process, page, thread, and lock semantics remain operating-system and language contracts."
+            },
+            {
+              "keyword": "mutex",
+              "explanation": "A mutual-exclusion lock with one owner; contended waiters normally block rather than consume a CPU continuously.",
+              "aiNote": "AI serving systems actively reuse OS ideas such as paging, scheduling, isolation, and asynchronous pipelines, but process, page, thread, and lock semantics remain operating-system and language contracts."
+            },
+            {
+              "keyword": "spinlock",
+              "explanation": "A lock whose waiter repeatedly polls, suitable only when the expected wait is shorter than blocking overhead and preemption rules permit it.",
+              "aiNote": "AI serving systems actively reuse OS ideas such as paging, scheduling, isolation, and asynchronous pipelines, but process, page, thread, and lock semantics remain operating-system and language contracts."
+            },
+            {
+              "keyword": "atomic",
+              "explanation": "An operation observed as indivisible at its specified scope and ordering, often implemented by dedicated read-modify-write instructions.",
+              "aiNote": "AI serving systems actively reuse OS ideas such as paging, scheduling, isolation, and asynchronous pipelines, but process, page, thread, and lock semantics remain operating-system and language contracts."
+            },
+            {
+              "keyword": "memory ordering",
+              "explanation": "Constraints on how memory operations become visible across threads, expressed through relations such as acquire, release, and sequential consistency.",
+              "aiNote": "AI serving systems actively reuse OS ideas such as paging, scheduling, isolation, and asynchronous pipelines, but process, page, thread, and lock semantics remain operating-system and language contracts."
+            },
+            {
+              "keyword": "data race",
+              "explanation": "Conflicting unsynchronized accesses to one memory location where at least one is a write; in C++ this produces undefined behavior.",
+              "aiNote": "AI serving systems actively reuse OS ideas such as paging, scheduling, isolation, and asynchronous pipelines, but process, page, thread, and lock semantics remain operating-system and language contracts."
+            },
+            {
+              "keyword": "deadlock",
+              "explanation": "A cycle of waits in which no participant can acquire the resource needed to continue.",
+              "aiNote": "AI serving systems actively reuse OS ideas such as paging, scheduling, isolation, and asynchronous pipelines, but process, page, thread, and lock semantics remain operating-system and language contracts."
+            },
+            {
+              "keyword": "false sharing",
+              "explanation": "Independent variables on one cache line causing coherence traffic because different cores write different bytes of that line.",
+              "aiNote": "AI serving systems actively reuse OS ideas such as paging, scheduling, isolation, and asynchronous pipelines, but process, page, thread, and lock semantics remain operating-system and language contracts."
+            },
+            {
+              "keyword": "lock-free",
+              "explanation": "A progress property guaranteeing that some operation completes despite thread suspension; it does not mean wait-free or race-free.",
+              "aiNote": "AI serving systems actively reuse OS ideas such as paging, scheduling, isolation, and asynchronous pipelines, but process, page, thread, and lock semantics remain operating-system and language contracts."
+            },
+            {
+              "keyword": "futex",
+              "explanation": "A fast user-space synchronization word whose uncontended path stays in user mode and whose contended path asks the kernel to wait or wake.",
+              "aiNote": "AI serving systems actively reuse OS ideas such as paging, scheduling, isolation, and asynchronous pipelines, but process, page, thread, and lock semantics remain operating-system and language contracts."
+            }
+          ]
+        }
+      ],
+      "aiResearch": {
+        "summary": "vLLM deliberately borrows virtual-memory paging for KV-cache blocks; DistServe maps prefill and decode phases onto separate resources; NanoFlow overlaps compute, memory, and networking through fine-grained scheduling. AI serving is therefore a live systems-and-concurrency problem.",
+        "sourceIds": [
+          "aiVllm",
+          "aiDist",
+          "aiNano"
+        ]
+      }
+    },
+    {
+      "heading": "GPU structure: throughput from hierarchical parallelism",
+      "paragraphs": [
+        "A GPU trades single-thread latency for aggregate throughput. Many streaming multiprocessors or compute units schedule groups of lightweight lanes, keep thousands of threads resident, and switch among ready warps or wavefronts while other groups wait for memory or functional units.",
+        "The memory hierarchy is part of the execution model. Registers and shared memory are fast but limited and determine occupancy; global VRAM is large but expensive; coalesced access and tiled reuse convert bandwidth into useful work. Divergent control flow and uncoalesced traffic waste lanes and transactions."
+      ],
+      "equations": [
+        {
+          "label": "Arithmetic intensity",
+          "expression": "I = operations / bytes_moved",
+          "terms": [
+            "A low-I kernel is usually bandwidth-bound; a high-I kernel can approach compute throughput."
+          ]
+        },
+        {
+          "label": "Occupancy",
+          "expression": "occupancy = active_warps / maximum_supported_warps",
+          "terms": [
+            "Registers, shared memory, and block size cap resident warps; maximum occupancy is not automatically maximum performance."
+          ]
+        }
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "GPU structure",
+            "throughput processor",
+            "Streaming Multiprocessor",
+            "SM",
+            "Compute Unit",
+            "SIMT",
+            "SIMD",
+            "warp",
+            "wavefront",
+            "warp scheduler",
+            "occupancy"
+          ],
+          "summary": "NVIDIA and AMD documentation use different names for closely related hierarchical execution resources and lane groups.",
+          "sourceIds": [
+            "cudaGuide",
+            "cudaBest",
+            "rdna"
+          ],
+          "details": [
+            {
+              "keyword": "GPU structure",
+              "explanation": "A hierarchy of command processors, compute clusters, multiprocessors or compute units, execution lanes, caches, memory controllers, and fixed-function engines.",
+              "aiNote": "Modern AI kernels are co-designed around GPU hierarchy, tensor units, memory bandwidth, and asynchronous execution; the hardware terms remain architectural rather than learned concepts."
+            },
+            {
+              "keyword": "throughput processor",
+              "explanation": "A processor optimized to complete many operations per unit time by sustaining massive concurrency rather than minimizing one thread's latency.",
+              "aiNote": "Modern AI kernels are co-designed around GPU hierarchy, tensor units, memory bandwidth, and asynchronous execution; the hardware terms remain architectural rather than learned concepts."
+            },
+            {
+              "keyword": "Streaming Multiprocessor",
+              "explanation": "NVIDIA's main programmable execution block containing warp schedulers, lanes, registers, shared memory, caches, and specialized units.",
+              "aiNote": "Modern AI kernels are co-designed around GPU hierarchy, tensor units, memory bandwidth, and asynchronous execution; the hardware terms remain architectural rather than learned concepts."
+            },
+            {
+              "keyword": "SM",
+              "explanation": "The standard abbreviation for NVIDIA Streaming Multiprocessor.",
+              "aiNote": "Modern AI kernels are co-designed around GPU hierarchy, tensor units, memory bandwidth, and asynchronous execution; the hardware terms remain architectural rather than learned concepts."
+            },
+            {
+              "keyword": "Compute Unit",
+              "explanation": "AMD's programmable GPU block that schedules wavefronts over vector and scalar resources.",
+              "aiNote": "Modern AI kernels are co-designed around GPU hierarchy, tensor units, memory bandwidth, and asynchronous execution; the hardware terms remain architectural rather than learned concepts."
+            },
+            {
+              "keyword": "SIMT",
+              "explanation": "Single Instruction, Multiple Threads: a programming model where lanes have thread identities but commonly execute one warp instruction together.",
+              "aiNote": "Modern AI kernels are co-designed around GPU hierarchy, tensor units, memory bandwidth, and asynchronous execution; the hardware terms remain architectural rather than learned concepts."
+            },
+            {
+              "keyword": "SIMD",
+              "explanation": "Single Instruction, Multiple Data: one instruction applies the same operation across vector lanes.",
+              "aiNote": "Modern AI kernels are co-designed around GPU hierarchy, tensor units, memory bandwidth, and asynchronous execution; the hardware terms remain architectural rather than learned concepts."
+            },
+            {
+              "keyword": "warp",
+              "explanation": "CUDA's hardware scheduling group of 32 consecutive threads.",
+              "aiNote": "Modern AI kernels are co-designed around GPU hierarchy, tensor units, memory bandwidth, and asynchronous execution; the hardware terms remain architectural rather than learned concepts."
+            },
+            {
+              "keyword": "wavefront",
+              "explanation": "AMD's lane group scheduled together, analogous in role to an NVIDIA warp though width and details depend on architecture.",
+              "aiNote": "Modern AI kernels are co-designed around GPU hierarchy, tensor units, memory bandwidth, and asynchronous execution; the hardware terms remain architectural rather than learned concepts."
+            },
+            {
+              "keyword": "warp scheduler",
+              "explanation": "Hardware that selects a ready warp and issues its next instruction to suitable execution units.",
+              "aiNote": "Modern AI kernels are co-designed around GPU hierarchy, tensor units, memory bandwidth, and asynchronous execution; the hardware terms remain architectural rather than learned concepts."
+            },
+            {
+              "keyword": "occupancy",
+              "explanation": "The ratio of resident warps to the architectural maximum on a multiprocessor.",
+              "aiNote": "Modern AI kernels are co-designed around GPU hierarchy, tensor units, memory bandwidth, and asynchronous execution; the hardware terms remain architectural rather than learned concepts."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "register file",
+            "shared memory",
+            "LDS",
+            "global memory",
+            "VRAM",
+            "memory coalescing",
+            "branch divergence",
+            "Tensor Core",
+            "asynchronous copy",
+            "copy engine"
+          ],
+          "summary": "GPU-local storage and specialized engines determine whether scheduled lane groups receive data and remain busy.",
+          "sourceIds": [
+            "cudaGuide",
+            "cudaBest",
+            "hopper"
+          ],
+          "details": [
+            {
+              "keyword": "register file",
+              "explanation": "Large on-chip storage partitioned among resident threads for private scalar and vector values.",
+              "aiNote": "Modern AI kernels are co-designed around GPU hierarchy, tensor units, memory bandwidth, and asynchronous execution; the hardware terms remain architectural rather than learned concepts."
+            },
+            {
+              "keyword": "shared memory",
+              "explanation": "Program-managed low-latency on-chip memory shared by threads in one CUDA block.",
+              "aiNote": "Modern AI kernels are co-designed around GPU hierarchy, tensor units, memory bandwidth, and asynchronous execution; the hardware terms remain architectural rather than learned concepts."
+            },
+            {
+              "keyword": "LDS",
+              "explanation": "AMD Local Data Share, the workgroup-local memory corresponding broadly to CUDA shared memory.",
+              "aiNote": "Modern AI kernels are co-designed around GPU hierarchy, tensor units, memory bandwidth, and asynchronous execution; the hardware terms remain architectural rather than learned concepts."
+            },
+            {
+              "keyword": "global memory",
+              "explanation": "Device-wide memory space visible to all GPU threads and normally backed by VRAM.",
+              "aiNote": "Modern AI kernels are co-designed around GPU hierarchy, tensor units, memory bandwidth, and asynchronous execution; the hardware terms remain architectural rather than learned concepts."
+            },
+            {
+              "keyword": "VRAM",
+              "explanation": "Physical graphics memory attached to a discrete GPU, such as GDDR or HBM.",
+              "aiNote": "Modern AI kernels are co-designed around GPU hierarchy, tensor units, memory bandwidth, and asynchronous execution; the hardware terms remain architectural rather than learned concepts."
+            },
+            {
+              "keyword": "memory coalescing",
+              "explanation": "Combining lane accesses into a small number of aligned memory transactions.",
+              "aiNote": "Modern AI kernels are co-designed around GPU hierarchy, tensor units, memory bandwidth, and asynchronous execution; the hardware terms remain architectural rather than learned concepts."
+            },
+            {
+              "keyword": "branch divergence",
+              "explanation": "Different lanes of one warp taking different control paths, forcing path serialization or masked execution.",
+              "aiNote": "Modern AI kernels are co-designed around GPU hierarchy, tensor units, memory bandwidth, and asynchronous execution; the hardware terms remain architectural rather than learned concepts."
+            },
+            {
+              "keyword": "Tensor Core",
+              "explanation": "A specialized matrix multiply-accumulate unit optimized for dense, often low-precision tensor operations.",
+              "aiNote": "Modern AI kernels are co-designed around GPU hierarchy, tensor units, memory bandwidth, and asynchronous execution; the hardware terms remain architectural rather than learned concepts."
+            },
+            {
+              "keyword": "asynchronous copy",
+              "explanation": "A transfer initiated separately from arithmetic so movement between memory levels can overlap computation.",
+              "aiNote": "Modern AI kernels are co-designed around GPU hierarchy, tensor units, memory bandwidth, and asynchronous execution; the hardware terms remain architectural rather than learned concepts."
+            },
+            {
+              "keyword": "copy engine",
+              "explanation": "A dedicated hardware engine that moves data without consuming ordinary shader arithmetic lanes.",
+              "aiNote": "Modern AI kernels are co-designed around GPU hierarchy, tensor units, memory bandwidth, and asynchronous execution; the hardware terms remain architectural rather than learned concepts."
+            }
+          ]
+        }
+      ],
+      "aiResearch": {
+        "summary": "FlashAttention-3 uses Hopper Tensor Cores, TMA, warp specialization, and FP8; ThunderKittens exposes warp, block, and grid tile abstractions; HipKittens extends that approach to AMD hardware. These papers are explicit hardware–algorithm co-design.",
+        "sourceIds": [
+          "aiFlash3",
+          "aiTk",
+          "aiHip"
+        ]
+      }
+    },
+    {
+      "heading": "CUDA: mapping kernels onto NVIDIA GPUs",
+      "paragraphs": [
+        "CUDA is NVIDIA's platform and programming model for general-purpose GPU computing. Host code launches a kernel over a grid of thread blocks; hardware schedules blocks independently onto SMs; each block is divided into warps; threads cooperate through block-local memory and synchronization.",
+        "Correct CUDA code must respect scope. A block barrier does not synchronize another block, a stream orders only its own submitted work unless dependencies connect streams, and host–device transfers are not automatically free. PTX is a virtual ISA used in compilation, not a promise that source maps one-to-one onto machine instructions."
+      ],
+      "equations": [
+        {
+          "label": "One-dimensional global thread index",
+          "expression": "i = blockIdx.x · blockDim.x + threadIdx.x",
+          "terms": [
+            "The kernel normally checks i against the logical element count."
+          ]
+        }
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Cuda",
+            "CUDA",
+            "host",
+            "device",
+            "kernel",
+            "grid",
+            "thread block",
+            "thread",
+            "warp",
+            "NVCC",
+            "PTX"
+          ],
+          "summary": "The CUDA guide and PTX ISA define the host/device compilation path and hierarchical launch model.",
+          "sourceIds": [
+            "cudaGuide",
+            "ptx",
+            "cudaBest"
+          ],
+          "details": [
+            {
+              "keyword": "Cuda",
+              "explanation": "The user's supplied capitalization for CUDA; the official name is the all-capital NVIDIA CUDA platform.",
+              "aiNote": "CUDA kernels can now be proposed or tuned by language models, yet correctness, synchronization, memory safety, and performance still have to be compiled, executed, and measured."
+            },
+            {
+              "keyword": "CUDA",
+              "explanation": "NVIDIA's parallel-computing platform, programming model, runtime, libraries, compiler toolchain, and driver interface.",
+              "aiNote": "CUDA kernels can now be proposed or tuned by language models, yet correctness, synchronization, memory safety, and performance still have to be compiled, executed, and measured."
+            },
+            {
+              "keyword": "host",
+              "explanation": "The CPU-side program and memory environment that configures devices and launches work.",
+              "aiNote": "CUDA kernels can now be proposed or tuned by language models, yet correctness, synchronization, memory safety, and performance still have to be compiled, executed, and measured."
+            },
+            {
+              "keyword": "device",
+              "explanation": "The CUDA-capable GPU and its execution and memory resources.",
+              "aiNote": "CUDA kernels can now be proposed or tuned by language models, yet correctness, synchronization, memory safety, and performance still have to be compiled, executed, and measured."
+            },
+            {
+              "keyword": "kernel",
+              "explanation": "A GPU function launched over many logical threads.",
+              "aiNote": "CUDA kernels can now be proposed or tuned by language models, yet correctness, synchronization, memory safety, and performance still have to be compiled, executed, and measured."
+            },
+            {
+              "keyword": "grid",
+              "explanation": "All thread blocks created by one kernel launch.",
+              "aiNote": "CUDA kernels can now be proposed or tuned by language models, yet correctness, synchronization, memory safety, and performance still have to be compiled, executed, and measured."
+            },
+            {
+              "keyword": "thread block",
+              "explanation": "A group of threads that can share on-chip memory and synchronize at block scope.",
+              "aiNote": "CUDA kernels can now be proposed or tuned by language models, yet correctness, synchronization, memory safety, and performance still have to be compiled, executed, and measured."
+            },
+            {
+              "keyword": "thread",
+              "explanation": "The CUDA programming model's smallest logical execution instance, with its own index and private state.",
+              "aiNote": "CUDA kernels can now be proposed or tuned by language models, yet correctness, synchronization, memory safety, and performance still have to be compiled, executed, and measured."
+            },
+            {
+              "keyword": "warp",
+              "explanation": "The 32-thread scheduling unit into which CUDA blocks are partitioned.",
+              "aiNote": "CUDA kernels can now be proposed or tuned by language models, yet correctness, synchronization, memory safety, and performance still have to be compiled, executed, and measured."
+            },
+            {
+              "keyword": "NVCC",
+              "explanation": "The CUDA compiler driver that separates host and device compilation and packages GPU code for loading.",
+              "aiNote": "CUDA kernels can now be proposed or tuned by language models, yet correctness, synchronization, memory safety, and performance still have to be compiled, executed, and measured."
+            },
+            {
+              "keyword": "PTX",
+              "explanation": "A versioned virtual parallel-thread ISA that is compiled or JIT-compiled into target GPU machine code.",
+              "aiNote": "CUDA kernels can now be proposed or tuned by language models, yet correctness, synchronization, memory safety, and performance still have to be compiled, executed, and measured."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "stream",
+            "event",
+            "asynchronous execution",
+            "Unified Memory",
+            "cooperative groups",
+            "memory scope",
+            "barrier",
+            "atomic",
+            "kernel launch overhead"
+          ],
+          "summary": "CUDA streams order commands, events connect asynchronous work, and the scoped memory model defines which agents a synchronization operation covers.",
+          "sourceIds": [
+            "cudaGuide",
+            "cudaMem",
+            "cudaBest"
+          ],
+          "details": [
+            {
+              "keyword": "stream",
+              "explanation": "An ordered queue of CUDA operations that may overlap operations in other streams when dependencies and hardware allow.",
+              "aiNote": "CUDA kernels can now be proposed or tuned by language models, yet correctness, synchronization, memory safety, and performance still have to be compiled, executed, and measured."
+            },
+            {
+              "keyword": "event",
+              "explanation": "A recordable stream marker used for dependency waits, completion queries, and device timing.",
+              "aiNote": "CUDA kernels can now be proposed or tuned by language models, yet correctness, synchronization, memory safety, and performance still have to be compiled, executed, and measured."
+            },
+            {
+              "keyword": "asynchronous execution",
+              "explanation": "Submission that lets the host continue or allows independent transfers and kernels to overlap.",
+              "aiNote": "CUDA kernels can now be proposed or tuned by language models, yet correctness, synchronization, memory safety, and performance still have to be compiled, executed, and measured."
+            },
+            {
+              "keyword": "Unified Memory",
+              "explanation": "Managed allocations exposed through one address range and migrated or mapped between CPU and GPU as required.",
+              "aiNote": "CUDA kernels can now be proposed or tuned by language models, yet correctness, synchronization, memory safety, and performance still have to be compiled, executed, and measured."
+            },
+            {
+              "keyword": "cooperative groups",
+              "explanation": "CUDA abstractions for explicitly named groups of threads and their collective synchronization.",
+              "aiNote": "CUDA kernels can now be proposed or tuned by language models, yet correctness, synchronization, memory safety, and performance still have to be compiled, executed, and measured."
+            },
+            {
+              "keyword": "memory scope",
+              "explanation": "The set of threads—block, device, or system—across which an atomic or synchronization guarantee applies.",
+              "aiNote": "CUDA kernels can now be proposed or tuned by language models, yet correctness, synchronization, memory safety, and performance still have to be compiled, executed, and measured."
+            },
+            {
+              "keyword": "barrier",
+              "explanation": "A synchronization point that waits for participating threads and establishes specified memory-ordering effects.",
+              "aiNote": "CUDA kernels can now be proposed or tuned by language models, yet correctness, synchronization, memory safety, and performance still have to be compiled, executed, and measured."
+            },
+            {
+              "keyword": "atomic",
+              "explanation": "A scoped indivisible memory operation used for communication without lost updates.",
+              "aiNote": "CUDA kernels can now be proposed or tuned by language models, yet correctness, synchronization, memory safety, and performance still have to be compiled, executed, and measured."
+            },
+            {
+              "keyword": "kernel launch overhead",
+              "explanation": "CPU, driver, and device scheduling cost paid before a submitted kernel begins useful execution.",
+              "aiNote": "CUDA kernels can now be proposed or tuned by language models, yet correctness, synchronization, memory safety, and performance still have to be compiled, executed, and measured."
+            }
+          ]
+        }
+      ],
+      "aiResearch": {
+        "summary": "KernelBench measures whether language models can generate correct and faster GPU kernels, while Astra uses multiple agents plus execution feedback for CUDA optimization. Results show real progress but also why compilation, testing, and profiling remain mandatory.",
+        "sourceIds": [
+          "aiKernel",
+          "aiAstra"
+        ]
+      }
+    },
+    {
+      "heading": "RHI and graphics APIs: OpenGL, Direct3D 11/12, and Vulkan",
+      "paragraphs": [
+        "A Render Hardware Interface (RHI) is an engine-owned abstraction over platform graphics APIs. It gives the renderer common resource, pipeline, command, synchronization, and presentation concepts while each backend translates them to OpenGL, Direct3D, Vulkan, Metal, or console-specific calls.",
+        "The main divide is responsibility. OpenGL and Direct3D 11 let the driver infer and validate more state; Direct3D 12 and Vulkan expose command recording, resource states, memory allocation, descriptors, queues, and synchronization more explicitly. Explicit APIs can reduce driver overhead and scale command generation, but move lifetime and hazard bugs into engine code."
+      ],
+      "equations": [
+        {
+          "label": "Pipelined frame time",
+          "expression": "t_frame ≈ max(t_CPU submission, t_GPU execution) + synchronization stalls",
+          "terms": [
+            "Reducing API CPU overhead helps only when submission is on the critical path."
+          ]
+        }
+      ],
+      "technicalTables": [
+        {
+          "columns": [
+            "Question",
+            "OpenGL",
+            "Direct3D 11",
+            "Direct3D 12",
+            "Vulkan"
+          ],
+          "rows": [
+            [
+              "Control model",
+              "Driver-managed state machine",
+              "Driver-managed device context",
+              "Explicit command lists and states",
+              "Explicit command buffers and barriers"
+            ],
+            [
+              "Platform",
+              "Cross-platform desktop",
+              "Windows/Xbox family",
+              "Windows/Xbox family",
+              "Cross-platform ecosystem"
+            ],
+            [
+              "Resource hazards",
+              "Mostly inferred by driver",
+              "Mostly inferred by driver",
+              "Application state transitions",
+              "Application synchronization and layouts"
+            ],
+            [
+              "Parallel recording",
+              "Implementation-dependent",
+              "Deferred contexts",
+              "Designed for command-list generation",
+              "Designed for command-buffer generation"
+            ],
+            [
+              "Shader input",
+              "GLSL or SPIR-V in modern core",
+              "HLSL bytecode",
+              "HLSL/DXIL",
+              "SPIR-V"
+            ]
+          ],
+          "caption": "The low-level APIs expose similar hardware capabilities but differ in platform contract, naming, and how much work the application must make explicit."
+        }
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "RHI",
+            "Render Hardware Interface",
+            "backend",
+            "driver",
+            "device",
+            "context",
+            "command buffer",
+            "command list",
+            "queue",
+            "resource",
+            "descriptor",
+            "pipeline state",
+            "shader",
+            "swapchain"
+          ],
+          "summary": "Unreal documents RHI as a cross-platform command layer; modern API specifications define the backend objects it must represent.",
+          "sourceIds": [
+            "unrealRhi",
+            "d3dPort",
+            "vkGuide"
+          ],
+          "details": [
+            {
+              "keyword": "RHI",
+              "explanation": "Render Hardware Interface: an engine abstraction that isolates renderer code from a specific graphics API and platform.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "Render Hardware Interface",
+              "explanation": "The expanded name of RHI and the boundary between platform-independent rendering commands and API-specific backends.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "backend",
+              "explanation": "An implementation of the RHI for one API and platform combination.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "driver",
+              "explanation": "Vendor software that validates API calls, compiles shaders, manages hardware submission, and communicates with the GPU and OS.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "device",
+              "explanation": "The logical API object representing a selected adapter and its resource-creation capabilities.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "context",
+              "explanation": "An API execution/state object; OpenGL and Direct3D 11 make it central, while explicit APIs emphasize command recording objects.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "command buffer",
+              "explanation": "A recorded sequence of GPU commands, the standard Vulkan term.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "command list",
+              "explanation": "A recorded sequence of GPU commands, the standard Direct3D 12 term.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "queue",
+              "explanation": "An ordered GPU submission channel with capabilities such as graphics, compute, copy, or presentation.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "resource",
+              "explanation": "A GPU-visible buffer, image, texture, or acceleration structure with storage and usage rules.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "descriptor",
+              "explanation": "A shader-visible description of a resource view, sampler, or addressable binding.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "pipeline state",
+              "explanation": "A compiled or bound collection of shader stages and fixed-function configuration used for draws or dispatches.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "shader",
+              "explanation": "A programmable GPU stage compiled into an API- and device-consumable representation.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "swapchain",
+              "explanation": "A presentation-managed sequence of images acquired, rendered, and presented to a display surface.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "OpenGL",
+            "state machine",
+            "implicit synchronization",
+            "immediate API submission",
+            "GLSL"
+          ],
+          "summary": "The OpenGL specification defines a context-owned state machine whose calls mutate state and submit work through an implementation-managed driver path.",
+          "sourceIds": [
+            "gl",
+            "unrealRhi"
+          ],
+          "details": [
+            {
+              "keyword": "OpenGL",
+              "explanation": "Khronos's cross-platform graphics API centered on a current context and mutable global-like rendering state.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "state machine",
+              "explanation": "An API model where commands read or mutate context state that influences later draws and dispatches.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "implicit synchronization",
+              "explanation": "Ordering or hazard handling inferred by the implementation rather than fully declared by application barriers.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "immediate API submission",
+              "explanation": "Issuing calls against the current context instead of first building a fully explicit command buffer and resource-state plan.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "GLSL",
+              "explanation": "OpenGL Shading Language, the Khronos high-level shader language associated with OpenGL.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "DirectX11",
+            "Direct3D 11",
+            "device context",
+            "deferred context",
+            "Direct12",
+            "DirectX12",
+            "Direct3D 12",
+            "command list",
+            "descriptor heap",
+            "root signature",
+            "PSO",
+            "explicit resource state"
+          ],
+          "summary": "Microsoft's porting and CPU-efficiency documentation explains how Direct3D 12 shifts validation, recording, descriptors, and state tracking from the Direct3D 11 driver model into the application.",
+          "sourceIds": [
+            "d3d11",
+            "d3dPort",
+            "d3dCpu"
+          ],
+          "details": [
+            {
+              "keyword": "DirectX11",
+              "explanation": "The user's common shorthand for the Direct3D 11 graphics API within the broader DirectX technology family.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "Direct3D 11",
+              "explanation": "Microsoft's higher-level graphics API using device contexts and substantial driver-managed state and hazard tracking.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "device context",
+              "explanation": "The Direct3D 11 object that holds pipeline state and issues rendering commands.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "deferred context",
+              "explanation": "A Direct3D 11 context that records a command list for later execution on the immediate context.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "Direct12",
+              "explanation": "The supplied shorthand for Direct3D 12; DirectX is the broader technology family, while Direct3D 12 is the graphics API's official name.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "DirectX12",
+              "explanation": "The user's common shorthand for Direct3D 12, the lower-level DirectX graphics API.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "Direct3D 12",
+              "explanation": "Microsoft's explicit graphics API built around command lists, queues, descriptor heaps, pipeline-state objects, and application-managed resource states.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "command list",
+              "explanation": "A Direct3D 12 recording object containing draw, dispatch, copy, and state-transition commands for later queue execution.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "descriptor heap",
+              "explanation": "A Direct3D 12 array of descriptors, optionally shader-visible, from which tables are bound through a root signature.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "root signature",
+              "explanation": "The Direct3D 12 declaration of resources and constants directly visible to shaders for a pipeline.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "PSO",
+              "explanation": "Pipeline State Object, an immutable-compatible package of shaders and fixed-function state prepared together.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "explicit resource state",
+              "explanation": "The application's responsibility to declare how a resource is used and transition it before incompatible access.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "Valkan",
+            "Vulkan",
+            "SPIR-V",
+            "descriptor set",
+            "pipeline barrier",
+            "semaphore",
+            "fence",
+            "image layout",
+            "queue family",
+            "validation layer"
+          ],
+          "summary": "The supplied spelling Valkan refers to Vulkan; Khronos specifications define its portable explicit object, synchronization, and shader-interchange contracts.",
+          "sourceIds": [
+            "vkSpec",
+            "vkGuide",
+            "vkSync"
+          ],
+          "details": [
+            {
+              "keyword": "Valkan",
+              "explanation": "The supplied spelling; the standardized Khronos graphics and compute API is Vulkan.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "Vulkan",
+              "explanation": "Khronos's cross-platform explicit graphics and compute API with application-managed command buffers, synchronization, descriptors, and memory.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "SPIR-V",
+              "explanation": "A standardized intermediate representation consumed by Vulkan shader modules and other Khronos ecosystems.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "descriptor set",
+              "explanation": "A Vulkan collection of resource descriptors allocated from a pool and bound according to a pipeline layout.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "pipeline barrier",
+              "explanation": "A Vulkan command defining execution and memory dependencies between prior and subsequent operations.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "semaphore",
+              "explanation": "A Vulkan synchronization primitive used mainly for device-queue dependencies, including timeline-valued synchronization.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "fence",
+              "explanation": "A Vulkan primitive signaled by device work and waited or queried by the host.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "image layout",
+              "explanation": "A Vulkan image usage state whose transitions make representation and access requirements explicit.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "queue family",
+              "explanation": "A group of Vulkan queues exposing a common set of capabilities and ownership rules.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            },
+            {
+              "keyword": "validation layer",
+              "explanation": "An optional Khronos layer that checks API usage, object lifetime, synchronization, and portability rules during development.",
+              "aiNote": "Graphics APIs and RHI contracts are deterministic. AI research is adjacent through generated compute kernels and neural rendering workloads, not through learned command-buffer or synchronization semantics."
+            }
+          ]
+        }
+      ],
+      "aiResearch": {
+        "summary": "KernelBench and Astra test LLM-generated CUDA kernels, while HipKittens develops a cross-vendor tile abstraction for AMD AI kernels. This work sits beside the graphics RHI: it targets compute-kernel authoring and portability, not learned OpenGL, Direct3D, or Vulkan synchronization rules.",
+        "sourceIds": [
+          "aiKernel",
+          "aiAstra",
+          "aiHip"
+        ]
+      }
+    }
+  ],
+  "closing": "A frame crosses several ownership boundaries: process and threads organize CPU work; pages and caches decide where its data resides; buses move resources to a throughput-oriented GPU; CUDA exposes NVIDIA compute hierarchy; an RHI translates engine intent into one graphics API's resource and synchronization model. OpenGL and Direct3D 11 keep more responsibility in the driver, while Direct3D 12 and Vulkan return more control—and more proof obligations—to the engine."
+}

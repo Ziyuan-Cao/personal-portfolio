@@ -247,33 +247,93 @@ function appendInlineMarkdownLinks(container, text) {
   if (cursor < text.length) container.append(document.createTextNode(text.slice(cursor)));
 }
 
+function sourceLinkList(sourceIds, sourceCatalog, className) {
+  const links = element("ul", className);
+  for (const id of sourceIds ?? []) {
+    const source = sourceCatalog[id];
+    if (!source) continue;
+    const listItem = element("li");
+    const link = element("a", "", source.label);
+    link.href = source.url;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    const icon = document.createElement("ion-icon");
+    icon.setAttribute("name", "open-outline");
+    icon.setAttribute("aria-hidden", "true");
+    link.append(icon);
+    listItem.append(link);
+    links.append(listItem);
+  }
+  return links;
+}
+
+function keywordDetailList(details) {
+  const disclosure = element("details", "blog-keyword-details");
+  const summary = element("summary", "", i18n.t("blog.keywordDetails", { count: details.length }));
+  disclosure.append(summary);
+  const list = element("div", "blog-keyword-detail-list");
+
+  for (const detail of details) {
+    const item = element("article", "blog-keyword-detail");
+    item.append(element("h4", "", detail.keyword));
+
+    const meaning = element("div", "blog-keyword-detail-field");
+    meaning.append(
+      element("strong", "", i18n.t("blog.keywordMeaning")),
+      element("p", "", detail.explanation),
+    );
+    item.append(meaning);
+
+    if (detail.equation) {
+      const equation = element("div", "blog-keyword-detail-field blog-keyword-equation");
+      equation.append(
+        element("strong", "", i18n.t("blog.keywordEquation")),
+        element("code", "", detail.equation.expression),
+        element("p", "", detail.equation.note),
+      );
+      item.append(equation);
+    }
+
+    const aiNote = element("div", "blog-keyword-detail-field blog-keyword-ai-note");
+    aiNote.append(
+      element("strong", "", i18n.t("blog.keywordAiNote")),
+      element("p", "", detail.aiNote),
+    );
+    item.append(aiNote);
+    list.append(item);
+  }
+
+  disclosure.append(list);
+  return disclosure;
+}
+
+function aiResearchBlock(research, sourceCatalog) {
+  const aside = element("aside", "blog-ai-research");
+  aside.append(
+    element("strong", "blog-ai-research-title", i18n.t("blog.currentAiResearch")),
+    element("p", "blog-ai-research-summary", research.summary),
+    sourceLinkList(research.sourceIds, sourceCatalog, "blog-ai-research-links"),
+  );
+  return aside;
+}
+
 function keywordSources(groups, sourceCatalog) {
   const aside = element("aside", "blog-keyword-sources");
   aside.append(element("strong", "blog-keyword-sources-title", i18n.t("blog.keywordSources")));
   const list = element("div", "blog-keyword-source-list");
 
   for (const group of groups) {
-    const sources = group.sourceIds.map((id) => sourceCatalog[id]).filter(Boolean);
+    const item = element("section", "blog-keyword-source-item");
+    const keywordList = element("ul", "blog-keyword-source-keywords");
+    keywordList.setAttribute("aria-label", i18n.t("blog.keywordSources"));
     for (const keyword of group.keywords) {
-      const item = element("section", "blog-keyword-source-item");
-      item.append(element("h3", "blog-keyword-source-keyword", keyword));
-      const links = element("ul");
-      for (const source of sources) {
-        const listItem = element("li");
-        const link = element("a", "", source.label);
-        link.href = source.url;
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
-        const icon = document.createElement("ion-icon");
-        icon.setAttribute("name", "open-outline");
-        icon.setAttribute("aria-hidden", "true");
-        link.append(icon);
-        listItem.append(link);
-        links.append(listItem);
-      }
-      item.append(links);
-      list.append(item);
+      keywordList.append(element("li", "blog-keyword-source-keyword", keyword));
     }
+    item.append(keywordList);
+    if (group.summary) item.append(element("p", "blog-keyword-source-summary", group.summary));
+    if (group.details?.length) item.append(keywordDetailList(group.details));
+    item.append(sourceLinkList(group.sourceIds, sourceCatalog, "blog-keyword-source-links"));
+    list.append(item);
   }
 
   aside.append(list);
@@ -309,6 +369,8 @@ function articleSection(section, index, sourceCatalog = {}) {
     appendInlineMarkdownLinks(node, paragraph);
     container.append(node);
   }
+
+  if (section.aiResearch) container.append(aiResearchBlock(section.aiResearch, sourceCatalog));
 
   if (section.keywordSourceGroups?.length) {
     container.append(keywordSources(section.keywordSourceGroups, sourceCatalog));

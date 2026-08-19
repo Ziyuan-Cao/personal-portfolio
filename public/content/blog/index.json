@@ -1,5 +1,8 @@
 {
   "posts": [
+    "Hardware, Computer Systems, GPU Architecture, CUDA, and RHI/post.json",
+    "Physical Simulation - Particles, Wind, Volumes, Water, Cloth, and Collision/post.json",
+    "Animation Systems - Vertices, Cages, Rigs, Deformation, and Motion/post.json",
     "Rendering Keywords - From Scene Representation to Display Output/post.json",
     "Screen-Space Reflections - Ray Marching, Hit Tests, and Visibility Bitmasks/post.json",
     "Notes on Game Engine Architecture/post.json",

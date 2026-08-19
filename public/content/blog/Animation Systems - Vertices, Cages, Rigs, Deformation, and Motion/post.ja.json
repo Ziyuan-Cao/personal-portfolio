@@ -1,0 +1,59 @@
+{
+  "title": "アニメーションシステム：頂点、ケージ、リグ、変形、モーション",
+  "abstract": "頂点とケージ、リグとスキニング、FK/IKとリターゲティング、皮膚と筋肉、Hair、顔、実行時Transformを表現方式から整理するガイドです。",
+  "category": "アニメーション・リサーチガイド",
+  "imageAlt": "キャラクターMeshが頂点とケージから骨格、筋肉、Hair、顔形状、Motion軌跡へ進む図",
+  "lede": "アニメーションシステムの違いは、最終頂点、ケージ、関節階層、組織、Strand、顔形状、時間変化するTransformのどれを制御するかにあります。本稿は曖昧なGXも含めて提供語を保持し、一次資料、数式、最新AI研究を追加します。",
+  "sections": [
+    {
+      "heading": "頂点ベース：最終サンプルを直接動かす",
+      "paragraphs": [
+        "頂点ベースアニメーションは各Mesh頂点の変形位置を直接保存または計算します。任意の運動を表せますが、補間と圧縮には安定した頂点対応が必要です。",
+        "Mesh cacheは位置を保存し、Morph targetは基準Meshとの差分を持ち、VATはフレームデータをTextureへ移してGPU再生します。"
+      ]
+    },
+    {
+      "heading": "ケージベース：座標を通して変形する",
+      "paragraphs": [
+        "ケージは詳細Meshを少数の制御頂点で囲みます。各点をケージに対する座標で表し、粗い形状の移動を多数の頂点へ滑らかに伝えます。",
+        "Mean-value、harmonic、Greenなどの座標系は局所性と滑らかさが異なります。不適切なケージは反転や意図しない広域影響を生みます。"
+      ]
+    },
+    {
+      "heading": "リグベース：階層、Skinning、IK、Retargeting",
+      "paragraphs": [
+        "関節階層がLocal TransformをGlobal Transformへ評価し、Skin weightがMeshへ写し、FK、IK、Constraint、ControlがPoseを作り、Retargetingが別SkeletonへMotionを移します。",
+        "Auto riggingとAuto skinningは関連する別問題です。GXは引用仕様や論文で標準化された略語ではないため、Project固有Schemaで意味を定義する必要があります。"
+      ]
+    },
+    {
+      "heading": "Skin変形：Corrective、Helper Bone、Muscle",
+      "paragraphs": [
+        "Helper BoneはTwistやSilhouetteを調整し、Pose-space Correctiveは難しい姿勢を補い、Muscle/Flesh SystemはBulge、Sliding、Volume、二次運動を作ります。",
+        "Skeleton、Muscle、Helper Transform、Corrective、最終Skinという評価順を明確にすると、Art ControlとPhysicsの責任を分離できます。"
+      ]
+    },
+    {
+      "heading": "Hairシミュレーション：Rod、Guide、Collision",
+      "paragraphs": [
+        "Hair strandは伸び、曲げ、Twist、Damping、重力、風、接触を持つ細長いRodです。全Fiberは高価なので、Guide HairからFollowerを再構成します。",
+        "Discrete Elastic RodやCosserat Rodが曲率と向きを表します。Neural Surrogateを使ってもCollisionとFrictionはGroomの一体感に不可欠です。"
+      ]
+    },
+    {
+      "heading": "顔：意味的ControlとBlend Shape",
+      "paragraphs": [
+        "Blend Shapeは頂点差分を加え、Jointは顎と眼球を動かし、FACS Action UnitはMeshに依存しない可視筋運動を記述します。",
+        "Performance Capture、音声駆動、RetargetingがControlを生成・転送しますが、Shape組み合わせの崩れを直すCorrectiveも重要です。"
+      ]
+    },
+    {
+      "heading": "Animation Transform：KeyからCharacter Motionへ",
+      "paragraphs": [
+        "Translation、Rotation、ScaleがLocal TRSを作り、親子合成がGlobal Motionを作り、Key、Spline、Blend、Root Motion、Motion Warpingが連続運動を構成します。",
+        "Euler Angleには順序とGimbal Lockの問題があり、QuaternionはSLERPを提供します。生成Poseも同じ決定的Transform Pipelineで実行されます。"
+      ]
+    }
+  ],
+  "closing": "頂点とケージは形状を直接制御し、リグは階層とWeightへ運動を分解し、Corrective、Muscle、Hair、顔が単純Transformでは表せない変形を補います。AIは制作を自動化しますが、編集可能な表現と決定的評価が研究結果をProductionへつなぎます。"
+}
