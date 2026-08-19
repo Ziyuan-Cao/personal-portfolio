@@ -1,5 +1,5 @@
 {
-  "id": "f605ea1b-b6da-4e80-ab0d-1141c2762c17",
+  "id": "9bc9e75c-f16f-4e23-b739-b25e25c95f56",
   "uid": "ec91a46b381c2d7fd45410ee71ba4de703ef14533e448805f14b9583cc917013",
   "url": "https://gpuopen.com/learn/radeon-developer-tool-suite-shader-source-code",
   "canonicalUrl": "https://gpuopen.com/learn/radeon-developer-tool-suite-shader-source-code",
@@ -9,6 +9,6 @@
   "subtitle": "The new AMD Radeon Developer Tool Suite release delivers RGP 2.7 with shader source code viewing, instruction‑level divergence metrics, and Extended PIX Marker support, expanded hardware compatibility, and updates across RGD, RRA, RMV, RGA, and RDP.",
   "imageUrl": "https://gpuopen.com/images/rgp_settings_debug_info.DlTiZdkx.png",
   "publishedAt": "2026-06-11T16:26:00.000Z",
-  "firstSeenAt": "2026-08-18T21:20:01.119Z",
-  "lastSeenAt": "2026-08-18T21:20:01.119Z"
+  "firstSeenAt": "2026-08-19T15:56:04.438Z",
+  "lastSeenAt": "2026-08-19T15:56:04.438Z"
 }

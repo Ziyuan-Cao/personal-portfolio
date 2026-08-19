@@ -1,5 +1,5 @@
 {
-  "id": "ec69f834-4b1d-4720-910a-4e47aa9317f0",
+  "id": "d62e6ea1-6a19-4044-ac0f-b9225c6b3392",
   "uid": "f73357ec876843fd04dd0b9deccbe39b2cee17ea00e49658423e7cf42bf207ab",
   "url": "https://gpuopen.com/learn/wmma-guide-amd-rdna-4-gpus-part-3",
   "canonicalUrl": "https://gpuopen.com/learn/wmma-guide-amd-rdna-4-gpus-part-3",
@@ -9,6 +9,6 @@
   "subtitle": "Learn how to implement fast in-register matrix transpose on AMD RDNA™ 4 architecture GPUs with a WMMA-based identity trick, delivering a lightweight, memory-free alternative proven in Llama.cpp.",
   "imageUrl": "https://gpuopen.com/images/wmma_rdna4_pt3_featured.ClZjn8Mn.jpg",
   "publishedAt": "2026-06-02T19:02:00.000Z",
-  "firstSeenAt": "2026-08-18T21:20:01.119Z",
-  "lastSeenAt": "2026-08-18T21:20:01.119Z"
+  "firstSeenAt": "2026-08-19T15:56:04.438Z",
+  "lastSeenAt": "2026-08-19T15:56:04.438Z"
 }
