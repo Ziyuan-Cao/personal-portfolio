@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
   "generatedAt": "2026-08-20T01:38:50.997Z",
+=======
+  "generatedAt": "2026-08-19T21:21:40.492Z",
+>>>>>>> f0b80f0371875bc3c542422e5db83ff136e5bc30
   "sources": [
     {
       "url": "https://www.unrealengine.com/rss?lang=en-US",
@@ -63,11 +67,19 @@
     }
   ],
   "items": [
+<<<<<<< HEAD
     "items/e9cb5c9575df40bb6e79de7cba4775184c3258bdd8174dc46ff81ce498781c5c/item.json",
     "items/a8097ca317de052a4383844dfb53cff4dfde622a0a5bac54bd6f9daaf86cced4/item.json",
     "items/bd0791a8937b7e0bf2df89ad9606684b587e4097b3c874a8aa540058f216324d/item.json",
     "items/d74dfc0e6364a35c103d77125f43f734520764649d38f6b26445bcd495bc04ca/item.json",
     "items/f7ea28ee6acd5ed75034db80c52f6e9656864ba501675ff9c4e138d557b6aa4a/item.json",
+=======
+    "items/d74dfc0e6364a35c103d77125f43f734520764649d38f6b26445bcd495bc04ca/item.json",
+    "items/bd0791a8937b7e0bf2df89ad9606684b587e4097b3c874a8aa540058f216324d/item.json",
+    "items/a8097ca317de052a4383844dfb53cff4dfde622a0a5bac54bd6f9daaf86cced4/item.json",
+    "items/f7ea28ee6acd5ed75034db80c52f6e9656864ba501675ff9c4e138d557b6aa4a/item.json",
+    "items/e9cb5c9575df40bb6e79de7cba4775184c3258bdd8174dc46ff81ce498781c5c/item.json",
+>>>>>>> f0b80f0371875bc3c542422e5db83ff136e5bc30
     "items/6c683ee9e70b43ce80d134c5478d28eafd2c63c949e01e8e1fc9f59efc60792e/item.json",
     "items/405eef72342308a8cc49443f44f70ecad081f3795f17dcd6a112d3388d2b8ce4/item.json",
     "items/5042ddb06fd844309130b6e9e07973fba266722afc75503fbe6ab023f3569572/item.json",
@@ -161,9 +173,15 @@
     "items/846205bec90baa05fb0866bc706cc8f3637cdc079b256106c4ed250b94ec40ad/item.json",
     "items/f5145378371377d0ec27cf2381ed9e8c41f05d7a55b24365e96edf0710e7c8f5/item.json",
     "items/fb3d7eebc0aa0e526feb6a4d3350695c22969628370ccc45573e049db560c496/item.json",
+<<<<<<< HEAD
     "items/2c126de8127663dbb178b8b5dd0edc3faa9cc19b7363a56c7bf95abb7253538e/item.json",
     "items/87920dbec1fb60a266e38238a2e989ad84431c49e7a8c9b5edd2ded25bebbfb5/item.json",
     "items/aba168365bbee7cc0ecac92a3ae5fbc51fbbaa64a716b7e82f6e736eec28101e/item.json",
+=======
+    "items/aba168365bbee7cc0ecac92a3ae5fbc51fbbaa64a716b7e82f6e736eec28101e/item.json",
+    "items/87920dbec1fb60a266e38238a2e989ad84431c49e7a8c9b5edd2ded25bebbfb5/item.json",
+    "items/2c126de8127663dbb178b8b5dd0edc3faa9cc19b7363a56c7bf95abb7253538e/item.json",
+>>>>>>> f0b80f0371875bc3c542422e5db83ff136e5bc30
     "items/2c3816132ececd08399de2d84b9e4bdea42fcafecba5a6821cf65b03dd03e415/item.json",
     "items/29b5c6bbe55ddf560effd30ae08c7497ff2c8ae98b27c71baa21043096062a3c/item.json",
     "items/4378e012d823f965ef287306cf98b488ec768669f33e51ac624a1fd6b105a8f7/item.json",

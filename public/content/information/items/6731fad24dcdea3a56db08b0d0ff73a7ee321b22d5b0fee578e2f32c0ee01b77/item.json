@@ -1,5 +1,5 @@
 {
-  "id": "b7245f4d-973f-490f-83ed-f9cc3c60d06b",
+  "id": "07f1c452-1bef-406d-a19e-c457d1795e80",
   "uid": "6731fad24dcdea3a56db08b0d0ff73a7ee321b22d5b0fee578e2f32c0ee01b77",
   "url": "https://www.unrealengine.com/events/south-east-asia-dev-days",
   "canonicalUrl": "https://www.unrealengine.com/events/south-east-asia-dev-days",
@@ -9,6 +9,11 @@
   "subtitle": "Dev Days bring Unreal Engine developers together to learn, connect, and exchange ideas. Find the next event happening near you and discover new creative opportunities through engaging sessions led by Epic presenters and industry teams.",
   "imageUrl": "https://cms-assets.unrealengine.com/AiKUh5PQCTaOFnmJDZJBfz/resize=width:1200/cmrut7nt00e8307n49xt4zlxs",
   "publishedAt": "2026-07-23T00:00:00.000Z",
+<<<<<<< HEAD
   "firstSeenAt": "2026-08-18T21:19:21.258Z",
   "lastSeenAt": "2026-08-20T01:37:47.302Z"
+=======
+  "firstSeenAt": "2026-08-19T21:21:00.527Z",
+  "lastSeenAt": "2026-08-19T21:21:00.527Z"
+>>>>>>> f0b80f0371875bc3c542422e5db83ff136e5bc30
 }

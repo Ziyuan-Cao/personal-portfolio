@@ -1,5 +1,5 @@
 {
-  "id": "bff862d5-43c7-42b1-b55a-c26be216732c",
+  "id": "eaee86c4-dd66-4e13-bd3e-ccc47a4be291",
   "uid": "eea13d1c55b23468c870afd4e9d2e222a9975c5cc6140607280beddcfc99b3d0",
   "url": "https://www.unrealengine.com/developer-interviews/halo-campaign-evolved-brings-the-legendary-franchise-into-a-new-era-with-ue5",
   "canonicalUrl": "https://www.unrealengine.com/developer-interviews/halo-campaign-evolved-brings-the-legendary-franchise-into-a-new-era-with-ue5",
@@ -9,6 +9,11 @@
   "subtitle": "Discover how UE5 brings high-definition visuals, refined controls, and updated cinematics to Halo: Campaign Evolved, a faithful yet modernized remake of the legendary Halo: Combat Evolved campaign.",
   "imageUrl": "https://cms-assets.unrealengine.com/AiKUh5PQCTaOFnmJDZJBfz/resize=width:1200/cmrz7q2n42d6f07oj7ubkqmz4",
   "publishedAt": "2026-07-30T00:00:00.000Z",
+<<<<<<< HEAD
   "firstSeenAt": "2026-08-18T21:19:21.258Z",
   "lastSeenAt": "2026-08-20T01:37:47.302Z"
+=======
+  "firstSeenAt": "2026-08-19T21:21:00.527Z",
+  "lastSeenAt": "2026-08-19T21:21:00.527Z"
+>>>>>>> f0b80f0371875bc3c542422e5db83ff136e5bc30
 }

@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
   "id": "d010d1d1-a0f5-4306-91a0-2229c96ee876",
+=======
+  "id": "082e23d8-a47b-49c4-a322-481edd8e4594",
+>>>>>>> f0b80f0371875bc3c542422e5db83ff136e5bc30
   "uid": "e9cb5c9575df40bb6e79de7cba4775184c3258bdd8174dc46ff81ce498781c5c",
   "url": "https://research.adobe.com/news/world-photography-day-adobe-research",
   "canonicalUrl": "https://research.adobe.com/news/world-photography-day-adobe-research",
@@ -9,6 +13,11 @@
   "subtitle": null,
   "imageUrl": "https://research.adobe.com/wp-content/uploads/2026/08/World_Photography_Day-Blog_Hero_Image_1024x768_v2.png",
   "publishedAt": "2026-08-19T00:00:00.000Z",
+<<<<<<< HEAD
   "firstSeenAt": "2026-08-20T01:38:50.863Z",
   "lastSeenAt": "2026-08-20T01:38:50.863Z"
+=======
+  "firstSeenAt": "2026-08-19T21:21:40.464Z",
+  "lastSeenAt": "2026-08-19T21:21:40.464Z"
+>>>>>>> f0b80f0371875bc3c542422e5db83ff136e5bc30
 }
