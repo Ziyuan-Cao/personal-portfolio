@@ -1,6 +1,27 @@
-import test from "node:test";import assert from "node:assert/strict";import fs from "node:fs";import path from "node:path";import type { HttpFetcher, FetchResponse, BinaryFetchResponse } from "../src/ports/HttpFetcher.js";import { FeedSourceAdapter } from "../src/adapters/outbound/collection/FeedSourceAdapter.js";import { GenericHtmlSourceAdapter } from "../src/adapters/outbound/collection/GenericHtmlSourceAdapter.js";import type { Source } from "../src/domain/entities/Source.js";
-const fixture=(name:string)=>fs.readFileSync(path.join(process.cwd(),"tests","fixtures",name),"utf8");
-class StubHttp implements HttpFetcher{constructor(private readonly response:Partial<FetchResponse>){}async get(url:string):Promise<FetchResponse>{return {status:200,url,contentType:"application/xml",body:"",etag:null,lastModified:null,notModified:false,...this.response};}async getBinary():Promise<BinaryFetchResponse>{throw new Error("Binary fetching is not used by adapter tests");}}
-const source=(adapterType:Source["adapterType"],adapterConfig:Source["adapterConfig"]={}):Source=>({id:"source",name:"Example",baseUrl:"https://example.com/",collectionUrl:"https://example.com/news",feedUrl:null,adapterType,adapterConfig,intervalMinutes:60,maxItemsPerRun:30,enabled:true,etag:null,lastModified:null,lastCollectedAt:null,nextCollectionAt:new Date().toISOString(),failureCount:0,status:"ACTIVE",createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});
-for(const [name,file,type,title] of [["RSS","rss.xml","application/rss+xml","First & best"],["Atom","atom.xml","application/atom+xml","Atom entry"],["JSON Feed","json-feed.json","application/feed+json","JSON entry"]] as const){test(`parses ${name}`,async()=>{const items=await new FeedSourceAdapter(new StubHttp({body:fixture(file),contentType:type})).collect(source("FEED"),{maxItems:10});assert.equal(items.length,1);assert.equal(items[0]?.title,title);assert.ok(items[0]?.externalUid);});}
-test("extracts generic HTML with configured selectors",async()=>{const adapter=new GenericHtmlSourceAdapter(new StubHttp({body:fixture("listing.html"),contentType:"text/html"}));const items=await adapter.collect(source("HTML",{itemSelector:".news-card",linkSelector:".story-link",titleSelector:".news-title",subtitleSelector:".news-description",imageSelector:"img",dateSelector:"time"}),{maxItems:10});assert.equal(items[0]?.url,"https://example.com/posts/4");assert.equal(items[0]?.title,"HTML entry");});
+import test from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import { parseFeed, parseHtml } from "../src/parser.js";
+
+const fixture = (name: string) => fs.readFileSync(path.join(process.cwd(), "tests", "fixtures", name), "utf8");
+
+for (const [name, filename, contentType, title] of [
+  ["RSS", "rss.xml", "application/rss+xml", "First & best"],
+  ["Atom", "atom.xml", "application/atom+xml", "Atom entry"],
+  ["JSON Feed", "json-feed.json", "application/feed+json", "JSON entry"],
+] as const) {
+  test(`parses ${name}`, () => {
+    const items = parseFeed(fixture(filename), "https://example.com/feed", contentType);
+    assert.equal(items?.length, 1);
+    assert.equal(items?.[0]?.title, title);
+    assert.ok(items?.[0]?.url.startsWith("https://example.com/"));
+  });
+}
+
+test("extracts a generic HTML listing", () => {
+  const items = parseHtml(fixture("listing.html"), "https://example.com/news");
+  assert.equal(items.length, 1);
+  assert.equal(items[0]?.url, "https://example.com/posts/4");
+  assert.equal(items[0]?.title, "HTML entry");
+});

@@ -16,10 +16,20 @@ interface BinaryFetchResult {
   url: string;
 }
 
-interface RefreshResult {
+export interface SourceRefreshResult {
+  url: string;
+  name: string;
+  status: "success" | "failed";
+  found: number;
+  inserted: number;
+  error: string | null;
+}
+
+export interface RefreshResult {
   found: number;
   inserted: number;
   errors: number;
+  sources: SourceRefreshResult[];
 }
 
 const timeoutMs = positiveInteger(process.env.HTTP_TIMEOUT_MS, 10_000);
@@ -36,11 +46,12 @@ class HttpStatusError extends Error {
 }
 
 export async function collectSources(sources: string[], database: InformationDatabase): Promise<RefreshResult> {
-  const result: RefreshResult = { found: 0, inserted: 0, errors: 0 };
+  const result: RefreshResult = { found: 0, inserted: 0, errors: 0, sources: [] };
   for (const sourceUrl of sources) {
     const label = sourceName(sourceUrl);
     try {
       const items = await collectSource(sourceUrl);
+      if (!items.length) throw new Error("Source returned no usable articles");
       const seenAt = new Date().toISOString();
       const inserted = database.transaction(() => {
         let count = 0;
@@ -61,10 +72,13 @@ export async function collectSources(sources: string[], database: InformationDat
       });
       result.found += items.length;
       result.inserted += inserted;
+      result.sources.push({ url: sourceUrl, name: label, status: "success", found: items.length, inserted, error: null });
       console.log(`[${label}] found=${items.length} new=${inserted}`);
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       result.errors++;
-      console.error(`[${label}] ERROR ${error instanceof Error ? error.message : String(error)}`);
+      result.sources.push({ url: sourceUrl, name: label, status: "failed", found: 0, inserted: 0, error: message });
+      console.error(`[${label}] ERROR ${message}`);
     }
   }
   return result;

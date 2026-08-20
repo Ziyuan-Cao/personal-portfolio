@@ -1,2 +1,25 @@
-import test from "node:test";import assert from "node:assert/strict";import { openDatabase } from "../src/infrastructure/database.js";import { SqliteSourceRepository } from "../src/adapters/outbound/persistence/SqliteSourceRepository.js";import { SqliteContentRepository } from "../src/adapters/outbound/persistence/SqliteContentRepository.js";import type { Source } from "../src/domain/entities/Source.js";import type { ContentItem } from "../src/domain/entities/ContentItem.js";
-test("upsert matches UID first and preserves first seen time",async()=>{const db=openDatabase(":memory:");const sources=new SqliteSourceRepository(db);const content=new SqliteContentRepository(db);const now="2025-08-06T10:00:00.000Z";const source:Source={id:"s1",name:"Example",baseUrl:"https://example.com/",collectionUrl:"https://example.com/feed",feedUrl:null,adapterType:"FEED",adapterConfig:{},intervalMinutes:60,maxItemsPerRun:30,enabled:true,etag:null,lastModified:null,lastCollectedAt:null,nextCollectionAt:now,failureCount:0,status:"ACTIVE",createdAt:now,updatedAt:now};await sources.create(source);const first:ContentItem={id:"c1",sourceId:"s1",externalUid:"uid-1",rawUrl:"https://example.com/a",canonicalUrl:"https://example.com/a",canonicalUrlHash:"hash-a",title:"Old title",subtitle:null,imageUrl:null,author:null,publishedAt:null,firstSeenAt:now,lastSeenAt:now,contentHash:"old",status:"ACTIVE"};assert.equal((await content.upsert(first)).action,"inserted");const later="2025-08-06T11:00:00.000Z";const updated={...first,id:"c2",title:"New title",contentHash:"new",lastSeenAt:later};const result=await content.upsert(updated);assert.equal(result.action,"updated");assert.equal(result.item.id,"c1");assert.equal(result.item.firstSeenAt,now);assert.equal((await content.list({limit:10,sort:"newest"})).items.length,1);db.close();});
+import test from "node:test";
+import assert from "node:assert/strict";
+import { openDatabase } from "../src/database.js";
+
+test("database upsert updates content while preserving first-seen time", () => {
+  const database = openDatabase(":memory:");
+  const firstSeen = "2026-08-01T00:00:00.000Z";
+  const base = {
+    uid: "uid-1",
+    canonicalUrl: "https://example.com/article",
+    sourceUrl: "https://example.com/feed",
+    title: "Old title",
+    subtitle: null,
+    imageUrl: null,
+    publishedAt: null,
+    seenAt: firstSeen,
+  };
+  assert.equal(database.upsert(base), true);
+  assert.equal(database.upsert({ ...base, title: "New title", seenAt: "2026-08-02T00:00:00.000Z" }), false);
+  const [stored] = database.list({ sort: "newest", limit: 10 }).items;
+  assert.equal(stored?.title, "New title");
+  assert.equal(stored?.firstSeenAt, firstSeen);
+  assert.equal(stored?.lastSeenAt, "2026-08-02T00:00:00.000Z");
+  database.close();
+});

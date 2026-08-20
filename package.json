@@ -12,7 +12,7 @@
     "collect:static": "npm run build && node dist/static-collector.js",
     "start": "node dist/server.js",
     "validate:content": "node scripts/validate-content.mjs",
-    "test": "npm run build && npm run validate:content"
+    "test": "npm run build && node --import tsx --test tests/*.test.ts && npm run validate:content"
   },
   "dependencies": {
     "@fastify/static": "^10.1.3",

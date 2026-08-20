@@ -5,8 +5,8 @@ on:
     branches:
       - master
   schedule:
-    # 21:00 UTC is 06:00 JST on the following day.
-    - cron: "0 21 * * *"
+    # 21:17 UTC is 06:17 JST on the following day. Avoid minute 0, when scheduled Actions are most congested.
+    - cron: "17 21 * * *"
   workflow_dispatch:
 
 permissions:
@@ -20,6 +20,8 @@ jobs:
   build:
     permissions:
       contents: write
+    env:
+      COLLECTION_FAILURE_THRESHOLD: 5
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -34,7 +36,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Check TypeScript
+      - name: Test collector and content
         run: npm test
 
       - name: Collect news

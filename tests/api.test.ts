@@ -1,3 +1,26 @@
-import test from "node:test";import assert from "node:assert/strict";import path from "node:path";import { buildApp } from "../src/app.js";import type { AppConfig } from "../src/infrastructure/config.js";
-const config:AppConfig={host:"127.0.0.1",port:3000,databasePath:":memory:",publicPath:path.join(process.cwd(),"public"),schedulerPollMs:3_600_000,collectionPaused:true,failureThreshold:5,http:{timeoutMs:1000,maxBytes:100000,userAgent:"test",maxRedirects:2}};
-test("source CRUD, portfolio, and empty content APIs",async()=>{const app=await buildApp(config,{info(){},warn(){},error(){}});await app.ready();const payload={name:"Example",baseUrl:"https://example.com",collectionUrl:"https://example.com/feed.xml",feedUrl:null,adapterType:"FEED",adapterConfig:{},intervalMinutes:60,maxItemsPerRun:20,enabled:false};const created=await app.inject({method:"POST",url:"/api/sources",payload});assert.equal(created.statusCode,201);const id=created.json().id;const sources=await app.inject({method:"GET",url:"/api/sources"});assert.equal(sources.json().items.length,1);const content=await app.inject({method:"GET",url:"/api/content?limit=12&sort=newest"});assert.deepEqual(content.json(),{items:[],nextCursor:null});const portfolio=await app.inject({method:"GET",url:"/api/portfolio"});assert.equal(portfolio.statusCode,200);assert.equal(portfolio.json().items.length,5);assert.equal(portfolio.json().items[0].imageUrl,"/assets/images/EG2024.png");assert.equal((await app.inject({method:"DELETE",url:`/api/sources/${id}`})).statusCode,204);await app.close();});
+import test from "node:test";
+import assert from "node:assert/strict";
+import { buildServer } from "../src/server.js";
+import { openDatabase } from "../src/database.js";
+
+test("content API returns collected items and source metadata", async () => {
+  const database = openDatabase(":memory:");
+  database.upsert({
+    uid: "uid-1",
+    canonicalUrl: "https://example.com/article",
+    sourceUrl: "https://example.com/feed",
+    title: "Article",
+    subtitle: "Summary",
+    imageUrl: null,
+    publishedAt: "2026-08-01T00:00:00.000Z",
+    seenAt: "2026-08-02T00:00:00.000Z",
+  });
+
+  const { app } = await buildServer(database);
+  const response = await app.inject({ method: "GET", url: "/api/content?limit=12&sort=newest" });
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.json().items.length, 1);
+  assert.equal(response.json().items[0].title, "Article");
+  assert.deepEqual(response.json().sources, [{ url: "https://example.com/feed", name: "Example" }]);
+  await app.close();
+});

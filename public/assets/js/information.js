@@ -19,6 +19,7 @@ const pageSize = 12;
 let items = [];
 let visibleCount = pageSize;
 let debounce;
+let latestManifest = null;
 
 function formatTime(value) {
   if (!value) return i18n.t("news.unavailable");
@@ -102,6 +103,21 @@ function render({ reset = true } = {}) {
   more.disabled = false;
 }
 
+function renderCollectionStatus(manifest) {
+  const collected = manifest.generatedAt
+    ? i18n.t("news.collected", { time: new Intl.DateTimeFormat(i18n.dateLocale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(manifest.generatedAt)) })
+    : i18n.t("news.awaiting");
+  const collection = manifest.collection;
+  updated.textContent = collection && Number.isInteger(collection.attempted)
+    ? i18n.t(collection.failed ? "news.collectionPartial" : "news.collectionHealthy", {
+        collected,
+        attempted: collection.attempted,
+        succeeded: collection.succeeded,
+        failed: collection.failed,
+      })
+    : collected;
+}
+
 async function load() {
   grid.replaceChildren();
   state.textContent = i18n.t("news.loading");
@@ -115,9 +131,10 @@ async function load() {
   if (!Array.isArray(manifest.items) || !Array.isArray(manifest.sources)) {
     throw new Error("The news index has an invalid format");
   }
+  latestManifest = manifest;
 
   const version = encodeURIComponent(manifest.generatedAt ?? Date.now());
-  items = await Promise.all(manifest.items.map(async (itemPath) => {
+  const results = await Promise.allSettled(manifest.items.map(async (itemPath) => {
     const itemUrl = new URL(itemPath, informationIndexUrl);
     itemUrl.searchParams.set("v", version);
     const itemResponse = await fetch(itemUrl, {
@@ -127,15 +144,19 @@ async function load() {
     if (!itemResponse.ok) throw new Error(`Could not load ${itemPath} (${itemResponse.status})`);
     return itemResponse.json();
   }));
+  items = results
+    .filter((result) => result.status === "fulfilled")
+    .map((result) => result.value);
+  const failedItems = results.filter((result) => result.status === "rejected");
+  if (!items.length && manifest.items.length) throw new Error("None of the news items could be loaded");
+  if (failedItems.length) console.warn(`[news] ${failedItems.length} item(s) could not be loaded`, failedItems);
   const selected = sourceFilter.value;
   sourceFilter.replaceChildren(
     new Option(i18n.t("news.allSources"), ""),
     ...manifest.sources.map((source) => new Option(source.name, source.url)),
   );
   sourceFilter.value = manifest.sources.some((source) => source.url === selected) ? selected : "";
-  updated.textContent = manifest.generatedAt
-    ? i18n.t("news.collected", { time: new Intl.DateTimeFormat(i18n.dateLocale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(manifest.generatedAt)) })
-    : i18n.t("news.awaiting");
+  renderCollectionStatus(manifest);
   render();
 }
 
@@ -171,5 +192,6 @@ window.addEventListener("portfolio:localechange", () => {
   const selected = sourceFilter.value;
   if (sourceFilter.options.length) sourceFilter.options[0].textContent = i18n.t("news.allSources");
   sourceFilter.value = selected;
+  if (latestManifest) renderCollectionStatus(latestManifest);
   if (items.length) render();
 });

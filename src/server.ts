@@ -66,17 +66,23 @@ export async function buildServer(database: InformationDatabase = openDatabase(d
   return { app, refresh };
 }
 
-const { app, refresh } = await buildServer();
-const host = process.env.HOST ?? "127.0.0.1";
-const port = positiveInteger(process.env.PORT, 3000);
+async function main(): Promise<void> {
+  const { app, refresh } = await buildServer();
+  const host = process.env.HOST ?? "127.0.0.1";
+  const port = positiveInteger(process.env.PORT, 3000);
 
-try {
-  await app.listen({ host, port });
-  console.log(`Portfolio server listening at http://${host}:${port}`);
-  void refresh(false).catch((error: unknown) => {
-    console.error(`[collector] ${error instanceof Error ? error.message : String(error)}`);
-  });
-} catch (error) {
-  console.error(error);
-  process.exitCode = 1;
+  try {
+    await app.listen({ host, port });
+    console.log(`Portfolio server listening at http://${host}:${port}`);
+    void refresh(false).catch((error: unknown) => {
+      console.error(`[collector] ${error instanceof Error ? error.message : String(error)}`);
+    });
+  } catch (error) {
+    console.error(error);
+    process.exitCode = 1;
+  }
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  await main();
 }

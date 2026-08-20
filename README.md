@@ -32,7 +32,7 @@ When running the Fastify server locally, collected items are stored in `data/inf
 
 ## GitHub Pages
 
-The workflow in `.github/workflows/pages.yml` collects news once a day at 06:00 JST, can also be run manually, and deploys the contents of `public/`.
+The workflow in `.github/workflows/pages.yml` collects news once a day at 06:17 JST, can also be run manually, and deploys the contents of `public/`. Failed sources retain their last good snapshot, and the workflow refuses to publish when more than `COLLECTION_FAILURE_THRESHOLD` sources fail.
 
 After pushing the workflow, open the repository's **Settings → Pages** page and set **Source** to **GitHub Actions**. The first successful workflow run will replace the README page with the portfolio.
 
@@ -43,4 +43,4 @@ After pushing the workflow, open the repository's **Settings → Pages** page an
 - `npm run validate:content` — verify every content index, owner folder, JSON file, and local image reference
 - `npm run collect:static` — collect sources and write the static per-item news folders
 - `npm start` — run the compiled server
-- `npm test` — run the strict TypeScript build and content-layout checks
+- `npm test` — run the strict TypeScript build, maintained collector tests, and content-layout checks
