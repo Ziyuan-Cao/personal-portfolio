@@ -1,0 +1,14 @@
+{
+  "id": "7c37d6ff-8afb-4ab8-85bd-61c21e8b552c",
+  "uid": "667b512cb93f1360b2c9121165fe2238cf8ae0955f31406c9dbd6936c88fb378",
+  "url": "https://gpuopen.com/learn/lightweight-attention-based-indirect-illumination",
+  "canonicalUrl": "https://gpuopen.com/learn/lightweight-attention-based-indirect-illumination",
+  "sourceUrl": "https://gpuopen.com/feed",
+  "sourceName": "AMD GPUOpen",
+  "title": "Lightweight attention-based indirect illumination",
+  "subtitle": "Introducing a lightweight, attention-based neural GI model that reconstructs off-screen indirect illumination using reflective shadow maps, generalizing to scenes not seen during training.",
+  "imageUrl": "https://gpuopen.com/images/featured-232052451-A_AMD_Capsaicin_Framework_Lockup_RGB_Wht.CDl_rj1u.jpg",
+  "publishedAt": "2026-08-20T18:00:00.000Z",
+  "firstSeenAt": "2026-08-22T04:13:29.957Z",
+  "lastSeenAt": "2026-08-22T04:13:29.957Z"
+}

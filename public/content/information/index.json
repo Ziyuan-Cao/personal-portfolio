@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
-  "generatedAt": "2026-08-20T01:38:50.997Z",
-=======
-  "generatedAt": "2026-08-19T21:21:40.492Z",
->>>>>>> f0b80f0371875bc3c542422e5db83ff136e5bc30
+  "generatedAt": "2026-08-22T04:13:40.814Z",
   "sources": [
     {
       "url": "https://www.unrealengine.com/rss?lang=en-US",
@@ -67,19 +63,14 @@
     }
   ],
   "items": [
-<<<<<<< HEAD
-    "items/e9cb5c9575df40bb6e79de7cba4775184c3258bdd8174dc46ff81ce498781c5c/item.json",
+    "items/600641e92db7227e884c0d9431c221ffb9bf5e8ea21c963cd45816bca721dc79/item.json",
+    "items/cc6c6cc7a6fd67ce2f93bf94625809449a6a75fec9e46806916ea28305cdbaaf/item.json",
+    "items/667b512cb93f1360b2c9121165fe2238cf8ae0955f31406c9dbd6936c88fb378/item.json",
     "items/a8097ca317de052a4383844dfb53cff4dfde622a0a5bac54bd6f9daaf86cced4/item.json",
     "items/bd0791a8937b7e0bf2df89ad9606684b587e4097b3c874a8aa540058f216324d/item.json",
     "items/d74dfc0e6364a35c103d77125f43f734520764649d38f6b26445bcd495bc04ca/item.json",
     "items/f7ea28ee6acd5ed75034db80c52f6e9656864ba501675ff9c4e138d557b6aa4a/item.json",
-=======
-    "items/d74dfc0e6364a35c103d77125f43f734520764649d38f6b26445bcd495bc04ca/item.json",
-    "items/bd0791a8937b7e0bf2df89ad9606684b587e4097b3c874a8aa540058f216324d/item.json",
-    "items/a8097ca317de052a4383844dfb53cff4dfde622a0a5bac54bd6f9daaf86cced4/item.json",
-    "items/f7ea28ee6acd5ed75034db80c52f6e9656864ba501675ff9c4e138d557b6aa4a/item.json",
     "items/e9cb5c9575df40bb6e79de7cba4775184c3258bdd8174dc46ff81ce498781c5c/item.json",
->>>>>>> f0b80f0371875bc3c542422e5db83ff136e5bc30
     "items/6c683ee9e70b43ce80d134c5478d28eafd2c63c949e01e8e1fc9f59efc60792e/item.json",
     "items/405eef72342308a8cc49443f44f70ecad081f3795f17dcd6a112d3388d2b8ce4/item.json",
     "items/5042ddb06fd844309130b6e9e07973fba266722afc75503fbe6ab023f3569572/item.json",
@@ -96,7 +87,6 @@
     "items/f26bd83cd9d12df30dc2aa5ffbae6a6c8ecd92c8a490fe67983730ec2df6456f/item.json",
     "items/1ad1a8e3ded3c7c4d324128cfdacf4f68d0ceaf2521ff42400db1852fdcda2df/item.json",
     "items/4bcd13c7f938f221955380faff378f7ee620cb3f48afd2df2dc5263d78dc675f/item.json",
-    "items/fb24ef286bff940398c17fcaa40e5ce5acfee21158fe3e11424cb37aa610ddd4/item.json",
     "items/fa9cc364ac698bd392a3971535a72c088591325ac8b7499e80af76150836202f/item.json",
     "items/805e4d59e8055cd53ca1489ab6e9237ac9f9978daf7cedc2fefa893e6aefef40/item.json",
     "items/456a436c6e52316944a91911070595e95977baaac09b16f963dbc44d3466bbbe/item.json",
@@ -173,15 +163,9 @@
     "items/846205bec90baa05fb0866bc706cc8f3637cdc079b256106c4ed250b94ec40ad/item.json",
     "items/f5145378371377d0ec27cf2381ed9e8c41f05d7a55b24365e96edf0710e7c8f5/item.json",
     "items/fb3d7eebc0aa0e526feb6a4d3350695c22969628370ccc45573e049db560c496/item.json",
-<<<<<<< HEAD
     "items/2c126de8127663dbb178b8b5dd0edc3faa9cc19b7363a56c7bf95abb7253538e/item.json",
     "items/87920dbec1fb60a266e38238a2e989ad84431c49e7a8c9b5edd2ded25bebbfb5/item.json",
     "items/aba168365bbee7cc0ecac92a3ae5fbc51fbbaa64a716b7e82f6e736eec28101e/item.json",
-=======
-    "items/aba168365bbee7cc0ecac92a3ae5fbc51fbbaa64a716b7e82f6e736eec28101e/item.json",
-    "items/87920dbec1fb60a266e38238a2e989ad84431c49e7a8c9b5edd2ded25bebbfb5/item.json",
-    "items/2c126de8127663dbb178b8b5dd0edc3faa9cc19b7363a56c7bf95abb7253538e/item.json",
->>>>>>> f0b80f0371875bc3c542422e5db83ff136e5bc30
     "items/2c3816132ececd08399de2d84b9e4bdea42fcafecba5a6821cf65b03dd03e415/item.json",
     "items/29b5c6bbe55ddf560effd30ae08c7497ff2c8ae98b27c71baa21043096062a3c/item.json",
     "items/4378e012d823f965ef287306cf98b488ec768669f33e51ac624a1fd6b105a8f7/item.json",
@@ -189,7 +173,6 @@
     "items/68b6d9a73d47abb60d92221f9b072fa9d8654898ab5b9a545124973da50648d3/item.json",
     "items/87865b98549847769445ad5c6e44c2dfc5260be9a4debd2d1912920630df348e/item.json",
     "items/e0254829836ae2d2abfc424684ddb11989a08c41519391da1935f06ad5814dd3/item.json",
-    "items/054707d8461dda4c8ffde6fb5c3c30a095d711be09c4c67438771435060955e2/item.json",
     "items/d12d421bd6b924ffdc91745d6b59cd9ecafa21fda6e3c529b60e253dfbf68c57/item.json",
     "items/b3df5a34128a11f2f1c0919b817ac753e75591412d1e6a374f3d029e215e546a/item.json",
     "items/b6cd2ad2d26c101fa9d2caa334c7b5ade28a2372d21a5097bffe593d2b65035b/item.json",
@@ -249,7 +232,6 @@
     "items/12b7f10cdacca0d488a1b40d1ec4967c0a38746affbc37bd85560ad7a4c45d23/item.json",
     "items/8ba5ef41612646eefaa68087f04ee53e95501f2d0d4d8cec2007b43d196c033e/item.json",
     "items/e7509aad70ba1a009bc240377e21e9a712cea24ed10bfb6a66d9af0dda62c8f0/item.json",
-    "items/964bcc80061f46009edb69071a2414966f8e446716a5f9981603fb7dd54f53ea/item.json",
     "items/f8f455438ab3352db72f6199151f53438abac9413997aa05a9b1f9026d46b1b7/item.json",
     "items/5257d960be9f69964b2138390df0e429d4331cc5e17636a3220fa8e2b5b79565/item.json",
     "items/8d6fc3f66f341b161090bae314e1ba68a0054ef116320ae81039765337e6cbf2/item.json",
