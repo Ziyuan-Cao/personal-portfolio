@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-25T21:47:26.781Z",
+  "generatedAt": "2026-08-27T00:51:31.825Z",
   "sources": [
     {
       "url": "https://www.unrealengine.com/rss?lang=en-US",
@@ -63,6 +63,8 @@
     }
   ],
   "items": [
+    "items/676f90ee5f88ebab3b504077820a946028d05c91eec256037f6b53fc6e28ed6d/item.json",
+    "items/4fdb50736461cb29d32b33c8da8bddc3378d072f6d66145d9c4b7174117f065a/item.json",
     "items/669b8568172f908f98e177768656bb033b199920b120092aa4a9c805aee90cbb/item.json",
     "items/0fc9a77588762731c07828401be3d2383041731020c648a064d2b30a31349f88/item.json",
     "items/5d07dc7b6b3ddbca50e6572d259631ea760a23c483bfd344b85f5a3402072c27/item.json",
@@ -79,10 +81,8 @@
     "items/6c683ee9e70b43ce80d134c5478d28eafd2c63c949e01e8e1fc9f59efc60792e/item.json",
     "items/00972f0fbd9198459ce4395848302526b46d38ecdf3a1d34ec112588f8e2b1c2/item.json",
     "items/405eef72342308a8cc49443f44f70ecad081f3795f17dcd6a112d3388d2b8ce4/item.json",
-    "items/5042ddb06fd844309130b6e9e07973fba266722afc75503fbe6ab023f3569572/item.json",
     "items/67173d5c81c762cb9554d933ae3c2d7e52916c7bd9ef94ce0d5d8d03e2d44145/item.json",
     "items/375b104b38bcc02b8ee2a58eb55ed4340ab928f19d4af9a2215a69c818d168ac/item.json",
-    "items/4e1f5a94e87e3f0d425591759b0aee8776bbfbd1f855ec936ad9c129385f8392/item.json",
     "items/e360f244e6950be664efeb0077430e15ba6312e90a14d3e2472fc5fb600298b4/item.json",
     "items/fbd5a6191cbb21f62177b3f6cd58852fc871fb0ce4cd2a3449c0096346ea8c48/item.json",
     "items/4d01b525cbe3396fc64bd177316774f24d368739c686e5edc025039bc095dc1d/item.json",
@@ -256,10 +256,31 @@
   ],
   "collection": {
     "attempted": 15,
-    "succeeded": 15,
-    "failed": 0,
-    "found": 190,
-    "inserted": 190,
-    "failures": []
+    "succeeded": 11,
+    "failed": 4,
+    "found": 150,
+    "inserted": 150,
+    "failures": [
+      {
+        "url": "https://blog.siggraph.org/feed",
+        "name": "ACM SIGGRAPH",
+        "error": "HTTP 403"
+      },
+      {
+        "url": "https://blog.neurips.cc/feed",
+        "name": "NeurIPS",
+        "error": "HTTP 403"
+      },
+      {
+        "url": "https://blog.icml.cc/feed",
+        "name": "ICML",
+        "error": "HTTP 403"
+      },
+      {
+        "url": "https://blog.iclr.cc/feed",
+        "name": "ICLR",
+        "error": "HTTP 403"
+      }
+    ]
   }
 }
