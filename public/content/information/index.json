@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-27T00:51:31.825Z",
+  "generatedAt": "2026-08-28T05:27:56.359Z",
   "sources": [
     {
       "url": "https://www.unrealengine.com/rss?lang=en-US",
@@ -63,8 +63,11 @@
     }
   ],
   "items": [
+    "items/c3927663ccd6558232df3010ca9fea9e8d2c6cdee3d4cf13e7a3e7b0d229e51d/item.json",
+    "items/29151cc5bfecfac968fc4341f9ef64c3099e6ad5c5d8bcc56a65496e37a36b2c/item.json",
+    "items/b65166734b71b1cd21397a9d395440252e011fb05f22e97103d0e67d153987fd/item.json",
     "items/676f90ee5f88ebab3b504077820a946028d05c91eec256037f6b53fc6e28ed6d/item.json",
-    "items/4fdb50736461cb29d32b33c8da8bddc3378d072f6d66145d9c4b7174117f065a/item.json",
+    "items/f1b061f3a3d454f635e9276662524f9e46ac24c6c9ec7269fa4b9de79f9c9487/item.json",
     "items/669b8568172f908f98e177768656bb033b199920b120092aa4a9c805aee90cbb/item.json",
     "items/0fc9a77588762731c07828401be3d2383041731020c648a064d2b30a31349f88/item.json",
     "items/5d07dc7b6b3ddbca50e6572d259631ea760a23c483bfd344b85f5a3402072c27/item.json",
@@ -143,7 +146,6 @@
     "items/bb3703da684f9e58900e7780e7598fd9a15f5472f6325072edc1e469a40cf04d/item.json",
     "items/b53bd8daed6c8bd3d4dfd2ddedcb3874c2b6c0ad0a2df5c69367fa073a3391a5/item.json",
     "items/22c8dc65fa593b1383c141c5f57fdcce2b469fbcf826734593f97677be32c39e/item.json",
-    "items/e5f9aa9f5facfe888a2af86f598395d35dc0bfb35769408bfff841862349355b/item.json",
     "items/c443566b14b739b6d17f13d7275da4537f0844b7359c66753aa3c3b36f0433e5/item.json",
     "items/2e5b6fcce97986cc051f3efd47407b63aa91b54cd394975ef020bf306e3de9d8/item.json",
     "items/9b80bac7b6889921b4e2f67772675081c77479e71f5f4f9905d728245ef7ad2a/item.json",
@@ -173,7 +175,6 @@
     "items/9fa2475c3c423cc9e927defa87cca4b1a89fb6ea4952bdf95df38ba82a65d4f9/item.json",
     "items/f73357ec876843fd04dd0b9deccbe39b2cee17ea00e49658423e7cf42bf207ab/item.json",
     "items/332450d2ce8510641dcf1bfe39225bc4bb55f9923059884a680977541852903a/item.json",
-    "items/4540428f3777b3dd9b4cd0067a22ee74aa3687a96dfa5338196e3249e2e60a52/item.json",
     "items/bea01c8487f8871c6196fb59f69e6235d7721ea53cebf5875abc65695091950b/item.json",
     "items/1c0566280166e7309eea73c8d766a038d63b98687fd50f33e7b0364592be9e9c/item.json",
     "items/846205bec90baa05fb0866bc706cc8f3637cdc079b256106c4ed250b94ec40ad/item.json",
@@ -194,7 +195,6 @@
     "items/7032eff7f5ba1f651c8598c5cbb4c8d50367627dae392d6b2017c1086985a4b3/item.json",
     "items/2cf760868a405ee1d54eb263aeaf4d2b51a4782a62dffb6e3dd4f276e3566c21/item.json",
     "items/4d25545e48f8d7b70c8edf5c575b37767a0841d065470081a7312ac944ba4106/item.json",
-    "items/b2002f83f6ab93e60168f5371e1a1cdf73904456fd3ea9658e3d56e966644c23/item.json",
     "items/4ef00467a2134967007edd001d8155d2b90166bff9a6c2b3d421b30e2b03ce27/item.json",
     "items/52e3c8fc19d2bfe852fea7b1ec0d8c9f60b3f67b8066ccb515f77495b6390d72/item.json",
     "items/c1dc753a02bbd4f72c9e3fcfb4c87cc31656cdd2804effde91b9fcea7accb17b/item.json",
@@ -256,31 +256,10 @@
   ],
   "collection": {
     "attempted": 15,
-    "succeeded": 11,
-    "failed": 4,
-    "found": 150,
-    "inserted": 150,
-    "failures": [
-      {
-        "url": "https://blog.siggraph.org/feed",
-        "name": "ACM SIGGRAPH",
-        "error": "HTTP 403"
-      },
-      {
-        "url": "https://blog.neurips.cc/feed",
-        "name": "NeurIPS",
-        "error": "HTTP 403"
-      },
-      {
-        "url": "https://blog.icml.cc/feed",
-        "name": "ICML",
-        "error": "HTTP 403"
-      },
-      {
-        "url": "https://blog.iclr.cc/feed",
-        "name": "ICLR",
-        "error": "HTTP 403"
-      }
-    ]
+    "succeeded": 15,
+    "failed": 0,
+    "found": 190,
+    "inserted": 190,
+    "failures": []
   }
 }
