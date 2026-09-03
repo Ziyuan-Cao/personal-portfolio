@@ -7,8 +7,8 @@
   "sourceName": "AMD GPUOpen",
   "title": "Ray tracing massive amounts of animated geometry using tetrahedral cages",
   "subtitle": "Animate compact tetrahedral cages and reuse static mini-BLASes to ray-trace hundreds of millions of triangles in real time, dramatically cutting per-frame update and memory costs for dense foliage, grass, and crowds.",
-  "imageUrl": "https://gpuopen.com/images/rt_massive_workflow_v3.uOv7toTw.jpg",
+  "imageUrl": "https://gpuopen.com/images/FFX_HybridReflections.BrXc0EK2.jpg",
   "publishedAt": "2026-07-22T01:00:00.000Z",
   "firstSeenAt": "2026-08-19T21:21:35.309Z",
-  "lastSeenAt": "2026-09-02T23:21:41.085Z"
+  "lastSeenAt": "2026-09-03T23:24:57.954Z"
 }
