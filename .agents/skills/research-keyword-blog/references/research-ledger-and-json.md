@@ -110,13 +110,15 @@ Add current research once per section:
 
 Use two or three source IDs by default. If the user explicitly requests separate quotas for papers and documentation, expand the evidence set or schema deliberately and validate each source role. Do not duplicate one group into per-keyword records merely to repeat the same links.
 
-When expanding research to match an existing article, the renderer also supports `aiResearch.explanations` as an array of `{ "title": "Method: mechanism", "text": ["Input and learned representation.", "Computation, output, and limitation."] }` objects and `aiResearch.flows` as an array of standard `{ "label": "Method sequence", "steps": [{ "title": "Stage", "text": "What happens" }] }` blocks. Keep the shared `sourceIds` in the research block. Explain what is learned, what still uses a conventional solver, and what the method does not establish. Keep corresponding locale arrays aligned with the canonical source; translate generic Chinese technical prose even when a neighboring example leaves it in English.
+When expanding research, use `aiResearch.explanations` as an array of method objects with `title`, `text` (a paragraph array), optional `equations`, and optional `flow` (or `flows` for multiple sequences). Each method renders in this order: title → explanation → equations → flow, followed by the next method. An equation uses the standard `{ "label": "Relationship", "expression": "...", "terms": ["One compact explanation of the relevant quantities."] }` shape; a flow uses `{ "label": "Method sequence", "steps": [{ "title": "Stage", "text": "What happens" }] }`. Omit equations or flows that add no understanding. Do not collect method-specific equations and flows at research level or infer their ownership by array position in the renderer. Research-level `equations`, `flow`, and `flows` remain available only for genuinely shared material and legacy content. Keep shared `sourceIds` in the research block. Explain what is learned, what still uses a conventional solver, and what the method does not establish. Keep corresponding locale arrays aligned with the canonical source; translate generic Chinese technical prose even when a neighboring example leaves it in English.
 
 ## Per-keyword writing rules
 
-- Make `explanation` understandable without reading another keyword's entry.
-- Include `equation` only when an accepted relationship adds understanding. Define symbols, operations, and caveats as separate entries in a `note` array so the renderer places each concept on its own line.
-- Make `aiNote` name the keyword's actual relationship to current research.
+- Before drafting, give each concept one main location in the article. During user-requested consolidation, merge aliases and related components, and absorb basic definitions into section prose. A new application does not automatically need another definition of the same mechanism.
+- Make each retained `explanation` useful on its own; use a brief section reference for shared mechanisms rather than repeating their full definition.
+- Include `equation` only when the relationship adds understanding beyond the prose. Use one to three short `note` items by default, grouping related quantities. Avoid rows for every index, operator, constant, or familiar symbol. Preserve a necessary non-obvious assumption even if it needs an extra line.
+- Keep shared equations and research-method walkthroughs in one main section. Do not duplicate them to fill another section's template.
+- When an `aiNote` adds information beyond the section research, name the keyword's actual relationship to that research; otherwise omit it.
 - Use direct wording for learned methods, qualified wording for adjacent work, and explicit wording when no direct AI track exists.
 - Avoid one generic AI template across unrelated keywords. Review optics, simulation, rendering, reconstruction, standards, and API contracts separately.
 - Put two or three recent AI sources and their synthesis in `aiResearch`; do not repeat those URLs in every detail.
@@ -125,13 +127,13 @@ When expanding research to match an existing article, the renderer also supports
 
 Count flattened keyword arrays and compare them with the original outline. Then verify:
 
-- no supplied keyword disappeared or changed spelling;
+- supplied keywords remain covered except for user-authorized consolidation or removal;
 - every addition is intentional;
 - every source ID exists in `sourceCatalog`;
-- each group has two or three unique sources;
+- each group or method detail has directly supporting sources, without padding the count;
 - every group has one detail per keyword in identical order;
-- every detail has `explanation` and `aiNote`;
-- every equation has `expression` and a nonempty `note` array with one concept per line;
+- every retained detail has `explanation`, with `aiNote` only when it adds useful information;
+- every equation has `expression` and concise nonempty notes, without repeated definitions of basic notation;
 - every section has an `aiResearch` summary and two or three valid sources when AI research was requested;
 - each summary matches all keywords in its group;
 - no source is cited for a claim it does not support;

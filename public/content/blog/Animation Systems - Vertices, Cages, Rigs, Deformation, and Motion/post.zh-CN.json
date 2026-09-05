@@ -199,176 +199,152 @@
     "aPolicy": {
       "label": "Policy-space diffusion for physics-based character animation (2025)",
       "url": "https://pure.etsmtl.ca/en/publications/policy-space-diffusion-for-physics-based-character-animation/"
+    },
+    "aAnimationLayers": {
+      "label": "Unity: Animation Layers",
+      "url": "https://docs.unity3d.com/Manual/AnimationLayers.html"
+    },
+    "aMotionWarping": {
+      "label": "Unreal Engine: Motion Warping",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/motion-warping-in-unreal-engine"
+    },
+    "aBlendSpaces": {
+      "label": "Unreal Engine: Blend Spaces",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/blend-spaces-in-unreal-engine"
     }
   },
   "sections": [
     {
-      "heading": "顶点动画",
+      "heading": "顶点动画(Vertex-base animation)",
       "paragraphs": [
-        "顶点动画可以理解为相同物体不同姿势的多个静态模型按顺序播放效果，它存储物体在不同时间中姿势的所有顶点位置。"
+        "顶点动画通过逐帧更新网格顶点的位置，播放物体在不同时间的形状。它可以复现难以用骨骼表达的运动，但帧间插值需要保持顶点对应关系。",
+        "主要存储方式是直接缓存几何，或把动画数据编码到纹理中播放。两者都能忠实保存采样运动，代价是数据量较大，而且不如骨骼动画便于修改动作。"
       ],
       "keywordSourceGroups": [
         {
           "keywords": [
-            "顶点动画",
-            "插值"
+            "几何缓存",
+            "顶点动画纹理"
           ],
-          "summary": "通过更新每所有顶点的位置达到动画播放的效果",
-          "sourceIds": [
-            "aGltf"
-          ],
+          "summary": "根据拓扑变化和播放成本选择存储格式。",
           "details": [
             {
-              "keyword": "顶点动画",
-              "explanation": "以帧为单位保存所有顶点位置信息"
+              "keyword": "几何缓存",
+              "explanation": "按时间保存几何样本。点缓存通常只保存位置并要求固定顶点顺序；更完整的网格缓存还可包含法线和变化的连接关系。量化或预测编码可以进一步减少存储。",
+              "sourceIds": [
+                "aGltf",
+                "aVatSidefx"
+              ]
             },
             {
-              "keyword": "插值",
-              "explanation": "帧之间的顶点位置插值",
-              "equation": {
-                "expression": "x(t)=(1-α)x₀+αx₁",
-                "note": [
-                  "x(t)：采样时刻t的插值顶点位置。",
-                  "x₀：前一个样本中的对应顶点位置。",
-                  "x₁：后一个样本中的对应顶点位置。",
-                  "α：从0到1的归一化时间比例。",
-                  "1-α：x₀的互补权重。",
-                  "线性插值要求各帧具有一致的顶点对应关系。"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "keywords": [
-            "动画数据缓存",
-            "压缩",
-            "GPU播放"
-          ],
-          "summary": "缓存，压缩以及GPU播放技术",
-          "sourceIds": [
-            "aVatSidefx",
-            "aVatUnreal"
-          ],
-          "details": [
-            {
-              "keyword": "动画数据缓存",
-              "explanation": "一系列完整的静态模型数据，存储随时间变化的几何形状。"
-            },
-            {
-              "keyword": "压缩",
-              "explanation": "利用纹理(Vertex Animation Texture)或者预测技术，压缩数据减少带宽。"
-            },
-            {
-              "keyword": "GPU播放",
-              "explanation": "可以利用计算着色器并行更新顶点群位置。"
+              "keyword": "顶点动画纹理",
+              "explanation": "把采样位置或偏移编码到纹理中，由图形处理器上的顶点着色器或计算着色器读取播放。纹理打包改变的是数据组织和访问方式，是否压缩还取决于编码方案。",
+              "sourceIds": [
+                "aVatSidefx",
+                "aVatUnreal"
+              ]
             }
           ]
         }
       ],
       "aiResearch": {
-        "summary": "这里列举三个方法生成顶点动画：AnimateAnyMesh通过输入模型和文本生成顶点动画；4Deform学习连续空间中的隐式表面与速度场，最后提取出过程中的结果；V2M4通过视频逐帧重建模型，再通过注册建立拓扑和顶点对应。只有前者从生成阶段起就是顶点动画，后两者是在输出或资产转换阶段得到可播放的模型序列。",
+        "summary": "AnimateAnyMesh根据文本生成网格运动，4Deform从稀疏观测重建中间表面，V2M4把视频整理为网格动画资产。三者通过不同表示获得可播放的几何序列。",
         "explanations": [
           {
             "title": "AnimateAnyMesh：直接生成顶点轨迹",
             "text": [
-              "输入是任意类型的静态模型和动作文本。DyMeshVAE把网格拆成初始顶点位置V0与相对运动轨迹，并用面连接关系限制 attention，使相邻表面区域的运动保持连贯。并包含一个Encoder方法（Farthest Point Sampling (FPS)）,将模型统一到latent space(512 Vertex features)状态。",
-              "Shape-Guided Text-to-Trajectory Model在压缩后的 latent space 中以网格形状和文本为条件，通过 Rectified Flow 生成运动特征；Decoder再将其还原为每个顶点、每个时间采样的位移。输出沿用输入模型的面连接关系。"
-            ]
+              "输入静态网格和动作文本。DyMeshVAE在保留局部拓扑的同时分离形状与运动特征，再由Rectified Flow在压缩表示中生成运动。",
+              "解码器恢复输入网格上各个顶点的时序轨迹。输出直接描述表面运动，不包含可编辑的骨骼控制。"
+            ],
+            "flow": {
+              "label": "AnimateAnyMesh：从文本到顶点运动",
+              "steps": [
+                {
+                  "title": "网格 + 动作文本",
+                  "text": "提供初始几何与期望动作"
+                },
+                {
+                  "title": "编码形状与运动",
+                  "text": "使用DyMeshVAE中考虑拓扑的表示"
+                },
+                {
+                  "title": "生成运动特征",
+                  "text": "以形状和文本为条件运行Rectified Flow"
+                },
+                {
+                  "title": "解码轨迹",
+                  "text": "恢复各时刻的顶点位移"
+                },
+                {
+                  "title": "输出动态网格",
+                  "text": "保留输入连接关系用于播放"
+                }
+              ]
+            }
           },
           {
-            "title": "4Deform：通过点云序列重建生成全过程的顶点动画",
+            "title": "4Deform：重建连续变化的表面",
             "text": [
-              "输入是稀疏的点云序列，以及点云之间少量且可能有噪声的对应点。方法为每个输入形状设置 latent code，并联合优化一个随时间变化的 neural implicit representation 与一个连续速度场；几何和物理约束在没有中间帧监督时抑制不合理的拉伸与形变。",
-              "给定任意时间，修改后的 level-set 更新把速度场与 SDF 表面联系起来，从而重建中间表面。",
-              "注意：它并不能保证拓扑一致性（顶点数量以及连接关系会变化）"
-            ]
+              "输入稀疏点云和少量可能带噪声的对应点，联合学习随时间变化的隐式表面与连续速度场。几何和物理损失约束观测之间的运动。",
+              "查询中间时刻即可重建表面，但提取出的网格不一定保持相同顶点数与拓扑；采用固定拓扑播放时，需要另行建立对应关系。"
+            ],
+            "flow": {
+              "label": "4Deform：从稀疏观测到中间表面",
+              "steps": [
+                {
+                  "title": "稀疏点云",
+                  "text": "提供观测结果与少量对应关系"
+                },
+                {
+                  "title": "学习表面与速度场",
+                  "text": "联合表示几何与运动"
+                },
+                {
+                  "title": "约束变形",
+                  "text": "使用几何和物理损失"
+                },
+                {
+                  "title": "查询中间时刻",
+                  "text": "推进隐式表面"
+                },
+                {
+                  "title": "提取几何",
+                  "text": "随后选择适合的缓存表示"
+                }
+              ]
+            }
           },
           {
-            "title": "V2M4：把逐帧重建整理成可用的 4D mesh asset",
+            "title": "V2M4：把逐帧重建整理为可用资产",
             "text": [
-              "输入是固定机位视频。系统先用 native 3D mesh generation model 为采样帧分别生成粗网格，再搜索相机并反向调整网格姿态，使物体的平移和旋转与视频对齐；",
-              "随后优化 condition embedding，改善每帧外观。为了消除逐帧生成造成的拓扑漂移，它以首帧网格为 rest pose，通过 global-to-local pairwise registration 将同一套顶点与面逐步变形到后续帧，并优化一张全局共享纹理。",
-              "最后选择 mesh keyframe、插值顶点位置并导出 GLTF/GLB。",
-              "注意：它并不能保证拓扑一致性（顶点数量以及连接关系会变化）"
-            ]
-          }
-        ],
-        "flows": [
-          {
-            "label": "AnimateAnyMesh：文本驱动的 vertex trajectory generation",
-            "steps": [
-              {
-                "title": "静态网格 + 动作文本",
-                "text": "读取初始顶点、面连接关系与 text prompt"
-              },
-              {
-                "title": "形状与运动解耦",
-                "text": "DyMeshVAE编码初始形状，并以 topology-aware attention 表示局部连接"
-              },
-              {
-                "title": "生成轨迹 latent",
-                "text": "Rectified Flow依据形状特征和文本生成相对运动特征"
-              },
-              {
-                "title": "解码逐顶点位移",
-                "text": "Decoder恢复每个顶点在各时间采样上的相对轨迹"
-              },
-              {
-                "title": "动态网格序列",
-                "text": "把位移加回初始位置，保留输入 topology 供 cache 或 VAT 播放"
-              }
-            ]
-          },
-          {
-            "label": "4Deform：sparse observation 到 continuous surface deformation",
-            "steps": [
-              {
-                "title": "稀疏时序点云",
-                "text": "输入点云对、少量 noisy correspondence 与各帧 latent code"
-              },
-              {
-                "title": "联合学习两个 neural field",
-                "text": "Implicit Net表示随时间变化的 SDF，Velocity Net表示连续空间速度"
-              },
-              {
-                "title": "约束形变",
-                "text": "用几何与物理损失训练，无需真实中间表面作为监督"
-              },
-              {
-                "title": "查询任意时间",
-                "text": "level-set 更新用速度场推进隐式表面"
-              },
-              {
-                "title": "提取中间表面",
-                "text": "输出可变 topology 的插值点云或 mesh；播放前再选择缓存表示"
-              }
-            ]
-          },
-          {
-            "label": "V2M4：monocular video 到 animation-ready 4D mesh",
-            "steps": [
-              {
-                "title": "固定机位单目视频",
-                "text": "分割前景，并为采样帧分别生成 coarse 3D mesh"
-              },
-              {
-                "title": "对齐姿态与外观",
-                "text": "camera search、mesh re-pose 与 condition embedding optimization"
-              },
-              {
-                "title": "统一 topology",
-                "text": "以首帧为 rest pose，global-to-local registration 建立稳定 vertex correspondence"
-              },
-              {
-                "title": "统一纹理",
-                "text": "继承 UV，并从多帧视图优化全局共享 texture map"
-              },
-              {
-                "title": "关键帧与导出",
-                "text": "插值 vertex position，打包为可在图形软件和引擎中使用的 GLTF/GLB"
-              }
-            ]
+              "从单目视频逐帧生成粗网格，再对齐姿态并优化外观。随后通过成对配准处理拓扑不一致，让对应几何随时间连续变形。",
+              "统一纹理并选取网格关键帧后，得到可播放的动画资产。拓扑对齐是配准阶段的工作，独立生成每帧网格本身并不能保证这一点。"
+            ],
+            "flow": {
+              "label": "V2M4：从视频到网格动画",
+              "steps": [
+                {
+                  "title": "单目视频",
+                  "text": "为采样帧生成粗网格"
+                },
+                {
+                  "title": "对齐姿态与外观",
+                  "text": "优化相机、网格姿态与条件特征"
+                },
+                {
+                  "title": "配准几何",
+                  "text": "建立一致的网格对应关系"
+                },
+                {
+                  "title": "优化共享纹理",
+                  "text": "维持各帧外观一致"
+                },
+                {
+                  "title": "导出网格关键帧",
+                  "text": "通过插值打包动画资产"
+                }
+              ]
+            }
           }
         ],
         "sourceIds": [
@@ -379,818 +355,430 @@
       }
     },
     {
-      "heading": "基于笼状结构的动画：通过笼状控制顶点变形模型",
+      "heading": "基于笼状结构的动画(Cage-base animation)：通过笼状控制顶点变形模型",
       "paragraphs": [
-        "一个笼状结构将模型包围起来，笼状结构内包含少量控制顶点。每个顶点都以相对于笼状结构的坐标表示，因此移动的控制笼子形状可以平滑地、改变数千个内部顶点位置。",
-        "具体应用例子有：Blender的Mesh Deform Modifier,Maya的Proximity Wrap deformer。"
-      ],
-      "equations": [
-        {
-          "label": "Generalized barycentric coordinates重建",
-          "expression": "x = Σ_j φ_j(x) c_j,   Σ_j φ_j(x)=1",
-          "terms": [
-            {
-              "symbol": "x",
-              "text": "由笼控制点重建的嵌入点；控制点移动后，同一组权重用于计算它的变形位置。"
-            },
-            {
-              "symbol": "Σ_j",
-              "text": "对所有笼控制点求和"
-            },
-            {
-              "symbol": "φ_j(x)",
-              "text": "控制点 j 的标量坐标权重。"
-            },
-            {
-              "symbol": "c_j",
-              "text": "控制笼控制点 j 的位置。"
-            },
-            {
-              "symbol": "Σ_j φ_j(x)=1",
-              "text": "点 x 的所有控制权重之和等于 1"
-            }
-          ]
-        }
+        "控制笼用少量顶点包围精细网格，通过预先计算的坐标权重，把粗控制边界的变化传递给内部网格。权重的计算方式决定局部影响范围、平滑程度和形状保持效果。",
+        "下面比较不同坐标方法与控制结构。自由形式变形采用参数化控制网格，与一般多面体控制笼的坐标构造不同。"
       ],
       "keywordSourceGroups": [
         {
           "keywords": [
-            "Cage",
-            "Cage Vertex",
-            "Coordinate Weight",
-            "Cage Generation"
-          ],
-          "summary": "Cage Deformation使用一个包围高精度模型的低分辨率控制Mesh。每个模型顶点预先计算它与Cage之间的权重；动画时只移动Cage Vertex，再通过这些权重计算模型顶点的新位置。",
-          "details": [
-            {
-              "keyword": "Cage",
-              "explanation": "包围目标模型的低分辨率控制Mesh。它用少量控制顶点间接控制内部大量Mesh Vertex。",
-              "sourceIds": [
-                "aMeanValue3D"
-              ]
-            },
-            {
-              "keyword": "Cage Vertex",
-              "explanation": "Cage上的控制点。动画过程中主要移动这些点，而不是直接编辑高分辨率模型。",
-              "sourceIds": [
-                "aMeanValue3D"
-              ]
-            },
-            {
-              "keyword": "Coordinate Weight",
-              "explanation": "描述一个Mesh Vertex受到各个Cage Vertex多少影响的系数。权重通常在Rest Pose中预先计算，并在Cage移动后用于重建新的Vertex Position。",
-              "sourceIds": [
-                "aWachspress1975",
-                "aMeanValue3D"
-              ]
-            },
-            {
-              "keyword": "Cage Generation",
-              "explanation": "为模型建立一个低分辨率且包围模型的Cage。可以手工制作，也可以通过Mesh Simplification、Offset Surface或SDF等方法自动生成。",
-              "sourceIds": [
-                "aAutomaticCage"
-              ]
-            }
-          ]
-        },
-        {
-          "keywords": [
-            "Generalized Barycentric Coordinates",
             "Mean Value Coordinates",
             "Harmonic Coordinates",
             "Green Coordinates"
           ],
-          "summary": "这些方法解决的是同一个核心问题：如何计算Mesh Vertex与Cage之间的关系。不同方法主要区别在于权重如何计算，以及它们对复杂Cage、局部控制和形状保持的表现。",
+          "summary": "坐标方法在直接计算、局部控制和方向细节之间有不同取舍。",
           "details": [
             {
-              "keyword": "Generalized Barycentric Coordinates",
-              "explanation": "一类Cage Weight方法。它把三角形中的Barycentric Coordinates推广到一般Polygon或Polyhedral Cage，使内部点可以通过Cage Vertex的位置进行重建。",
-              "equation": {
-                "expression": "η = Σ_{i∈I_V} φ_i(η) v_i,   Σ_{i∈I_V} φ_i(η)=1",
-                "note": [
-                  "η：在控制笼内部被重建的点。",
-                  "I_V：控制笼顶点索引的集合。",
-                  "i：I_V 中的一个控制笼顶点索引。",
-                  "φ_i(η)：控制笼顶点 i 对点 η 的广义重心坐标权重。",
-                  "v_i：控制笼顶点 i 的位置。",
-                  "Σ_{i∈I_V}：对所有控制笼顶点求和。",
-                  "Σ_{i∈I_V} φ_i(η)=1：单位分解条件，使仿射组合保持归一化。"
-                ]
-              },
-              "sourceIds": [
-                "aWachspress1975"
-              ]
-            },
-            {
               "keyword": "Mean Value Coordinates",
-              "explanation": "一种可以直接根据Cage几何计算Weight的方法，不需要求解全局PDE。权重在空间中平滑变化，因此适合实时或交互式Cage Deformation。",
-              "equation": {
-                "expression": "w_i(x) = [tan(α_{i-1}/2)+tan(α_i/2)] / ‖v_i-x‖,   φ_i(x)=w_i(x)/Σ_j w_j(x)",
-                "note": [
-                  "该式是二维多边形 Mean Value Coordinates 的直接几何计算形式。",
-                  "x：多边形内部的待计算点。",
-                  "i：当前正在计算权重的多边形顶点索引。",
-                  "v_i：多边形顶点 i。",
-                  "α_{i-1}：在 x 处，从 v_{i-1} 方向到 v_i 方向之间的夹角。",
-                  "α_i：在 x 处，从 v_i 方向到 v_{i+1} 方向之间的夹角。",
-                  "tan：作用于每个半角的正切函数。",
-                  "‖v_i-x‖：点 x 到顶点 v_i 的距离。",
-                  "w_i(x)：顶点 i 未归一化的 Mean Value Weight。",
-                  "j：遍历所有多边形顶点的求和索引。",
-                  "Σ_j w_j(x)：用于归一化所有原始权重的总和。",
-                  "φ_i(x)：顶点 i 最终归一化后的 Mean Value Coordinate。"
-                ]
-              },
+              "explanation": "直接从控制笼几何计算平滑的广义重心坐标。下式适用于二维多边形，三维扩展则需要考虑三角形笼面。",
               "sourceIds": [
                 "aMeanValue2D",
                 "aMeanValue3D"
-              ]
+              ],
+              "equation": {
+                "expression": "w_i(x) = [tan(α_{i-1}/2)+tan(α_i/2)] / ‖v_i-x‖,   φ_i(x)=w_i(x)/Σ_j w_j(x)",
+                "note": [
+                  "x是查询点，v_i是多边形顶点。",
+                  "α_{i-1}与α_i是从x看向v_i两侧相邻顶点形成的夹角。",
+                  "w_i是原始几何权重，归一化后得到φ_i。"
+                ]
+              }
             },
             {
               "keyword": "Harmonic Coordinates",
-              "explanation": "把每个Cage Vertex的影响表示成Cage内部的平滑场，并通过求解Laplace Equation得到Weight。它比MVC计算复杂，但对于凹陷或复杂Cage能够提供良好的局部控制。",
+              "explanation": "为每个控制点求解笼内的拉普拉斯方程，用边界取值约束影响如何传播。适合凹陷控制笼的局部控制，但预计算成本较高。",
+              "sourceIds": [
+                "aHarmonicCoordinates"
+              ],
               "equation": {
                 "expression": "∇²φ_j = 0",
                 "note": [
-                  "∇²：拉普拉斯算子。",
-                  "φ_j：控制笼顶点 j 的标量影响场。",
-                  "j：控制笼顶点的索引。",
-                  "0：该场的拉普拉斯为零，因此它在控制笼内部是调和函数。",
-                  "Boundary Condition：在控制笼边界上指定 φ_j 的取值，决定顶点 j 的影响如何平滑传播到内部。"
+                  "φ_j是控制点j的影响场；指定笼边界上的取值后，求解内部调和场。"
                 ]
-              },
-              "sourceIds": [
-                "aHarmonicCoordinates"
-              ]
+              }
             },
             {
               "keyword": "Green Coordinates",
-              "explanation": "除了Cage Vertex Position，还使用Cage Face Normal描述变形。因此在Cage发生旋转或弯曲时能够获得额外的方向信息，并更好地保持模型的局部形状和细节。",
+              "explanation": "同时利用控制笼顶点位置和面法线，把方向变化传递到内部，有助于在旋转与弯曲时保持局部形状。",
+              "sourceIds": [
+                "aGreen"
+              ],
               "equation": {
                 "expression": "η′ = F(η; P′) = Σ_{i∈I_V} φ_i(η) v′_i + Σ_{j∈I_T} ψ_j(η) s_j n(t′_j)",
                 "note": [
-                  "η：控制笼内部点的原始位置。",
-                  "η′：点 η 变形后的位置。",
-                  "F：Green Coordinates 变形算子。",
-                  "P′：变形后的控制笼。",
-                  "I_V：控制笼顶点索引集合。",
-                  "i：I_V 中的一个顶点索引。",
-                  "φ_i(η)：点 η 对顶点 i 的预计算顶点坐标权重。",
-                  "v′_i：变形后的控制笼顶点 i。",
-                  "I_T：控制笼面索引集合。",
-                  "j：I_T 中的一个面索引。",
-                  "ψ_j(η)：点 η 对面 j 的预计算面坐标权重。",
-                  "s_j：与面 j 对应的缩放因子。",
-                  "t′_j：变形后的控制笼面 j。",
-                  "n(t′_j)：变形后面 t′_j 的外向单位法线。",
-                  "第一项求和：传递控制笼顶点位置。",
-                  "第二项求和：传递控制笼面的方向信息。"
+                  "η与η′是原始点和变形点，P′是编辑后的控制笼。",
+                  "φ_i与ψ_j分别是预计算的顶点权重和面权重。",
+                  "第一项混合变形顶点v′_i；第二项用缩放因子s_j混合笼面法线n(t′_j)。"
                 ]
-              },
-              "sourceIds": [
-                "aGreen"
-              ]
+              }
             }
           ]
         },
         {
           "keywords": [
-            "FFD",
-            "Lattice"
+            "自动控制笼生成",
+            "自由形式变形"
           ],
-          "summary": "FFD与Cage Deformation采用相似的低维控制思想，但控制结构不同。FFD通常使用规则Lattice，而Cage Deformation使用可以贴合模型形状的任意低分辨率封闭Mesh。",
+          "summary": "控制结构本身也决定了可表达的变形方式。",
           "details": [
             {
-              "keyword": "FFD",
-              "explanation": "Free-Form Deformation。把模型嵌入一个参数化规则的控制空间（不像是Cage那样的低分辨率近似模型控制笼），通过移动少量控制顶点产生整体弯曲、扭转、拉伸等变形。",
+              "keyword": "自动控制笼生成",
+              "explanation": "为目标网格生成适合变形的粗包围结构。除了减少顶点数，还需要保证包围关系和控制点布局合理。",
               "sourceIds": [
-                "aFfdOriginal"
+                "aAutomaticCage"
               ]
             },
             {
-              "keyword": "Lattice",
-              "explanation": "FFD常用的规则控制笼。模型顶点根据自己在Lattice参数空间中的位置跟随控制顶点变形。",
+              "keyword": "自由形式变形",
+              "explanation": "把几何嵌入参数化控制网格中，再通过基函数传递控制点运动，实现整体弯曲、扭转或渐缩。",
               "sourceIds": [
-                "aFfdOriginal"
+                "aFfdOriginal",
+                "aDeformer"
               ]
             }
           ]
         }
       ],
       "aiResearch": {
-        "summary": "这里前两项是近期geometry processing研究，扩展cage控制边界的形状与数学表达能力。4Deform重建连续deformation field与surface sequence，后续拟合cage作为编辑或压缩层。",
+        "summary": "下面两项几何处理研究通过曲面边界和多项式变形扩展控制笼的表达能力。它们属于解析变形方法，不是神经网络模型。",
         "explanations": [
           {
-            "title": "Flexible 3D Cage-based Deformation：用Bézier patch替代平面cage face",
+            "title": "Flexible 3D Cage-based Deformation：以曲面构造控制笼",
             "text": [
-              "输入是由Bézier patch构成的曲面cage，以及被它包围的高细节mesh。方法根据Bézier control net的位置与normal推导Green coordinates，使少量control能够比triangle或ruled-quad cage更准确地表示平滑、高曲率边界。",
-              "由于coordinates通过Riemann summation近似计算，系统再用global projection恢复linear reproduction。结果仍是确定性的cage deformer。"
-            ]
+              "用贝塞尔曲面构成控制笼，再根据控制网格的位置和法线推导Green Coordinates。相比平面笼面，少量控制点就能表达平滑且曲率较大的边界。",
+              "坐标通过黎曼求和近似计算，再用全局投影恢复线性重建能力。它仍由控制点编辑驱动，不需要训练网络。"
+            ],
+            "flow": {
+              "label": "Flexible 3D Cage-based Deformation：曲面控制笼变形",
+              "steps": [
+                {
+                  "title": "精细网格 + 曲面控制笼",
+                  "text": "用紧凑的贝塞尔曲面边界包围网格"
+                },
+                {
+                  "title": "计算Green Coordinates",
+                  "text": "由控制网格位置和法线得到权重"
+                },
+                {
+                  "title": "全局投影",
+                  "text": "修正近似坐标的线性重建误差"
+                },
+                {
+                  "title": "编辑控制点",
+                  "text": "移动少量曲面控制点"
+                },
+                {
+                  "title": "传递变形",
+                  "text": "把边界变化应用到精细网格"
+                }
+              ]
+            }
           },
           {
-            "title": "Polynomial 3D Green Coordinates：让linear cage产生曲面形变模式",
+            "title": "Polynomial 3D Green Coordinates：让线性笼面产生曲面变形",
             "text": [
-              "方法从传统linear triangular cage开始，推导closed-form polynomial Green coordinates及其derivatives。形变时，cage face可以映射为polynomial surface，让艺术家不必使用密集control mesh也能得到曲面行为。",
-              "Coordinate derivatives还能形成用于variational shape optimization的平滑subspace。这是非神经的配套研究：它改进的是AI或人工形变都可以使用的解析控制表示。"
-            ]
-          },
-          {
-            "title": "4Deform：先学习deformation field，再选择控制表示",
-            "text": [
-              "4Deform输入稀疏时序point cloud与少量noisy correspondence，并联合优化time-varying neural implicit surface和continuous velocity field，通过几何与物理regularization重建中间surface。",
-              "它的原生结果是dynamic surface，而不是cage vertex或cage weight。下游工具可以再拟合cage以获得紧凑、可编辑的control，但learned reconstruction与cage deformation仍是两个独立阶段。"
-            ]
-          }
-        ],
-        "flows": [
-          {
-            "label": "Flexible 3D Cage-based Deformation：从curved cage到高细节mesh",
-            "steps": [
-              {
-                "title": "高细节mesh + Bézier cage",
-                "text": "用紧凑的曲面控制边界包围mesh"
-              },
-              {
-                "title": "Green-coordinate evaluation",
-                "text": "根据control-net position与normal计算权重"
-              },
-              {
-                "title": "Global projection",
-                "text": "修正近似coordinates以保持linear reproduction"
-              },
-              {
-                "title": "编辑cage control",
-                "text": "移动少量Bézier control point"
-              },
-              {
-                "title": "Shape-preserving deformation",
-                "text": "把曲面边界变化传递到高细节mesh"
-              }
-            ]
-          },
-          {
-            "label": "Polynomial 3D Green Coordinates：解析曲面形变",
-            "steps": [
-              {
-                "title": "Linear triangular cage",
-                "text": "从传统低分辨率控制边界开始"
-              },
-              {
-                "title": "Closed-form coordinates",
-                "text": "计算polynomial Green coordinates与derivatives"
-              },
-              {
-                "title": "Polynomial face control",
-                "text": "用少量参数表示曲面face motion"
-              },
-              {
-                "title": "可选variational solve",
-                "text": "在coordinate subspace中优化形变"
-              },
-              {
-                "title": "Curved mesh deformation",
-                "text": "把最终deformation field应用到内部vertex"
-              }
-            ]
-          },
-          {
-            "label": "4Deform与可选的cage-assisted asset流程",
-            "steps": [
-              {
-                "title": "稀疏point-cloud sequence",
-                "text": "提供观测结果与少量noisy correspondence"
-              },
-              {
-                "title": "Neural implicit surface",
-                "text": "学习time-varying signed-distance representation"
-              },
-              {
-                "title": "Continuous velocity field",
-                "text": "表示surface如何随时间移动"
-              },
-              {
-                "title": "Reconstructed surfaces",
-                "text": "查询中间时间并提取dynamic geometry"
-              },
-              {
-                "title": "可选的下游cage fitting",
-                "text": "作为独立制作步骤添加紧凑、可编辑的control"
-              }
-            ]
+              "从普通三角形控制笼出发，计算多项式Green Coordinates及其导数。变形时，笼面可以映射为多项式曲面，无需用大量控制顶点近似曲面运动。",
+              "坐标导数还可构成用于变分形状优化的平滑子空间。这里改进的是控制表示和解析计算，而非学习过程。"
+            ],
+            "flow": {
+              "label": "Polynomial 3D Green Coordinates：解析曲面形变",
+              "steps": [
+                {
+                  "title": "线性三角形控制笼",
+                  "text": "从普通低分辨率边界开始"
+                },
+                {
+                  "title": "计算闭式坐标",
+                  "text": "求多项式坐标及其导数"
+                },
+                {
+                  "title": "设置多项式面控制",
+                  "text": "用少量参数描述曲面运动"
+                },
+                {
+                  "title": "可选变分求解",
+                  "text": "在坐标子空间中优化形状"
+                },
+                {
+                  "title": "输出网格变形",
+                  "text": "把最终变形场应用到内部顶点"
+                }
+              ]
+            }
           }
         ],
         "sourceIds": [
           "aCageFlex",
-          "aPolyGreen",
-          "a4Deform"
+          "aPolyGreen"
         ]
-      }
+      },
+      "equations": [
+        {
+          "label": "控制笼坐标重建",
+          "expression": "x = Σ_j φ_j(x) c_j,   Σ_j φ_j(x)=1",
+          "terms": [
+            "x是内部点，c_j是控制笼顶点，φ_j是对应坐标权重。",
+            "权重之和为1；移动控制点时，用同一组权重重建位置。"
+          ]
+        }
+      ]
     },
     {
-      "heading": "基于骨骼绑定的动画：通过骨骼控制姿态并驱动网格变形",
+      "heading": "基于骨骼绑定的动画(Rig-base animation)：通过骨骼控制姿态并驱动网格变形",
       "paragraphs": [
-        "基于骨骼绑定的动画，其核心思想是把“角色姿态控制”和“网格顶点变形”分开。动画师不需要直接操作大量顶点，而是通过少量控制器和骨骼来控制角色。首先得到骨骼姿态，再通过蒙皮把骨骼运动传递到最终网格。",
-        "骨架由具有父子关系的关节组成。每个关节保存相对于父关节的局部变换，沿骨骼层级逐级组合后，可以得到每个关节最终的全局变换。因此移动上层关节时，它下面的所有子关节也会一起运动。",
-        "FK和IK负责生成骨骼姿态。FK直接指定关节如何旋转；IK则指定手、脚等末端应该到达的位置，再由求解器反过来计算各个关节应该如何旋转。约束用于限制关节允许产生的运动，例如膝盖弯曲方向、手臂朝向或关节旋转范围。",
-        "得到骨骼姿态以后，蒙皮负责真正移动网格顶点。蒙皮权重表示每个顶点受到不同关节多大程度的影响，LBS和DQS则利用这些权重以及骨骼当前的变换，计算顶点的新位置。",
-        "自动绑定骨骼负责根据模型建立骨架和关节位置；自动蒙皮负责计算顶点与关节之间的权重；动画重定向则负责把一个角色已有的动作传递到另一个骨架结构或身体比例不同的角色上。这三者虽然都围绕骨架工作，但解决的是不同阶段的问题。"
+        "骨骼绑定把姿态控制与表面变形分开：控制器指定目标，解算器在约束下求出关节姿势，蒙皮再把骨骼运动传递给顶点。各关节的局部变换沿父子层级组合，得到全局变换。",
+        "自动骨骼绑定建立骨架，自动蒙皮分配顶点影响权重，动画重定向把已有动作传给其他角色。即使同一系统同时提供这些功能，它们处理的仍是不同制作阶段。"
       ],
       "keywordSourceGroups": [
         {
           "keywords": [
-            "骨骼绑定",
-            "骨架",
-            "关节层级",
-            "局部变换",
-            "全局变换",
-            "绑定姿势",
-            "逆绑定矩阵"
-          ],
-          "summary": "骨架是角色姿态的主要控制结构。关节通过父子关系组成层级，每个关节的局部变换沿层级逐级累积，最终得到整个角色的骨骼姿态。",
-          "sourceIds": [
-            "aGltf",
-            "aSkinning",
-            "aDqs"
-          ],
-          "details": [
-            {
-              "keyword": "骨骼绑定（Rig）",
-              "explanation": "角色完整的动画控制系统。通常包含骨架、控制器、约束、姿态求解和网格变形等部分，使动画师可以通过少量控制元素操纵角色，而不需要直接编辑大量网格顶点。"
-            },
-            {
-              "keyword": "骨架（Skeleton）",
-              "explanation": "由多个关节按照父子关系连接形成的层级结构，用来表示角色当前的姿态。动画通常先改变骨架，再通过蒙皮让网格顶点跟随。"
-            },
-            {
-              "keyword": "关节层级（Joint Hierarchy）",
-              "explanation": "关节之间的父子关系。例如肩膀是上臂的父级，上臂又是前臂的父级。父关节运动时，它下面的所有子关节都会一起受到影响。",
-              "equation": {
-                "expression": "G_j = G_parent L_j",
-                "note": [
-                  "G_j：关节j的全局变换。",
-                  "G_parent：父关节的全局变换。",
-                  "L_j：关节j相对于父关节的局部变换。",
-                  "矩阵乘法把父关节运动与当前关节的局部变换组合起来。"
-                ]
-              }
-            },
-            {
-              "keyword": "局部变换（Local Transform）",
-              "explanation": "关节相对于父关节的位置、旋转和缩放。骨骼动画通常主要记录这种相对关系。"
-            },
-            {
-              "keyword": "全局变换（Global Transform）",
-              "explanation": "把当前关节以上所有父关节的变换逐级组合以后，得到该关节在模型空间中的最终位置和方向。"
-            },
-            {
-              "keyword": "绑定姿势（Bind Pose）",
-              "explanation": "模型与骨架建立蒙皮关系时使用的参考姿势。蒙皮权重和逆绑定矩阵通常都以这个姿势作为基准。"
-            },
-            {
-              "keyword": "逆绑定矩阵（Inverse Bind Matrix）",
-              "explanation": "记录关节在绑定姿势下的反向变换。它与关节当前的变换组合以后，可以得到关节相对于绑定姿势到底发生了怎样的变化。",
-              "equation": {
-                "expression": "M_skin,j = G_j B_j⁻¹",
-                "note": [
-                  "M_skin,j：关节j的蒙皮矩阵。",
-                  "G_j：关节j当前的全局变换。",
-                  "B_j：关节j在绑定姿势下的全局变换。",
-                  "B_j⁻¹：关节j的逆绑定变换。",
-                  "矩阵乘积把绑定姿势中的点映射到关节的当前姿态。"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "keywords": [
-            "控制器",
-            "FK",
-            "IK",
-            "IK目标",
-            "末端执行器"
-          ],
-          "summary": "控制器描述动画师想要的动作结果，FK或IK负责把这些控制输入转换成骨骼姿态。",
-          "sourceIds": [
-            "aControlRigControls",
-            "aControlRigQuickStart",
-            "aIkSolvers"
-          ],
-          "details": [
-            {
-              "keyword": "控制器（Controller / Control）",
-              "explanation": "动画师实际操作的控制元素。例如手部控制器、脚部控制器、注视目标或手指弯曲参数。控制器通常不会直接移动网格，而是进一步驱动骨骼、约束或求解器。"
-            },
-            {
-              "keyword": "FK",
-              "explanation": "正向运动学（Forward Kinematics）。直接指定各个关节如何旋转，然后运动沿骨骼父子层级向下传递。例如先旋转上臂，再旋转前臂，就可以得到手的位置。"
-            },
-            {
-              "keyword": "IK",
-              "explanation": "逆向运动学（Inverse Kinematics）。不是直接决定每个关节怎么旋转，而是先指定手或脚应该到达哪里，再由求解器反过来计算整条骨骼链应该如何调整。"
-            },
-            {
-              "keyword": "IK目标（IK Goal）",
-              "explanation": "IK希望末端达到的位置或方向。例如把脚部目标放在地面上，求解器就会调整腿部关节，让脚尽可能到达这个目标。"
-            },
-            {
-              "keyword": "末端执行器（End Effector）",
-              "explanation": "IK骨骼链最末端需要被控制的位置，例如手、脚、头部或者角色手持工具的末端。"
-            }
-          ]
-        },
-        {
-          "keywords": [
-            "约束",
-            "Pole Vector"
-          ],
-          "summary": "约束限制关节允许产生的运动；Pole Vector在末端目标无法唯一确定肢体弯曲平面时，指定手肘或膝盖朝向哪一侧。",
-          "sourceIds": [
-            "aControlRigConstraints",
-            "aPoleVector",
-            "aTwoBoneIk"
-          ],
-          "details": [
-            {
-              "keyword": "约束（Constraint）",
-              "explanation": "限制关节允许产生的运动，例如旋转范围、弯曲方向、朝向、接触关系或Pole Vector。约束描述可接受姿态，求解器负责寻找满足这些条件的关节参数。",
-              "equation": {
-                "expression": "C_k(q)=0,   g_m(q)≥0",
-                "note": [
-                  "q：关节参数向量。",
-                  "C_k：等式约束，例如末端固定在目标上。",
-                  "g_m：不等式约束，例如关节角度不能越过上下限。",
-                  "求解器寻找尽可能满足这些约束的姿态q。"
-                ]
-              }
-            },
-            {
-              "keyword": "Pole Vector",
-              "explanation": "用于指定双骨骼链中间关节朝向的方向或目标点。末端目标只能决定手或脚到哪里，却不能唯一决定手肘或膝盖向哪边弯；Pole Vector补充这个弯曲平面信息。",
-              "equation": {
-                "expression": "a=normalize(t-r),   b=normalize((p-r)-a[a·(p-r)])",
-                "note": [
-                  "r：骨骼链根部。",
-                  "t：末端目标。",
-                  "p：Pole Vector点。",
-                  "a：归一化后的根部到目标轴。",
-                  "b：与a垂直的期望弯曲方向。",
-                  "当Pole Vector位于轴线上时结果不确定；实际Rig需要备用弯曲方向。"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "keywords": [
-            "求解器",
-            "Jacobian IK",
-            "Two Bone IK",
+            "正向与逆向运动学",
+            "极向约束",
+            "雅可比逆向运动学",
+            "双骨骼逆向运动学",
             "CCD",
             "FABRIK",
-            "Full Body IK"
+            "全身逆向运动学"
           ],
-          "summary": "求解器根据目标、当前姿态和约束计算新的关节变换。Jacobian IK利用局部线性近似，Two Bone IK使用解析几何，CCD逐关节旋转，FABRIK往返调整关节位置，Full Body IK则同时协调多个末端和更大的骨骼层级。",
-          "sourceIds": [
-            "aTwoBoneIk",
-            "aJacobianIk",
-            "aFabrik",
-            "aFullBodyIk"
-          ],
+          "summary": "控制指定目标，不同逆向运动学方法用不同方式满足目标。",
           "details": [
             {
-              "keyword": "求解器（Solver）",
-              "explanation": "根据目标、当前姿态和约束计算新的关节变换。Jacobian IK、Two Bone IK、CCD、FABRIK和Full Body IK属于不同的求解方法，适用的骨骼链规模和迭代方式也不同。",
-              "equation": {
-                "expression": "q* = arg min_q Σ_e w_e ||f_e(q)-t_e||²",
-                "note": [
-                  "q：关节参数。",
-                  "f_e(q)：通过正向运动学得到的末端e姿态。",
-                  "t_e：末端e的目标。",
-                  "w_e：末端e的重要性权重。",
-                  "这是统一理解求解器的概念模型；具体实现也可以采用解析几何、位置迭代或Jacobian更新。"
-                ]
-              }
+              "keyword": "正向与逆向运动学",
+              "explanation": "正向运动学直接设置关节旋转并沿层级计算；逆向运动学指定末端目标，再求中间关节。两者使用同一骨架，约束负责限制可接受的姿势。",
+              "sourceIds": [
+                "aIkSolvers",
+                "aControlRigQuickStart"
+              ]
             },
             {
-              "keyword": "Jacobian IK",
-              "explanation": "使用Jacobian Matrix建立“关节参数的微小变化”与“末端位置或方向变化”之间的局部线性关系，再根据末端误差反求关节更新量。它适合较长、冗余或包含多个任务维度的骨骼链，但在奇异姿态附近通常需要阻尼以保持稳定。",
+              "keyword": "极向约束",
+              "explanation": "手脚目标不能唯一决定肘部或膝盖朝向。极向目标补充弯曲平面信息，关节限制和偏好角度再进一步约束结果。",
+              "sourceIds": [
+                "aPoleVector",
+                "aTwoBoneIk"
+              ]
+            },
+            {
+              "keyword": "雅可比逆向运动学",
+              "explanation": "建立关节微小变化与末端运动之间的局部线性关系，再根据目标误差反求关节更新。适合冗余骨骼链，奇异姿态附近通常需要阻尼。",
+              "sourceIds": [
+                "aJacobianIk"
+              ],
               "equation": {
                 "expression": "Δθ = J⁺(x_target-x_end)",
                 "note": [
-                  "θ：关节参数向量。",
-                  "J：把关节的微小变化映射为末端变化。",
-                  "J⁺：J的伪逆。",
-                  "x_target-x_end：任务空间误差。",
-                  "阻尼最小二乘使用Jᵀ(JJᵀ+λ²I)⁻¹，提高奇异姿态附近的稳定性。"
+                  "J把关节更新Δθ映射为末端变化，J⁺是其伪逆。",
+                  "位置差是目标误差；阻尼最小二乘可改善奇异姿态附近的稳定性。"
                 ]
               }
             },
             {
-              "keyword": "Two Bone IK",
-              "explanation": "用于肩—肘—腕或髋—膝—踝这类三个关节、两段骨骼链的解析求解器。它根据两段骨长和根部到目标的距离求出弯曲角，再利用Joint Target或Pole Vector决定弯曲平面。",
+              "keyword": "双骨骼逆向运动学",
+              "explanation": "适用于肩—肘—腕这类两段骨骼链。骨长和目标距离决定弯曲角，极向目标再指定弯曲平面。",
+              "sourceIds": [
+                "aTwoBoneIk"
+              ],
               "equation": {
                 "expression": "cos θ = clamp((a²+b²-d²)/(2ab), -1, 1)",
                 "note": [
-                  "a：第一段骨骼长度。",
-                  "b：第二段骨骼长度。",
-                  "d：经过可达范围限制的根部到目标距离。",
-                  "θ：中间关节的内角。",
-                  "余弦定理确定θ；当目标超出|a-b|≤d≤a+b时，需要限制距离或按设置拉伸骨骼。"
+                  "a、b是两段骨长，d是根部到目标的距离，θ是中间关节内角。",
+                  "目标需满足|a-b|≤d≤a+b；超出时限制距离或明确允许拉伸。"
                 ]
               }
             },
             {
               "keyword": "CCD",
-              "explanation": "Cyclic Coordinate Descent从骨骼链末端向根部逐个处理关节。每次只旋转一个关节，使当前末端方向更接近目标方向，然后更新整条链并重复，直到误差足够小或达到迭代上限。",
-              "equation": {
-                "expression": "Δθ_k = atan2(||u_k×v_k||, u_k·v_k)",
-                "note": [
-                  "k：当前正在调整的关节。",
-                  "u_k：从关节k指向当前末端的单位方向。",
-                  "v_k：从关节k指向目标的单位方向。",
-                  "u_k×v_k：旋转轴。",
-                  "Δθ_k：应用关节限制之前的对齐角度。"
-                ]
-              }
+              "explanation": "循环坐标下降通常从末端向根部逐关节旋转，使末端接近目标。反复迭代的单步成本较低，但结果会受到处理顺序和关节限制的影响。",
+              "sourceIds": [
+                "aIkSolvers"
+              ]
             },
             {
               "keyword": "FABRIK",
-              "explanation": "Forward And Backward Reaching Inverse Kinematics不直接求关节角，而是往返调整关节位置。Backward pass先把末端放到目标并向根部拉回；Forward pass再固定根部并向末端推出，同时保持每段骨骼长度。",
-              "equation": {
-                "expression": "backward: p_i′=p_{i+1}′+ℓ_i (p_i-p_{i+1}′)/||p_i-p_{i+1}′||;   forward: p_{i+1}′=p_i′+ℓ_i (p_{i+1}-p_i′)/||p_{i+1}-p_i′||",
-                "note": [
-                  "p_i：关节i的当前位置。",
-                  "p_i′：关节i更新后的位置。",
-                  "ℓ_i：第i段骨骼的固定长度。",
-                  "交替执行Backward与Forward投影可以降低目标误差并保持骨长。",
-                  "关节约束需要在迭代过程中另外处理。"
-                ]
-              }
+              "explanation": "交替从末端向根部、再从根部向末端调整关节位置，同时保持骨长。它直接处理位置而非关节角，关节约束需要额外处理。",
+              "sourceIds": [
+                "aFabrik"
+              ]
             },
             {
-              "keyword": "Full Body IK",
-              "explanation": "同时调整多个相连关节和多个末端目标的全身求解器。它可以让手、脚、骨盆等控制共同影响完整姿态，并在冲突目标之间平衡骨骼刚度、偏好角度、关节限制和根部移动。",
-              "equation": {
-                "expression": "q* = arg min_q [Σ_e w_e ||f_e(q)-t_e||² + λ||q-q₀||²],   q_min≤q≤q_max",
-                "note": [
-                  "Σ_e w_e ||f_e(q)-t_e||²：所有末端的加权误差。",
-                  "q₀：输入姿态。",
-                  "λ：限制相对q₀产生不必要偏移的惩罚系数。",
-                  "q_min与q_max：关节范围。",
-                  "这是解释目标的优化模型；Unreal Engine的Full Body IK节点采用基于位置的多骨骼链求解器。"
-                ]
-              }
+              "keyword": "全身逆向运动学",
+              "explanation": "协调多个末端和相连骨骼链，在目标误差、刚度、偏好角度、关节限制和根部移动之间折中。它描述求解范围，并非唯一固定算法。",
+              "sourceIds": [
+                "aFullBodyIk"
+              ]
             }
           ]
         },
         {
           "keywords": [
-            "蒙皮",
-            "蒙皮权重",
-            "LBS",
-            "DQS",
-            "自动蒙皮"
+            "绑定变换",
+            "线性混合蒙皮",
+            "双四元数蒙皮"
           ],
-          "summary": "骨架只负责表示姿态，真正让角色表面发生变形的是蒙皮。蒙皮权重负责建立顶点与关节之间的影响关系，LBS或DQS再利用这些关系计算顶点的新位置。",
-          "sourceIds": [
-            "aSkinning",
-            "aDqs",
-            "aGeodesic"
-          ],
+          "summary": "蒙皮根据当前姿势相对于绑定状态的变化计算顶点位置。",
           "details": [
             {
-              "keyword": "蒙皮（Skinning）",
-              "explanation": "把骨骼姿态转换成网格顶点位置的过程。骨骼发生运动以后，蒙皮决定角色表面的顶点应该如何跟随。"
+              "keyword": "绑定变换",
+              "explanation": "绑定姿势建立网格与骨架的参考关系。逆绑定矩阵先消除骨骼的参考变换，再应用当前变换，具体组合见下方蒙皮公式。",
+              "sourceIds": [
+                "aGltf",
+                "aSkinning"
+              ]
             },
             {
-              "keyword": "蒙皮权重（Skin Weight）",
-              "explanation": "表示一个顶点受到不同关节多大程度影响的系数。例如手肘附近的顶点可能同时受到上臂和前臂两个关节影响。"
-            },
-            {
-              "keyword": "LBS",
-              "explanation": "线性混合蒙皮（Linear Blend Skinning）。先分别计算各个关节对顶点产生的位置变化，再按照蒙皮权重进行加权平均。计算量小，因此广泛用于实时角色动画，但在大角度弯曲或扭转时可能出现体积收缩。",
+              "keyword": "线性混合蒙皮",
+              "explanation": "将各个骨骼变换后的顶点位置按权重平均。计算量小，但大幅扭转时可能出现体积塌缩，因为变换的平均结果不一定仍是刚体变换。",
+              "sourceIds": [
+                "aSkinning"
+              ],
               "equation": {
                 "expression": "x′ᵢ = Σ_j wᵢj (G_j B_j⁻¹) xᵢ,   Σ_j wᵢj=1",
                 "note": [
-                  "xᵢ：顶点i在绑定姿势中的位置。",
-                  "x′ᵢ：顶点i经过蒙皮后的位置。",
-                  "wᵢj：关节j对顶点i的归一化影响权重。",
-                  "G_j：关节j当前的全局变换。",
-                  "B_j⁻¹：关节j的逆绑定变换。",
-                  "LBS线性混合各关节变换后的顶点位置。"
+                  "xᵢ与x′ᵢ是绑定位置和变形位置，wᵢj是归一化蒙皮权重。",
+                  "G_j是当前骨骼全局变换，B_j⁻¹消除绑定姿势中的变换。"
                 ]
               }
             },
             {
-              "keyword": "DQS",
-              "explanation": "双四元数蒙皮（Dual Quaternion Skinning）。使用双四元数混合关节的刚体变换，相比LBS可以减少手臂扭转时出现的明显体积塌缩。混合前还要统一表示同一变换的对跖双四元数符号。",
+              "keyword": "双四元数蒙皮",
+              "explanation": "先混合骨骼的刚体变换，再作用于顶点，可减少线性混合蒙皮常见的扭转塌缩。某些姿势仍需修正，而且它不直接表示一般的非均匀缩放。",
+              "sourceIds": [
+                "aDqs"
+              ],
               "equation": {
                 "expression": "q̂ᵢ = normalize(Σ_j wᵢj s_j q̂_j),   s_j∈{−1,+1}",
                 "note": [
-                  "q̂_j：关节j的单位双四元数。",
-                  "wᵢj：关节j对顶点i的影响权重。",
-                  "s_j：把等价的对跖表示翻转到一致半球的符号。",
-                  "q̂ᵢ：归一化后的混合双四元数，作为一个刚体变换使用。",
-                  "DQS混合变换本身；LBS混合变换后的顶点位置。"
+                  "q̂_j是单位双四元数，wᵢj是蒙皮权重。",
+                  "s_j在混合前统一等价表示的符号；归一化后得到作用于顶点的刚体变换。"
                 ]
               }
-            },
-            {
-              "keyword": "自动蒙皮（Automatic Skinning）",
-              "explanation": "自动计算网格顶点与各个关节之间的蒙皮权重。Heat Weight和Geodesic Voxel Binding都属于自动估计关节影响范围的方法。"
             }
           ]
         },
         {
           "keywords": [
-            "自动骨骼绑定",
-            "动画重定向",
-            "重定向参考姿势",
-            "骨骼链映射"
+            "自动骨骼绑定与蒙皮",
+            "骨骼动画重定向"
           ],
-          "summary": "自动骨骼绑定解决的是“如何给一个模型建立骨架”，动画重定向解决的是“如何把已有动作传给另一个角色”。它们都使用骨架，但属于不同的动画制作阶段。",
-          "sourceIds": [
-            "aPinocchio",
-            "aIkRig",
-            "aRetarget"
-          ],
+          "summary": "制作自动化与动作转移处理不同输入问题。",
           "details": [
             {
-              "keyword": "自动骨骼绑定（Automatic Rigging）",
-              "explanation": "根据角色网格自动预测关节位置并建立骨骼层级。有些系统还会进一步自动生成蒙皮权重和动画控制器。"
+              "keyword": "自动骨骼绑定与蒙皮",
+              "explanation": "自动骨骼绑定推断关节位置与层级，自动蒙皮则通过热扩散、内部测地距离等方式估计影响权重。得到骨架并不等于已经得到可用权重。",
+              "sourceIds": [
+                "aPinocchio",
+                "aGeodesic"
+              ]
             },
             {
-              "keyword": "动画重定向（Retargeting）",
-              "explanation": "把一个骨架上的动画传递到另一个骨架。即使两个角色的身高、身体比例、骨骼长度或骨架结构不同，也尽量保持原来动作的含义。"
-            },
-            {
-              "keyword": "重定向参考姿势（Retarget Pose）",
-              "explanation": "用于对齐源角色和目标角色基础姿势的参考姿势。例如源角色是T Pose，而目标角色是A Pose时，需要先修正这种初始姿势差异。"
-            },
-            {
-              "keyword": "骨骼链映射（Chain Mapping）",
-              "explanation": "指定源骨架和目标骨架中哪些骨骼链具有相同作用。例如把源角色的左臂映射到目标角色的左臂，而不要求两边具有完全一样的骨骼数量和名称。"
+              "keyword": "骨骼动画重定向",
+              "explanation": "把已有动作转移到比例不同的骨架。骨骼链对应关系与对齐后的参考姿势定义映射，末端修正则帮助维持接触位置。",
+              "sourceIds": [
+                "aRetarget"
+              ]
             }
           ]
         }
       ],
-      "technicalTables": [
-        {
-          "columns": [
-            "阶段",
-            "解决的问题",
-            "输入",
-            "输出",
-            "例子"
-          ],
-          "rows": [
-            [
-              "控制阶段",
-              "角色想做什么？",
-              "关键帧、动作捕捉、游戏逻辑",
-              "目标位置和控制参数",
-              "手部控制器、注视目标、手指弯曲"
-            ],
-            [
-              "姿态求解",
-              "骨架应该摆成什么姿势？",
-              "控制目标、约束条件",
-              "各个关节的变换",
-              "FK、Two Bone IK、FABRIK、Full Body IK"
-            ],
-            [
-              "骨骼层级",
-              "每个关节最终在哪里？",
-              "关节局部变换",
-              "关节全局变换",
-              "脊柱、手臂、腿部骨骼链"
-            ],
-            [
-              "网格变形",
-              "角色表面怎样跟随骨骼？",
-              "骨骼姿态、蒙皮权重",
-              "最终顶点位置",
-              "LBS、DQS"
-            ],
-            [
-              "动画重定向",
-              "如何把动作传给另一个角色？",
-              "源动画和骨骼对应关系",
-              "目标角色动画",
-              "IK Retargeting、骨骼链映射"
-            ]
-          ],
-          "caption": "基于骨骼绑定的动画并不是一个单独算法，而是一条从动画控制、骨骼姿态计算到最终网格变形的完整流程。"
-        }
-      ],
-      "callouts": [
-        {
-          "tone": "note",
-          "title": "控制器、求解器和变形器不是同一种东西",
-          "text": "控制器表示“动画师想要什么”，求解器计算“骨骼应该怎么动”，变形器计算“网格顶点最终在哪里”。例如手部控制器属于控制层，Full Body IK属于求解层，LBS属于网格变形层。"
-        }
-      ],
       "aiResearch": {
-        "summary": "RigAnything与UniRig从geometry推断可用的骨骼层级和蒙皮权重；重定向方面有STaR能转移完整motion sequence并减少穿模和抖动。",
+        "summary": "RigAnything与UniRig从几何推断骨骼层级和蒙皮权重；STaR为已经绑定的角色转移动作序列，并减少穿模和时间抖动。",
         "explanations": [
           {
             "title": "RigAnything：把骨骼作为有序树生成",
             "text": [
-              "输入是任意3D asset，而不限定种类。RigAnything按照breadth-first order排列骨骼，并autoregressively预测每个骨骼和父子关系，把生成树转换为序列生成。",
-              "扩散模型用作修正骨骼位置和分配权重。"
-            ]
+              "输入未绑定的三维模型，以广度优先顺序组织关节，再根据整体形状和已生成部分，自回归预测关节位置与父子关系。",
+              "系统进一步细化关节位置并分配蒙皮权重，输出可供现有工具使用的骨架与顶点影响关系。"
+            ],
+            "flow": {
+              "label": "RigAnything：从模型到骨骼绑定",
+              "steps": [
+                {
+                  "title": "未绑定的三维模型",
+                  "text": "编码整体输入形状"
+                },
+                {
+                  "title": "广度优先关节序列",
+                  "text": "用位置与父索引表示关节"
+                },
+                {
+                  "title": "自回归预测",
+                  "text": "逐个生成关节与父子关系"
+                },
+                {
+                  "title": "细化关节位置",
+                  "text": "改善骨架布局"
+                },
+                {
+                  "title": "导出骨架与权重",
+                  "text": "提供可用于动画的绑定数据"
+                }
+              ]
+            }
           },
           {
-            "title": "UniRig：不同种类模型统一预测骨骼和权重",
+            "title": "UniRig：统一预测多种角色的骨架与权重",
             "text": [
-              "UniRig使用Skeleton Tree Tokenization编码骨骼层级，再由large autoregressive model预测树结构；随后通过bone-point cross-attention连接预测的骨骼与网格来估计蒙皮权重。",
-              "训练所用Rig-XL包含超过14,000个骨骼模型，因此覆盖人类以外的更多种类别。"
-            ]
+              "通过Skeleton Tree Tokenization表示骨骼层级，再用自回归模型生成骨骼树。骨骼与表面点之间的交叉注意力用于估计蒙皮权重。",
+              "训练使用包含超过14,000个绑定模型的Rig-XL，覆盖人类之外的类别；输出仍是骨骼层级和蒙皮数据。"
+            ],
+            "flow": {
+              "label": "UniRig：统一骨架与蒙皮预测",
+              "steps": [
+                {
+                  "title": "多类别三维几何",
+                  "text": "编码角色表面采样点"
+                },
+                {
+                  "title": "Skeleton Tree Tokenization",
+                  "text": "把骨骼层级编码为序列"
+                },
+                {
+                  "title": "生成骨骼树",
+                  "text": "预测关节位置与拓扑"
+                },
+                {
+                  "title": "骨骼与表面点交叉注意力",
+                  "text": "估计骨骼对表面的影响"
+                },
+                {
+                  "title": "导出绑定模型",
+                  "text": "输出层级与蒙皮权重"
+                }
+              ]
+            }
           },
           {
-            "title": "STaR：对完整动画进行重定向，而不是逐帧处理姿势",
+            "title": "STaR：联合处理整段重定向动作",
             "text": [
-              "STaR输入源动画以及形状不同的源角色与目标角色。Spatial module利用密度形状信息与limb-penetration constraint（防穿模约束？）",
-              "Temporal transformer联合预测完整动画序列，并用短期与长期consistency constraint（维持约束？）降低抖动。输出目标角色动画。"
-            ]
-          }
-        ],
-        "flows": [
-          {
-            "label": "RigAnything：从任意asset到animation-ready rig",
-            "steps": [
-              {
-                "title": "无骨骼的3D asset",
-                "text": "输入模型的网格"
-              },
-              {
-                "title": "Breadth-first joint sequence",
-                "text": "使用位置与父子关系表示每个骨骼"
-              },
-              {
-                "title": "Autoregressive prediction",
-                "text": "逐个骨骼链接生成骨骼树"
-              },
-              {
-                "title": "Diffusion refinement",
-                "text": "提高骨骼位置的一致性（对称？）"
-              },
-              {
-                "title": "Skeleton + skin weights",
-                "text": "导出骨骼和蒙皮权重"
-              }
-            ]
-          },
-          {
-            "label": "UniRig：不同种类模型统一预测骨骼和权重",
-            "steps": [
-              {
-                "title": "多类别模型",
-                "text": "编码人类或非人类模型的网格"
-              },
-              {
-                "title": "Skeleton Tree Tokenization",
-                "text": "把骨骼层级表示为model token"
-              },
-              {
-                "title": "Autoregressive skeleton model",
-                "text": "预测骨骼位置与拓扑（父子关系）"
-              },
-              {
-                "title": "Bone-point cross-attention",
-                "text": "建立预测骨骼与网格之间的关系（权重预测）"
-              },
-              {
-                "title": "Rigged asset",
-                "text": "导出骨骼和蒙皮权重"
-              }
-            ]
-          },
-          {
-            "label": "STaR：从源动画到目标动画",
-            "steps": [
-              {
-                "title": "源动画 + 两个角色模型",
-                "text": "读取动画及源模型和目标模型的差异"
-              },
-              {
-                "title": "Dense spatial representation",
-                "text": "表达sparse joint rotation之外的几何关系"
-              },
-              {
-                "title": "Penetration-aware spatial module",
-                "text": "减少limb-body与limb-limb intersection（穿模）"
-              },
-              {
-                "title": "Temporal transformer",
-                "text": "通过multi-level consistency预测完整动画序列"
-              },
-              {
-                "title": "Target-skeleton motion",
-                "text": "生成更平滑的动画结果"
-              }
-            ]
+              "输入源动作以及形状不同的源角色与目标角色。空间模块结合稠密形状信息和肢体穿透约束，减少肢体与身体、肢体之间的穿插。",
+              "时间注意力网络联合预测动作序列，通过短期和长期一致性约束降低抖动，输出目标骨架上的动画。"
+            ],
+            "flow": {
+              "label": "STaR：从源动作到目标动作",
+              "steps": [
+                {
+                  "title": "源动作 + 两个角色模型",
+                  "text": "读取动作和源目标形状差异"
+                },
+                {
+                  "title": "稠密空间表示",
+                  "text": "补充仅靠关节旋转难以表达的几何关系"
+                },
+                {
+                  "title": "处理穿透约束",
+                  "text": "减少肢体与身体之间的交叉"
+                },
+                {
+                  "title": "联合预测时间序列",
+                  "text": "用多尺度一致性约束维持连贯"
+                },
+                {
+                  "title": "输出目标骨架动画",
+                  "text": "得到更平滑的重定向结果"
+                }
+              ]
+            }
           }
         ],
         "sourceIds": [
@@ -1201,183 +789,86 @@
       }
     },
     {
-      "heading": "皮肤变形：形状修正、辅助骨骼与肌肉",
+      "heading": "皮肤变形(Deformation)：形状修正、辅助骨骼与肌肉",
       "paragraphs": [
-        "基础蒙皮在关节弯曲或肢体扭转时，容易出现塌陷、体积缩小和轮廓失真。辅助骨骼可以分散扭转或维持轮廓；姿势空间修正根据当前关节姿势，叠加预先雕刻的顶点偏移；肌肉与软组织系统则进一步表现皮下组织的鼓起、滑动、体积变化和随动作产生的晃动。",
-        "这些变形层需要明确各自的输入和计算顺序。例如，先由骨骼动画确定姿势，再计算肌肉和软组织的形状，接着用辅助骨骼与修正形状调整需要艺术控制的区域，最后处理表面的碰撞与渲染。具体顺序取决于绑定和求解器设计，碰撞也可能参与组织求解过程。"
-      ],
-      "equations": [
-        {
-          "label": "姿势空间中的形状修正",
-          "expression": "x′ = x_skin + Σ_k φ_k(θ) Δx_k",
-          "terms": [
-            {
-              "symbol": "x′",
-              "text": "蒙皮与修正变形完成后的最终顶点位置。"
-            },
-            {
-              "symbol": "x_skin",
-              "text": "加入修正项之前，由基础蒙皮方法得到的位置。"
-            },
-            {
-              "symbol": "Σ_k",
-              "text": "对所有修正形状求和，这些形状以 k 编号。"
-            },
-            {
-              "symbol": "k",
-              "text": "修正形状的索引。"
-            },
-            {
-              "symbol": "φ_k(θ)",
-              "text": "根据当前姿势 θ 计算的修正形状 k 的激活权重。"
-            },
-            {
-              "symbol": "θ",
-              "text": "用于选择和混合修正形状的当前姿势坐标或关节参数。"
-            },
-            {
-              "symbol": "Δx_k",
-              "text": "修正形状 k 所存储的雕刻顶点位置偏移。"
-            }
-          ]
-        },
-        {
-          "label": "肌肉与软组织的动力学平衡",
-          "expression": "M ẍ + C ẋ + f_int(x,a) = f_ext",
-          "terms": [
-            {
-              "symbol": "M",
-              "text": "肌肉或组织模拟节点的质量矩阵。"
-            },
-            {
-              "symbol": "x",
-              "text": "包含各节点当前位置的向量。"
-            },
-            {
-              "symbol": "ẋ",
-              "text": "x 对时间的一阶导数，即节点速度。"
-            },
-            {
-              "symbol": "ẍ",
-              "text": "x 对时间的二阶导数，即节点加速度。"
-            },
-            {
-              "symbol": "C",
-              "text": "阻尼矩阵。"
-            },
-            {
-              "symbol": "f_int(x,a)",
-              "text": "根据变形状态 x 和激活参数 a 计算的内力向量。"
-            },
-            {
-              "symbol": "a",
-              "text": "改变内部应力或静止构形的肌肉激活参数。"
-            },
-            {
-              "symbol": "f_ext",
-              "text": "外力向量，例如重力、接触力或外加载荷。"
-            }
-          ]
-        }
+        "当基础蒙皮无法保持预期轮廓或体积时，可以通过姿势修正、辅助骨骼或组织模拟补充变形。这些层针对具体缺陷进行调整，姿态本身仍由骨骼系统提供。",
+        "计算顺序取决于绑定设计：骨骼运动提供边界条件，组织模型计算内部变形，人工修正再调整指定区域。接触也可能直接参与求解，而不是只在最后检查。"
       ],
       "keywordSourceGroups": [
         {
           "keywords": [
-            "皮肤变形",
-            "修正混合形状",
             "姿势空间变形",
-            "辅助骨骼",
-            "扭转骨骼",
-            "体积保持",
-            "鼓起",
-            "层间滑动"
+            "辅助与扭转骨骼",
+            "体积保持"
           ],
-          "summary": "形状修正与辅助骨骼用于改善基础蒙皮的常见缺陷，例如关节塌陷、扭转收缩和轮廓失真。",
-          "sourceIds": [
-            "aPsd",
-            "aSkinning",
-            "aDqs"
-          ],
+          "summary": "修正层处理可预期的几何缺陷。",
           "details": [
             {
-              "keyword": "皮肤变形",
-              "explanation": "根据动画控制参数和组织状态，计算角色可见表面的位置。它既包含基础蒙皮，也可以叠加形状修正与软组织模拟。"
-            },
-            {
-              "keyword": "修正混合形状",
-              "explanation": "为特定姿势预先雕刻的修正形状，以顶点偏移的形式保存。例如，手臂抬起时混入腋下修正，补偿基础蒙皮造成的塌陷。"
-            },
-            {
               "keyword": "姿势空间变形",
-              "explanation": "根据关节姿势计算各个修正形状的混合权重。同一姿势会激活相应修正，而不依赖动画播放到哪个时刻。"
-            },
-            {
-              "keyword": "辅助骨骼",
-              "explanation": "为控制变形额外添加的骨骼或变换节点，不一定对应真实解剖结构。它可以跟随主骨骼运动，局部支撑皮肤轮廓。"
-            },
-            {
-              "keyword": "扭转骨骼",
-              "explanation": "沿肢体分摊轴向旋转的辅助骨骼。例如，把前臂旋转分配给多个节点，避免扭转集中在手腕附近造成蒙皮收缩。"
-            },
-            {
-              "keyword": "体积保持",
-              "explanation": "限制弯曲和扭转时不自然的收缩或膨胀，使局部组织的体积尽量保持不变。",
+              "explanation": "根据关节姿势而非时间激活雕刻好的修正偏移，用于修复抬臂与肩部弯曲等组合姿势。基础混合形状表示见面部动画部分。",
+              "sourceIds": [
+                "aPsd"
+              ],
               "equation": {
-                "expression": "det(F)≈1",
+                "expression": "x′ = x_skin + Σ_k φ_k(θ) Δx_k",
                 "note": [
-                  "F：描述局部区域相对静止空间变化的变形梯度矩阵。",
-                  "det：行列式运算。",
-                  "det(F)：局部体积比。",
-                  "≈：近似相等。",
-                  "1：局部体积不变。",
-                  "行列式接近1时表示近似保体积。"
+                  "x_skin是基础蒙皮位置，Δx_k是修正偏移。",
+                  "φ_k(θ)根据当前关节姿势θ计算各个修正的激活权重。"
                 ]
               }
             },
             {
-              "keyword": "鼓起",
-              "explanation": "关节弯曲或肌肉收缩时，局部表面向外隆起的形状变化。可以通过修正形状控制，也可以由组织模拟产生。"
+              "keyword": "辅助与扭转骨骼",
+              "explanation": "增加不一定对应解剖结构的控制节点，用于支撑轮廓或沿肢体分摊轴向旋转，减少扭转集中造成的缺陷。",
+              "sourceIds": [
+                "aSkinning"
+              ]
             },
             {
-              "keyword": "层间滑动",
-              "explanation": "皮肤、筋膜、脂肪和肌肉之间的相对运动。允许层间滑动，可以避免所有组织被迫以相同方式变形。"
+              "keyword": "体积保持",
+              "explanation": "限制不自然的局部收缩或膨胀。变形梯度的行列式可度量局部体积变化，但保持体积本身不能避免穿插。",
+              "sourceIds": [
+                "aDqs",
+                "aNdg"
+              ],
+              "equation": {
+                "expression": "det(F)≈1",
+                "note": [
+                  "F是局部变形梯度，det(F)是变形后与静止状态的体积比。"
+                ]
+              }
             }
           ]
         },
         {
           "keywords": [
-            "肌肉系统",
             "肌肉激活",
-            "有限元法",
-            "组织层",
-            "软组织模拟"
+            "分层软组织模拟"
           ],
-          "summary": "肌肉与软组织系统通过解剖结构或简化的材料模型，计算姿势变化引起的形状变化，并在动态模拟中表现惯性和晃动。",
-          "sourceIds": [
-            "aPixar",
-            "aPsd",
-            "aNdg"
-          ],
+          "summary": "组织模型补充可见表面下方的材料响应。",
           "details": [
             {
-              "keyword": "肌肉系统",
-              "explanation": "一组按解剖结构或艺术需求布置的肌肉单元，通过收缩改变周围组织和皮肤的形状。"
-            },
-            {
               "keyword": "肌肉激活",
-              "explanation": "控制肌肉收缩程度的信号，用于改变主动应力、肌纤维的目标长度或目标形状。"
+              "explanation": "通过改变主动应力或肌纤维目标长度，让收缩作用于周围组织。它是肌肉模型的控制输入，与混合形状权重的含义不同。",
+              "sourceIds": [
+                "aPixar"
+              ]
             },
             {
-              "keyword": "有限元法",
-              "explanation": "把连续的肌肉和软组织划分为有限数量的单元，根据材料的应变能计算内力，再求解组织的平衡形状或动态运动。"
-            },
-            {
-              "keyword": "组织层",
-              "explanation": "具有特定材料性质的一层组织，例如肌肉、脂肪、筋膜或皮肤。不同层可以使用不同的刚度，并通过接触或滑动关系连接。"
-            },
-            {
-              "keyword": "软组织模拟",
-              "explanation": "计算软组织在骨骼运动、肌肉力、惯性、阻尼和接触作用下的动态变形，例如角色急停后仍会继续晃动的皮下组织。"
+              "keyword": "分层软组织模拟",
+              "explanation": "有限元将肌肉、脂肪和皮肤离散为不同材料区域，由内力、惯性、阻尼和接触共同决定运动。滑动界面允许不同组织层相对运动。",
+              "sourceIds": [
+                "aPixar",
+                "aNdg"
+              ],
+              "equation": {
+                "expression": "M ẍ + C ẋ + f_int(x,a) = f_ext",
+                "note": [
+                  "x包含组织节点位置，M和C分别是质量矩阵与阻尼矩阵。",
+                  "f_int取决于变形和肌肉激活a，f_ext表示外力。",
+                  "加速度与速度项体现动态响应；忽略它们时得到静态平衡问题。"
+                ]
+              }
             }
           ]
         }
@@ -1390,98 +881,96 @@
             "text": [
               "这项2026年的研究输入人体形状参数和关节旋转，使用分层肌肉与脂肪的准静态有限元模拟结果训练网络。Neural Deformation Gradients预测残余变形梯度，用它描述局部拉伸、剪切和旋转，而不是直接预测每个顶点的偏移。",
               "随后结合姿势旋转，以骨骼边界为约束求解泊松系统，重建相互一致的顶点位置，再把变形传递给嵌入其中的精细解剖网格。这样有助于保持体积、减少体积单元翻转。它近似的是各姿势下的平衡形状，本身不包含惯性导致的组织晃动。"
-            ]
+            ],
+            "flow": {
+              "label": "Neural Deformation Gradients：从姿势到分层组织",
+              "steps": [
+                {
+                  "title": "人体形状 + 关节旋转",
+                  "text": "确定角色体型和当前姿势"
+                },
+                {
+                  "title": "预测残余变形梯度",
+                  "text": "使用由准静态组织模拟训练的网络"
+                },
+                {
+                  "title": "结合姿势旋转",
+                  "text": "得到当前姿势下的局部变形梯度"
+                },
+                {
+                  "title": "重建顶点位置",
+                  "text": "以骨骼为边界约束求解泊松系统"
+                },
+                {
+                  "title": "驱动精细解剖网格",
+                  "text": "把体积变形传递给嵌入其中的组织表面"
+                }
+              ]
+            }
           },
           {
             "title": "PhysSkin：学习变形空间，再求解物理运动",
             "text": [
               "PhysSkin发表于2026年的计算机视觉与模式识别会议。它从静态几何学习连续蒙皮权重场，无需人工标注的权重或模拟运动轨迹。形状编码器与交叉注意力解码器共同预测：空间中的每个点应当怎样受到少量变形控制节点的影响。",
-              "训练时通过弹性能、空间平滑性和正交性约束进行自监督学习。播放时，物理求解器在低维空间中更新控制节点的变换，再用学到的权重场还原完整几何形状。这些控制节点用于表示模拟自由度，不一定对应真实骨骼。"
-            ]
+              "训练时通过弹性能、空间平滑性和正交性约束进行自监督学习。播放时，物理解算器在低维空间中更新控制节点的变换，再用学到的权重场还原完整几何形状。这些控制节点用于表示模拟自由度，不一定对应真实骨骼。"
+            ],
+            "flow": {
+              "label": "PhysSkin：从静态几何到物理动画",
+              "steps": [
+                {
+                  "title": "采样静态几何",
+                  "text": "取得物体表面点与内部采样点"
+                },
+                {
+                  "title": "编码形状",
+                  "text": "提取形状特征与控制节点特征"
+                },
+                {
+                  "title": "解码连续权重场",
+                  "text": "查询每个点受各控制节点影响的权重"
+                },
+                {
+                  "title": "求解控制节点运动",
+                  "text": "在低维空间中更新节点变换"
+                },
+                {
+                  "title": "还原完整几何形状",
+                  "text": "通过学到的权重场混合节点变换"
+                }
+              ]
+            }
           },
           {
             "title": "cut-cell skinning：用内部距离辅助预测蒙皮权重",
             "text": [
               "这项2026年8月发布的预印本输入网格与骨骼，将表面连接关系和物体内部的规则网格线段组合成图，近似计算沿物体内部传播的距离，再通过核函数把距离转换为初步的蒙皮权重分布，作为几何先验。",
               "神经蒙皮模型利用这个先验改善权重预测。构图与距离计算属于几何算法，学习发生在使用先验的网络中。它改进的是骨骼与表面之间的绑定关系，并不直接模拟肌肉收缩、组织滑动或碰撞。"
-            ]
-          }
-        ],
-        "flows": [
-          {
-            "label": "Neural Deformation Gradients：从姿势到分层组织",
-            "steps": [
-              {
-                "title": "人体形状 + 关节旋转",
-                "text": "确定角色体型和当前姿势"
-              },
-              {
-                "title": "预测残余变形梯度",
-                "text": "使用由准静态组织模拟训练的网络"
-              },
-              {
-                "title": "结合姿势旋转",
-                "text": "得到当前姿势下的局部变形梯度"
-              },
-              {
-                "title": "重建顶点位置",
-                "text": "以骨骼为边界约束求解泊松系统"
-              },
-              {
-                "title": "驱动精细解剖网格",
-                "text": "把体积变形传递给嵌入其中的组织表面"
-              }
-            ]
-          },
-          {
-            "label": "PhysSkin：从静态几何到物理动画",
-            "steps": [
-              {
-                "title": "采样静态几何",
-                "text": "取得物体表面点与内部采样点"
-              },
-              {
-                "title": "编码形状",
-                "text": "提取形状特征与控制节点特征"
-              },
-              {
-                "title": "解码连续权重场",
-                "text": "查询每个点受各控制节点影响的权重"
-              },
-              {
-                "title": "求解控制节点运动",
-                "text": "在低维空间中更新节点变换"
-              },
-              {
-                "title": "还原完整几何形状",
-                "text": "通过学到的权重场混合节点变换"
-              }
-            ]
-          },
-          {
-            "label": "cut-cell skinning：从几何先验到蒙皮权重",
-            "steps": [
-              {
-                "title": "网格 + 骨骼",
-                "text": "读取表面几何与骨骼位置"
-              },
-              {
-                "title": "构建内部连通图",
-                "text": "组合表面边与物体内部的网格线段"
-              },
-              {
-                "title": "近似计算内部距离",
-                "text": "沿图计算顶点到骨骼的距离"
-              },
-              {
-                "title": "生成几何先验",
-                "text": "通过核函数把距离转为初步权重分布"
-              },
-              {
-                "title": "预测蒙皮权重",
-                "text": "将先验输入神经蒙皮模型"
-              }
-            ]
+            ],
+            "flow": {
+              "label": "cut-cell skinning：从几何先验到蒙皮权重",
+              "steps": [
+                {
+                  "title": "网格 + 骨骼",
+                  "text": "读取表面几何与骨骼位置"
+                },
+                {
+                  "title": "构建内部连通图",
+                  "text": "组合表面边与物体内部的网格线段"
+                },
+                {
+                  "title": "近似计算内部距离",
+                  "text": "沿图计算顶点到骨骼的距离"
+                },
+                {
+                  "title": "生成几何先验",
+                  "text": "通过核函数把距离转为初步权重分布"
+                },
+                {
+                  "title": "预测蒙皮权重",
+                  "text": "将先验输入神经蒙皮模型"
+                }
+              ]
+            }
           }
         ],
         "sourceIds": [
@@ -1492,613 +981,541 @@
       }
     },
     {
-      "heading": "Hair simulation：rod、guide与collision",
+      "heading": "头发模拟：弹性杆、引导发丝与碰撞",
       "paragraphs": [
-        "Hair strand可以视为具有stretch、bend、twist、damping、gravity、wind与contact的细长elastic rod。模拟每根可见fiber成本很高，因此production groom只模拟稀疏guide hair，再重建follower motion，同时避免插值后的hair穿过head或其他strand。",
-        "Discrete Elastic Rods与Cosserat rod描述strand沿线的orientation与curvature。Real-time方法会简化model、并行求解constraint或使用neural surrogate；但collision与friction仍决定最终效果是可信groom，还是彼此独立的一团line。"
-      ],
-      "equations": [
-        {
-          "label": "Rod弹性能量",
-          "expression": "E = ½∫(k_s ε² + k_b|κ-κ₀|² + k_t(τ-τ₀)²) ds",
-          "terms": [
-            {
-              "symbol": "E",
-              "text": "发丝的总弹性能量。"
-            },
-            {
-              "symbol": "½",
-              "text": "二次能量项中惯用的二分之一缩放因子。"
-            },
-            {
-              "symbol": "∫ … ds",
-              "text": "沿发丝弧长积分；s 是弧长坐标，ds 是无穷小的发丝线段。"
-            },
-            {
-              "symbol": "k_s",
-              "text": "拉伸刚度。"
-            },
-            {
-              "symbol": "ε",
-              "text": "拉伸应变；ε² 对伸长或压缩施加二次惩罚。"
-            },
-            {
-              "symbol": "k_b",
-              "text": "弯曲刚度。"
-            },
-            {
-              "symbol": "κ",
-              "text": "当前曲率向量。"
-            },
-            {
-              "symbol": "κ₀",
-              "text": "静止曲率向量。"
-            },
-            {
-              "symbol": "|κ-κ₀|²",
-              "text": "当前曲率相对静止曲率变化量的模平方。"
-            },
-            {
-              "symbol": "k_t",
-              "text": "扭转刚度。"
-            },
-            {
-              "symbol": "τ",
-              "text": "当前扭转率。"
-            },
-            {
-              "symbol": "τ₀",
-              "text": "静止扭转率。"
-            }
-          ]
-        }
+        "头发通常被建模为附着在运动头皮上的细长弹性杆。拉伸、弯曲、扭转和阻尼属于材料响应，重力与风提供外部载荷，接触则把头发与身体及相邻发丝联系起来。",
+        "实际制作中常模拟少量引导发丝，再重建稠密头发。主要选择在于杆模型、引导运动的传递方式，以及重建之后怎样处理接触。"
       ],
       "keywordSourceGroups": [
         {
           "keywords": [
-            "hair simulation",
-            "hair strand",
-            "guide hair",
-            "follower interpolation",
-            "groom",
-            "mass–spring",
+            "引导发丝与跟随重建",
             "Discrete Elastic Rods",
-            "Cosserat rod"
+            "Cosserat杆"
           ],
-          "summary": "Groom把大量可见fiber简化为可计算的simulated strand control集合与一套reconstruction rule。",
-          "sourceIds": [
-            "aRods",
-            "aAdmmHair",
-            "aCosserat"
-          ],
+          "summary": "表示方式决定求解器能够表达哪些发丝运动。",
           "details": [
             {
-              "keyword": "hair simulation",
-              "explanation": "Strand shape在elasticity、inertia、damping、field与contact作用下的动态演化。"
-            },
-            {
-              "keyword": "hair strand",
-              "explanation": "沿长度采样position，通常还包含orientation或material frame的curve-like fiber。"
-            },
-            {
-              "keyword": "guide hair",
-              "explanation": "经过模拟并用于驱动附近follower strand的代表性strand。"
-            },
-            {
-              "keyword": "follower interpolation",
-              "explanation": "根据邻近guide与local offset重建dense strand motion。"
-            },
-            {
-              "keyword": "groom",
-              "explanation": "定义hair的创作数据集合，包括scalp region、guide、clump、density、width与styling attribute。"
-            },
-            {
-              "keyword": "mass–spring",
-              "explanation": "使用stretch spring与bend spring连接point mass的strand近似模型。"
+              "keyword": "引导发丝与跟随重建",
+              "explanation": "模拟代表性发丝，再根据其运动与局部偏移重建邻近发丝。引导发丝没有穿模，不代表跟随插值后的结果也不会穿模。",
+              "sourceIds": [
+                "aAdmmHair"
+              ]
             },
             {
               "keyword": "Discrete Elastic Rods",
-              "explanation": "在带material frame的采样centerline上表示bending与twisting的geometric rod model。"
+              "explanation": "通过离散中心线与材料局部坐标系表示弯曲和扭转，保留单纯质点弹簧链缺少的截面旋转信息。",
+              "sourceIds": [
+                "aRods"
+              ]
             },
             {
-              "keyword": "Cosserat rod",
-              "explanation": "同时携带centerline position与cross-section orientation，并支持stretch、shear、bend与twist的rod continuum。"
+              "keyword": "Cosserat杆",
+              "explanation": "把中心线位置与截面朝向作为独立场，支持拉伸、剪切、弯曲和扭转。具体离散方式与约束决定实现中保留哪些模式。",
+              "sourceIds": [
+                "aCosserat"
+              ]
             }
           ]
         },
         {
           "keywords": [
-            "stretch",
-            "bend",
-            "twist",
-            "damping",
-            "strand collision",
-            "friction",
-            "wind coupling"
+            "发丝接触与摩擦"
           ],
-          "summary": "Elastic与contact term把strand curve变成附着在运动角色上的连贯material。",
-          "sourceIds": [
-            "aRods",
-            "aAdmmHair",
-            "aCosserat"
-          ],
+          "summary": "接触把发丝与身体以及相邻发丝联系起来。",
           "details": [
             {
-              "keyword": "stretch",
-              "explanation": "Strand segment长度的变化；hair通常会为它设置很高的stiffness。"
-            },
-            {
-              "keyword": "bend",
-              "explanation": "Centerline curvature的变化，决定straight、wavy或curly形状。"
-            },
-            {
-              "keyword": "twist",
-              "explanation": "Strand material frame围绕自身tangent的旋转。"
-            },
-            {
-              "keyword": "damping",
-              "explanation": "为抑制未解析oscillation并匹配material response而加入的energy loss。",
-              "equation": {
-                "expression": "F_d=-c v",
-                "note": [
-                  "F_d：阻尼力向量。",
-                  "d：damping下标。",
-                  "c：非负阻尼系数。",
-                  "v：速度向量。",
-                  "负号使阻尼力与运动方向相反并消耗动能。"
-                ]
-              }
-            },
-            {
-              "keyword": "strand collision",
-              "explanation": "Hair、body、clothing与其他strand之间的contact test和constraint。"
-            },
-            {
-              "keyword": "friction",
-              "explanation": "使clump保持聚合，并防止contact处无限sliding的tangential resistance。"
-            },
-            {
-              "keyword": "wind coupling",
-              "explanation": "沿strand采样air velocity，并根据relative motion施加drag或lift。"
+              "keyword": "发丝接触与摩擦",
+              "explanation": "接触处理发丝与身体或其他发丝的穿透，切向摩擦控制滑动并影响发束运动。稠密发丝间的交互常占据较大计算成本。",
+              "sourceIds": [
+                "aAdmmHair"
+              ]
             }
           ]
         }
       ],
       "aiResearch": {
-        "summary": "Quaffure实时预测quasi-static hair deformation，HairFormer学习dynamic strand behavior，SimAvatar则生成simulation-ready hair与clothing layer。这些方法能够加速或创建groom，同时保留strand structure与physical supervision。",
+        "summary": "这里的三项研究形成了不同的应用方向：Quaffure根据当前姿势预测头发静止垂落的形状；HairFormer进一步利用动作历史表现惯性和摆动；SimAvatar生成独立的发丝几何，再交给现有模拟器驱动。前两者学习头发变形，后者连接资产生成、物理动画与外观表现。",
+        "explanations": [
+          {
+            "title": "Quaffure：预测头发在当前姿势下如何垂落",
+            "text": [
+              "Quaffure发表于2025年的计算机视觉与模式识别会议，输入发型、人体形状和姿势。它按发根在头皮上的位置排列发丝几何，再通过自编码器压缩成发型特征。运行时先让原始发丝跟随头皮变换，再由卷积解码器结合发型特征和人体参数，预测各个发丝顶点的位移。",
+              "训练使用弹性能、重力、身体碰撞和发丝密度等损失，无需预先生成模拟运动轨迹。将预测位移加到变换后的发丝上，就得到当前姿势下的准静态垂落形状。这里的准静态是指近似平衡状态，因此它本身不能表现突然甩头后由惯性产生的持续摆动。"
+            ],
+            "flow": {
+              "label": "Quaffure：从发型与姿势到平衡形状",
+              "steps": [
+                {
+                  "title": "发型 + 人体形状 + 姿势",
+                  "text": "读取发丝几何与人体参数"
+                },
+                {
+                  "title": "编码发型",
+                  "text": "压缩按头皮位置排列的发丝几何"
+                },
+                {
+                  "title": "让发丝跟随头皮",
+                  "text": "根据头部运动变换原始发丝"
+                },
+                {
+                  "title": "解码发丝位移",
+                  "text": "用训练好的变形解码器预测顶点偏移"
+                },
+                {
+                  "title": "输出准静态垂落形状",
+                  "text": "将位移加到变换后的发丝上"
+                }
+              ]
+            }
+          },
+          {
+            "title": "HairFormer：在静态垂落基础上加入动作历史",
+            "text": [
+              "HairFormer于2025年7月发布预印本，输入发型特征、人体形状和姿势序列。静态注意力网络先预测当前姿势下的垂落形状；随后，循环运动编码器记录近期姿势变化和加速度，再通过交叉注意力把运动信息与静态头发特征结合，预测动态变形。",
+              "训练通过形状、接触和惯性等物理损失进行自监督，使输出发丝能够表现动作滞后和后续摆动。剧烈的突然运动可能需要针对相应序列微调；该方法也没有显式计算发丝扭转，因此不能覆盖完整弹性杆模型的全部自由度。"
+            ],
+            "flow": {
+              "label": "HairFormer：从动作历史到动态发丝",
+              "steps": [
+                {
+                  "title": "发型 + 人体 + 姿势序列",
+                  "text": "提供几何参数与动作历史"
+                },
+                {
+                  "title": "预测静态垂落特征",
+                  "text": "建立当前姿势下的头发形状"
+                },
+                {
+                  "title": "编码运动历史",
+                  "text": "积累姿势变化与加速度信息"
+                },
+                {
+                  "title": "融合静态与动态特征",
+                  "text": "通过交叉注意力预测变形"
+                },
+                {
+                  "title": "更新发丝位置",
+                  "text": "输出随时间变化的头发几何"
+                }
+              ]
+            }
+          },
+          {
+            "title": "SimAvatar：先生成可模拟的发丝，再驱动外观",
+            "text": [
+              "SimAvatar发表于2025年的计算机视觉与模式识别会议，输入描述角色外观的文本，分别生成身体网格、衣物网格和发丝几何。它把三维高斯附着在这些几何层上，并利用图像扩散模型提供的指导优化外观，使显示效果与可模拟的几何结构相互对应。",
+              "播放时，先由现有模拟器根据姿势序列计算发丝和衣物的运动，再把变形传递给附着其上的三维高斯用于渲染。这里学习的是资产生成与外观，头发运动仍由模拟器求解，并不是由生成网络直接预测下一帧的发丝位置。"
+            ],
+            "flow": {
+              "label": "SimAvatar：从文本到可播放的分层角色",
+              "steps": [
+                {
+                  "title": "角色文本描述",
+                  "text": "指定角色外观与发型"
+                },
+                {
+                  "title": "生成分层几何",
+                  "text": "分别建立身体、衣物与发丝"
+                },
+                {
+                  "title": "优化附着外观",
+                  "text": "利用扩散模型指导三维高斯的外观优化"
+                },
+                {
+                  "title": "模拟姿势序列",
+                  "text": "用现有求解器驱动发丝与衣物"
+                },
+                {
+                  "title": "传递运动并渲染",
+                  "text": "让附着的三维高斯跟随几何运动"
+                }
+              ]
+            }
+          }
+        ],
         "sourceIds": [
           "aQuaffure",
           "aHairFormer",
           "aSimAvatar"
         ]
-      }
-    },
-    {
-      "heading": "Face animation：semantic control与blend shape",
-      "paragraphs": [
-        "Face animation既需要精细geometry，也需要可解释control。Blend shape叠加带weight的vertex delta；joint处理jaw与eye motion；FACS action unit则独立于具体character mesh，描述可见的muscle action。",
-        "Performance capture从video估计这些control；audio-driven system从speech预测timing；retargeting再把结果映射到新face。Corrective仍然重要，因为独立创作的blend shape并非线性无关，组合后可能导致lip、cheek或eyelid collapse。"
-      ],
+      },
       "equations": [
         {
-          "label": "Blend-shape face变形",
-          "expression": "x_face = x_neutral + Σ_k w_k b_k + Σ_l c_l(w) r_l",
+          "label": "发丝弹性能",
+          "expression": "E = ½∫(k_s ε² + k_b|κ-κ₀|² + k_t(τ-τ₀)²) ds",
           "terms": [
-            {
-              "symbol": "x_face",
-              "text": "最终的面部顶点位置向量。"
-            },
-            {
-              "symbol": "x_neutral",
-              "text": "中性表情的面部顶点位置向量。"
-            },
-            {
-              "symbol": "Σ_k",
-              "text": "对所有基础混合形状求和，这些形状以 k 编号。"
-            },
-            {
-              "symbol": "k",
-              "text": "基础混合形状的索引。"
-            },
-            {
-              "symbol": "w_k",
-              "text": "基础形状 k 的标量权重。"
-            },
-            {
-              "symbol": "b_k",
-              "text": "基础形状 k 所存储的顶点偏移向量。"
-            },
-            {
-              "symbol": "Σ_l",
-              "text": "对所有修正形状求和，这些形状以 l 编号。"
-            },
-            {
-              "symbol": "l",
-              "text": "修正形状的索引。"
-            },
-            {
-              "symbol": "w",
-              "text": "包含当前所有基础混合形状权重的向量。"
-            },
-            {
-              "symbol": "c_l(w)",
-              "text": "以权重向量 w 为输入计算出的修正形状 l 的激活值。"
-            },
-            {
-              "symbol": "r_l",
-              "text": "修正形状 l 所存储的顶点偏移向量。"
-            }
+            "ε表示拉伸，κ-κ₀与τ-τ₀分别表示曲率和扭转率相对静止状态的变化。",
+            "k_s、k_b、k_t控制三种变形模式的刚度，沿发丝长度积分得到总能量。"
           ]
         }
+      ]
+    },
+    {
+      "heading": "面部动画：表情控制与混合形状",
+      "paragraphs": [
+        "面部动画需要可编辑的表情表示，并协调说话口型、视线和下颌运动。混合形状负责细致的表面偏移，下颌与眼球控制负责相应关节运动。",
+        "中性几何和形状权重构成下面的基础面部模型。多个表情叠加后的塌陷或穿插，可以通过皮肤变形部分介绍的姿势修正层处理。"
       ],
       "keywordSourceGroups": [
         {
           "keywords": [
-            "face animation",
-            "FACS",
-            "action unit",
-            "neutral pose",
-            "jaw joint",
-            "eye gaze"
+            "面部动作编码与动作单元",
+            "混合形状与变形目标",
+            "FLAME"
           ],
-          "summary": "Semantic face control把expression intent与最终mesh representation分离。",
-          "sourceIds": [
-            "aFacs",
-            "aFlame",
-            "aBlend"
-          ],
+          "summary": "表情表示把控制含义与角色几何联系起来。",
           "details": [
             {
-              "keyword": "face animation",
-              "explanation": "随时间变化的expression、speech articulation、gaze与head-related facial deformation。"
+              "keyword": "面部动作编码与动作单元",
+              "explanation": "面部动作编码系统用动作单元描述可见面部活动，例如内侧眉毛上提。它是一套描述性编码，不直接规定网格表示，也不等同于情绪分类。",
+              "sourceIds": [
+                "aFacs"
+              ]
             },
             {
-              "keyword": "FACS",
-              "explanation": "Facial Action Coding System是一套通过action unit描述可见facial action的taxonomy。"
+              "keyword": "混合形状与变形目标",
+              "explanation": "混合形状保存相对于中性几何的偏移，用权重控制最终贡献。交换格式中的变形目标还可包含法线和切线差值；它们是同一机制在资产制作与运行时的不同表示。",
+              "sourceIds": [
+                "aBlend",
+                "aMorphDoc"
+              ]
             },
             {
-              "keyword": "action unit",
-              "explanation": "与一个或多个muscle region contraction相关联的编码facial movement。"
-            },
-            {
-              "keyword": "neutral pose",
-              "explanation": "用于度量identity与expression offset的reference expression。"
-            },
-            {
-              "keyword": "jaw joint",
-              "explanation": "控制mandibular rotation与translation、并为mouth motion提供结构的skeletal control。"
-            },
-            {
-              "keyword": "eye gaze",
-              "explanation": "控制eye orientation与convergence的参数，通常与eyelid和head motion耦合。"
+              "keyword": "FLAME",
+              "explanation": "从数据中学习的参数化头部模型，用不同参数表示身份形状、表情和姿势，并包含下颌、颈部控制。共享拓扑为不同人物提供一致的拟合与动画空间。",
+              "sourceIds": [
+                "aFlame"
+              ]
             }
           ]
         },
         {
           "keywords": [
-            "blend shape",
-            "morph target",
-            "delta shape",
-            "blend weight",
-            "corrective shape",
-            "performance capture",
-            "expression retargeting",
-            "FLAME",
-            "audio-driven animation"
+            "面部表演捕捉",
+            "语音驱动面部动画"
           ],
-          "summary": "Blendshape与parametric model为capture或生成的facial performance提供可编辑target。",
-          "sourceIds": [
-            "aBlend",
-            "aMorphDoc",
-            "aFlame"
-          ],
+          "summary": "表演捕捉与音频模型提供不同的面部驱动依据。",
           "details": [
             {
-              "keyword": "blend shape",
-              "explanation": "以scalar weight把vertex delta叠加到neutral face上的basis shape。"
+              "keyword": "面部表演捕捉",
+              "explanation": "从演员录像估计面部运动，再拟合目标角色的表情控制。人物比例不同时，需要映射表情含义，不能直接复用顶点位置。",
+              "sourceIds": [
+                "aBlend"
+              ]
             },
             {
-              "keyword": "morph target",
-              "explanation": "Runtime interchange中的术语，表示混合到mesh的一组position、normal或tangent delta。"
-            },
-            {
-              "keyword": "delta shape",
-              "explanation": "某个expression target与neutral mesh之间逐vertex的差值。"
-            },
-            {
-              "keyword": "blend weight",
-              "explanation": "控制某个target贡献程度的scalar activation。"
-            },
-            {
-              "keyword": "corrective shape",
-              "explanation": "由pose或组合条件激活、用于修复nonlinear interaction的附加target。"
-            },
-            {
-              "keyword": "performance capture",
-              "explanation": "根据actor的recorded performance估计head、eye、expression与speech motion。"
-            },
-            {
-              "keyword": "expression retargeting",
-              "explanation": "把source facial motion映射到比例、control或blendshape basis不同的target。"
-            },
-            {
-              "keyword": "FLAME",
-              "explanation": "把identity、expression、pose与articulated jaw/neck factor分离的learned parametric head model。"
-            },
-            {
-              "keyword": "audio-driven animation",
-              "explanation": "根据speech audio预测facial motion，通常重点处理lip timing，并结合learned coarticulation与expression prior。"
+              "keyword": "语音驱动面部动画",
+              "explanation": "根据语音预测口型时序及相邻发音的过渡，上半脸表情还依赖学习到的规律或显式控制。仅凭音频不能唯一确定完整面部表演。",
+              "sourceIds": [
+                "aAudioFace",
+                "aGaussianSpeech"
+              ]
             }
           ]
         }
       ],
       "aiResearch": {
-        "summary": "OmniFaceRig研究可transfer的facial rigging，GaussianSpeech构建personalized audio-driven Gaussian avatar，Audio2Face-3D则根据speech预测expressive 3D facial motion。即使inference采用neural method，semantic control对于direction与correction仍有价值。",
+        "summary": "这里的三项研究处理不同环节：OmniFaceRig从静态模型建立可编辑的面部绑定；GaussianSpeech学习特定人物的说话动作和外观；Audio2Face-3D把语音转换为可重定向的面部动画。它们分别输出绑定资产、可渲染的数字头像和动画数据。",
+        "explanations": [
+          {
+            "title": "OmniFaceRig：从静态面部建立绑定与口腔结构",
+            "text": [
+              "OmniFaceRig于2026年6月发布预印本，输入尚未建立口腔内部结构的角色表面网格。系统先结合视觉语言模型和计算机视觉方法检查输入、识别人脸区域，再利用密集关键点，把适合该角色类型的面部模板配准到网格上。",
+              "随后通过程序化拟合添加牙齿、牙龈和舌头，并在考虑碰撞的条件下转移混合形状，输出可编辑的面部绑定、口腔几何和重新整理的纹理。学习方法主要参与识别与定位，配准和程序化建模仍负责资产构建；表情播放还需要另行输入动画控制。"
+            ],
+            "flow": {
+              "label": "OmniFaceRig：从静态表面到面部绑定",
+              "steps": [
+                {
+                  "title": "静态角色网格",
+                  "text": "输入尚未绑定的面部表面"
+                },
+                {
+                  "title": "检查并解析面部",
+                  "text": "识别面部区域与密集关键点"
+                },
+                {
+                  "title": "配准面部模板",
+                  "text": "把适合角色类型的模板对齐到网格"
+                },
+                {
+                  "title": "拟合口腔并转移形状",
+                  "text": "构建内部几何，同时减少穿插"
+                },
+                {
+                  "title": "导出面部绑定",
+                  "text": "输出混合形状、口腔结构与纹理"
+                }
+              ]
+            }
+          },
+          {
+            "title": "GaussianSpeech：用语音驱动特定人物的高斯头像",
+            "text": [
+              "GaussianSpeech发表于2025年的国际计算机视觉大会。训练时先使用同步多视角录像和语音，跟踪FLAME面部模型，再把三维高斯附着到网格三角形上，并通过皱纹与感知损失学习随表情变化的外观。",
+              "运行时从新语音提取特征，预测该人物的口型、表情和运动，再驱动高斯头像进行渲染。它同时表现几何运动和细微外观变化；更换人物需要重新拟合对应头像，不能仅靠转移一组混合形状权重完成。"
+            ],
+            "flow": {
+              "label": "GaussianSpeech：从语音到个性化说话头像",
+              "steps": [
+                {
+                  "title": "离线拟合人物头像",
+                  "text": "跟踪多视角录像，将三维高斯绑定到FLAME"
+                },
+                {
+                  "title": "编码新语音",
+                  "text": "提取音频特征"
+                },
+                {
+                  "title": "预测口型与表情特征",
+                  "text": "生成该人物的说话运动"
+                },
+                {
+                  "title": "驱动高斯头像",
+                  "text": "更新几何和随表情变化的外观"
+                },
+                {
+                  "title": "渲染动画序列",
+                  "text": "输出人物说话时的画面"
+                }
+              ]
+            }
+          },
+          {
+            "title": "Audio2Face-3D：先预测面部几何，再求解绑定权重",
+            "text": [
+              "2025年的Audio2Face-3D论文介绍了回归与扩散两种模型。输入语音和情绪控制后，回归模型预测单帧姿势，扩散模型生成短动画序列并支持多个人物身份。",
+              "主要流程先预测面部几何运动，再求解混合形状权重，使绑定后的面部尽量复现预测结果。目标角色使用含义对应的混合形状，就能接收这些权重完成重定向。几何预测与绑定拟合是两个阶段，目标绑定仍需具备相应的表情控制能力。"
+            ],
+            "flow": {
+              "label": "Audio2Face-3D：从音频到可重定向的面部运动",
+              "steps": [
+                {
+                  "title": "语音 + 情绪控制",
+                  "text": "为选定模型提供条件"
+                },
+                {
+                  "title": "预测面部动画",
+                  "text": "使用回归姿势或扩散生成的序列"
+                },
+                {
+                  "title": "还原面部几何",
+                  "text": "得到运动中的源角色面部"
+                },
+                {
+                  "title": "求解混合形状权重",
+                  "text": "用绑定形状拟合预测几何"
+                },
+                {
+                  "title": "驱动目标角色",
+                  "text": "把权重应用到语义对应的目标形状"
+                }
+              ]
+            }
+          }
+        ],
         "sourceIds": [
           "aOmniFace",
           "aGaussianSpeech",
           "aAudioFace"
         ]
-      }
-    },
-    {
-      "heading": "Animation transformation：从key到character motion",
-      "paragraphs": [
-        "Animation transformation描述数值如何随time与hierarchy变化。Translation、rotation和scale组成local TRS transform；parent composition产生global motion；keyframe与spline定义curve；blending组合clip；root motion与motion warping把创作的displacement连接到gameplay target。",
-        "Rotation需要特殊处理。Euler angles易于阅读，但依赖rotation order并可能发生gimbal lock；quaternion避免这种singular representation，并支持shortest-path spherical interpolation。Motion matching与generative motion可以选择或合成pose，但选出的pose仍会进入这条确定性transform pipeline。"
-      ],
+      },
       "equations": [
         {
-          "label": "TRS组合",
-          "expression": "M_local = T(t) R(q) S(s),   M_global = M_parent M_local",
+          "label": "面部混合形状",
+          "expression": "x_face = x_neutral + Σ_k w_k b_k",
           "terms": [
-            {
-              "symbol": "M_local",
-              "text": "节点相对于父节点的局部变换矩阵。"
-            },
-            {
-              "symbol": "T(t)",
-              "text": "由平移向量 t 构造的平移矩阵。"
-            },
-            {
-              "symbol": "t",
-              "text": "局部平移向量。"
-            },
-            {
-              "symbol": "R(q)",
-              "text": "由四元数 q 构造的旋转矩阵。"
-            },
-            {
-              "symbol": "q",
-              "text": "局部旋转四元数。"
-            },
-            {
-              "symbol": "S(s)",
-              "text": "由缩放向量 s 构造的缩放矩阵。"
-            },
-            {
-              "symbol": "s",
-              "text": "局部缩放向量。"
-            },
-            {
-              "symbol": "M_global",
-              "text": "节点在全局空间或世界空间中的变换矩阵。"
-            },
-            {
-              "symbol": "M_parent",
-              "text": "父节点的全局变换矩阵。"
-            },
-            {
-              "symbol": "矩阵乘积",
-              "text": "公式的书写顺序采用本文约定；行向量与列向量引擎可能使用相反顺序，但整个系统必须保持一致。"
-            }
-          ]
-        },
-        {
-          "label": "Quaternion SLERP（球面线性插值）",
-          "expression": "slerp(q₀,q₁,α)=sin((1-α)Ω)/sinΩ q₀ + sin(αΩ)/sinΩ q₁",
-          "terms": [
-            {
-              "symbol": "slerp(q₀,q₁,α)",
-              "text": "两个单位四元数之间的球面线性插值结果。"
-            },
-            {
-              "symbol": "q₀",
-              "text": "起始单位四元数。"
-            },
-            {
-              "symbol": "q₁",
-              "text": "终止单位四元数；其符号会被选择为沿最短旋转路径插值。"
-            },
-            {
-              "symbol": "α",
-              "text": "插值参数，通常从 q₀ 处的 0 变化到 q₁ 处的 1。"
-            },
-            {
-              "symbol": "1-α",
-              "text": "起始朝向对应的互补插值权重。"
-            },
-            {
-              "symbol": "Ω",
-              "text": "q₀ 与 q₁ 在单位四元数球面上的夹角；选择最短路径符号后，cosΩ=q₀·q₁。"
-            },
-            {
-              "symbol": "sin",
-              "text": "正弦函数；正弦比值生成角速度恒定的球面插值权重。"
-            },
-            {
-              "symbol": "sinΩ",
-              "text": "两个插值权重共同使用的归一化分母。"
-            },
-            {
-              "symbol": "q₀·q₁",
-              "text": "用于确定 Ω 的四元数点积。"
-            }
+            "x_neutral是中性面部，b_k是目标形状的顶点偏移向量，w_k是对应权重。",
+            "目标形状必须保持顶点对应；组合缺陷可交给前述修正层处理。"
           ]
         }
+      ]
+    },
+    {
+      "heading": "动画生成：从关键帧到角色运动",
+      "paragraphs": [
+        "姿势采用前述骨骼层级表示后，播放系统还需要决定动作怎样随时间推进，并把运动接到交互目标上。主要区别在于旋转插值、曲线形状、分层混合、根部位移和动作数据库搜索。",
+        "平移、旋转和缩放仍是底层变换分量。下面的方法处理时间曲线、动作片段或动作选择，最终沿用前述层级求值与蒙皮流程。"
       ],
       "keywordSourceGroups": [
         {
           "keywords": [
-            "animation transformation",
-            "translation",
-            "rotation",
-            "scale",
-            "local transform",
-            "global transform",
-            "hierarchy composition",
-            "Euler angles",
-            "quaternion",
-            "SLERP",
-            "TRS matrix"
+            "四元数旋转插值",
+            "三次样条插值"
           ],
-          "summary": "Transform定义pose value及其精确的parent-to-child composition。",
-          "sourceIds": [
-            "aGltf",
-            "aQuaternion",
-            "aSkinning"
-          ],
+          "summary": "插值决定采样点之间的运动路径。",
           "details": [
             {
-              "keyword": "animation transformation",
-              "explanation": "Position、orientation、scale或其他animatable property随时间变化的映射。"
-            },
-            {
-              "keyword": "translation",
-              "explanation": "只改变position、不改变orientation或size的displacement vector。"
-            },
-            {
-              "keyword": "rotation",
-              "explanation": "使用angle、matrix、quaternion或exponential coordinates表示的orientation变化。"
-            },
-            {
-              "keyword": "scale",
-              "explanation": "沿各axis或uniform的size变化；nonuniform scale会使rotation、normal与retargeting更复杂。"
-            },
-            {
-              "keyword": "local transform",
-              "explanation": "Node相对于parent的transform。"
-            },
-            {
-              "keyword": "global transform",
-              "explanation": "组合全部ancestor之后得到的node transform。"
-            },
-            {
-              "keyword": "hierarchy composition",
-              "explanation": "按顺序相乘parent与child transform，用来计算scene或skeleton tree。"
-            },
-            {
-              "keyword": "Euler angles",
-              "explanation": "三个按顺序执行的axial rotation，创作直观，但依赖rotation order并可能产生gimbal lock。"
-            },
-            {
-              "keyword": "quaternion",
-              "explanation": "由四个component组成的unit 3D rotation representation，可进行平滑composition与interpolation。",
+              "keyword": "四元数旋转插值",
+              "explanation": "单位四元数避免欧拉角的万向节锁。插值参数随时间线性变化时，球面插值沿恒定角速度圆弧运动；最短路径需要先统一等价表示的符号。",
+              "sourceIds": [
+                "aQuaternion"
+              ],
               "equation": {
-                "expression": "q=(w,x,y,z), |q|=1",
+                "expression": "slerp(q₀,q₁,α)=sin((1-α)Ω)/sinΩ q₀ + sin(αΩ)/sinΩ q₁",
                 "note": [
-                  "q：旋转四元数。",
-                  "w：标量分量。",
-                  "x：第一个向量分量。",
-                  "y：第二个向量分量。",
-                  "z：第三个向量分量。",
-                  "|q|：四元数的模。",
-                  "|q|=1表示q是单位四元数。",
-                  "q与-q编码相同朝向。"
+                  "q₀与q₁是单位端点，α从0变化到1，Ω是统一符号后的球面夹角。",
+                  "端点几乎相同时，需要采用稳定的小角度极限，例如归一化线性插值。"
                 ]
               }
             },
             {
-              "keyword": "SLERP",
-              "explanation": "沿rotation之间的constant-angular-speed arc进行spherical linear interpolation。"
-            },
-            {
-              "keyword": "TRS matrix",
-              "explanation": "由translation、rotation与scale component组成的transform。"
+              "keyword": "三次样条插值",
+              "explanation": "Hermite曲线段通过端点值与切线控制时序和速度。相邻段切线匹配时可平滑衔接，切线大小需要与时间参数化保持一致。",
+              "sourceIds": [
+                "aGltf"
+              ],
+              "equation": {
+                "expression": "p(t)=h₀₀p₀+h₁₀m₀+h₀₁p₁+h₁₁m₁",
+                "note": [
+                  "p₀、p₁是端点值，m₀、m₁是对应切线，t是归一化区间时间。",
+                  "四个h项是三次Hermite基函数；切线须按区间时长缩放。"
+                ]
+              }
             }
           ]
         },
         {
           "keywords": [
-            "keyframe",
-            "interpolation",
-            "cubic spline",
-            "animation blending",
-            "additive animation",
-            "root motion",
-            "motion warping",
-            "state machine",
-            "blend space",
-            "motion matching"
+            "分层与叠加混合",
+            "根运动与运动扭曲",
+            "混合空间",
+            "运动匹配"
           ],
-          "summary": "Curve evaluation与runtime selection把保存的clip转换为能够响应输入的continuous motion。",
-          "sourceIds": [
-            "aGltf",
-            "aMotionMatch",
-            "aQuaternion"
-          ],
+          "summary": "运行时组合把动作片段接到角色控制上。",
           "details": [
             {
-              "keyword": "keyframe",
-              "explanation": "带timestamp的authoring或capture value，用于计算intermediate animation。"
+              "keyword": "分层与叠加混合",
+              "explanation": "按身体区域混合姿势，或在基础动作上叠加相对于参考姿势的变化。例如在行走中加入独立瞄准、后坐力与呼吸，而不必为每种组合制作完整片段。",
+              "sourceIds": [
+                "aAnimationLayers"
+              ]
             },
             {
-              "keyword": "interpolation",
-              "explanation": "计算key之间数值的规则，例如step、linear、cubic或quaternion spherical interpolation。"
+              "keyword": "根运动与运动扭曲",
+              "explanation": "从动画提取角色整体位移，再调整轨迹对齐实际交互目标。例如让预制跨越动作适应场景中障碍物的位置。",
+              "sourceIds": [
+                "aMotionWarping"
+              ]
             },
             {
-              "keyword": "cubic spline",
-              "explanation": "使用tangent在key之间提供平滑value与velocity的piecewise cubic curve。",
-              "equation": {
-                "expression": "p(t)=h₀₀p₀+h₁₀m₀+h₀₁p₁+h₁₁m₁",
-                "note": [
-                  "p(t)：归一化参数t处的插值数值或位置。",
-                  "t：从0到1的归一化参数。",
-                  "p₀：第一个端点值。",
-                  "p₁：第二个端点值。",
-                  "m₀：第一个端点切线。",
-                  "m₁：第二个端点切线。",
-                  "h₀₀(t)：第一个端点值的基函数。",
-                  "h₁₀(t)：第一个端点切线的基函数。",
-                  "h₀₁(t)：第二个端点值的基函数。",
-                  "h₁₁(t)：第二个端点切线的基函数。",
-                  "切线尺度取决于区间时间约定。"
-                ]
-              }
+              "keyword": "混合空间",
+              "explanation": "把速度、方向等连续参数映射为动画样本权重。状态机可以选择当前运动状态，混合空间则处理该状态内部的连续变化。",
+              "sourceIds": [
+                "aBlendSpaces"
+              ]
             },
             {
-              "keyword": "animation blending",
-              "explanation": "Pose或clip的加权组合，通常按joint进行normalization，或通过layer组织。"
-            },
-            {
-              "keyword": "additive animation",
-              "explanation": "叠加在base pose上的delta pose，用于aim、recoil、breathing或correction。"
-            },
-            {
-              "keyword": "root motion",
-              "explanation": "从animation root提取的character displacement与orientation，而不是完全由gameplay code生成。"
-            },
-            {
-              "keyword": "motion warping",
-              "explanation": "在runtime调整clip trajectory或选定bone，使motion能够到达gameplay target。"
-            },
-            {
-              "keyword": "state machine",
-              "explanation": "由gameplay condition驱动、包含animation state与transition rule的graph。"
-            },
-            {
-              "keyword": "blend space",
-              "explanation": "从speed、direction等parameter到加权animation sample的continuous map。"
-            },
-            {
-              "keyword": "motion matching",
-              "explanation": "在runtime搜索与current trajectory及pose feature匹配的database pose，再transition到该pose的后续motion。"
+              "keyword": "运动匹配",
+              "explanation": "根据当前姿势和期望轨迹搜索动作数据库，再过渡到所选样本的后续动作。它选择的是记录下来的运动，而非从零生成每个姿势。",
+              "sourceIds": [
+                "aMotionMatch"
+              ]
             }
           ]
         }
       ],
       "aiResearch": {
-        "summary": "MotionCraft生成可控character motion，MoMADiff关注multi-object interaction，policy-space diffusion则生成physics-based control policy。这些model改变了motion的提出方式；transform、interpolation与blending仍决定runtime execution。",
+        "summary": "MotionCraft根据文本、语音或音乐生成全身动作；MoMADiff通过文本和稀疏关键帧控制动作补全；Policy-Space Diffusion则生成用于物理模拟的控制器参数。它们提供的是动作数据或控制策略，最终播放仍需要明确坐标约定和骨骼变换。",
+        "explanations": [
+          {
+            "title": "MotionCraft：用文本与音频条件生成全身动作",
+            "text": [
+              "MotionCraft使用统一的扩散注意力网络，根据文本、语音或音乐生成动作。训练先学习文本与动作之间的语义关系，再适配不同模态的细节控制；其中MC-Attn并行建模人体的静态与动态拓扑关系。",
+              "模型输出采用SMPL-X表示的全身动作序列。接入实际角色时，还需要把这套姿势表示映射到目标骨骼，再计算局部和全局变换。生成了动作，并不意味着已经满足场景中的物理接触或游戏交互约束。"
+            ],
+            "flow": {
+              "label": "MotionCraft：从多模态条件到全身动作",
+              "steps": [
+                {
+                  "title": "文本、语音或音乐",
+                  "text": "提供期望动作的控制条件"
+                },
+                {
+                  "title": "编码控制信号",
+                  "text": "使用相应输入模态的控制模块"
+                },
+                {
+                  "title": "结合MC-Attn逐步去噪",
+                  "text": "在生成过程中建模身体各部分的关系"
+                },
+                {
+                  "title": "输出SMPL-X动作",
+                  "text": "还原生成的全身动作序列"
+                },
+                {
+                  "title": "映射到目标骨骼",
+                  "text": "计算目标变换并驱动角色播放"
+                }
+              ]
+            }
+          },
+          {
+            "title": "MoMADiff：围绕指定关键帧补全动作",
+            "text": [
+              "MoMADiff把每一帧动作编码为连续的潜在特征，再结合掩码自回归模型和扩散预测模块，根据文本及已知帧生成缺失内容。关键帧可以由模型先行生成，也可以由用户提供。",
+              "模型逐步补齐剩余帧，最后解码出完整姿势序列。这相当于利用学到的动作规律完成中间帧，并保留指定时间与姿势的控制，研究重点并非多物体交互。输出仍是动画数据，不会替代骨骼变换，也不直接充当物理控制器。"
+            ],
+            "flow": {
+              "label": "MoMADiff：从文本与关键帧到完整序列",
+              "steps": [
+                {
+                  "title": "文本 + 可选的稀疏关键帧",
+                  "text": "指定动作及关键姿势出现的时间"
+                },
+                {
+                  "title": "连续表示已知帧",
+                  "text": "用逐帧自编码器提取动作特征"
+                },
+                {
+                  "title": "预测缺失动作特征",
+                  "text": "结合掩码自回归与扩散生成"
+                },
+                {
+                  "title": "逐步补全序列",
+                  "text": "填入剩余时间位置的动作"
+                },
+                {
+                  "title": "解码并播放动作",
+                  "text": "还原姿势并交给动画系统处理"
+                }
+              ]
+            }
+          },
+          {
+            "title": "Policy-Space Diffusion：生成控制器，再由物理模拟产生运动",
+            "text": [
+              "先训练一组紧凑的动作模仿策略，并通过Common Neighbor Policy正则化，让相近任务的策略在网络参数空间中保持相似。随后训练条件扩散模型，学习策略网络权重与偏置的分布，其中包含不同角色身体比例的变化。",
+              "采样得到的是一个新的策略网络。播放时，该网络读取模拟中的角色状态，输出控制信号，再由物理引擎推进运动。它与姿势曲线插值的区别在于生成了带反馈的控制器，其最终动作还取决于模拟角色和所处条件。"
+            ],
+            "flow": {
+              "label": "Policy-Space Diffusion：从策略采样到模拟运动",
+              "steps": [
+                {
+                  "title": "离线训练策略集合",
+                  "text": "用正则化关联相近的动作模仿任务"
+                },
+                {
+                  "title": "学习策略分布",
+                  "text": "对网络参数训练条件扩散模型"
+                },
+                {
+                  "title": "采样新的控制器",
+                  "text": "按条件生成网络权重与偏置"
+                },
+                {
+                  "title": "读取状态并输出控制",
+                  "text": "在模拟循环中运行生成的策略"
+                },
+                {
+                  "title": "推进物理并更新姿势",
+                  "text": "由模拟器计算角色的实际运动"
+                }
+              ]
+            }
+          }
+        ],
         "sourceIds": [
           "aMotionCraft",
           "aMoma",
@@ -2107,5 +1524,5 @@
       }
     }
   ],
-  "closing": "Vertex与cage system直接控制shape；rig通过hierarchy与weight分解motion；corrective、muscle、hair与facial system补回simple transform无法表达的deformation；runtime transform stack则把所有创作或生成结果转换为continuous motion。AI正在自动化capture、rigging、skinning、retargeting与synthesis，但可编辑representation与确定性evaluation仍是把research result转化为production character的桥梁。"
+  "closing": "顶点缓存保存最终几何，控制笼和骨骼提供可编辑的控制结构，修正与物理模型补充复杂变形。生成或捕捉方法可以自动提供资产和动作，但仍需匹配这些表示及其播放约束。"
 }

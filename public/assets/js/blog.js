@@ -341,6 +341,10 @@ function aiResearchBlock(research, sourceCatalog) {
         ? explanation.text
         : [explanation.text];
       for (const paragraph of paragraphs) item.append(element("p", "", paragraph));
+      for (const equation of explanation.equations ?? []) item.append(equationBlock(equation));
+      for (const flow of explanation.flows ?? (explanation.flow ? [explanation.flow] : [])) {
+        item.append(flowDiagram(flow));
+      }
       explanations.append(item);
     }
     aside.append(explanations);

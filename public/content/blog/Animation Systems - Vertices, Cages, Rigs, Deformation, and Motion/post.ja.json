@@ -22,83 +22,9 @@
     {
       "heading": "リグベース：階層、Skinning、IK、Retargeting",
       "paragraphs": [
-        "関節階層がLocal TransformをGlobal Transformへ評価し、Skin weightがMeshへ写し、FK、IK、Constraint、ControlがPoseを作り、Retargetingが別SkeletonへMotionを移します。",
-        "ControllerとSolverは特定のAlgorithm名ではなく、Rig内の責任を表します。ControllerはHand Transform、LookAt Target、FingerCurlなどの目標を公開し、Constraintが関係と制限を定義し、Solverが条件を満たすSkeleton Poseを計算し、最後にSkinningまたは別のDeformerがPoseを頂点位置へ変換します。",
-        "Auto riggingとAuto skinningは関連する別問題です。GXは引用仕様や論文で標準化された略語ではないため、Project固有Schemaで意味を定義する必要があります。"
-      ],
-      "technicalTables": [
-        {
-          "columns": [
-            "Layer",
-            "入力",
-            "出力",
-            "例"
-          ],
-          "rows": [
-            [
-              "Controller",
-              "Animator、Gameplay、Procedural Intent",
-              "TargetとParameter値",
-              "Hand Control、LookAt Target、FingerCurl"
-            ],
-            [
-              "Constraint",
-              "関係、制限、Weight",
-              "Poseが満たすべき条件",
-              "Parent、Aim、Pole Vector、Joint Limit"
-            ],
-            [
-              "Solver",
-              "現在Pose、Goal、Constraint、Settings",
-              "BoneまたはObject Transform",
-              "Two Bone IK、FABRIK、CCD、Full Body IK"
-            ],
-            [
-              "Deformer",
-              "解決済みPoseまたはDeformation Control",
-              "最終頂点位置",
-              "LBS、DQS、Cage Deformation、Blend Shape"
-            ]
-          ],
-          "caption": "Controller、Solver、Deformerは異なる責任を持ち、完全なRigがそれらを一つのEvaluation Graphへ接続します。"
-        }
-      ],
-      "callouts": [
-        {
-          "tone": "note",
-          "title": "Cage Deformationの位置づけ",
-          "text": "Cage頂点は低次元Controlのように扱え、Cage Deformation Algorithmは編集を詳細Meshへ伝えます。ただしCageは特定のDeformerであり、ControllerやSolver一般の定義ではありません。"
-        }
-      ],
-      "flow": {
-        "label": "Rig評価：Intentから最終頂点まで",
-        "steps": [
-          {
-            "title": "Animation Intent",
-            "text": "Keyframe、Gameplay、Motion Capture、Procedural Logic"
-          },
-          {
-            "title": "Controllers",
-            "text": "Target TransformとSemantic Parameterを公開"
-          },
-          {
-            "title": "Goals and Constraints",
-            "text": "目標位置、関係、制限、Contactを定義"
-          },
-          {
-            "title": "Pose Solver",
-            "text": "FK、IK、Solver StackでJoint Transformを計算"
-          },
-          {
-            "title": "Deformer / Skinning",
-            "text": "LBS、DQS、Corrective、Cage WeightでPoseを適用"
-          },
-          {
-            "title": "Final Mesh Vertices",
-            "text": "SimulationとRenderingが使用するGeometryを生成"
-          }
-        ]
-      }
+        "リグは姿勢制御と表面変形を分けます。コントローラーが目標を指定し、ソルバーが制約の下で関節姿勢を求め、スキニングが骨格の動きを頂点に伝えます。関節の局所変換を親子階層に沿って合成すると、大域変換が得られます。",
+        "自動リギングは骨格を構築し、自動スキニングは頂点への影響を割り当て、リターゲティングは既存の動作を別のキャラクターへ移します。同じシステムが扱っていても、それぞれ異なる制作工程です。"
+      ]
     },
     {
       "heading": "Skin変形：Corrective、Helper Bone、Muscle",

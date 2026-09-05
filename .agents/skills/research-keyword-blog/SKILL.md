@@ -15,6 +15,7 @@ Read [references/research-ledger-and-json.md](references/research-ledger-and-jso
    - Preserve every user-provided heading and keyword verbatim and in order unless the user authorizes rewriting.
    - Build a coverage ledger before drafting.
    - Record ambiguous terms instead of guessing their intended meaning.
+   - For a concision or deduplication pass, assign each shared concept one main section. Merge synonyms, acronyms, and closely related components into one useful entry; remove basic dictionary terms already clear from the introduction. Preserve distinct algorithms and meaningful tradeoffs. User-authorized consolidation takes precedence over verbatim keyword preservation.
 
 2. Expand the vocabulary.
    - Search for missing prerequisites, accepted synonyms, sub-techniques, modern successors, production implementations, limitations, and neighboring concepts.
@@ -43,12 +44,13 @@ Read [references/research-ledger-and-json.md](references/research-ledger-and-jso
    - Lead each section with the technical claim, then explain the mechanism and consequence.
    - Define terms before using abbreviations.
    - Keep equations, spaces, units, stages, inputs, and tradeoffs explicit.
-   - Give every keyword its own concise explanation, even when several keywords share evidence.
+   - Give each retained concept a concise explanation. Do not create separate entries for a synonym, acronym expansion, elementary component, or a concept already explained in another section; refer back briefly when only the application changes.
    - Add an equation only when it clarifies the mechanism. Define its symbols or state what the equation demonstrates; never add decorative math.
-   - In portfolio keyword equations, write `note` as an array of short lines. Give each symbol, operation, or caveat its own item instead of joining definitions with commas in one sentence.
-   - Give every keyword an AI note that states one of three relationships: direct learned method, adjacent learned research, or no direct AI research track. Do not imply that standardized coordinate, API, color, or display contracts are neural methods.
+   - Keep equation `note` arrays compact, usually one to three lines. Group related symbols in one sentence and explain only non-obvious quantities, assumptions, or caveats. Omit separate definitions of indices, ordinary operators, constants, and symbols already defined nearby. Keep a shared equation in one place; remove elementary or redundant formulas when prose suffices.
+   - Use a per-keyword AI note only when it adds a relationship not already explained in section research. Distinguish direct learned methods, adjacent research, and non-neural mechanisms without repeating a generic AI disclaimer for every term.
    - Add one short current-AI synthesis per section with two or three recent primary sources. Put shared AI links in this section block instead of repeating them under every keyword.
    - When the user requests expanded `aiResearch` explanations, match the neighboring sections' structure: explain each named method's inputs, learned representation, inference or solver steps, output, and relevant limit in short paragraphs. Add a simple per-method flow when it clarifies the sequence. Distinguish offline training from runtime computation and geometric preprocessing from learned prediction.
+   - Keep each research method together: title, explanation, its useful equations, then its flow before the next title. Store method-specific equations and flows inside that method's `aiResearch.explanations[]` entry; reserve research-level equations and flows for genuinely shared material. Do not add an equation just to fill this sequence.
    - Distinguish AI work from important non-neural companion research such as sampling, reuse, or deterministic reconstruction algorithms.
    - Add tables, code, or flows only when they clarify a relationship.
    - Keep source summaries factual. Do not claim that a paper invented a term unless the publication establishes that history.
@@ -64,10 +66,10 @@ Read [references/research-ledger-and-json.md](references/research-ledger-and-jso
 
 ## Validate before finishing
 
-- Confirm that all supplied keywords remain present, unchanged, and in order.
+- Confirm supplied-keyword coverage, accounting for any user-authorized merges or removals; do not restore terms deliberately removed during a concision pass.
 - Confirm that added keywords are technically relevant and placed deliberately.
-- Confirm that every group has a summary and two or three directly relevant sources.
-- Confirm that every keyword has an explanation and AI note, detail order matches keyword order, and equations include explanatory `note` arrays with one concept per line.
+- Confirm each group has a useful summary and directly relevant sources. Cite per detail when methods require different evidence; do not pad a narrowly supported method to reach a source count.
+- Confirm each retained concept has an explanation, detail order matches keyword order, and equations have concise notes without repeated notation definitions.
 - Confirm that each section AI block has two or three directly relevant, current primary sources.
 - Confirm that source IDs resolve, URLs are globally unique in the catalog, and shared links render only once in their evidence or AI block.
 - Check publication identity, authorship, year, and whether the linked page is actually primary or official.
