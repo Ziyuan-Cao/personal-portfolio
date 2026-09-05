@@ -1,0 +1,14 @@
+{
+  "id": "877e2e06-25e8-476e-9d28-85e1659b9bc2",
+  "uid": "e1bfcc7e2467a23bda3c6e50e33203b01d1c2c51868f762fb329f26b2b13589e",
+  "url": "https://unity.com/blog/adapting-causa-into-the-dusk-for-mobile",
+  "canonicalUrl": "https://unity.com/blog/adapting-causa-into-the-dusk-for-mobile",
+  "sourceUrl": "https://blog.unity.com/feed",
+  "sourceName": "Unity",
+  "title": "Adapting Causa: Into the Dusk for mobile with Unity 6.3",
+  "subtitle": "In this video, the Niebla Games team explains how they worked with Unity to bring Causa: Into the Dusk, first launched on PC in 2021, to Google Play Pass, which is coming soon. They share how they migrated from Unity 2019 to Unity 6.3, upgraded from the Built-in Render Pipeline to the Universal Render Pipeline (URP) for higher and more consistent frame rates, scaled across devices with Unity Device Simulator, optimized with the latest Unity Profiler, and reduced build size using Unity’s Sprite Atlas system and Atlas Analyzer.",
+  "imageUrl": "https://cdn.sanity.io/images/fuvbjjlp/production/cf9794e2dd045314850fc9782135a876886a7c9d-1920x1080.png",
+  "publishedAt": "2026-07-02T00:00:00.000Z",
+  "firstSeenAt": "2026-08-25T21:47:02.470Z",
+  "lastSeenAt": "2026-08-25T21:47:02.470Z"
+}
