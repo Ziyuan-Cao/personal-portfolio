@@ -267,7 +267,7 @@ function sourceLinkList(sourceIds, sourceCatalog, className) {
   return links;
 }
 
-function keywordDetailList(details) {
+function keywordDetailList(details, sourceCatalog) {
   const disclosure = element("details", "blog-keyword-details");
   const summary = element("summary", "", i18n.t("blog.keywordDetails", { count: details.length }));
   disclosure.append(summary);
@@ -286,20 +286,38 @@ function keywordDetailList(details) {
 
     if (detail.equation) {
       const equation = element("div", "blog-keyword-detail-field blog-keyword-equation");
+      const notes = Array.isArray(detail.equation.note)
+        ? detail.equation.note
+        : [detail.equation.note];
       equation.append(
         element("strong", "", i18n.t("blog.keywordEquation")),
         element("code", "", detail.equation.expression),
-        element("p", "", detail.equation.note),
+        ...notes.filter(Boolean).map((note) => element("p", "", note)),
       );
       item.append(equation);
     }
 
-    const aiNote = element("div", "blog-keyword-detail-field blog-keyword-ai-note");
-    aiNote.append(
-      element("strong", "", i18n.t("blog.keywordAiNote")),
-      element("p", "", detail.aiNote),
-    );
-    item.append(aiNote);
+    if (detail.aiNote) {
+      const aiNote = element("div", "blog-keyword-detail-field blog-keyword-ai-note");
+      aiNote.append(
+        element("strong", "", i18n.t("blog.keywordAiNote")),
+        element("p", "", detail.aiNote),
+      );
+      item.append(aiNote);
+    }
+
+    if (detail.sourceIds?.length) {
+      const references = element("div", "blog-keyword-detail-field");
+      references.append(
+        element("strong", "", i18n.t("blog.keywordSources")),
+        sourceLinkList(
+          detail.sourceIds,
+          sourceCatalog,
+          "blog-keyword-source-links blog-keyword-detail-source-links",
+        ),
+      );
+      item.append(references);
+    }
     list.append(item);
   }
 
@@ -312,8 +330,26 @@ function aiResearchBlock(research, sourceCatalog) {
   aside.append(
     element("strong", "blog-ai-research-title", i18n.t("blog.currentAiResearch")),
     element("p", "blog-ai-research-summary", research.summary),
-    sourceLinkList(research.sourceIds, sourceCatalog, "blog-ai-research-links"),
   );
+
+  if (research.explanations?.length) {
+    const explanations = element("div", "blog-ai-research-explanations");
+    for (const explanation of research.explanations) {
+      const item = element("section", "blog-ai-research-explanation");
+      item.append(
+        element("h4", "", explanation.title),
+        element("p", "", explanation.text),
+      );
+      explanations.append(item);
+    }
+    aside.append(explanations);
+  }
+
+  for (const equation of research.equations ?? []) aside.append(equationBlock(equation));
+  for (const flow of research.flows ?? (research.flow ? [research.flow] : [])) {
+    aside.append(flowDiagram(flow));
+  }
+  aside.append(sourceLinkList(research.sourceIds, sourceCatalog, "blog-ai-research-links"));
   return aside;
 }
 
@@ -331,7 +367,7 @@ function keywordSources(groups, sourceCatalog) {
     }
     item.append(keywordList);
     if (group.summary) item.append(element("p", "blog-keyword-source-summary", group.summary));
-    if (group.details?.length) item.append(keywordDetailList(group.details));
+    if (group.details?.length) item.append(keywordDetailList(group.details, sourceCatalog));
     item.append(sourceLinkList(group.sourceIds, sourceCatalog, "blog-keyword-source-links"));
     list.append(item);
   }

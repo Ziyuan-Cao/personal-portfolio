@@ -56,6 +56,26 @@
       "label": "Assimp OBJ loader documentation",
       "url": "https://assimp-docs.readthedocs.io/en/latest/"
     },
+    "s01m": {
+      "label": "STL file format family description",
+      "url": "https://www.loc.gov/preservation/digital/formats/fdd/fdd000504.shtml"
+    },
+    "s01n": {
+      "label": "Blender STL importer and exporter",
+      "url": "https://docs.blender.org/manual/en/5.1/files/import_export/stl.html"
+    },
+    "s01o": {
+      "label": "PLY polygon file format description",
+      "url": "https://paulbourke.net/dataformats/ply/index.html"
+    },
+    "s01p": {
+      "label": "Open3D geometry file I/O",
+      "url": "https://www.open3d.org/docs/latest/tutorial/geometry/file_io.html"
+    },
+    "s01q": {
+      "label": "Blender PLY importer and exporter",
+      "url": "https://docs.blender.org/manual/en/latest/files/import_export/ply.html"
+    },
     "s02a": {
       "label": "PBRT: Triangle Meshes",
       "url": "https://www.pbr-book.org/4ed/Shapes/Triangle_Meshes"
@@ -1028,10 +1048,68 @@
         }
       ],
       "aiResearch": {
-        "summary": "Generative world systems now predict scene layout and produce editable 3D assets, but production export still ends in conventional scene graphs and interchange formats.",
+        "summary": "AI mesh generation follows two main routes: generate an implicit field or structured 3D latent and extract a mesh, or generate vertices and topology directly. The first scales well; the second targets compact, artist-like topology.",
+        "explanations": [
+          {
+            "title": "Implicit field / 3D latent",
+            "text": "Systems such as TRELLIS generate an SDF, triplane, sparse voxel, or structured latent, then use an iso-surface method or decoder to obtain the mesh. Shape quality scales well, but topology is often dense or irregular."
+          },
+          {
+            "title": "Native mesh",
+            "text": "Systems such as MeshGPT model triangles or mesh tokens directly. They can produce compact topology and sharp edges, but discrete connectivity and long token sequences are harder to learn."
+          }
+        ],
+        "equations": [
+          {
+            "label": "Implicit-surface extraction",
+            "expression": "M = { p ∈ ℝ³ | f(p) = 0 }",
+            "terms": [
+              {
+                "symbol": "f(p)",
+                "text": "A learned SDF or scalar field evaluated at position p."
+              },
+              {
+                "symbol": "M",
+                "text": "The zero level set extracted as a mesh by Marching Cubes, DMTet, or a related decoder."
+              }
+            ]
+          },
+          {
+            "label": "Autoregressive mesh generation",
+            "expression": "P(T₁,…,Tₙ) = ∏ᵢ P(Tᵢ | T₁,…,Tᵢ₋₁)",
+            "terms": [
+              {
+                "symbol": "Tᵢ",
+                "text": "The i-th triangle or learned mesh token."
+              },
+              "Direct topology modeling is compact, but decoding is sequential and earlier errors can propagate."
+            ]
+          }
+        ],
+        "flow": {
+          "label": "Hybrid AI-to-production asset flow",
+          "steps": [
+            {
+              "title": "Text / Image",
+              "text": "Condition the shape and appearance."
+            },
+            {
+              "title": "3D Representation",
+              "text": "Generate an SDF, structured latent, or mesh tokens."
+            },
+            {
+              "title": "Mesh Construction",
+              "text": "Extract a surface or generate vertices and topology."
+            },
+            {
+              "title": "Production Asset",
+              "text": "Add UV/PBR, rig/LOD, validate, and export."
+            }
+          ]
+        },
         "sourceIds": [
-          "aiWorldGen",
-          "aiTrellis"
+          "aiTrellis",
+          "aiMeshGPT"
         ]
       }
     },

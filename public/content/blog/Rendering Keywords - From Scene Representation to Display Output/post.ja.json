@@ -5,7 +5,73 @@
   "imageAlt": "シーン作成、可視性、光輸送、ディスプレイ出力にまたがる34のレンダリングトピック",
   "lede": "シーン表現からディスプレイ出力までを順にたどります。各キーワードには短い意味の説明、仕組みの理解に役立つ場合は数式、そして現在のAIグラフィックス研究とのつながりを記載しています。AIが直接扱わない固定的な仕様や座標規約については、その点を明示しました。同じ論文や公式文書が実際に複数概念をまとめて扱う場合に限り、資料リンクを共有しています。",
   "sections": [
-    {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
+    {
+      "aiResearch": {
+        "summary": "AI Mesh Generationには主に二つの経路があります。Implicit FieldまたはStructured 3D Latentを生成してMeshを抽出する方法と、verticesおよびtopologyを直接生成する方法です。前者はスケールしやすく、後者はコンパクトで明瞭な制作向けtopologyを目指します。",
+        "explanations": [
+          {
+            "title": "Implicit Field / 3D Latent方式",
+            "text": "TRELLISなどはSDF、Triplane、Sparse Voxel、Structured Latentを生成し、iso-surface手法またはdecoderでMeshへ変換します。形状品質を高めやすい一方、topologyは高密度または不規則になりがちです。"
+          },
+          {
+            "title": "Native Mesh方式",
+            "text": "MeshGPTなどはtriangleまたはmesh tokenを直接モデル化します。コンパクトなtopologyとsharp edgeを生成できますが、離散的な接続関係と長いtoken sequenceの学習は困難です。"
+          }
+        ],
+        "equations": [
+          {
+            "label": "Implicit Surfaceの抽出",
+            "expression": "M = { p ∈ ℝ³ | f(p) = 0 }",
+            "terms": [
+              {
+                "symbol": "f(p)",
+                "text": "位置pで評価される学習済みSDFまたはscalar field。"
+              },
+              {
+                "symbol": "M",
+                "text": "Marching Cubes、DMTet、または類似decoderで抽出されるzero level setのMesh。"
+              }
+            ]
+          },
+          {
+            "label": "Autoregressive Mesh生成",
+            "expression": "P(T₁,…,Tₙ) = ∏ᵢ P(Tᵢ | T₁,…,Tᵢ₋₁)",
+            "terms": [
+              {
+                "symbol": "Tᵢ",
+                "text": "i番目のtriangleまたは学習済みmesh token。"
+              },
+              "topologyを直接モデル化するとMeshはコンパクトになりますが、decodeは逐次的で、先行する誤りが伝播する可能性があります。"
+            ]
+          }
+        ],
+        "flow": {
+          "label": "AI生成からproduction assetまで",
+          "steps": [
+            {
+              "title": "Text / Image",
+              "text": "形状とappearanceの条件を与える。"
+            },
+            {
+              "title": "3D Representation",
+              "text": "SDF、Structured Latent、またはmesh tokenを生成する。"
+            },
+            {
+              "title": "Mesh構築",
+              "text": "surfaceを抽出するか、verticesとtopologyを直接生成する。"
+            },
+            {
+              "title": "Production Asset",
+              "text": "UV/PBR、rig/LODを加え、検証してexportする。"
+            }
+          ]
+        },
+        "sourceIds": [
+          "aiTrellis",
+          "aiMeshGPT"
+        ]
+      }
+    }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
     {
       "heading": "Hair レンダリングとライティング",
       "paragraphs": [
