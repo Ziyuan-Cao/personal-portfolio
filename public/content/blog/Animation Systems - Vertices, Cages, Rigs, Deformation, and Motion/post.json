@@ -108,6 +108,22 @@
       "label": "Unreal Engine IK Rig Solvers",
       "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/ik-rig-solvers-in-unreal-engine"
     },
+    "aTwoBoneIk": {
+      "label": "Unreal Engine Two Bone IK",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/animation-blueprint-two-bone-ik-in-unreal-engine"
+    },
+    "aFabrik": {
+      "label": "FABRIK: A Fast, Iterative Solver for the Inverse Kinematics Problem",
+      "url": "https://www.andreasaristidou.com/publications/papers/FABRIK.pdf"
+    },
+    "aJacobianIk": {
+      "label": "Introduction to Inverse Kinematics with Jacobian Transpose, Pseudoinverse, and Damped Least Squares Methods",
+      "url": "https://people.csail.mit.edu/jbarry/spring2011PR2/readings/jactrans.pdf"
+    },
+    "aPoleVector": {
+      "label": "Unreal Engine FPoleVectorConstraint API",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Plugins/FullBodyIK/FPoleVectorConstraint"
+    },
     "aFullBodyIk": {
       "label": "Unreal Engine Control Rig Full-Body IK",
       "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/control-rig-full-body-ik-in-unreal-engine"
@@ -297,7 +313,14 @@
               "explanation": "The offset between a base vertex and its deformed target position.",
               "equation": {
                 "expression": "Δxᵢ=xᵢ,target-xᵢ,base",
-                "note": "Δxᵢ is vertex i's displacement; xᵢ,target is its position in the target shape; xᵢ,base is its position in the base shape; i is the vertex index; the subscripts target and base name the two shapes; subtraction produces the offset that can later be scaled and combined."
+                "note": [
+                  "Δxᵢ: vertex i's displacement.",
+                  "xᵢ,target: vertex i's position in the target shape.",
+                  "xᵢ,base: vertex i's position in the base shape.",
+                  "i: the vertex index.",
+                  "The subscripts target and base identify the two shapes.",
+                  "Subtraction produces an offset that can later be scaled and combined."
+                ]
               }
             },
             {
@@ -309,7 +332,14 @@
               "explanation": "Evaluation between sampled frames or targets to avoid stepwise motion.",
               "equation": {
                 "expression": "x(t)=(1-α)x₀+αx₁",
-                "note": "x(t) is the interpolated vertex position at sample time t; x₀ and x₁ are the corresponding positions in the previous and next samples; α is the normalized time fraction from 0 to 1; 1-α is the complementary weight of x₀; subscripts 0 and 1 identify the two endpoints. Linear interpolation requires consistent vertex correspondence."
+                "note": [
+                  "x(t): the interpolated vertex position at sample time t.",
+                  "x₀: the corresponding position in the previous sample.",
+                  "x₁: the corresponding position in the next sample.",
+                  "α: the normalized time fraction from 0 to 1.",
+                  "1-α: the complementary weight of x₀.",
+                  "Linear interpolation requires consistent vertex correspondence."
+                ]
               }
             }
           ]
@@ -590,7 +620,107 @@
         }
       ],
       "aiResearch": {
-        "summary": "Direct cage research remains active—recent work improves flexible cage construction and polynomial Green coordinates—but the hottest learning work usually predicts deformation fields or meshes. Those learned outputs can be controlled or compressed by cages rather than making cages obsolete.",
+        "summary": "The two cage papers here are current geometry-processing research rather than AI: they expand the shape and mathematical expressiveness of cage controls. 4Deform is the learned method; it reconstructs a continuous deformation field and surface sequence without producing a cage. A cage can be fitted afterward as an editing or compression layer, but that connection is a production inference rather than a claim made by 4Deform.",
+        "explanations": [
+          {
+            "title": "Flexible 3D Cage-based Deformation: replace flat faces with Bézier patches",
+            "text": [
+              "The input is a detailed mesh enclosed by a curved cage made from Bézier patches. The method derives Green coordinates from the positions and normals of the Bézier control net, so a small number of controls can represent smooth, high-curvature boundaries more precisely than a triangle or ruled-quad cage.",
+              "Because the coordinates are approximated with Riemann sums, a global projection step restores linear reproduction. The result remains a deterministic cage deformer: no network is trained and the output is still driven by edited cage controls."
+            ]
+          },
+          {
+            "title": "Polynomial 3D Green Coordinates: give linear cages curved deformation modes",
+            "text": [
+              "The method starts with a conventional linear triangular cage but derives closed-form polynomial Green coordinates and their derivatives. During deformation, a cage face can map to a polynomial surface, giving artists curved behavior without replacing the asset with a dense control mesh.",
+              "The coordinate derivatives also define a smooth subspace for variational shape optimization. This is non-neural companion research: it improves the analytic control representation that an AI-authored or manually authored deformation can use."
+            ]
+          },
+          {
+            "title": "4Deform: learn the deformation field before choosing a control representation",
+            "text": [
+              "4Deform receives a sparse time sequence of point clouds with limited noisy correspondence. It jointly optimizes a time-varying neural implicit surface and a continuous velocity field, using geometric and physical regularization to reconstruct intermediate surfaces.",
+              "Its native result is a dynamic surface rather than cage vertices or cage weights. A downstream tool may fit a cage to that result for compact editing, but the learned reconstruction and the cage deformation stage remain separate operations."
+            ]
+          }
+        ],
+        "flows": [
+          {
+            "label": "Flexible 3D Cage-based Deformation: curved cage to detailed mesh",
+            "steps": [
+              {
+                "title": "Detailed mesh + Bézier cage",
+                "text": "Enclose the mesh with a compact curved control boundary"
+              },
+              {
+                "title": "Green-coordinate evaluation",
+                "text": "Compute weights from control-net positions and normals"
+              },
+              {
+                "title": "Global projection",
+                "text": "Correct the approximate coordinates to preserve linear reproduction"
+              },
+              {
+                "title": "Edit cage controls",
+                "text": "Move a small set of Bézier control points"
+              },
+              {
+                "title": "Shape-preserving deformation",
+                "text": "Transfer the curved boundary change to the detailed mesh"
+              }
+            ]
+          },
+          {
+            "label": "Polynomial 3D Green Coordinates: analytic curved deformation",
+            "steps": [
+              {
+                "title": "Linear triangular cage",
+                "text": "Begin with a conventional low-resolution boundary"
+              },
+              {
+                "title": "Closed-form coordinates",
+                "text": "Evaluate polynomial Green coordinates and derivatives"
+              },
+              {
+                "title": "Polynomial face controls",
+                "text": "Represent curved face motion with a few parameters"
+              },
+              {
+                "title": "Optional variational solve",
+                "text": "Optimize deformation inside the coordinate subspace"
+              },
+              {
+                "title": "Curved mesh deformation",
+                "text": "Apply the resulting field to interior vertices"
+              }
+            ]
+          },
+          {
+            "label": "4Deform and a possible cage-assisted asset workflow",
+            "steps": [
+              {
+                "title": "Sparse point-cloud sequence",
+                "text": "Provide observations and limited noisy correspondence"
+              },
+              {
+                "title": "Neural implicit surface",
+                "text": "Learn the time-varying signed-distance representation"
+              },
+              {
+                "title": "Continuous velocity field",
+                "text": "Model how the surface moves through time"
+              },
+              {
+                "title": "Reconstructed surfaces",
+                "text": "Query intermediate times and extract dynamic geometry"
+              },
+              {
+                "title": "Optional downstream cage fit",
+                "text": "Add compact editable controls as a separate production step"
+              }
+            ]
+          }
+        ],
         "sourceIds": [
           "aCageFlex",
           "aPolyGreen",
@@ -604,92 +734,6 @@
         "A rig separates control from deformation. A joint hierarchy evaluates local transforms into global bone transforms; skin weights map those transforms to the mesh; FK, IK, constraints, and controls let animators pose the hierarchy; retargeting maps motion between different skeleton proportions.",
         "Controller and solver describe responsibilities rather than one specific algorithm. A controller exposes an animator-, gameplay-, or algorithm-driven goal such as a hand transform, look-at target, or finger-curl value. Constraints state relationships and limits; a solver computes a skeleton pose that best satisfies them; skinning or another deformer then converts that pose into final vertex positions.",
         "Automatic rigging predicts or fits a skeleton, while automatic skinning assigns influences. They are related but different optimization problems. The supplied term GX is preserved below, but it is not a standardized rigging acronym in the cited specifications or papers; a project must define it explicitly before it can be implemented."
-      ],
-      "equations": [
-        {
-          "label": "Linear blend skinning",
-          "expression": "x′ᵢ = Σ_j wᵢj (G_j B_j⁻¹) xᵢ,   Σ_j wᵢj=1",
-          "terms": [
-            {
-              "symbol": "x′ᵢ",
-              "text": "The skinned position of vertex i."
-            },
-            {
-              "symbol": "xᵢ",
-              "text": "The bind-pose position of vertex i, represented in the coordinate convention expected by the transform matrices."
-            },
-            {
-              "symbol": "i",
-              "text": "The vertex index."
-            },
-            {
-              "symbol": "Σ_j",
-              "text": "A sum over the joints that influence the vertex."
-            },
-            {
-              "symbol": "j",
-              "text": "The influencing-joint index."
-            },
-            {
-              "symbol": "wᵢj",
-              "text": "The skin weight assigning joint j's influence to vertex i."
-            },
-            {
-              "symbol": "G_j",
-              "text": "Joint j's current global transform."
-            },
-            {
-              "symbol": "B_j",
-              "text": "Joint j's global bind-pose transform."
-            },
-            {
-              "symbol": "B_j⁻¹",
-              "text": "The inverse bind transform, which moves a bind-space point into joint j's local bind frame."
-            },
-            {
-              "symbol": "G_j B_j⁻¹",
-              "text": "Joint j's skinning transform from the bind pose to the current pose."
-            },
-            {
-              "symbol": "Σ_j wᵢj=1",
-              "text": "The usual normalized-weight condition for each vertex."
-            }
-          ]
-        },
-        {
-          "label": "Jacobian IK update",
-          "expression": "Δθ = J⁺(x_target-x_end)",
-          "terms": [
-            {
-              "symbol": "Δθ",
-              "text": "The update applied to the vector of joint parameters θ."
-            },
-            {
-              "symbol": "θ",
-              "text": "The joint parameters being solved, such as rotation angles or other degrees of freedom."
-            },
-            {
-              "symbol": "J",
-              "text": "The Jacobian that relates a small change in θ to a change in the end effector."
-            },
-            {
-              "symbol": "J⁺",
-              "text": "The pseudoinverse of J, often replaced in practice by a damped least-squares inverse for stability."
-            },
-            {
-              "symbol": "x_target",
-              "text": "The desired end-effector position, orientation, or combined task-space vector."
-            },
-            {
-              "symbol": "x_end",
-              "text": "The end effector's current task-space vector."
-            },
-            {
-              "symbol": "x_target-x_end",
-              "text": "The task-space error the IK solver attempts to reduce."
-            }
-          ]
-        }
       ],
       "keywordSourceGroups": [
         {
@@ -723,7 +767,13 @@
               "explanation": "Parent–child relationships through which local transforms compose into model-space transforms.",
               "equation": {
                 "expression": "G_j=G_parent L_j",
-                "note": "G_j is joint j's global transform; j is the current joint index; G_parent is the global transform of j's parent; L_j is joint j's local transform relative to that parent. Matrix multiplication composes the parent's motion with the local transform."
+                "note": [
+                  "G_j: joint j's global transform.",
+                  "j: the current joint index.",
+                  "G_parent: the global transform of joint j's parent.",
+                  "L_j: joint j's local transform relative to its parent.",
+                  "Matrix multiplication composes the parent's motion with the local transform."
+                ]
               }
             },
             {
@@ -739,7 +789,14 @@
               "explanation": "A matrix that moves a vertex from model space into a joint's bind-local space before current pose is applied.",
               "equation": {
                 "expression": "M_skin,j=G_j B_j⁻¹",
-                "note": "M_skin,j is the skinning matrix for joint j; G_j is that joint's current global transform; B_j is its global bind-pose transform; B_j⁻¹ is the inverse bind transform; j is the joint index. The product maps a point from the bind pose into the joint's current pose."
+                "note": [
+                  "M_skin,j: the skinning matrix for joint j.",
+                  "G_j: joint j's current global transform.",
+                  "B_j: joint j's global bind-pose transform.",
+                  "B_j⁻¹: the inverse bind transform.",
+                  "j: the joint index.",
+                  "The product maps a point from the bind pose into the joint's current pose."
+                ]
               }
             },
             {
@@ -786,29 +843,152 @@
         },
         {
           "keywords": [
-            "solver",
-            "solver stack",
             "constraint",
+            "Pole Vector"
+          ],
+          "summary": "Constraints restrict acceptable motion; a Pole Vector selects the bend plane of a limb when the end-effector target alone leaves that plane ambiguous.",
+          "sourceIds": [
+            "aControlRigConstraints",
+            "aPoleVector",
+            "aTwoBoneIk"
+          ],
+          "details": [
+            {
+              "keyword": "constraint",
+              "explanation": "A relationship, limit, or weighted rule such as parent, position, rotation, aim, pole-vector, joint-limit, or contact behavior that narrows acceptable motion.",
+              "equation": {
+                "expression": "C_k(q)=0,   g_m(q)≥0",
+                "note": [
+                  "q: the vector of joint parameters.",
+                  "C_k: an equality constraint such as an end effector fixed to a target.",
+                  "g_m: an inequality constraint such as a joint-angle limit.",
+                  "The solver searches for a pose q that satisfies the constraints as closely as its algorithm allows."
+                ]
+              }
+            },
+            {
+              "keyword": "Pole Vector",
+              "explanation": "A direction or target point used to choose which way the middle joint of a limb points. For a two-bone arm or leg, the end target fixes reach but not the elbow or knee's bend plane; the Pole Vector resolves that remaining degree of freedom.",
+              "equation": {
+                "expression": "a=normalize(t-r),   b=normalize((p-r)-a[a·(p-r)])",
+                "note": [
+                  "r: the chain root.",
+                  "t: the end-effector target.",
+                  "p: the Pole Vector point.",
+                  "a: the normalized root-to-target axis.",
+                  "b: the desired bend direction perpendicular to a.",
+                  "The expression is undefined when the pole lies on the axis; production rigs therefore keep a fallback bend direction."
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "solver",
+            "Jacobian IK",
+            "Two Bone IK",
+            "CCD",
+            "FABRIK",
+            "Full Body IK",
+            "solver stack",
             "pose solve"
           ],
-          "summary": "Solvers convert goals and constraints into joint transforms; a solver stack composes several specialized pose operations in a defined evaluation order.",
+          "summary": "IK solvers differ in scope and update rule: Jacobian IK linearizes how joint changes move effectors, Two Bone IK has an analytic limb solution, CCD rotates one joint at a time, FABRIK relocates joint positions while preserving segment lengths, and Full Body IK coordinates several effectors and constraints across a larger hierarchy.",
           "sourceIds": [
-            "aIkSolvers",
-            "aFullBodyIk",
-            "aControlRigConstraints"
+            "aTwoBoneIk",
+            "aJacobianIk",
+            "aFabrik",
+            "aFullBodyIk"
           ],
           "details": [
             {
               "keyword": "solver",
-              "explanation": "An algorithmic stage that computes bone or object transforms from the current pose, goals, constraints, and solver settings; examples include Two Bone IK, FABRIK, CCD, and Full Body IK."
+              "explanation": "An algorithmic stage that computes bone or object transforms from the current pose, goals, constraints, and solver settings. Two Bone IK, CCD, FABRIK, and Full Body IK are solver families with different scopes and iteration strategies.",
+              "equation": {
+                "expression": "q* = arg min_q Σ_e w_e ||f_e(q)-t_e||²",
+                "note": [
+                  "q: the joint parameters.",
+                  "f_e(q): effector e's pose under forward kinematics.",
+                  "t_e: effector e's target.",
+                  "w_e: the importance of effector e.",
+                  "This is a conceptual common model; an implementation may instead use analytic geometry, positional iterations, or Jacobian updates."
+                ]
+              }
+            },
+            {
+              "keyword": "Jacobian IK",
+              "explanation": "An iterative solver that linearizes the relationship between joint-parameter changes and end-effector motion. It can solve long or redundant chains and multiple task dimensions, but requires damping or another strategy near singular configurations.",
+              "equation": {
+                "expression": "Δθ = J⁺(x_target-x_end)",
+                "note": [
+                  "θ: the joint-parameter vector.",
+                  "J: maps small joint changes to end-effector changes.",
+                  "J⁺: the pseudoinverse of J.",
+                  "x_target-x_end: the task-space error.",
+                  "Damped least squares uses Jᵀ(JJᵀ+λ²I)⁻¹ to improve stability near singularities."
+                ]
+              }
+            },
+            {
+              "keyword": "Two Bone IK",
+              "explanation": "An analytic solver for a three-joint chain such as shoulder–elbow–wrist or hip–knee–ankle. It places the end joint at the effector target, uses the two segment lengths and root-to-target distance to determine the bend angle, and uses a joint target or Pole Vector to choose the bend plane.",
+              "equation": {
+                "expression": "cos θ = clamp((a²+b²-d²)/(2ab), -1, 1)",
+                "note": [
+                  "a: the first bone length.",
+                  "b: the second bone length.",
+                  "d: the clamped root-to-target distance.",
+                  "θ: the internal angle at the middle joint.",
+                  "The law of cosines determines θ; clamping handles targets outside |a-b|≤d≤a+b."
+                ]
+              }
+            },
+            {
+              "keyword": "CCD",
+              "explanation": "Cyclic Coordinate Descent visits joints from the end of the chain toward the root. At each joint it rotates the current end-effector direction toward the target direction, updates the chain, and repeats passes until the error or iteration limit is reached.",
+              "equation": {
+                "expression": "Δθ_k = atan2(||u_k×v_k||, u_k·v_k)",
+                "note": [
+                  "k: the joint currently being adjusted.",
+                  "u_k: the normalized direction from joint k to the current end effector.",
+                  "v_k: the normalized direction from joint k to the target.",
+                  "u_k×v_k gives the rotation axis.",
+                  "Δθ_k gives the alignment angle before joint limits are applied."
+                ]
+              }
+            },
+            {
+              "keyword": "FABRIK",
+              "explanation": "Forward And Backward Reaching Inverse Kinematics solves positions rather than joint angles. A backward pass anchors the end at the target and pulls joints toward the root; a forward pass restores the root and pushes joints outward, preserving every bone length.",
+              "equation": {
+                "expression": "backward: p_i′=p_{i+1}′+ℓ_i (p_i-p_{i+1}′)/||p_i-p_{i+1}′||;   forward: p_{i+1}′=p_i′+ℓ_i (p_{i+1}-p_i′)/||p_{i+1}-p_i′||",
+                "note": [
+                  "p_i: the current position of joint i.",
+                  "p_i′: the updated position of joint i.",
+                  "ℓ_i: the fixed length of segment i.",
+                  "Alternating the backward and forward projections reduces target error while preserving segment lengths.",
+                  "Joint constraints must be applied separately during the passes."
+                ]
+              }
+            },
+            {
+              "keyword": "Full Body IK",
+              "explanation": "A multi-effector solver that adjusts many connected joints at once so hands, feet, pelvis, and other targets can influence a coherent whole-body pose. Unlike an isolated limb solver, it must balance competing goals, per-bone stiffness, preferred angles, limits, and root motion.",
+              "equation": {
+                "expression": "q* = arg min_q [Σ_e w_e ||f_e(q)-t_e||² + λ||q-q₀||²],   q_min≤q≤q_max",
+                "note": [
+                  "Σ_e w_e ||f_e(q)-t_e||²: the weighted error across all effectors.",
+                  "q₀: the incoming pose.",
+                  "λ: the penalty for unnecessary deviation from q₀.",
+                  "q_min and q_max: the joint limits.",
+                  "This is an explanatory optimization model; Unreal Engine's Full Body IK node uses a position-based multi-chain solver."
+                ]
+              }
             },
             {
               "keyword": "solver stack",
               "explanation": "An ordered sequence of solvers whose outputs feed later stages—for example, moving the body first and solving the feet or hands afterward."
-            },
-            {
-              "keyword": "constraint",
-              "explanation": "A relationship, limit, or weighted rule such as parent, position, rotation, aim, pole-vector, joint-limit, or contact behavior that narrows acceptable motion."
             },
             {
               "keyword": "pose solve",
@@ -843,11 +1023,32 @@
             },
             {
               "keyword": "LBS",
-              "explanation": "Linear Blend Skinning averages transformed positions and is fast, but can collapse volume at twists and bends."
+              "explanation": "Linear Blend Skinning averages transformed positions and is fast, but can collapse volume at twists and bends.",
+              "equation": {
+                "expression": "x′ᵢ = Σ_j wᵢj (G_j B_j⁻¹) xᵢ,   Σ_j wᵢj=1",
+                "note": [
+                  "xᵢ: vertex i in the bind pose.",
+                  "x′ᵢ: vertex i after skinning.",
+                  "wᵢj: joint j's normalized influence on vertex i.",
+                  "G_j: joint j's current global transform.",
+                  "B_j⁻¹: joint j's inverse bind transform.",
+                  "LBS linearly blends the positions produced by the joint transforms."
+                ]
+              }
             },
             {
               "keyword": "DQS",
-              "explanation": "Dual Quaternion Skinning blends rigid transforms in dual-quaternion space to reduce candy-wrapper collapse."
+              "explanation": "Dual Quaternion Skinning blends rigid transforms in dual-quaternion space to reduce candy-wrapper collapse. Before blending, antipodal dual quaternions that represent the same transform must be placed in a consistent hemisphere.",
+              "equation": {
+                "expression": "q̂ᵢ = normalize(Σ_j wᵢj s_j q̂_j),   s_j∈{−1,+1}",
+                "note": [
+                  "q̂_j: joint j's unit dual quaternion.",
+                  "wᵢj: joint j's influence on vertex i.",
+                  "s_j: a sign that places equivalent antipodal representations in a consistent hemisphere.",
+                  "q̂ᵢ: the normalized blended dual quaternion applied as one rigid transform.",
+                  "DQS blends transforms; LBS blends transformed vertex positions."
+                ]
+              }
             },
             {
               "keyword": "auto skinning",
@@ -870,7 +1071,6 @@
             "FK",
             "IK",
             "end effector",
-            "Jacobian IK",
             "CCD IK",
             "IK/FK blending",
             "retargeting",
@@ -897,7 +1097,14 @@
               "explanation": "Forward kinematics computes descendant poses from authored joint rotations and translations.",
               "equation": {
                 "expression": "G_j=G_root∏ L_k",
-                "note": "G_j is the global transform of destination joint j; G_root is the root's global transform; ∏ denotes an ordered matrix product along the hierarchy; L_k is the local transform of chain joint k; k indexes the joints on the path from the root to j. Product order must match the engine's matrix convention."
+                "note": [
+                  "G_j: the global transform of destination joint j.",
+                  "G_root: the root's global transform.",
+                  "∏: an ordered matrix product along the hierarchy.",
+                  "L_k: the local transform of chain joint k.",
+                  "k: a joint on the path from the root to j.",
+                  "Product order must match the engine's matrix convention."
+                ]
               }
             },
             {
@@ -907,10 +1114,6 @@
             {
               "keyword": "end effector",
               "explanation": "A controlled terminal point such as a hand, foot, or tool tip used as an IK objective."
-            },
-            {
-              "keyword": "Jacobian IK",
-              "explanation": "An iterative solver using derivatives of end-effector position with respect to joint parameters."
             },
             {
               "keyword": "CCD IK",
@@ -1009,7 +1212,107 @@
         ]
       },
       "aiResearch": {
-        "summary": "RigAnything and UniRig generate skeletons and skinning for varied 3D assets, while STaR addresses spatial and temporal failures during neural retargeting. These models automate authoring but still emit conventional hierarchies, weights, and motion mappings.",
+        "summary": "Current learned rig research targets two different production stages. RigAnything and UniRig infer a usable skeleton hierarchy and skinning weights from geometry; STaR assumes characters are already rigged and transfers a motion sequence while reducing penetration and temporal jitter. The learned stage automates authoring or retargeting, but its outputs still obey conventional skeleton, skin-weight, and animation-curve contracts.",
+        "explanations": [
+          {
+            "title": "RigAnything: generate a skeleton as an ordered tree",
+            "text": [
+              "The input is an arbitrary 3D asset rather than a category-specific skeleton template. RigAnything orders joints breadth-first and autoregressively predicts each joint position together with its parent index, turning a tree-generation problem into a sequence-generation problem.",
+              "A diffusion component refines joint placement, and the system also assigns skinning weights. The exported result is not a new runtime rig format; it is a conventional hierarchy and vertex-to-joint influence map that existing animation tools can consume."
+            ]
+          },
+          {
+            "title": "UniRig: share one learned representation across asset categories",
+            "text": [
+              "UniRig encodes skeleton hierarchy with Skeleton Tree Tokenization and predicts the tree with a large autoregressive model. It then uses bone-point cross-attention to connect the predicted bones with surface geometry and estimate skinning weights.",
+              "Its Rig-XL training set spans more than 14,000 rigged models, which supports categories beyond standard humanoids. Even so, the deliverables remain the familiar pair: a topologically valid skeleton and normalized skinning influences."
+            ]
+          },
+          {
+            "title": "STaR: retarget a complete sequence instead of isolated poses",
+            "text": [
+              "STaR receives source motion and differently shaped source and target characters. Its spatial module uses dense shape information and a limb-penetration constraint to preserve motion meaning while reducing limb-body and limb-limb intersections.",
+              "Its temporal transformer predicts the sequence jointly, with short- and long-range consistency constraints that reduce jitter. The output is target-skeleton motion; deterministic FK, IK, constraints, and skinning still evaluate that motion at runtime."
+            ]
+          }
+        ],
+        "flows": [
+          {
+            "label": "RigAnything: arbitrary asset to animation-ready rig",
+            "steps": [
+              {
+                "title": "Unrigged 3D asset",
+                "text": "Encode the global input shape"
+              },
+              {
+                "title": "Breadth-first joint sequence",
+                "text": "Represent each joint by its position and parent index"
+              },
+              {
+                "title": "Autoregressive prediction",
+                "text": "Generate the skeleton tree one joint at a time"
+              },
+              {
+                "title": "Diffusion refinement",
+                "text": "Improve the consistency of joint placement"
+              },
+              {
+                "title": "Skeleton + skin weights",
+                "text": "Export conventional rig data for animation"
+              }
+            ]
+          },
+          {
+            "label": "UniRig: unified skeleton and skinning prediction",
+            "steps": [
+              {
+                "title": "Diverse 3D geometry",
+                "text": "Encode surface points from humanoid or non-humanoid assets"
+              },
+              {
+                "title": "Skeleton Tree Tokenization",
+                "text": "Express joint hierarchy as model tokens"
+              },
+              {
+                "title": "Autoregressive skeleton model",
+                "text": "Predict joint positions and valid topology"
+              },
+              {
+                "title": "Bone-point cross-attention",
+                "text": "Relate predicted bones to the asset surface"
+              },
+              {
+                "title": "Rigged asset",
+                "text": "Output the hierarchy and skinning weights"
+              }
+            ]
+          },
+          {
+            "label": "STaR: source motion to coherent target motion",
+            "steps": [
+              {
+                "title": "Source motion + two character shapes",
+                "text": "Read the motion and the source-target geometry difference"
+              },
+              {
+                "title": "Dense spatial representation",
+                "text": "Expose geometric relationships beyond sparse joint rotations"
+              },
+              {
+                "title": "Penetration-aware spatial module",
+                "text": "Reduce limb-body and limb-limb intersections"
+              },
+              {
+                "title": "Temporal transformer",
+                "text": "Predict the full sequence with multi-level consistency"
+              },
+              {
+                "title": "Target-skeleton motion",
+                "text": "Produce a smoother retargeted animation for the conventional rig"
+              }
+            ]
+          }
+        ],
         "sourceIds": [
           "aRigAnything",
           "aUniRig",
@@ -1141,7 +1444,14 @@
               "explanation": "A deformation goal that limits unnatural shrinking or swelling around bends and twists.",
               "equation": {
                 "expression": "det(F)≈1",
-                "note": "F is the deformation-gradient matrix describing the local change from rest space; det is the determinant operator; det(F) is the local volume ratio; ≈ means approximately equal; 1 is unchanged local volume. Thus values near one indicate approximate volume preservation."
+                "note": [
+                  "F: the deformation-gradient matrix describing local change from rest space.",
+                  "det: the determinant operator.",
+                  "det(F): the local volume ratio.",
+                  "≈: approximately equal.",
+                  "1: unchanged local volume.",
+                  "A determinant near one indicates approximate volume preservation."
+                ]
               }
             },
             {
@@ -1193,7 +1503,107 @@
         }
       ],
       "aiResearch": {
-        "summary": "Recent work learns deformation gradients, adds physics-informed skin motion, and gives neural skinning an interior geodesic cut-cell prior. The strongest systems still expose mechanics or structural constraints so learned deformation respects volume and contact.",
+        "summary": "These three studies address different stages: Neural Deformation Gradients reconstructs posed tissue volumes, PhysSkin learns a compact space for physical simulation, and cut-cell skinning improves the geometric input to neural weight prediction. They complement skin deformation without constituting one complete muscle-and-contact system.",
+        "explanations": [
+          {
+            "title": "Neural Deformation Gradients: reconstruct tissue from local deformation",
+            "text": [
+              "The 2026 study takes body-shape parameters and joint rotations. Training examples come from quasi-static finite-element simulations of layered muscle and fat. The network predicts residual deformation gradients, describing local stretch, shear, and rotation, instead of directly predicting vertex offsets.",
+              "A Poisson solve reconstructs consistent vertex positions from the gradients while constraining the bone boundary; embedded meshes recover detailed anatomy. This improves volume preservation and resistance to element inversion. It approximates posed equilibrium shapes, so it does not itself model inertial tissue wobble."
+            ]
+          },
+          {
+            "title": "PhysSkin: learn a deformation space, then simulate motion",
+            "text": [
+              "PhysSkin (CVPR 2026) learns continuous skinning fields from static geometry without annotated weights or simulation trajectories. A shape encoder and cross-attention decoder predict how spatial points respond to a small set of deformation handles.",
+              "Self-supervision balances elastic energy, spatial smoothness, and orthogonality. During animation, a reduced physical solver updates the handle transformations, and the learned fields reconstruct full geometry. Its handles are simulation coordinates; they need not correspond to anatomical bones."
+            ]
+          },
+          {
+            "title": "Cut-cell skinning: guide weight prediction with interior distances",
+            "text": [
+              "A Geodesic Cut-Cell Prior for Neural Skinning (August 2026 preprint) starts from a mesh and skeleton. It combines surface connections with grid segments inside the object, creating a graph that approximates distances through the volume. Distance kernels convert these distances into a geometric skinning prior.",
+              "Neural skinning models use this prior to improve weight prediction. The graph construction is a geometric algorithm; learning occurs in the model that consumes it. This improves binding, but does not directly simulate muscle contraction, tissue sliding, or contact."
+            ]
+          }
+        ],
+        "flows": [
+          {
+            "label": "Neural Deformation Gradients: pose to layered anatomy",
+            "steps": [
+              {
+                "title": "Body shape + joint rotations",
+                "text": "Specify the character and pose"
+              },
+              {
+                "title": "Predict residual gradients",
+                "text": "Use a network trained on quasi-static tissue simulations"
+              },
+              {
+                "title": "Combine with pose rotations",
+                "text": "Recover gradients in the posed frame"
+              },
+              {
+                "title": "Reconstruct vertex positions",
+                "text": "Solve a Poisson system with bone constraints"
+              },
+              {
+                "title": "Deform detailed anatomy",
+                "text": "Transfer the volume deformation to embedded meshes"
+              }
+            ]
+          },
+          {
+            "label": "PhysSkin: static geometry to physical animation",
+            "steps": [
+              {
+                "title": "Sample static geometry",
+                "text": "Collect surface and interior points"
+              },
+              {
+                "title": "Encode shape",
+                "text": "Extract shape and handle features"
+              },
+              {
+                "title": "Decode continuous fields",
+                "text": "Query each point’s handle weights"
+              },
+              {
+                "title": "Simulate handle motion",
+                "text": "Update transformations in the reduced space"
+              },
+              {
+                "title": "Reconstruct full geometry",
+                "text": "Blend handle transformations with the learned fields"
+              }
+            ]
+          },
+          {
+            "label": "Cut-cell skinning: geometry to skinning weights",
+            "steps": [
+              {
+                "title": "Mesh + skeleton",
+                "text": "Supply surface geometry and bones"
+              },
+              {
+                "title": "Build the cut-cell graph",
+                "text": "Combine surface edges and interior grid segments"
+              },
+              {
+                "title": "Approximate interior distances",
+                "text": "Measure graph distances to bones"
+              },
+              {
+                "title": "Form a geometric prior",
+                "text": "Convert distances using kernel functions"
+              },
+              {
+                "title": "Predict skinning weights",
+                "text": "Feed the prior into a neural skinning model"
+              }
+            ]
+          }
+        ],
         "sourceIds": [
           "aNdg",
           "aPhysSkin",
@@ -1350,7 +1760,13 @@
               "explanation": "Energy loss added to suppress unresolved oscillation and match material response.",
               "equation": {
                 "expression": "F_d=-c v",
-                "note": "F_d is the damping-force vector, with subscript d meaning damping; c is a nonnegative damping coefficient; v is the velocity vector; the minus sign makes the force oppose motion and remove kinetic energy."
+                "note": [
+                  "F_d: the damping-force vector.",
+                  "d: the damping subscript.",
+                  "c: a nonnegative damping coefficient.",
+                  "v: the velocity vector.",
+                  "The minus sign makes the force oppose motion and remove kinetic energy."
+                ]
               }
             },
             {
@@ -1700,7 +2116,16 @@
               "explanation": "A four-component unit representation of 3D rotation with smooth composition and interpolation.",
               "equation": {
                 "expression": "q=(w,x,y,z), |q|=1",
-                "note": "q is a rotation quaternion; w is its scalar component; x, y, and z are the three vector components, not vertex positions in this formula; |q| is the quaternion norm; =1 requires a unit quaternion. q and -q encode the same orientation."
+                "note": [
+                  "q: a rotation quaternion.",
+                  "w: the scalar component.",
+                  "x: the first vector component.",
+                  "y: the second vector component.",
+                  "z: the third vector component.",
+                  "|q|: the quaternion norm.",
+                  "|q|=1 requires a unit quaternion.",
+                  "q and -q encode the same orientation."
+                ]
               }
             },
             {
@@ -1746,7 +2171,19 @@
               "explanation": "A piecewise cubic curve using tangents to provide smooth values and velocities across keys.",
               "equation": {
                 "expression": "p(t)=h₀₀p₀+h₁₀m₀+h₀₁p₁+h₁₁m₁",
-                "note": "p(t) is the interpolated value or position at normalized parameter t; t usually runs from 0 to 1; p₀ and p₁ are the endpoint values; m₀ and m₁ are the endpoint tangents, scaled according to the segment-time convention; h₀₀(t), h₁₀(t), h₀₁(t), and h₁₁(t) are the four cubic Hermite basis functions. Their subscripts distinguish the basis attached to each endpoint value and tangent."
+                "note": [
+                  "p(t): the interpolated value or position at normalized parameter t.",
+                  "t: the normalized parameter from 0 to 1.",
+                  "p₀: the first endpoint value.",
+                  "p₁: the second endpoint value.",
+                  "m₀: the first endpoint tangent.",
+                  "m₁: the second endpoint tangent.",
+                  "h₀₀(t): the basis for the first endpoint value.",
+                  "h₁₀(t): the basis for the first endpoint tangent.",
+                  "h₀₁(t): the basis for the second endpoint value.",
+                  "h₁₁(t): the basis for the second endpoint tangent.",
+                  "Tangent scale follows the segment-time convention."
+                ]
               }
             },
             {

@@ -53,9 +53,17 @@ An equation `expression` may be one string or an array of row strings. Copy the 
 
 ## Terminology
 
-### Protected English scientific terminology
+### Natural Chinese and protected names
 
-Before translating a technical post, derive a short glossary from its English source and any user-approved locale example. Preserve each glossary entry verbatim in Japanese and Simplified Chinese, including capitalization, punctuation, and unit notation. Apply the rule in headings, prose, labels, callouts, and table cells; localize only the surrounding grammar.
+For Simplified Chinese, write complete Chinese explanations and translate ordinary technical vocabulary, including keyword labels, headings, summaries, equation explanations, and research flows. Keep English for identifiable proper names and paper-defined models or named methods, such as `PhysSkin` and `Neural Deformation Gradients`. A term appearing in a paper does not make it a paper-specific name. Translate generic components such as encoder, attention, latent space, skinning, helper bone, deformation gradient, and finite element method as 编码器、注意力、潜在空间、蒙皮、辅助骨骼、变形梯度、有限元法.
+
+Keep identifiers, code, symbols, units, official product/API names, and citation titles intact. Introduce a conventional acronym only when it helps subsequent reading; do not leave generic prose in English merely because an acronym exists. Keep `keywords` and corresponding `details[].keyword` translations aligned, while preserving their order and source IDs.
+
+Build a short protected glossary from actual names and explicit user preferences, not every technical phrase in the source. Existing mixed-language text is not evidence that the user approved its terminology. A request to follow a neighboring section's style means matching its explanatory structure, not copying its translation defects.
+
+After drafting Chinese content, inspect remaining Latin words in every visible field. Each should be a necessary name, notation, citation title, or explicitly requested exception; rewrite mixed-language clauses into natural Chinese.
+
+### Article-specific scientific terminology exceptions
 
 For lighting and photometry content, use `Unit of lighting and Convertion` (`public/content/blog/Unit of lighting and Convertion/`) as the reference pattern. Keep these terms in English:
 
@@ -63,9 +71,9 @@ For lighting and photometry content, use `Unit of lighting and Convertion` (`pub
 - `lm`, `cd`, `lx`, `cd/m²`, `W`
 - Mathematical and physics notation such as `Φ`, `Ω`, `θ`, `ρ`, `π`, `I`, `E`, `L`, `A`, `Aₚ`, function names, subscripts, and superscripts
 
-Do not substitute localized names such as 流明, 坎德拉, 勒克斯, 尼特, 瓦特, ルーメン, カンデラ, ルクス, ニト, or ワット for protected English glossary terms. Extend the glossary per article rather than assuming this lighting list covers every physics or mathematics post.
+Preserve this established lighting glossary for that article family unless the user requests otherwise. Do not extend its English-preservation rule to unrelated technical subjects.
 
-After drafting each overlay, search it for localized replacements of the protected glossary and restore the exact English terms. Keep established English technical terms that already appear in an approved locale overlay even when a common localized translation exists.
+For Japanese, follow established localized terminology and explicitly approved article glossaries. For either locale, the user's current terminology correction takes precedence over an older example.
 
 Preferred Japanese terms:
 

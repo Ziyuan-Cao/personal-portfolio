@@ -336,10 +336,11 @@ function aiResearchBlock(research, sourceCatalog) {
     const explanations = element("div", "blog-ai-research-explanations");
     for (const explanation of research.explanations) {
       const item = element("section", "blog-ai-research-explanation");
-      item.append(
-        element("h4", "", explanation.title),
-        element("p", "", explanation.text),
-      );
+      item.append(element("h4", "", explanation.title));
+      const paragraphs = Array.isArray(explanation.text)
+        ? explanation.text
+        : [explanation.text];
+      for (const paragraph of paragraphs) item.append(element("p", "", paragraph));
       explanations.append(item);
     }
     aside.append(explanations);

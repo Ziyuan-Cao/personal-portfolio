@@ -76,7 +76,11 @@ Attach a defensible group to its section:
           "explanation": "A statistical surface model that replaces unresolved roughness with distributions of microscopic facets.",
           "equation": {
             "expression": "f_r = DFG / (4 |n·v| |n·l|)",
-            "note": "D describes facet orientations, F Fresnel reflection, and G masking-shadowing."
+            "note": [
+              "D: the facet-orientation distribution.",
+              "F: Fresnel reflection.",
+              "G: masking and shadowing."
+            ]
           },
           "aiNote": "Neural appearance models can learn compact evaluation and importance sampling for layered microfacet behavior, while this analytic BRDF remains the physical reference."
         },
@@ -106,10 +110,12 @@ Add current research once per section:
 
 Use two or three source IDs by default. If the user explicitly requests separate quotas for papers and documentation, expand the evidence set or schema deliberately and validate each source role. Do not duplicate one group into per-keyword records merely to repeat the same links.
 
+When expanding research to match an existing article, the renderer also supports `aiResearch.explanations` as an array of `{ "title": "Method: mechanism", "text": ["Input and learned representation.", "Computation, output, and limitation."] }` objects and `aiResearch.flows` as an array of standard `{ "label": "Method sequence", "steps": [{ "title": "Stage", "text": "What happens" }] }` blocks. Keep the shared `sourceIds` in the research block. Explain what is learned, what still uses a conventional solver, and what the method does not establish. Keep corresponding locale arrays aligned with the canonical source; translate generic Chinese technical prose even when a neighboring example leaves it in English.
+
 ## Per-keyword writing rules
 
 - Make `explanation` understandable without reading another keyword's entry.
-- Include `equation` only when an accepted relationship adds understanding; define symbols in `note`.
+- Include `equation` only when an accepted relationship adds understanding. Define symbols, operations, and caveats as separate entries in a `note` array so the renderer places each concept on its own line.
 - Make `aiNote` name the keyword's actual relationship to current research.
 - Use direct wording for learned methods, qualified wording for adjacent work, and explicit wording when no direct AI track exists.
 - Avoid one generic AI template across unrelated keywords. Review optics, simulation, rendering, reconstruction, standards, and API contracts separately.
@@ -125,7 +131,7 @@ Count flattened keyword arrays and compare them with the original outline. Then 
 - each group has two or three unique sources;
 - every group has one detail per keyword in identical order;
 - every detail has `explanation` and `aiNote`;
-- every equation has both `expression` and `note`;
+- every equation has `expression` and a nonempty `note` array with one concept per line;
 - every section has an `aiResearch` summary and two or three valid sources when AI research was requested;
 - each summary matches all keywords in its group;
 - no source is cited for a claim it does not support;

@@ -45,8 +45,10 @@ Read [references/research-ledger-and-json.md](references/research-ledger-and-jso
    - Keep equations, spaces, units, stages, inputs, and tradeoffs explicit.
    - Give every keyword its own concise explanation, even when several keywords share evidence.
    - Add an equation only when it clarifies the mechanism. Define its symbols or state what the equation demonstrates; never add decorative math.
+   - In portfolio keyword equations, write `note` as an array of short lines. Give each symbol, operation, or caveat its own item instead of joining definitions with commas in one sentence.
    - Give every keyword an AI note that states one of three relationships: direct learned method, adjacent learned research, or no direct AI research track. Do not imply that standardized coordinate, API, color, or display contracts are neural methods.
    - Add one short current-AI synthesis per section with two or three recent primary sources. Put shared AI links in this section block instead of repeating them under every keyword.
+   - When the user requests expanded `aiResearch` explanations, match the neighboring sections' structure: explain each named method's inputs, learned representation, inference or solver steps, output, and relevant limit in short paragraphs. Add a simple per-method flow when it clarifies the sequence. Distinguish offline training from runtime computation and geometric preprocessing from learned prediction.
    - Distinguish AI work from important non-neural companion research such as sampling, reuse, or deterministic reconstruction algorithms.
    - Add tables, code, or flows only when they clarify a relationship.
    - Keep source summaries factual. Do not claim that a paper invented a term unless the publication establishes that history.
@@ -58,13 +60,14 @@ Read [references/research-ledger-and-json.md](references/research-ledger-and-jso
    - Use `sourceCatalog` and `keywordSourceGroups` for keyword guides as shown in the reference file.
    - Store per-keyword prose in `keywordSourceGroups[].details` and section research in `sections[].aiResearch` when the renderer supports this schema.
    - Keep URLs and source IDs stable across locale overlays. Use `translate-portfolio-content` when localized content must change.
+   - In Chinese prose, translate ordinary technical terms and retain English for paper-specific model/method names and necessary proper names. Matching an existing section's style does not require copying its mixed-language wording.
 
 ## Validate before finishing
 
 - Confirm that all supplied keywords remain present, unchanged, and in order.
 - Confirm that added keywords are technically relevant and placed deliberately.
 - Confirm that every group has a summary and two or three directly relevant sources.
-- Confirm that every keyword has an explanation and AI note, detail order matches keyword order, and equations include explanatory notes.
+- Confirm that every keyword has an explanation and AI note, detail order matches keyword order, and equations include explanatory `note` arrays with one concept per line.
 - Confirm that each section AI block has two or three directly relevant, current primary sources.
 - Confirm that source IDs resolve, URLs are globally unique in the catalog, and shared links render only once in their evidence or AI block.
 - Check publication identity, authorship, year, and whether the linked page is actually primary or official.

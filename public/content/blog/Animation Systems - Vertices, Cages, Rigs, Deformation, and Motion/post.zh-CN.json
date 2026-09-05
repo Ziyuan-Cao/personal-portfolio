@@ -227,9 +227,16 @@
               "explanation": "帧之间的顶点位置插值",
               "equation": {
                 "expression": "x(t)=(1-α)x₀+αx₁",
-                "note": "x(t) 是采样时刻 t 的插值顶点位置；t 表示当前求值时刻；x₀ 与 x₁ 分别是前一个和后一个样本中的对应顶点位置；α 是从 0 到 1 的归一化时间比例；1-α 是 x₀ 的互补权重；下标 0 和 1 标记两个端点。线性插值要求各帧具有一致的顶点对应关系。"
+                "note": [
+                  "x(t)：采样时刻t的插值顶点位置。",
+                  "x₀：前一个样本中的对应顶点位置。",
+                  "x₁：后一个样本中的对应顶点位置。",
+                  "α：从0到1的归一化时间比例。",
+                  "1-α：x₀的互补权重。",
+                  "线性插值要求各帧具有一致的顶点对应关系。"
+                ]
               }
-           }
+            }
           ]
         },
         {
@@ -272,9 +279,9 @@
           {
             "title": "4Deform：通过点云序列重建生成全过程的顶点动画",
             "text": [
-            "输入是稀疏的点云序列，以及点云之间少量且可能有噪声的对应点。方法为每个输入形状设置 latent code，并联合优化一个随时间变化的 neural implicit representation 与一个连续速度场；几何和物理约束在没有中间帧监督时抑制不合理的拉伸与形变。",
-            "给定任意时间，修改后的 level-set 更新把速度场与 SDF 表面联系起来，从而重建中间表面。",
-            "注意：它并不能保证拓扑一致性（顶点数量以及连接关系会变化）"
+              "输入是稀疏的点云序列，以及点云之间少量且可能有噪声的对应点。方法为每个输入形状设置 latent code，并联合优化一个随时间变化的 neural implicit representation 与一个连续速度场；几何和物理约束在没有中间帧监督时抑制不合理的拉伸与形变。",
+              "给定任意时间，修改后的 level-set 更新把速度场与 SDF 表面联系起来，从而重建中间表面。",
+              "注意：它并不能保证拓扑一致性（顶点数量以及连接关系会变化）"
             ]
           },
           {
@@ -571,7 +578,107 @@
         }
       ],
       "aiResearch": {
-        "summary": "直接研究cage的方法仍在发展：近期工作改进了flexible cage construction与polynomial Green coordinates；更活跃的learning研究通常直接预测deformation field或mesh。这些learned output仍可由cage控制或压缩，因此不会使cage失去价值。",
+        "summary": "这里前两项是近期geometry processing研究，扩展cage控制边界的形状与数学表达能力。4Deform重建连续deformation field与surface sequence，后续拟合cage作为编辑或压缩层。",
+        "explanations": [
+          {
+            "title": "Flexible 3D Cage-based Deformation：用Bézier patch替代平面cage face",
+            "text": [
+              "输入是由Bézier patch构成的曲面cage，以及被它包围的高细节mesh。方法根据Bézier control net的位置与normal推导Green coordinates，使少量control能够比triangle或ruled-quad cage更准确地表示平滑、高曲率边界。",
+              "由于coordinates通过Riemann summation近似计算，系统再用global projection恢复linear reproduction。结果仍是确定性的cage deformer。"
+            ]
+          },
+          {
+            "title": "Polynomial 3D Green Coordinates：让linear cage产生曲面形变模式",
+            "text": [
+              "方法从传统linear triangular cage开始，推导closed-form polynomial Green coordinates及其derivatives。形变时，cage face可以映射为polynomial surface，让艺术家不必使用密集control mesh也能得到曲面行为。",
+              "Coordinate derivatives还能形成用于variational shape optimization的平滑subspace。这是非神经的配套研究：它改进的是AI或人工形变都可以使用的解析控制表示。"
+            ]
+          },
+          {
+            "title": "4Deform：先学习deformation field，再选择控制表示",
+            "text": [
+              "4Deform输入稀疏时序point cloud与少量noisy correspondence，并联合优化time-varying neural implicit surface和continuous velocity field，通过几何与物理regularization重建中间surface。",
+              "它的原生结果是dynamic surface，而不是cage vertex或cage weight。下游工具可以再拟合cage以获得紧凑、可编辑的control，但learned reconstruction与cage deformation仍是两个独立阶段。"
+            ]
+          }
+        ],
+        "flows": [
+          {
+            "label": "Flexible 3D Cage-based Deformation：从curved cage到高细节mesh",
+            "steps": [
+              {
+                "title": "高细节mesh + Bézier cage",
+                "text": "用紧凑的曲面控制边界包围mesh"
+              },
+              {
+                "title": "Green-coordinate evaluation",
+                "text": "根据control-net position与normal计算权重"
+              },
+              {
+                "title": "Global projection",
+                "text": "修正近似coordinates以保持linear reproduction"
+              },
+              {
+                "title": "编辑cage control",
+                "text": "移动少量Bézier control point"
+              },
+              {
+                "title": "Shape-preserving deformation",
+                "text": "把曲面边界变化传递到高细节mesh"
+              }
+            ]
+          },
+          {
+            "label": "Polynomial 3D Green Coordinates：解析曲面形变",
+            "steps": [
+              {
+                "title": "Linear triangular cage",
+                "text": "从传统低分辨率控制边界开始"
+              },
+              {
+                "title": "Closed-form coordinates",
+                "text": "计算polynomial Green coordinates与derivatives"
+              },
+              {
+                "title": "Polynomial face control",
+                "text": "用少量参数表示曲面face motion"
+              },
+              {
+                "title": "可选variational solve",
+                "text": "在coordinate subspace中优化形变"
+              },
+              {
+                "title": "Curved mesh deformation",
+                "text": "把最终deformation field应用到内部vertex"
+              }
+            ]
+          },
+          {
+            "label": "4Deform与可选的cage-assisted asset流程",
+            "steps": [
+              {
+                "title": "稀疏point-cloud sequence",
+                "text": "提供观测结果与少量noisy correspondence"
+              },
+              {
+                "title": "Neural implicit surface",
+                "text": "学习time-varying signed-distance representation"
+              },
+              {
+                "title": "Continuous velocity field",
+                "text": "表示surface如何随时间移动"
+              },
+              {
+                "title": "Reconstructed surfaces",
+                "text": "查询中间时间并提取dynamic geometry"
+              },
+              {
+                "title": "可选的下游cage fitting",
+                "text": "作为独立制作步骤添加紧凑、可编辑的control"
+              }
+            ]
+          }
+        ],
         "sourceIds": [
           "aCageFlex",
           "aPolyGreen",
@@ -580,466 +687,528 @@
       }
     },
     {
-    "heading": "基于骨骼绑定的动画：通过骨骼控制姿态并驱动网格变形",
-
-    "paragraphs": [
-    "基于骨骼绑定的动画，其核心思想是把“角色姿态控制”和“网格顶点变形”分开。动画师不需要直接操作大量顶点，而是通过少量控制器和骨骼来控制角色。首先得到骨骼姿态，再通过蒙皮把骨骼运动传递到最终网格。",
-    "骨架由具有父子关系的关节组成。每个关节保存相对于父关节的局部变换，沿骨骼层级逐级组合后，可以得到每个关节最终的全局变换。因此移动上层关节时，它下面的所有子关节也会一起运动。",
-    "FK和IK负责生成骨骼姿态。FK直接指定关节如何旋转；IK则指定手、脚等末端应该到达的位置，再由求解器反过来计算各个关节应该如何旋转。约束用于限制关节允许产生的运动，例如膝盖弯曲方向、手臂朝向或关节旋转范围。",
-    "得到骨骼姿态以后，蒙皮负责真正移动网格顶点。蒙皮权重表示每个顶点受到不同关节多大程度的影响，LBS和DQS则利用这些权重以及骨骼当前的变换，计算顶点的新位置。",
-    "自动绑定骨骼负责根据模型建立骨架和关节位置；自动蒙皮负责计算顶点与关节之间的权重；动画重定向则负责把一个角色已有的动作传递到另一个骨架结构或身体比例不同的角色上。这三者虽然都围绕骨架工作，但解决的是不同阶段的问题。"
-    ],
-
-    "equations": [
-    {
-    "label": "骨骼层级：由局部变换计算全局变换",
-    "expression": "G_j = G_parent L_j",
-    "terms": [
-    {
-    "symbol": "G_j",
-    "text": "关节 j 最终的全局变换。"
-    },
-    {
-    "symbol": "G_parent",
-    "text": "父关节的全局变换。"
-    },
-    {
-    "symbol": "L_j",
-    "text": "关节 j 相对于父关节的局部变换。"
-    },
-    {
-    "symbol": "j",
-    "text": "当前关节的索引。"
-    }
-    ]
-    },
-    {
-      "label": "线性混合蒙皮（LBS）：骨骼运动如何传递给Mesh",
-      "expression": "x′ᵢ = Σ_j wᵢj (G_j B_j⁻¹) xᵢ,   Σ_j wᵢj = 1",
-      "terms": [
+      "heading": "基于骨骼绑定的动画：通过骨骼控制姿态并驱动网格变形",
+      "paragraphs": [
+        "基于骨骼绑定的动画，其核心思想是把“角色姿态控制”和“网格顶点变形”分开。动画师不需要直接操作大量顶点，而是通过少量控制器和骨骼来控制角色。首先得到骨骼姿态，再通过蒙皮把骨骼运动传递到最终网格。",
+        "骨架由具有父子关系的关节组成。每个关节保存相对于父关节的局部变换，沿骨骼层级逐级组合后，可以得到每个关节最终的全局变换。因此移动上层关节时，它下面的所有子关节也会一起运动。",
+        "FK和IK负责生成骨骼姿态。FK直接指定关节如何旋转；IK则指定手、脚等末端应该到达的位置，再由求解器反过来计算各个关节应该如何旋转。约束用于限制关节允许产生的运动，例如膝盖弯曲方向、手臂朝向或关节旋转范围。",
+        "得到骨骼姿态以后，蒙皮负责真正移动网格顶点。蒙皮权重表示每个顶点受到不同关节多大程度的影响，LBS和DQS则利用这些权重以及骨骼当前的变换，计算顶点的新位置。",
+        "自动绑定骨骼负责根据模型建立骨架和关节位置；自动蒙皮负责计算顶点与关节之间的权重；动画重定向则负责把一个角色已有的动作传递到另一个骨架结构或身体比例不同的角色上。这三者虽然都围绕骨架工作，但解决的是不同阶段的问题。"
+      ],
+      "keywordSourceGroups": [
         {
-          "symbol": "xᵢ",
-          "text": "顶点 i 在绑定姿势中的位置。"
-        },
-        {
-          "symbol": "x′ᵢ",
-          "text": "动画后顶点 i 的新位置。"
-        },
-        {
-          "symbol": "wᵢj",
-          "text": "关节 j 对顶点 i 的蒙皮权重。"
-        },
-        {
-          "symbol": "G_j",
-          "text": "关节 j 在当前姿态下的全局变换矩阵。"
-        },
-        {
-          "symbol": "B_j",
-          "text": "关节 j 在绑定姿势下的全局变换矩阵。"
-        },
-        {
-          "symbol": "B_j⁻¹",
-          "text": "逆绑定变换矩阵，相当于得到这根骨骼相比绑定姿势移动了多少。"
-        },
-        {
-          "symbol": "Σ_j",
-          "text": "对所有影响该顶点的关节结果进行加权求和。"
-        },
-        {
-          "symbol": "Σ_j wᵢj = 1",
-          "text": "一个顶点对应的所有关节权重归一化为总和等于1。"
-        }
-      ]
-    },
-
-    {
-      "label": "Jacobian IK：根据末端误差调整关节",
-      "expression": "Δθ = J⁺(x_target - x_end)",
-      "terms": [
-        {
-          "symbol": "x_target",
-          "text": "希望手、脚等末端达到的目标位置或方向。"
-        },
-        {
-          "symbol": "x_end",
-          "text": "末端当前的位置或方向。"
-        },
-        {
-          "symbol": "x_target - x_end",
-          "text": "当前位置与目标之间的误差。"
-        },
-        {
-          "symbol": "θ",
-          "text": "求解器能够调整的关节参数，例如关节旋转角。"
-        },
-        {
-          "symbol": "Δθ",
-          "text": "本次迭代中各个关节参数应该调整的量。"
-        },
-        {
-          "symbol": "J",
-          "text": [
-            "雅可比矩阵（Jacobian Matrix）：",
-            "记录每个关节发生微小旋转时，手、脚等末端的位置或方向会发生多大变化。",
-            "IK 求解器利用这种“关节变化 → 末端变化”的关系，反推出为了靠近目标，各个关节应该调整多少。"
+          "keywords": [
+            "骨骼绑定",
+            "骨架",
+            "关节层级",
+            "局部变换",
+            "全局变换",
+            "绑定姿势",
+            "逆绑定矩阵"
+          ],
+          "summary": "骨架是角色姿态的主要控制结构。关节通过父子关系组成层级，每个关节的局部变换沿层级逐级累积，最终得到整个角色的骨骼姿态。",
+          "sourceIds": [
+            "aGltf",
+            "aSkinning",
+            "aDqs"
+          ],
+          "details": [
+            {
+              "keyword": "骨骼绑定（Rig）",
+              "explanation": "角色完整的动画控制系统。通常包含骨架、控制器、约束、姿态求解和网格变形等部分，使动画师可以通过少量控制元素操纵角色，而不需要直接编辑大量网格顶点。"
+            },
+            {
+              "keyword": "骨架（Skeleton）",
+              "explanation": "由多个关节按照父子关系连接形成的层级结构，用来表示角色当前的姿态。动画通常先改变骨架，再通过蒙皮让网格顶点跟随。"
+            },
+            {
+              "keyword": "关节层级（Joint Hierarchy）",
+              "explanation": "关节之间的父子关系。例如肩膀是上臂的父级，上臂又是前臂的父级。父关节运动时，它下面的所有子关节都会一起受到影响。",
+              "equation": {
+                "expression": "G_j = G_parent L_j",
+                "note": [
+                  "G_j：关节j的全局变换。",
+                  "G_parent：父关节的全局变换。",
+                  "L_j：关节j相对于父关节的局部变换。",
+                  "矩阵乘法把父关节运动与当前关节的局部变换组合起来。"
+                ]
+              }
+            },
+            {
+              "keyword": "局部变换（Local Transform）",
+              "explanation": "关节相对于父关节的位置、旋转和缩放。骨骼动画通常主要记录这种相对关系。"
+            },
+            {
+              "keyword": "全局变换（Global Transform）",
+              "explanation": "把当前关节以上所有父关节的变换逐级组合以后，得到该关节在模型空间中的最终位置和方向。"
+            },
+            {
+              "keyword": "绑定姿势（Bind Pose）",
+              "explanation": "模型与骨架建立蒙皮关系时使用的参考姿势。蒙皮权重和逆绑定矩阵通常都以这个姿势作为基准。"
+            },
+            {
+              "keyword": "逆绑定矩阵（Inverse Bind Matrix）",
+              "explanation": "记录关节在绑定姿势下的反向变换。它与关节当前的变换组合以后，可以得到关节相对于绑定姿势到底发生了怎样的变化。",
+              "equation": {
+                "expression": "M_skin,j = G_j B_j⁻¹",
+                "note": [
+                  "M_skin,j：关节j的蒙皮矩阵。",
+                  "G_j：关节j当前的全局变换。",
+                  "B_j：关节j在绑定姿势下的全局变换。",
+                  "B_j⁻¹：关节j的逆绑定变换。",
+                  "矩阵乘积把绑定姿势中的点映射到关节的当前姿态。"
+                ]
+              }
+            }
           ]
         },
         {
-          "symbol": "J⁺",
-          "text": "雅可比矩阵的伪逆，用来根据末端误差反推出关节应该如何调整。"
+          "keywords": [
+            "控制器",
+            "FK",
+            "IK",
+            "IK目标",
+            "末端执行器"
+          ],
+          "summary": "控制器描述动画师想要的动作结果，FK或IK负责把这些控制输入转换成骨骼姿态。",
+          "sourceIds": [
+            "aControlRigControls",
+            "aControlRigQuickStart",
+            "aIkSolvers"
+          ],
+          "details": [
+            {
+              "keyword": "控制器（Controller / Control）",
+              "explanation": "动画师实际操作的控制元素。例如手部控制器、脚部控制器、注视目标或手指弯曲参数。控制器通常不会直接移动网格，而是进一步驱动骨骼、约束或求解器。"
+            },
+            {
+              "keyword": "FK",
+              "explanation": "正向运动学（Forward Kinematics）。直接指定各个关节如何旋转，然后运动沿骨骼父子层级向下传递。例如先旋转上臂，再旋转前臂，就可以得到手的位置。"
+            },
+            {
+              "keyword": "IK",
+              "explanation": "逆向运动学（Inverse Kinematics）。不是直接决定每个关节怎么旋转，而是先指定手或脚应该到达哪里，再由求解器反过来计算整条骨骼链应该如何调整。"
+            },
+            {
+              "keyword": "IK目标（IK Goal）",
+              "explanation": "IK希望末端达到的位置或方向。例如把脚部目标放在地面上，求解器就会调整腿部关节，让脚尽可能到达这个目标。"
+            },
+            {
+              "keyword": "末端执行器（End Effector）",
+              "explanation": "IK骨骼链最末端需要被控制的位置，例如手、脚、头部或者角色手持工具的末端。"
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "约束",
+            "Pole Vector"
+          ],
+          "summary": "约束限制关节允许产生的运动；Pole Vector在末端目标无法唯一确定肢体弯曲平面时，指定手肘或膝盖朝向哪一侧。",
+          "sourceIds": [
+            "aControlRigConstraints",
+            "aPoleVector",
+            "aTwoBoneIk"
+          ],
+          "details": [
+            {
+              "keyword": "约束（Constraint）",
+              "explanation": "限制关节允许产生的运动，例如旋转范围、弯曲方向、朝向、接触关系或Pole Vector。约束描述可接受姿态，求解器负责寻找满足这些条件的关节参数。",
+              "equation": {
+                "expression": "C_k(q)=0,   g_m(q)≥0",
+                "note": [
+                  "q：关节参数向量。",
+                  "C_k：等式约束，例如末端固定在目标上。",
+                  "g_m：不等式约束，例如关节角度不能越过上下限。",
+                  "求解器寻找尽可能满足这些约束的姿态q。"
+                ]
+              }
+            },
+            {
+              "keyword": "Pole Vector",
+              "explanation": "用于指定双骨骼链中间关节朝向的方向或目标点。末端目标只能决定手或脚到哪里，却不能唯一决定手肘或膝盖向哪边弯；Pole Vector补充这个弯曲平面信息。",
+              "equation": {
+                "expression": "a=normalize(t-r),   b=normalize((p-r)-a[a·(p-r)])",
+                "note": [
+                  "r：骨骼链根部。",
+                  "t：末端目标。",
+                  "p：Pole Vector点。",
+                  "a：归一化后的根部到目标轴。",
+                  "b：与a垂直的期望弯曲方向。",
+                  "当Pole Vector位于轴线上时结果不确定；实际Rig需要备用弯曲方向。"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "求解器",
+            "Jacobian IK",
+            "Two Bone IK",
+            "CCD",
+            "FABRIK",
+            "Full Body IK"
+          ],
+          "summary": "求解器根据目标、当前姿态和约束计算新的关节变换。Jacobian IK利用局部线性近似，Two Bone IK使用解析几何，CCD逐关节旋转，FABRIK往返调整关节位置，Full Body IK则同时协调多个末端和更大的骨骼层级。",
+          "sourceIds": [
+            "aTwoBoneIk",
+            "aJacobianIk",
+            "aFabrik",
+            "aFullBodyIk"
+          ],
+          "details": [
+            {
+              "keyword": "求解器（Solver）",
+              "explanation": "根据目标、当前姿态和约束计算新的关节变换。Jacobian IK、Two Bone IK、CCD、FABRIK和Full Body IK属于不同的求解方法，适用的骨骼链规模和迭代方式也不同。",
+              "equation": {
+                "expression": "q* = arg min_q Σ_e w_e ||f_e(q)-t_e||²",
+                "note": [
+                  "q：关节参数。",
+                  "f_e(q)：通过正向运动学得到的末端e姿态。",
+                  "t_e：末端e的目标。",
+                  "w_e：末端e的重要性权重。",
+                  "这是统一理解求解器的概念模型；具体实现也可以采用解析几何、位置迭代或Jacobian更新。"
+                ]
+              }
+            },
+            {
+              "keyword": "Jacobian IK",
+              "explanation": "使用Jacobian Matrix建立“关节参数的微小变化”与“末端位置或方向变化”之间的局部线性关系，再根据末端误差反求关节更新量。它适合较长、冗余或包含多个任务维度的骨骼链，但在奇异姿态附近通常需要阻尼以保持稳定。",
+              "equation": {
+                "expression": "Δθ = J⁺(x_target-x_end)",
+                "note": [
+                  "θ：关节参数向量。",
+                  "J：把关节的微小变化映射为末端变化。",
+                  "J⁺：J的伪逆。",
+                  "x_target-x_end：任务空间误差。",
+                  "阻尼最小二乘使用Jᵀ(JJᵀ+λ²I)⁻¹，提高奇异姿态附近的稳定性。"
+                ]
+              }
+            },
+            {
+              "keyword": "Two Bone IK",
+              "explanation": "用于肩—肘—腕或髋—膝—踝这类三个关节、两段骨骼链的解析求解器。它根据两段骨长和根部到目标的距离求出弯曲角，再利用Joint Target或Pole Vector决定弯曲平面。",
+              "equation": {
+                "expression": "cos θ = clamp((a²+b²-d²)/(2ab), -1, 1)",
+                "note": [
+                  "a：第一段骨骼长度。",
+                  "b：第二段骨骼长度。",
+                  "d：经过可达范围限制的根部到目标距离。",
+                  "θ：中间关节的内角。",
+                  "余弦定理确定θ；当目标超出|a-b|≤d≤a+b时，需要限制距离或按设置拉伸骨骼。"
+                ]
+              }
+            },
+            {
+              "keyword": "CCD",
+              "explanation": "Cyclic Coordinate Descent从骨骼链末端向根部逐个处理关节。每次只旋转一个关节，使当前末端方向更接近目标方向，然后更新整条链并重复，直到误差足够小或达到迭代上限。",
+              "equation": {
+                "expression": "Δθ_k = atan2(||u_k×v_k||, u_k·v_k)",
+                "note": [
+                  "k：当前正在调整的关节。",
+                  "u_k：从关节k指向当前末端的单位方向。",
+                  "v_k：从关节k指向目标的单位方向。",
+                  "u_k×v_k：旋转轴。",
+                  "Δθ_k：应用关节限制之前的对齐角度。"
+                ]
+              }
+            },
+            {
+              "keyword": "FABRIK",
+              "explanation": "Forward And Backward Reaching Inverse Kinematics不直接求关节角，而是往返调整关节位置。Backward pass先把末端放到目标并向根部拉回；Forward pass再固定根部并向末端推出，同时保持每段骨骼长度。",
+              "equation": {
+                "expression": "backward: p_i′=p_{i+1}′+ℓ_i (p_i-p_{i+1}′)/||p_i-p_{i+1}′||;   forward: p_{i+1}′=p_i′+ℓ_i (p_{i+1}-p_i′)/||p_{i+1}-p_i′||",
+                "note": [
+                  "p_i：关节i的当前位置。",
+                  "p_i′：关节i更新后的位置。",
+                  "ℓ_i：第i段骨骼的固定长度。",
+                  "交替执行Backward与Forward投影可以降低目标误差并保持骨长。",
+                  "关节约束需要在迭代过程中另外处理。"
+                ]
+              }
+            },
+            {
+              "keyword": "Full Body IK",
+              "explanation": "同时调整多个相连关节和多个末端目标的全身求解器。它可以让手、脚、骨盆等控制共同影响完整姿态，并在冲突目标之间平衡骨骼刚度、偏好角度、关节限制和根部移动。",
+              "equation": {
+                "expression": "q* = arg min_q [Σ_e w_e ||f_e(q)-t_e||² + λ||q-q₀||²],   q_min≤q≤q_max",
+                "note": [
+                  "Σ_e w_e ||f_e(q)-t_e||²：所有末端的加权误差。",
+                  "q₀：输入姿态。",
+                  "λ：限制相对q₀产生不必要偏移的惩罚系数。",
+                  "q_min与q_max：关节范围。",
+                  "这是解释目标的优化模型；Unreal Engine的Full Body IK节点采用基于位置的多骨骼链求解器。"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "蒙皮",
+            "蒙皮权重",
+            "LBS",
+            "DQS",
+            "自动蒙皮"
+          ],
+          "summary": "骨架只负责表示姿态，真正让角色表面发生变形的是蒙皮。蒙皮权重负责建立顶点与关节之间的影响关系，LBS或DQS再利用这些关系计算顶点的新位置。",
+          "sourceIds": [
+            "aSkinning",
+            "aDqs",
+            "aGeodesic"
+          ],
+          "details": [
+            {
+              "keyword": "蒙皮（Skinning）",
+              "explanation": "把骨骼姿态转换成网格顶点位置的过程。骨骼发生运动以后，蒙皮决定角色表面的顶点应该如何跟随。"
+            },
+            {
+              "keyword": "蒙皮权重（Skin Weight）",
+              "explanation": "表示一个顶点受到不同关节多大程度影响的系数。例如手肘附近的顶点可能同时受到上臂和前臂两个关节影响。"
+            },
+            {
+              "keyword": "LBS",
+              "explanation": "线性混合蒙皮（Linear Blend Skinning）。先分别计算各个关节对顶点产生的位置变化，再按照蒙皮权重进行加权平均。计算量小，因此广泛用于实时角色动画，但在大角度弯曲或扭转时可能出现体积收缩。",
+              "equation": {
+                "expression": "x′ᵢ = Σ_j wᵢj (G_j B_j⁻¹) xᵢ,   Σ_j wᵢj=1",
+                "note": [
+                  "xᵢ：顶点i在绑定姿势中的位置。",
+                  "x′ᵢ：顶点i经过蒙皮后的位置。",
+                  "wᵢj：关节j对顶点i的归一化影响权重。",
+                  "G_j：关节j当前的全局变换。",
+                  "B_j⁻¹：关节j的逆绑定变换。",
+                  "LBS线性混合各关节变换后的顶点位置。"
+                ]
+              }
+            },
+            {
+              "keyword": "DQS",
+              "explanation": "双四元数蒙皮（Dual Quaternion Skinning）。使用双四元数混合关节的刚体变换，相比LBS可以减少手臂扭转时出现的明显体积塌缩。混合前还要统一表示同一变换的对跖双四元数符号。",
+              "equation": {
+                "expression": "q̂ᵢ = normalize(Σ_j wᵢj s_j q̂_j),   s_j∈{−1,+1}",
+                "note": [
+                  "q̂_j：关节j的单位双四元数。",
+                  "wᵢj：关节j对顶点i的影响权重。",
+                  "s_j：把等价的对跖表示翻转到一致半球的符号。",
+                  "q̂ᵢ：归一化后的混合双四元数，作为一个刚体变换使用。",
+                  "DQS混合变换本身；LBS混合变换后的顶点位置。"
+                ]
+              }
+            },
+            {
+              "keyword": "自动蒙皮（Automatic Skinning）",
+              "explanation": "自动计算网格顶点与各个关节之间的蒙皮权重。Heat Weight和Geodesic Voxel Binding都属于自动估计关节影响范围的方法。"
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "自动骨骼绑定",
+            "动画重定向",
+            "重定向参考姿势",
+            "骨骼链映射"
+          ],
+          "summary": "自动骨骼绑定解决的是“如何给一个模型建立骨架”，动画重定向解决的是“如何把已有动作传给另一个角色”。它们都使用骨架，但属于不同的动画制作阶段。",
+          "sourceIds": [
+            "aPinocchio",
+            "aIkRig",
+            "aRetarget"
+          ],
+          "details": [
+            {
+              "keyword": "自动骨骼绑定（Automatic Rigging）",
+              "explanation": "根据角色网格自动预测关节位置并建立骨骼层级。有些系统还会进一步自动生成蒙皮权重和动画控制器。"
+            },
+            {
+              "keyword": "动画重定向（Retargeting）",
+              "explanation": "把一个骨架上的动画传递到另一个骨架。即使两个角色的身高、身体比例、骨骼长度或骨架结构不同，也尽量保持原来动作的含义。"
+            },
+            {
+              "keyword": "重定向参考姿势（Retarget Pose）",
+              "explanation": "用于对齐源角色和目标角色基础姿势的参考姿势。例如源角色是T Pose，而目标角色是A Pose时，需要先修正这种初始姿势差异。"
+            },
+            {
+              "keyword": "骨骼链映射（Chain Mapping）",
+              "explanation": "指定源骨架和目标骨架中哪些骨骼链具有相同作用。例如把源角色的左臂映射到目标角色的左臂，而不要求两边具有完全一样的骨骼数量和名称。"
+            }
+          ]
         }
-      ]
-    }
-
-    ],
-
-    "keywordSourceGroups": [
-    {
-    "keywords": [
-    "骨骼绑定",
-    "骨架",
-    "关节层级",
-    "局部变换",
-    "全局变换",
-    "绑定姿势",
-    "逆绑定矩阵"
-    ],
-      "summary": "骨架是角色姿态的主要控制结构。关节通过父子关系组成层级，每个关节的局部变换沿层级逐级累积，最终得到整个角色的骨骼姿态。",
-
-      "sourceIds": [
-        "aGltf",
-        "aSkinning",
-        "aDqs"
       ],
-
-      "details": [
+      "technicalTables": [
         {
-          "keyword": "骨骼绑定（Rig）",
-          "explanation": "角色完整的动画控制系统。通常包含骨架、控制器、约束、姿态求解和网格变形等部分，使动画师可以通过少量控制元素操纵角色，而不需要直接编辑大量网格顶点。"
-        },
+          "columns": [
+            "阶段",
+            "解决的问题",
+            "输入",
+            "输出",
+            "例子"
+          ],
+          "rows": [
+            [
+              "控制阶段",
+              "角色想做什么？",
+              "关键帧、动作捕捉、游戏逻辑",
+              "目标位置和控制参数",
+              "手部控制器、注视目标、手指弯曲"
+            ],
+            [
+              "姿态求解",
+              "骨架应该摆成什么姿势？",
+              "控制目标、约束条件",
+              "各个关节的变换",
+              "FK、Two Bone IK、FABRIK、Full Body IK"
+            ],
+            [
+              "骨骼层级",
+              "每个关节最终在哪里？",
+              "关节局部变换",
+              "关节全局变换",
+              "脊柱、手臂、腿部骨骼链"
+            ],
+            [
+              "网格变形",
+              "角色表面怎样跟随骨骼？",
+              "骨骼姿态、蒙皮权重",
+              "最终顶点位置",
+              "LBS、DQS"
+            ],
+            [
+              "动画重定向",
+              "如何把动作传给另一个角色？",
+              "源动画和骨骼对应关系",
+              "目标角色动画",
+              "IK Retargeting、骨骼链映射"
+            ]
+          ],
+          "caption": "基于骨骼绑定的动画并不是一个单独算法，而是一条从动画控制、骨骼姿态计算到最终网格变形的完整流程。"
+        }
+      ],
+      "callouts": [
         {
-          "keyword": "骨架（Skeleton）",
-          "explanation": "由多个关节按照父子关系连接形成的层级结构，用来表示角色当前的姿态。动画通常先改变骨架，再通过蒙皮让网格顶点跟随。"
-        },
-        {
-          "keyword": "关节层级（Joint Hierarchy）",
-          "explanation": "关节之间的父子关系。例如肩膀是上臂的父级，上臂又是前臂的父级。父关节运动时，它下面的所有子关节都会一起受到影响。",
-          "equation": {
-            "expression": "G_j = G_parent L_j",
-            "note": "关节 j 的全局变换等于父关节的全局变换乘以自身的局部变换。"
+          "tone": "note",
+          "title": "控制器、求解器和变形器不是同一种东西",
+          "text": "控制器表示“动画师想要什么”，求解器计算“骨骼应该怎么动”，变形器计算“网格顶点最终在哪里”。例如手部控制器属于控制层，Full Body IK属于求解层，LBS属于网格变形层。"
+        }
+      ],
+      "aiResearch": {
+        "summary": "RigAnything与UniRig从geometry推断可用的骨骼层级和蒙皮权重；重定向方面有STaR能转移完整motion sequence并减少穿模和抖动。",
+        "explanations": [
+          {
+            "title": "RigAnything：把骨骼作为有序树生成",
+            "text": [
+              "输入是任意3D asset，而不限定种类。RigAnything按照breadth-first order排列骨骼，并autoregressively预测每个骨骼和父子关系，把生成树转换为序列生成。",
+              "扩散模型用作修正骨骼位置和分配权重。"
+            ]
+          },
+          {
+            "title": "UniRig：不同种类模型统一预测骨骼和权重",
+            "text": [
+              "UniRig使用Skeleton Tree Tokenization编码骨骼层级，再由large autoregressive model预测树结构；随后通过bone-point cross-attention连接预测的骨骼与网格来估计蒙皮权重。",
+              "训练所用Rig-XL包含超过14,000个骨骼模型，因此覆盖人类以外的更多种类别。"
+            ]
+          },
+          {
+            "title": "STaR：对完整动画进行重定向，而不是逐帧处理姿势",
+            "text": [
+              "STaR输入源动画以及形状不同的源角色与目标角色。Spatial module利用密度形状信息与limb-penetration constraint（防穿模约束？）",
+              "Temporal transformer联合预测完整动画序列，并用短期与长期consistency constraint（维持约束？）降低抖动。输出目标角色动画。"
+            ]
           }
-        },
-        {
-          "keyword": "局部变换（Local Transform）",
-          "explanation": "关节相对于父关节的位置、旋转和缩放。骨骼动画通常主要记录这种相对关系。"
-        },
-        {
-          "keyword": "全局变换（Global Transform）",
-          "explanation": "把当前关节以上所有父关节的变换逐级组合以后，得到该关节在模型空间中的最终位置和方向。"
-        },
-        {
-          "keyword": "绑定姿势（Bind Pose）",
-          "explanation": "模型与骨架建立蒙皮关系时使用的参考姿势。蒙皮权重和逆绑定矩阵通常都以这个姿势作为基准。"
-        },
-        {
-          "keyword": "逆绑定矩阵（Inverse Bind Matrix）",
-          "explanation": "记录关节在绑定姿势下的反向变换。它与关节当前的变换组合以后，可以得到关节相对于绑定姿势到底发生了怎样的变化。",
-          "equation": {
-            "expression": "M_skin,j = G_j B_j⁻¹",
-            "note": "G_j 是关节当前的全局变换，B_j 是绑定姿势下的全局变换，两者组合后得到真正用于蒙皮的变换。"
+        ],
+        "flows": [
+          {
+            "label": "RigAnything：从任意asset到animation-ready rig",
+            "steps": [
+              {
+                "title": "无骨骼的3D asset",
+                "text": "输入模型的网格"
+              },
+              {
+                "title": "Breadth-first joint sequence",
+                "text": "使用位置与父子关系表示每个骨骼"
+              },
+              {
+                "title": "Autoregressive prediction",
+                "text": "逐个骨骼链接生成骨骼树"
+              },
+              {
+                "title": "Diffusion refinement",
+                "text": "提高骨骼位置的一致性（对称？）"
+              },
+              {
+                "title": "Skeleton + skin weights",
+                "text": "导出骨骼和蒙皮权重"
+              }
+            ]
+          },
+          {
+            "label": "UniRig：不同种类模型统一预测骨骼和权重",
+            "steps": [
+              {
+                "title": "多类别模型",
+                "text": "编码人类或非人类模型的网格"
+              },
+              {
+                "title": "Skeleton Tree Tokenization",
+                "text": "把骨骼层级表示为model token"
+              },
+              {
+                "title": "Autoregressive skeleton model",
+                "text": "预测骨骼位置与拓扑（父子关系）"
+              },
+              {
+                "title": "Bone-point cross-attention",
+                "text": "建立预测骨骼与网格之间的关系（权重预测）"
+              },
+              {
+                "title": "Rigged asset",
+                "text": "导出骨骼和蒙皮权重"
+              }
+            ]
+          },
+          {
+            "label": "STaR：从源动画到目标动画",
+            "steps": [
+              {
+                "title": "源动画 + 两个角色模型",
+                "text": "读取动画及源模型和目标模型的差异"
+              },
+              {
+                "title": "Dense spatial representation",
+                "text": "表达sparse joint rotation之外的几何关系"
+              },
+              {
+                "title": "Penetration-aware spatial module",
+                "text": "减少limb-body与limb-limb intersection（穿模）"
+              },
+              {
+                "title": "Temporal transformer",
+                "text": "通过multi-level consistency预测完整动画序列"
+              },
+              {
+                "title": "Target-skeleton motion",
+                "text": "生成更平滑的动画结果"
+              }
+            ]
           }
-        }
-      ]
-    },
-
-    {
-      "keywords": [
-        "控制器",
-        "FK",
-        "IK",
-        "IK目标",
-        "末端执行器",
-        "约束",
-        "求解器"
-      ],
-
-      "summary": "控制器描述动画师想要的动作结果，FK或IK负责把这些控制输入转换成骨骼姿态。约束规定允许怎样运动，求解器则负责计算满足这些条件的关节变换。",
-
-      "sourceIds": [
-        "aControlRigControls",
-        "aControlRigQuickStart",
-        "aIkSolvers",
-        "aFullBodyIk",
-        "aControlRigConstraints"
-      ],
-
-      "details": [
-        {
-          "keyword": "控制器（Controller / Control）",
-          "explanation": "动画师实际操作的控制元素。例如手部控制器、脚部控制器、注视目标或手指弯曲参数。控制器通常不会直接移动网格，而是进一步驱动骨骼、约束或求解器。"
-        },
-        {
-          "keyword": "FK",
-          "explanation": "正向运动学（Forward Kinematics）。直接指定各个关节如何旋转，然后运动沿骨骼父子层级向下传递。例如先旋转上臂，再旋转前臂，就可以得到手的位置。"
-        },
-        {
-          "keyword": "IK",
-          "explanation": "逆向运动学（Inverse Kinematics）。不是直接决定每个关节怎么旋转，而是先指定手或脚应该到达哪里，再由求解器反过来计算整条骨骼链应该如何调整。"
-        },
-        {
-          "keyword": "IK目标（IK Goal）",
-          "explanation": "IK希望末端达到的位置或方向。例如把脚部目标放在地面上，求解器就会调整腿部关节，让脚尽可能到达这个目标。"
-        },
-        {
-          "keyword": "末端执行器（End Effector）",
-          "explanation": "IK骨骼链最末端需要被控制的位置，例如手、脚、头部或者角色手持工具的末端。"
-        },
-        {
-          "keyword": "约束（Constraint）",
-          "explanation": "规定关节或物体允许怎样运动。例如限制膝盖只能向前弯曲、限制关节旋转角度、规定手始终朝向某个方向，或者用Pole Vector控制手肘和膝盖的朝向。"
-        },
-        {
-          "keyword": "求解器（Solver）",
-          "explanation": "根据当前骨骼姿态、目标和约束计算新的关节变换。Two Bone IK、CCD、FABRIK和Full Body IK都是不同的求解方法。"
-        }
-      ]
-    },
-
-    {
-      "keywords": [
-        "蒙皮",
-        "蒙皮权重",
-        "LBS",
-        "DQS",
-        "自动蒙皮"
-      ],
-
-      "summary": "骨架只负责表示姿态，真正让角色表面发生变形的是蒙皮。蒙皮权重负责建立顶点与关节之间的影响关系，LBS或DQS再利用这些关系计算顶点的新位置。",
-
-      "sourceIds": [
-        "aSkinning",
-        "aDqs",
-        "aGeodesic"
-      ],
-
-      "details": [
-        {
-          "keyword": "蒙皮（Skinning）",
-          "explanation": "把骨骼姿态转换成网格顶点位置的过程。骨骼发生运动以后，蒙皮决定角色表面的顶点应该如何跟随。"
-        },
-        {
-          "keyword": "蒙皮权重（Skin Weight）",
-          "explanation": "表示一个顶点受到不同关节多大程度影响的系数。例如手肘附近的顶点可能同时受到上臂和前臂两个关节影响。"
-        },
-        {
-          "keyword": "LBS",
-          "explanation": "线性混合蒙皮（Linear Blend Skinning）。先分别计算各个关节对顶点产生的位置变化，再按照蒙皮权重进行加权平均。计算量小，因此广泛用于实时角色动画，但在大角度弯曲或扭转时可能出现体积收缩。"
-        },
-        {
-          "keyword": "DQS",
-          "explanation": "双四元数蒙皮（Dual Quaternion Skinning）。使用双四元数混合关节的刚体变换，相比LBS可以减少手臂扭转时出现的明显体积塌缩。"
-        },
-        {
-          "keyword": "自动蒙皮（Automatic Skinning）",
-          "explanation": "自动计算网格顶点与各个关节之间的蒙皮权重。Heat Weight和Geodesic Voxel Binding都属于自动估计关节影响范围的方法。"
-        }
-      ]
-    },
-
-    {
-      "keywords": [
-        "自动骨骼绑定",
-        "动画重定向",
-        "重定向参考姿势",
-        "骨骼链映射"
-      ],
-
-      "summary": "自动骨骼绑定解决的是“如何给一个模型建立骨架”，动画重定向解决的是“如何把已有动作传给另一个角色”。它们都使用骨架，但属于不同的动画制作阶段。",
-
-      "sourceIds": [
-        "aPinocchio",
-        "aIkRig",
-        "aRetarget"
-      ],
-
-      "details": [
-        {
-          "keyword": "自动骨骼绑定（Automatic Rigging）",
-          "explanation": "根据角色网格自动预测关节位置并建立骨骼层级。有些系统还会进一步自动生成蒙皮权重和动画控制器。"
-        },
-        {
-          "keyword": "动画重定向（Retargeting）",
-          "explanation": "把一个骨架上的动画传递到另一个骨架。即使两个角色的身高、身体比例、骨骼长度或骨架结构不同，也尽量保持原来动作的含义。"
-        },
-        {
-          "keyword": "重定向参考姿势（Retarget Pose）",
-          "explanation": "用于对齐源角色和目标角色基础姿势的参考姿势。例如源角色是T Pose，而目标角色是A Pose时，需要先修正这种初始姿势差异。"
-        },
-        {
-          "keyword": "骨骼链映射（Chain Mapping）",
-          "explanation": "指定源骨架和目标骨架中哪些骨骼链具有相同作用。例如把源角色的左臂映射到目标角色的左臂，而不要求两边具有完全一样的骨骼数量和名称。"
-        }
-      ]
-    }
-    ],
-
-    "technicalTables": [
-    {
-    "columns": [
-    "阶段",
-    "解决的问题",
-    "输入",
-    "输出",
-    "例子"
-    ],
-      "rows": [
-        [
-          "控制阶段",
-          "角色想做什么？",
-          "关键帧、动作捕捉、游戏逻辑",
-          "目标位置和控制参数",
-          "手部控制器、注视目标、手指弯曲"
         ],
-        [
-          "姿态求解",
-          "骨架应该摆成什么姿势？",
-          "控制目标、约束条件",
-          "各个关节的变换",
-          "FK、Two Bone IK、FABRIK、Full Body IK"
-        ],
-        [
-          "骨骼层级",
-          "每个关节最终在哪里？",
-          "关节局部变换",
-          "关节全局变换",
-          "脊柱、手臂、腿部骨骼链"
-        ],
-        [
-          "网格变形",
-          "角色表面怎样跟随骨骼？",
-          "骨骼姿态、蒙皮权重",
-          "最终顶点位置",
-          "LBS、DQS、Blend Shape、Cage Deformation"
-        ],
-        [
-          "动画重定向",
-          "如何把动作传给另一个角色？",
-          "源动画和骨骼对应关系",
-          "目标角色动画",
-          "IK Retargeting、骨骼链映射"
+        "sourceIds": [
+          "aRigAnything",
+          "aUniRig",
+          "aStar"
         ]
-      ],
-
-      "caption": "基于骨骼绑定的动画并不是一个单独算法，而是一条从动画控制、骨骼姿态计算到最终网格变形的完整流程。"
-    },
-
-    {
-      "columns": [
-        "方法",
-        "主要控制对象",
-        "适合解决的问题"
-      ],
-
-      "rows": [
-        [
-          "FK",
-          "直接控制关节旋转",
-          "手臂挥动、脊柱弯曲等明确的层级运动"
-        ],
-        [
-          "IK",
-          "控制手、脚等末端目标",
-          "脚踩地面、手抓物体、角色注视目标"
-        ],
-        [
-          "LBS",
-          "根据骨骼和权重移动顶点",
-          "高性能实时角色蒙皮"
-        ],
-        [
-          "DQS",
-          "根据骨骼和权重移动顶点",
-          "减少扭转区域的体积塌缩"
-        ],
-        [
-          "笼状变形",
-          "通过低分辨率控制网格移动顶点",
-          "整体形状调整和柔性二次变形"
-        ]
-      ],
-
-      "caption": "FK和IK负责生成骨骼姿态；LBS、DQS和笼状变形负责把控制结果转换成最终网格形状。"
-    }
-    ],
-
-    "callouts": [
-    {
-    "tone": "note",
-    "title": "控制器、求解器和变形器不是同一种东西",
-    "text": "控制器表示“动画师想要什么”，求解器计算“骨骼应该怎么动”，变形器计算“网格顶点最终在哪里”。例如手部控制器属于控制层，Full Body IK属于求解层，LBS属于网格变形层。"
-    },
-    {
-    "tone": "note",
-    "title": "笼状变形位于哪一层",
-    "text": "笼状变形与LBS、DQS一样，都属于网格变形方法。区别在于LBS和DQS主要使用骨骼关节控制网格，而笼状变形使用低分辨率控制笼的顶点或面控制网格。笼状变形可以与骨骼动画组合使用，并不一定要替代骨架。"
-    },
-    {
-    "tone": "note",
-    "title": "自动骨骼绑定和自动蒙皮是两个问题",
-    "text": "自动骨骼绑定回答的是“关节应该放在哪里、骨骼应该怎样连接”；自动蒙皮回答的是“每个网格顶点应该受到哪些关节多大程度的影响”。有些工具会同时完成两步，但它们本质上仍然是两个独立阶段。"
-    }
-    ],
-
-    "flow": {
-    "label": "基于骨骼绑定的动画：从动画意图到最终网格",
-
-    "steps": [
-      {
-        "title": "动画意图",
-        "text": "关键帧、动作捕捉、游戏逻辑或程序化动画描述角色想要执行的动作。"
-      },
-      {
-        "title": "动画控制",
-        "text": "通过手、脚、视线、身体姿态等少量控制参数表达动画师的意图。"
-      },
-      {
-        "title": "FK、IK与约束",
-        "text": "FK直接指定关节变换；IK根据目标和约束反过来计算关节变换。"
-      },
-      {
-        "title": "骨骼姿态",
-        "text": "沿骨骼层级组合各个关节的局部变换，得到所有关节最终的全局变换。"
-      },
-      {
-        "title": "蒙皮与网格变形",
-        "text": "使用LBS、DQS、Blend Shape或笼状变形等方法，把骨骼和其他控制结果转换成网格顶点位置。"
-      },
-      {
-        "title": "最终网格",
-        "text": "得到最终用于渲染、碰撞检测或后续物理模拟的角色几何形状。"
       }
-    ]
-
-    },
-
-    "aiResearch": {
-    "summary": "AI在这一领域主要用于自动化传统动画制作流程。例如RigAnything和UniRig尝试根据3D模型自动生成骨架和蒙皮权重，STaR等方法则研究不同角色之间的动画重定向。虽然建立过程可以由AI自动完成，但最终得到的结果通常仍然是传统动画系统能够直接使用的骨骼层级、蒙皮权重和动作数据。",
-    "sourceIds": [
-    "aRigAnything",
-    "aUniRig",
-    "aStar"
-    ]
-    }
     },
     {
-      "heading": "Skin deformation：corrective、helper bone与muscle",
+      "heading": "皮肤变形：形状修正、辅助骨骼与肌肉",
       "paragraphs": [
-        "Skin deformation从basic skinning无法正确表现的区域开始。Helper bone用于分散twist或保持silhouette；pose-space corrective在复杂joint configuration下加入sculpted offset；muscle与flesh system则模拟皮肤下方的bulging、sliding、volume与secondary motion。",
-        "这些layer需要明确排序：skeleton motion提供pose，muscle或volumetric tissue生成内部结构，helper transform与corrective修复需要art direction的区域，最终skin surface再参与collision与rendering。"
+        "基础蒙皮在关节弯曲或肢体扭转时，容易出现塌陷、体积缩小和轮廓失真。辅助骨骼可以分散扭转或维持轮廓；姿势空间修正根据当前关节姿势，叠加预先雕刻的顶点偏移；肌肉与软组织系统则进一步表现皮下组织的鼓起、滑动、体积变化和随动作产生的晃动。",
+        "这些变形层需要明确各自的输入和计算顺序。例如，先由骨骼动画确定姿势，再计算肌肉和软组织的形状，接着用辅助骨骼与修正形状调整需要艺术控制的区域，最后处理表面的碰撞与渲染。具体顺序取决于绑定和求解器设计，碰撞也可能参与组织求解过程。"
       ],
       "equations": [
         {
-          "label": "Pose-space corrective变形",
+          "label": "姿势空间中的形状修正",
           "expression": "x′ = x_skin + Σ_k φ_k(θ) Δx_k",
           "terms": [
             {
@@ -1073,7 +1242,7 @@
           ]
         },
         {
-          "label": "Continuum muscle/tissue平衡",
+          "label": "肌肉与软组织的动力学平衡",
           "expression": "M ẍ + C ẋ + f_int(x,a) = f_ext",
           "terms": [
             {
@@ -1114,16 +1283,16 @@
       "keywordSourceGroups": [
         {
           "keywords": [
-            "Skin deformation",
-            "corrective blendshape",
-            "pose-space deformation",
-            "helper bone",
-            "twist bone",
-            "volume preservation",
-            "bulge",
-            "sliding"
+            "皮肤变形",
+            "修正混合形状",
+            "姿势空间变形",
+            "辅助骨骼",
+            "扭转骨骼",
+            "体积保持",
+            "鼓起",
+            "层间滑动"
           ],
-          "summary": "Corrective layer用于修复linear skeleton-driven deformation中可预测的artifact。",
+          "summary": "形状修正与辅助骨骼用于改善基础蒙皮的常见缺陷，例如关节塌陷、扭转收缩和轮廓失真。",
           "sourceIds": [
             "aPsd",
             "aSkinning",
@@ -1131,52 +1300,59 @@
           ],
           "details": [
             {
-              "keyword": "Skin deformation",
-              "explanation": "从animation control与physical tissue state到可见角色surface的完整映射。"
+              "keyword": "皮肤变形",
+              "explanation": "根据动画控制参数和组织状态，计算角色可见表面的位置。它既包含基础蒙皮，也可以叠加形状修正与软组织模拟。"
             },
             {
-              "keyword": "corrective blendshape",
-              "explanation": "为修复特定pose或deformation failure而激活的sculpted vertex-delta shape。"
+              "keyword": "修正混合形状",
+              "explanation": "为特定姿势预先雕刻的修正形状，以顶点偏移的形式保存。例如，手臂抬起时混入腋下修正，补偿基础蒙皮造成的塌陷。"
             },
             {
-              "keyword": "pose-space deformation",
-              "explanation": "以joint pose而不是time为自变量，对corrective shape进行插值的方法。"
+              "keyword": "姿势空间变形",
+              "explanation": "根据关节姿势计算各个修正形状的混合权重。同一姿势会激活相应修正，而不依赖动画播放到哪个时刻。"
             },
             {
-              "keyword": "helper bone",
-              "explanation": "为deformation control而添加的额外joint或transform，并不代表anatomical articulation。"
+              "keyword": "辅助骨骼",
+              "explanation": "为控制变形额外添加的骨骼或变换节点，不一定对应真实解剖结构。它可以跟随主骨骼运动，局部支撑皮肤轮廓。"
             },
             {
-              "keyword": "twist bone",
-              "explanation": "沿limb分散axial rotation的helper，用来避免skin collapse集中在单一区域。"
+              "keyword": "扭转骨骼",
+              "explanation": "沿肢体分摊轴向旋转的辅助骨骼。例如，把前臂旋转分配给多个节点，避免扭转集中在手腕附近造成蒙皮收缩。"
             },
             {
-              "keyword": "volume preservation",
-              "explanation": "限制弯曲与扭转附近不自然收缩或膨胀的deformation goal。",
+              "keyword": "体积保持",
+              "explanation": "限制弯曲和扭转时不自然的收缩或膨胀，使局部组织的体积尽量保持不变。",
               "equation": {
                 "expression": "det(F)≈1",
-                "note": "F 是描述局部区域相对静止空间变化的变形梯度矩阵；det 是行列式运算；det(F) 是局部体积比；≈ 表示近似相等；1 表示局部体积不变。因此该值接近 1 时表示近似保体积。"
+                "note": [
+                  "F：描述局部区域相对静止空间变化的变形梯度矩阵。",
+                  "det：行列式运算。",
+                  "det(F)：局部体积比。",
+                  "≈：近似相等。",
+                  "1：局部体积不变。",
+                  "行列式接近1时表示近似保体积。"
+                ]
               }
             },
             {
-              "keyword": "bulge",
-              "explanation": "由flexion或muscle contraction产生的向外形状变化。"
+              "keyword": "鼓起",
+              "explanation": "关节弯曲或肌肉收缩时，局部表面向外隆起的形状变化。可以通过修正形状控制，也可以由组织模拟产生。"
             },
             {
-              "keyword": "sliding",
-              "explanation": "允许skin、fascia、fat或muscle layer产生relative motion，而不是强制它们共享同一deformation field。"
+              "keyword": "层间滑动",
+              "explanation": "皮肤、筋膜、脂肪和肌肉之间的相对运动。允许层间滑动，可以避免所有组织被迫以相同方式变形。"
             }
           ]
         },
         {
           "keywords": [
-            "muscle system",
-            "muscle activation",
-            "FEM",
-            "tissue layer",
-            "flesh simulation"
+            "肌肉系统",
+            "肌肉激活",
+            "有限元法",
+            "组织层",
+            "软组织模拟"
           ],
-          "summary": "Physical layer根据anatomical或简化material model生成pose-dependent volume与secondary motion。",
+          "summary": "肌肉与软组织系统通过解剖结构或简化的材料模型，计算姿势变化引起的形状变化，并在动态模拟中表现惯性和晃动。",
           "sourceIds": [
             "aPixar",
             "aPsd",
@@ -1184,30 +1360,130 @@
           ],
           "details": [
             {
-              "keyword": "muscle system",
-              "explanation": "一组anatomical或art-directed actuator，其contraction会塑造周围tissue与skin。"
+              "keyword": "肌肉系统",
+              "explanation": "一组按解剖结构或艺术需求布置的肌肉单元，通过收缩改变周围组织和皮肤的形状。"
             },
             {
-              "keyword": "muscle activation",
-              "explanation": "改变active stress、fiber contraction或target muscle shape的control signal。"
+              "keyword": "肌肉激活",
+              "explanation": "控制肌肉收缩程度的信号，用于改变主动应力、肌纤维的目标长度或目标形状。"
             },
             {
-              "keyword": "FEM",
-              "explanation": "Finite element把muscle与flesh continuum离散化，并从strain-energy model推导force。"
+              "keyword": "有限元法",
+              "explanation": "把连续的肌肉和软组织划分为有限数量的单元，根据材料的应变能计算内力，再求解组织的平衡形状或动态运动。"
             },
             {
-              "keyword": "tissue layer",
-              "explanation": "具有不同stiffness与sliding behavior的material layer，例如muscle、fat、fascia或skin。"
+              "keyword": "组织层",
+              "explanation": "具有特定材料性质的一层组织，例如肌肉、脂肪、筋膜或皮肤。不同层可以使用不同的刚度，并通过接触或滑动关系连接。"
             },
             {
-              "keyword": "flesh simulation",
-              "explanation": "由skeleton motion、muscle force、inertia、damping与contact驱动的soft-tissue dynamic deformation。"
+              "keyword": "软组织模拟",
+              "explanation": "计算软组织在骨骼运动、肌肉力、惯性、阻尼和接触作用下的动态变形，例如角色急停后仍会继续晃动的皮下组织。"
             }
           ]
         }
       ],
       "aiResearch": {
-        "summary": "近期工作开始学习deformation gradient、加入physics-informed skin motion，并为neural skinning引入interior geodesic cut-cell prior。最可靠的系统仍会显式提供mechanics或structural constraint，使learned deformation遵守volume与contact条件。",
+        "summary": "这里的三项研究分别改进不同阶段：Neural Deformation Gradients根据姿势重建内部组织形状；PhysSkin学习便于物理求解的变形空间；cut-cell skinning为神经网络预测蒙皮权重提供几何依据。它们可以与皮肤变形流程结合，但各自并不构成完整的肌肉与碰撞系统。",
+        "explanations": [
+          {
+            "title": "Neural Deformation Gradients：先预测局部变形，再重建组织形状",
+            "text": [
+              "这项2026年的研究输入人体形状参数和关节旋转，使用分层肌肉与脂肪的准静态有限元模拟结果训练网络。Neural Deformation Gradients预测残余变形梯度，用它描述局部拉伸、剪切和旋转，而不是直接预测每个顶点的偏移。",
+              "随后结合姿势旋转，以骨骼边界为约束求解泊松系统，重建相互一致的顶点位置，再把变形传递给嵌入其中的精细解剖网格。这样有助于保持体积、减少体积单元翻转。它近似的是各姿势下的平衡形状，本身不包含惯性导致的组织晃动。"
+            ]
+          },
+          {
+            "title": "PhysSkin：学习变形空间，再求解物理运动",
+            "text": [
+              "PhysSkin发表于2026年的计算机视觉与模式识别会议。它从静态几何学习连续蒙皮权重场，无需人工标注的权重或模拟运动轨迹。形状编码器与交叉注意力解码器共同预测：空间中的每个点应当怎样受到少量变形控制节点的影响。",
+              "训练时通过弹性能、空间平滑性和正交性约束进行自监督学习。播放时，物理求解器在低维空间中更新控制节点的变换，再用学到的权重场还原完整几何形状。这些控制节点用于表示模拟自由度，不一定对应真实骨骼。"
+            ]
+          },
+          {
+            "title": "cut-cell skinning：用内部距离辅助预测蒙皮权重",
+            "text": [
+              "这项2026年8月发布的预印本输入网格与骨骼，将表面连接关系和物体内部的规则网格线段组合成图，近似计算沿物体内部传播的距离，再通过核函数把距离转换为初步的蒙皮权重分布，作为几何先验。",
+              "神经蒙皮模型利用这个先验改善权重预测。构图与距离计算属于几何算法，学习发生在使用先验的网络中。它改进的是骨骼与表面之间的绑定关系，并不直接模拟肌肉收缩、组织滑动或碰撞。"
+            ]
+          }
+        ],
+        "flows": [
+          {
+            "label": "Neural Deformation Gradients：从姿势到分层组织",
+            "steps": [
+              {
+                "title": "人体形状 + 关节旋转",
+                "text": "确定角色体型和当前姿势"
+              },
+              {
+                "title": "预测残余变形梯度",
+                "text": "使用由准静态组织模拟训练的网络"
+              },
+              {
+                "title": "结合姿势旋转",
+                "text": "得到当前姿势下的局部变形梯度"
+              },
+              {
+                "title": "重建顶点位置",
+                "text": "以骨骼为边界约束求解泊松系统"
+              },
+              {
+                "title": "驱动精细解剖网格",
+                "text": "把体积变形传递给嵌入其中的组织表面"
+              }
+            ]
+          },
+          {
+            "label": "PhysSkin：从静态几何到物理动画",
+            "steps": [
+              {
+                "title": "采样静态几何",
+                "text": "取得物体表面点与内部采样点"
+              },
+              {
+                "title": "编码形状",
+                "text": "提取形状特征与控制节点特征"
+              },
+              {
+                "title": "解码连续权重场",
+                "text": "查询每个点受各控制节点影响的权重"
+              },
+              {
+                "title": "求解控制节点运动",
+                "text": "在低维空间中更新节点变换"
+              },
+              {
+                "title": "还原完整几何形状",
+                "text": "通过学到的权重场混合节点变换"
+              }
+            ]
+          },
+          {
+            "label": "cut-cell skinning：从几何先验到蒙皮权重",
+            "steps": [
+              {
+                "title": "网格 + 骨骼",
+                "text": "读取表面几何与骨骼位置"
+              },
+              {
+                "title": "构建内部连通图",
+                "text": "组合表面边与物体内部的网格线段"
+              },
+              {
+                "title": "近似计算内部距离",
+                "text": "沿图计算顶点到骨骼的距离"
+              },
+              {
+                "title": "生成几何先验",
+                "text": "通过核函数把距离转为初步权重分布"
+              },
+              {
+                "title": "预测蒙皮权重",
+                "text": "将先验输入神经蒙皮模型"
+              }
+            ]
+          }
+        ],
         "sourceIds": [
           "aNdg",
           "aPhysSkin",
@@ -1364,7 +1640,13 @@
               "explanation": "为抑制未解析oscillation并匹配material response而加入的energy loss。",
               "equation": {
                 "expression": "F_d=-c v",
-                "note": "F_d 是阻尼力向量，下标 d 表示 damping（阻尼）；c 是非负阻尼系数；v 是速度向量；负号使阻尼力与运动方向相反并消耗动能。"
+                "note": [
+                  "F_d：阻尼力向量。",
+                  "d：damping下标。",
+                  "c：非负阻尼系数。",
+                  "v：速度向量。",
+                  "负号使阻尼力与运动方向相反并消耗动能。"
+                ]
               }
             },
             {
@@ -1714,7 +1996,16 @@
               "explanation": "由四个component组成的unit 3D rotation representation，可进行平滑composition与interpolation。",
               "equation": {
                 "expression": "q=(w,x,y,z), |q|=1",
-                "note": "q 是旋转四元数；w 是它的标量分量；x、y、z 是三个向量分量，在此公式中并不表示顶点位置；|q| 是四元数的模；=1 要求 q 为单位四元数。q 与 -q 编码相同朝向。"
+                "note": [
+                  "q：旋转四元数。",
+                  "w：标量分量。",
+                  "x：第一个向量分量。",
+                  "y：第二个向量分量。",
+                  "z：第三个向量分量。",
+                  "|q|：四元数的模。",
+                  "|q|=1表示q是单位四元数。",
+                  "q与-q编码相同朝向。"
+                ]
               }
             },
             {
@@ -1760,7 +2051,19 @@
               "explanation": "使用tangent在key之间提供平滑value与velocity的piecewise cubic curve。",
               "equation": {
                 "expression": "p(t)=h₀₀p₀+h₁₀m₀+h₀₁p₁+h₁₁m₁",
-                "note": "p(t) 是归一化参数 t 处的插值数值或位置；t 通常从 0 变化到 1；p₀ 与 p₁ 是两个端点值；m₀ 与 m₁ 是端点切线，其尺度取决于区间时间约定；h₀₀(t)、h₁₀(t)、h₀₁(t)、h₁₁(t) 是四个三次 Hermite 基函数；下标用于区分与各端点数值及切线相连的基函数。"
+                "note": [
+                  "p(t)：归一化参数t处的插值数值或位置。",
+                  "t：从0到1的归一化参数。",
+                  "p₀：第一个端点值。",
+                  "p₁：第二个端点值。",
+                  "m₀：第一个端点切线。",
+                  "m₁：第二个端点切线。",
+                  "h₀₀(t)：第一个端点值的基函数。",
+                  "h₁₀(t)：第一个端点切线的基函数。",
+                  "h₀₁(t)：第二个端点值的基函数。",
+                  "h₁₁(t)：第二个端点切线的基函数。",
+                  "切线尺度取决于区间时间约定。"
+                ]
               }
             },
             {
