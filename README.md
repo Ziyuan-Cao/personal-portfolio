@@ -36,6 +36,8 @@ The workflow in `.github/workflows/pages.yml` collects news once a day at 06:17 
 
 After pushing the workflow, open the repository's **Settings → Pages** page and set **Source** to **GitHub Actions**. The first successful workflow run will replace the README page with the portfolio.
 
+If you want to contact me you can reach me at [Twitter](https://www.x.com/codewithsadee_).
+
 ## Commands
 
 - `npm run dev` — run with TypeScript watch mode
