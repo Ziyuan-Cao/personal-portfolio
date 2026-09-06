@@ -280,7 +280,9 @@ function keywordDetailList(details, sourceCatalog) {
     const meaning = element("div", "blog-keyword-detail-field");
     meaning.append(
       element("strong", "", i18n.t("blog.keywordMeaning")),
-      element("p", "", detail.explanation),
+      Array.isArray(detail.explanation)
+        ? element("pre", "blog-keyword-format", detail.explanation.join("\n"))
+        : element("p", "", detail.explanation),
     );
     item.append(meaning);
 
@@ -329,7 +331,8 @@ function aiResearchBlock(research, sourceCatalog) {
   const aside = element("aside", "blog-ai-research");
   aside.append(
     element("strong", "blog-ai-research-title", i18n.t("blog.currentAiResearch")),
-    element("p", "blog-ai-research-summary", research.summary),
+    ...(Array.isArray(research.summary) ? research.summary : [research.summary])
+      .map((paragraph) => element("p", "blog-ai-research-summary", paragraph)),
   );
 
   if (research.explanations?.length) {

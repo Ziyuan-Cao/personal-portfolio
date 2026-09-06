@@ -928,111 +928,9 @@
       "keywordSourceGroups": [
         {
           "keywords": [
-            "OpenUSD",
-            "USD Stage",
-            "Prim",
-            "layers",
-            "composition arcs",
-            "references",
-            "payloads",
-            "variants",
-            "instancing"
-          ],
-          "summary": "OpenUSD defines these as one composition system: authored layers are composed into a Stage whose Prims can be varied, referenced, payloaded, and instanced.",
-          "sourceIds": [
-            "s01a",
-            "s01d",
-            "s01e"
-          ],
-          "details": [
-            {
-              "keyword": "OpenUSD",
-              "explanation": "An open scene-description framework for composing large production assets, overrides, variants, and references across many files.",
-              "aiNote": "Generative world models can propose OpenUSD content or relationships, but final assets still need deterministic scene composition and interchange validation."
-            },
-            {
-              "keyword": "USD Stage",
-              "explanation": "The fully composed scene obtained after USD resolves all participating layers and composition arcs.",
-              "aiNote": "Generative world models can propose USD Stage content or relationships, but final assets still need deterministic scene composition and interchange validation."
-            },
-            {
-              "keyword": "Prim",
-              "explanation": "USD's primary scene object: a typed node at a path that owns properties and participates in composition.",
-              "aiNote": "Generative world models can propose Prim content or relationships, but final assets still need deterministic scene composition and interchange validation."
-            },
-            {
-              "keyword": "layers",
-              "explanation": "Independently authored scene-description files whose opinions are combined by a composition system.",
-              "aiNote": "Generative world models can propose layers content or relationships, but final assets still need deterministic scene composition and interchange validation."
-            },
-            {
-              "keyword": "composition arcs",
-              "explanation": "USD relationships—such as references, payloads, inherits, and variants—that determine how authored scene opinions combine.",
-              "aiNote": "Generative world models can propose composition arcs content or relationships, but final assets still need deterministic scene composition and interchange validation."
-            },
-            {
-              "keyword": "references",
-              "explanation": "Composition links that insert another asset or layer's scene description at a target location.",
-              "aiNote": "Generative world models can propose references content or relationships, but final assets still need deterministic scene composition and interchange validation."
-            },
-            {
-              "keyword": "payloads",
-              "explanation": "Loadable USD references that allow heavy scene content to remain excluded until requested.",
-              "aiNote": "Generative world models can propose payloads content or relationships, but final assets still need deterministic scene composition and interchange validation."
-            },
-            {
-              "keyword": "variants",
-              "explanation": "Named alternative opinions for one asset, such as different models, materials, or levels of detail.",
-              "aiNote": "Generative world models can propose variants content or relationships, but final assets still need deterministic scene composition and interchange validation."
-            },
-            {
-              "keyword": "instancing",
-              "explanation": "Reuse of one prototype's geometry and properties through many lightweight scene instances.",
-              "aiNote": "Generative world models can propose instancing content or relationships, but final assets still need deterministic scene composition and interchange validation."
-            }
-          ]
-        },
-        {
-          "keywords": [
-            "glTF"
-          ],
-          "summary": "glTF is a runtime-oriented asset-delivery specification; the specification, tutorial, and validator describe the same interchange contract from authoring through conformance.",
-          "sourceIds": [
-            "s01b",
-            "s01f",
-            "s01g"
-          ],
-          "details": [
-            {
-              "keyword": "glTF",
-              "explanation": "A compact Khronos format designed to deliver meshes, materials, textures, skins, and animation efficiently to runtime applications.",
-              "aiNote": "Generative world models can propose glTF content or relationships, but final assets still need deterministic scene composition and interchange validation."
-            }
-          ]
-        },
-        {
-          "keywords": [
-            "FBX"
-          ],
-          "summary": "FBX is Autodesk’s scene interchange format; its SDK and developer references define the supported scene objects and import/export behavior.",
-          "sourceIds": [
-            "s01c",
-            "s01h",
-            "s01i"
-          ],
-          "details": [
-            {
-              "keyword": "FBX",
-              "explanation": "Autodesk's proprietary interchange format for geometry, hierarchy, animation, materials, cameras, and DCC metadata.",
-              "aiNote": "Generative world models can propose FBX content or relationships, but final assets still need deterministic scene composition and interchange validation."
-            }
-          ]
-        },
-        {
-          "keywords": [
             "OBJ"
           ],
-          "summary": "OBJ is a comparatively simple text geometry interchange format; these references document its records and practical importer behavior.",
+          "summary": ".obj stores mesh data: vertices, normals, UVs, face indices, and material assignments. A separate .mtl file records material parameters.",
           "sourceIds": [
             "s01j",
             "s01k",
@@ -1041,14 +939,172 @@
           "details": [
             {
               "keyword": "OBJ",
-              "explanation": "A simple text format that stores polygon positions, texture coordinates, normals, groups, and material references.",
-              "aiNote": "Generative world models can propose OBJ content or relationships, but final assets still need deterministic scene composition and interchange validation."
+              "explanation": [
+                "Format:",
+                "vertices",
+                "normals",
+                "UVs",
+                "faces",
+                "material assignments"
+              ]
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "FBX"
+          ],
+          "summary": ".fbx contains complete 3D asset data, including meshes, transforms, hierarchy, materials, textures, skeletons, skin weights, animation, blend shapes, cameras, and lights. It is commonly used to exchange assets between DCC software and game engines.",
+          "sourceIds": [
+            "s01c",
+            "s01h",
+            "s01i"
+          ],
+          "details": [
+            {
+              "keyword": "FBX",
+              "explanation": [
+                "Format:",
+                "Character",
+                "├── Transform / Hierarchy",
+                "├── Mesh",
+                "├── Materials / Textures",
+                "├── Skeleton / Skin Weights",
+                "├── Animation / Blend Shapes",
+                "├── Cameras",
+                "└── Lights"
+              ]
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "glTF"
+          ],
+          "summary": ".gltf or .glb contains meshes, PBR materials, textures, skeletons, animation, morph targets, and scene hierarchy for real-time rendering. Its data layout is close to the vertex buffers, index buffers, and texture resources required by GPUs.",
+          "sourceIds": [
+            "s01b",
+            "s01f",
+            "s01g"
+          ],
+          "details": [
+            {
+              "keyword": "glTF",
+              "explanation": [
+                "Format:",
+                "Scene",
+                "├── nodes",
+                "├── meshes",
+                "│   ├── primitives",
+                "│   └── accessors → bufferViews → buffers",
+                "├── materials",
+                "├── textures / images / samplers",
+                "├── skins",
+                "├── animations",
+                "└── cameras",
+                ".gltf = JSON + external .bin and images",
+                ".glb = JSON, buffers, and images packaged in one file"
+              ]
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "STL"
+          ],
+          "summary": ".stl describes a model surface as triangles, each recording a normal and three vertices. It supports ASCII and binary encodings and is commonly used for CAD export and 3D printing. It does not contain UVs, materials, skeletons, or animation.",
+          "sourceIds": [
+            "s01m",
+            "s01n"
+          ],
+          "details": [
+            {
+              "keyword": "STL",
+              "explanation": [
+                "ASCII format:",
+                "solid Model",
+                "└── facet normal nx ny nz",
+                "    └── outer loop",
+                "        ├── vertex x1 y1 z1",
+                "        ├── vertex x2 y2 z2",
+                "        └── vertex x3 y3 z3",
+                "    endloop",
+                "endfacet",
+                "endsolid Model"
+              ]
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "PLY"
+          ],
+          "summary": ".ply declares its ASCII or binary encoding, element counts, and properties in a header, then stores points or faces in the declared order. Common data includes positions, normals, colors, custom vertex properties, and face indices, making it useful for scans, point clouds, and research data.",
+          "sourceIds": [
+            "s01o",
+            "s01p",
+            "s01q"
+          ],
+          "details": [
+            {
+              "keyword": "PLY",
+              "explanation": [
+                "Format:",
+                "Header",
+                "├── format: ascii / binary",
+                "├── element vertex N",
+                "│   └── properties: x y z / nx ny nz / r g b / custom attributes",
+                "├── element face M",
+                "│   └── property list: vertex_indices",
+                "└── end_header",
+                "Body",
+                "├── Vertex List / Point List",
+                "└── Face List (optional)"
+              ]
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "OpenUSD"
+          ],
+          "summary": ".usd is a scene-description and composition system, beyond a mesh file. Layers compose into a Stage through references, payloads, variants, inherits, and sublayers. Prims can represent geometry, materials, lights, cameras, skeletons, and animation.",
+          "sourceIds": [
+            "s01a",
+            "s01d",
+            "s01e"
+          ],
+          "details": [
+            {
+              "keyword": "OpenUSD",
+              "explanation": [
+                "Format:",
+                "Stage (fully composed scene)",
+                "├── Prim (scene graph node)",
+                "│   ├── Property",
+                "│   │   ├── Attribute",
+                "│   │   └── Relationship",
+                "│   └── Schema (Xform / Mesh / Camera / Light / Material, etc.)",
+                "├── Layer (source of scene information)",
+                "├── Composition",
+                "│   ├── Sublayer",
+                "│   ├── Reference",
+                "│   ├── Payload",
+                "│   ├── Variant",
+                "│   └── Inherit",
+                "├── Override",
+                "└── Instancing"
+              ]
             }
           ]
         }
       ],
       "aiResearch": {
-        "summary": "AI mesh generation follows two main routes: generate an implicit field or structured 3D latent and extract a mesh, or generate vertices and topology directly. The first scales well; the second targets compact, artist-like topology.",
+        "summary": [
+          "AI mesh generation follows two main routes:",
+          "Generate an implicit field or structured 3D latent, then extract a mesh.",
+          "Generate vertices and topology directly."
+        ],
         "explanations": [
           {
             "title": "Implicit field / 3D latent",
@@ -1109,7 +1165,9 @@
         },
         "sourceIds": [
           "aiTrellis",
-          "aiMeshGPT"
+          "aiMeshGPT",
+          "aiARMesh",
+          "aiVertexRegen"
         ]
       }
     },

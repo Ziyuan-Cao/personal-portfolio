@@ -7,7 +7,11 @@
   "sections": [
     {
       "aiResearch": {
-        "summary": "AI Mesh Generationには主に二つの経路があります。Implicit FieldまたはStructured 3D Latentを生成してMeshを抽出する方法と、verticesおよびtopologyを直接生成する方法です。前者はスケールしやすく、後者はコンパクトで明瞭な制作向けtopologyを目指します。",
+        "summary": [
+          "AIによるメッシュ生成には主に二つの経路があります。",
+          "陰関数場または構造化された3D潜在表現を生成し、メッシュを抽出する方法。",
+          "頂点とトポロジーを直接生成する方法。"
+        ],
         "explanations": [
           {
             "title": "Implicit Field / 3D Latent方式",
@@ -68,9 +72,185 @@
         },
         "sourceIds": [
           "aiTrellis",
-          "aiMeshGPT"
+          "aiMeshGPT",
+          "aiARMesh",
+          "aiVertexRegen"
         ]
-      }
+      },
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "OBJ"
+          ],
+          "summary": ".objは頂点、法線、UV、面インデックス、マテリアル割り当てなどのメッシュデータを格納します。別の.mtlファイルにマテリアルのパラメータを記録します。",
+          "sourceIds": [
+            "s01j",
+            "s01k",
+            "s01l"
+          ],
+          "details": [
+            {
+              "keyword": "OBJ",
+              "explanation": [
+                "形式：",
+                "vertices",
+                "normals",
+                "UVs",
+                "faces",
+                "material assignments"
+              ]
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "FBX"
+          ],
+          "summary": ".fbxはメッシュ、トランスフォーム、階層、マテリアル、テクスチャ、スケルトン、スキンウェイト、アニメーション、ブレンドシェイプ、カメラ、ライトなどの3Dアセットデータを格納し、DCCソフトウェアとゲームエンジン間のアセット交換によく使われます。",
+          "sourceIds": [
+            "s01c",
+            "s01h",
+            "s01i"
+          ],
+          "details": [
+            {
+              "keyword": "FBX",
+              "explanation": [
+                "形式：",
+                "Character",
+                "├── Transform / Hierarchy",
+                "├── Mesh",
+                "├── Materials / Textures",
+                "├── Skeleton / Skin Weights",
+                "├── Animation / Blend Shapes",
+                "├── Cameras",
+                "└── Lights"
+              ]
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "glTF"
+          ],
+          "summary": ".gltfまたは.glbはリアルタイムレンダリング向けのメッシュ、PBRマテリアル、テクスチャ、スケルトン、アニメーション、モーフターゲット、シーン階層を格納します。データ構造はGPUが必要とする頂点バッファ、インデックスバッファ、テクスチャリソースに近い形式です。",
+          "sourceIds": [
+            "s01b",
+            "s01f",
+            "s01g"
+          ],
+          "details": [
+            {
+              "keyword": "glTF",
+              "explanation": [
+                "形式：",
+                "Scene",
+                "├── nodes",
+                "├── meshes",
+                "│   ├── primitives",
+                "│   └── accessors → bufferViews → buffers",
+                "├── materials",
+                "├── textures / images / samplers",
+                "├── skins",
+                "├── animations",
+                "└── cameras",
+                ".gltf = JSON + 外部の.binと画像",
+                ".glb = JSON、バッファ、画像を一つのファイルに格納"
+              ]
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "STL"
+          ],
+          "summary": ".stlはモデルの表面を三角形で表し、各三角形に法線と三つの頂点を記録します。ASCII形式とバイナリ形式があり、CADの書き出しや3Dプリントによく使われます。UV、マテリアル、スケルトン、アニメーションは含みません。",
+          "sourceIds": [
+            "s01m",
+            "s01n"
+          ],
+          "details": [
+            {
+              "keyword": "STL",
+              "explanation": [
+                "ASCII形式：",
+                "solid Model",
+                "└── facet normal nx ny nz",
+                "    └── outer loop",
+                "        ├── vertex x1 y1 z1",
+                "        ├── vertex x2 y2 z2",
+                "        └── vertex x3 y3 z3",
+                "    endloop",
+                "endfacet",
+                "endsolid Model"
+              ]
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "PLY"
+          ],
+          "summary": ".plyはヘッダーでASCIIまたはバイナリの符号化方式、要素数、プロパティを宣言し、その順序で点や面を格納します。位置、法線、色、独自の頂点属性、面インデックスなどを扱え、スキャン、点群、研究用データに適しています。",
+          "sourceIds": [
+            "s01o",
+            "s01p",
+            "s01q"
+          ],
+          "details": [
+            {
+              "keyword": "PLY",
+              "explanation": [
+                "形式：",
+                "Header",
+                "├── format: ascii / binary",
+                "├── element vertex N",
+                "│   └── properties: x y z / nx ny nz / r g b / custom attributes",
+                "├── element face M",
+                "│   └── property list: vertex_indices",
+                "└── end_header",
+                "Body",
+                "├── Vertex List / Point List",
+                "└── Face List（任意）"
+              ]
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "OpenUSD"
+          ],
+          "summary": ".usdはメッシュファイルにとどまらないシーン記述・合成システムです。複数のレイヤーがリファレンス、ペイロード、バリアント、継承、サブレイヤーなどの規則でStageに合成されます。Primはジオメトリ、マテリアル、ライト、カメラ、スケルトン、アニメーションなどを表せます。",
+          "sourceIds": [
+            "s01a",
+            "s01d",
+            "s01e"
+          ],
+          "details": [
+            {
+              "keyword": "OpenUSD",
+              "explanation": [
+                "形式：",
+                "Stage（合成後のシーン全体）",
+                "├── Prim（シーングラフのノード）",
+                "│   ├── Property",
+                "│   │   ├── Attribute",
+                "│   │   └── Relationship",
+                "│   └── Schema（Xform / Mesh / Camera / Light / Materialなど）",
+                "├── Layer（シーン情報の供給元）",
+                "├── Composition",
+                "│   ├── Sublayer",
+                "│   ├── Reference",
+                "│   ├── Payload",
+                "│   ├── Variant",
+                "│   └── Inherit",
+                "├── Override",
+                "└── Instancing"
+              ]
+            }
+          ]
+        }
+      ]
     }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
     {
       "heading": "Hair レンダリングとライティング",
