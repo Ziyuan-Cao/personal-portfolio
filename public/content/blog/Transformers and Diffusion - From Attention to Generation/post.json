@@ -1,0 +1,214 @@
+{
+  "slug": "transformers-and-diffusion-attention-to-generation",
+  "title": "Transformers and Diffusion: From Attention to Generation",
+  "abstract": "How attention builds contextual features, diffusion learns to reverse noise, and the two mechanisms combine in generative models.",
+  "category": "Neural networks",
+  "publishedAt": "2026-09-06",
+  "imageAlt": "Token relationships on the left and a progression from scattered noise to a structured sample on the right.",
+  "lede": "A Transformer is a network architecture for transforming tokens in context. Diffusion is a generative process that learns to turn noise into samples. They describe different parts of a system and can be combined: a Transformer may provide a condition to a diffusion network, or it may be the network that performs denoising. Understanding attention and the noise objective separately makes both arrangements easier to follow.",
+  "sections": [
+    {
+      "heading": "Attention turns separate tokens into contextual features",
+      "paragraphs": [
+        "Let X contain N tokens of width d. A token might represent a word fragment, an image patch, or a sampled point. Learned projections produce queries Q, keys K, and values V. Queries and keys determine matching scores; values carry the information to be combined. Separate projections let matching be asymmetric.",
+        "Each query is compared with every allowed key. Row-wise softmax converts scaled scores into nonnegative weights summing to one. Multiplication by V then gives each receiving token a weighted mixture of value vectors. The dot product depends on vector magnitude as well as direction; it is not automatically a physical distance or a semantic explanation."
+      ],
+      "equations": [
+        {
+          "label": "Scaled dot-product attention, one head",
+          "expression": [
+            "Q = XWQ,   K = XWK,   V = XWV",
+            "A = softmax_rows(QKᵀ / √dₕ + M)",
+            "O = AV"
+          ],
+          "terms": [
+            "Q and K have shape N × dₕ, V has shape N × dᵥ, and A has shape N × N. M is an additive mask; scaling by √dₕ controls score magnitude."
+          ]
+        }
+      ],
+      "docLinks": [
+        {
+          "label": "Vaswani et al. — Attention Is All You Need (NeurIPS, 2017)",
+          "url": "https://arxiv.org/abs/1706.03762",
+          "note": "Scaled dot-product attention, multiple heads, and positionwise feed-forward layers."
+        }
+      ]
+    },
+    {
+      "heading": "Heads, residuals, and MLPs complete the block",
+      "paragraphs": [
+        "For a tiny example, attention weights [0.2, 0.8] applied to values [1, 0] and [0, 2] produce [0.2, 1.6]. Multiple heads perform this mixing in different learned projection spaces. Their outputs are concatenated and projected back to model width. No head is automatically assigned a role such as symmetry or grammar.",
+        "A Transformer block also applies an MLP independently to each token and uses residual connections and normalization. Attention mixes across tokens; the MLP transforms channels within a token. Global attention already reaches all unmasked tokens in one layer. Additional layers repeatedly refine the representation, rather than merely expanding a nearest-neighbor radius."
+      ],
+      "equations": [
+        {
+          "label": "One common pre-normalization layout",
+          "expression": [
+            "U = X + MultiHeadAttention(LN(X))",
+            "Y = U + MLP(LN(U))"
+          ],
+          "terms": [
+            "LN normalizes features per token; additions are residual connections. Dropout and implementation details are omitted."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Masks define visibility, not the learned weights",
+      "paragraphs": [
+        "The additive mask enters before softmax: allowed entries are zero and forbidden entries are −∞. For example, softmax([0.7, 3.0, −∞]) is approximately [0.091, 0.909, 0]. A causal language model blocks future sequence positions. Because inputs are shifted relative to next-token targets, the current input position can remain visible.",
+        "Full attention is useful when the whole input is available, including many diffusion denoisers whose tokens all describe the current noisy sample. Cross-attention takes queries from one sequence and keys/values from another, such as image features attending to text. Its score matrix can be rectangular. Positional information must also be supplied when order or spatial arrangement matters."
+      ]
+    },
+    {
+      "heading": "Sequence length changes the work, not the projection size",
+      "paragraphs": [
+        "For X shaped N × d and WQ shaped d × dₕ, the product Q is N × dₕ for any supported N. More tokens add rows; they do not resize WQ. The attention matrix, however, grows as N × N. Standard dense attention has quadratic pairwise work, and an explicitly stored score matrix requires quadratic storage.",
+        "With a 32 × 32 latent grid split into 2 × 2 patches, there are 256 tokens. A 64 × 64 grid at the same patch size has 1024 tokens: four times as many tokens and sixteen times as many attention pairs. Positional schemes, memory, training distribution, and configured limits still constrain usable sequence lengths. Fixed weights do not imply unlimited context."
+      ]
+    },
+    {
+      "heading": "Diffusion learns a distribution through noisy examples",
+      "paragraphs": [
+        "Suppose a target is equally likely to be −1 or +1 under the same condition. A deterministic predictor minimizing expected squared error chooses zero, the conditional mean. That may be a poor sample from the desired distribution. A generative model instead aims to represent the possible outcomes and sample among them.",
+        "In a noise-prediction diffusion formulation, training starts with a clean sample x₀, chooses a timestep t, and adds known Gaussian noise ε at the corresponding scale. The denoiser receives the noisy sample xₜ, t, and optional condition c. The target is the sampled noise. The direct formula lets training jump to any noise level without simulating every preceding step."
+      ],
+      "equations": [
+        {
+          "label": "Forward noising and the training objective",
+          "expression": [
+            "xₜ = √ᾱₜ x₀ + √(1 − ᾱₜ) ε",
+            "Lnoise = E[‖ε − εθ(xₜ, t, c)‖²]"
+          ],
+          "terms": [
+            "ε ~ N(0, I), αₜ = 1 − βₜ, and ᾱₜ = ∏ₛ₌₁ᵗ αₛ. βₜ specifies the forward noise variance. The expectation covers data, timesteps, and noise."
+          ]
+        }
+      ],
+      "docLinks": [
+        {
+          "label": "Ho et al. — Denoising Diffusion Probabilistic Models (NeurIPS, 2020)",
+          "url": "https://arxiv.org/abs/2006.11239",
+          "note": "Forward noising, the noise-prediction objective, and reverse sampling."
+        }
+      ]
+    },
+    {
+      "heading": "Sampling reverses the noise process",
+      "paragraphs": [
+        "At inference, start with Gaussian noise and repeatedly evaluate the denoiser while stepping toward lower noise levels. The model parameters stay fixed. The current sample and timestep change; the output is used by a sampler that applies schedule-dependent coefficients. Predicting noise is therefore not the same as subtracting an arbitrary displacement.",
+        "For a scalar example, ᾱₜ = 0.64, x₀ = 1, and ε = 0.5 give xₜ = 0.8 × 1 + 0.6 × 0.5 = 1.1. If the noise were known exactly, (1.1 − 0.6 × 0.5) / 0.8 would recover 1. Simply calculating 1.1 − 0.5 would not. The square-root factors are signal and noise scales, not percentages that add to one."
+      ],
+      "equations": [
+        {
+          "label": "A DDPM reverse update",
+          "expression": "xₜ₋₁ = [xₜ − βₜ εθ(xₜ, t, c) / √(1 − ᾱₜ)] / √αₜ + σₜz",
+          "terms": [
+            "z is fresh standard Gaussian noise and σₜ is the reverse-step standard deviation. Fresh noise is omitted at the final step. Respaced samplers use coefficients consistent with their chosen timesteps."
+          ]
+        }
+      ],
+      "callouts": [
+        {
+          "tone": "note",
+          "title": "Noise loss does not force every sample to the mean",
+          "text": "The denoiser still minimizes squared error, but it predicts noise conditioned on xₜ, t, and c, not one clean output from c alone. Across noise levels this defines a sampling process that can represent multiple modes. It does not guarantee perfect noise recovery or valid samples in every run."
+        }
+      ]
+    },
+    {
+      "heading": "The sampler and prediction target are design choices",
+      "paragraphs": [
+        "A stochastic sampler may add noise during reverse steps because it is sampling a distribution. DDIM also permits deterministic trajectories: different initial noise can still produce different outputs even when subsequent steps add no fresh randomness. A sample’s intermediate path need not move monotonically toward one final answer.",
+        "The equations above use noise prediction. Other parameterizations predict the clean sample or a related velocity quantity and require corresponding sampler conversions. Improved DDPM also learns reverse variance, adding outputs and a variance-related objective. The number of training noise levels is distinct from optimizer updates and from inference evaluations; a faster sampler need not visit every training level."
+      ],
+      "docLinks": [
+        {
+          "label": "Song et al. — Denoising Diffusion Implicit Models (ICLR, 2021)",
+          "url": "https://arxiv.org/abs/2010.02502",
+          "note": "Deterministic and non-Markovian sampling with the diffusion training objective."
+        },
+        {
+          "label": "Nichol and Dhariwal — Improved DDPM (ICML, 2021)",
+          "url": "https://arxiv.org/abs/2102.09672",
+          "note": "Learned reverse variances and fewer sampling evaluations."
+        }
+      ]
+    },
+    {
+      "heading": "Conditioning tells the denoiser which distribution to sample",
+      "paragraphs": [
+        "An unconditional model learns the data distribution. A conditional model additionally receives information such as a class label, text, or a Transformer context vector. The timestep describes the corruption level; the condition describes the desired sample. The same noisy input can produce different predictions under different conditions.",
+        "Cross-attention lets noisy features retrieve information from a conditioning sequence. Adaptive layer normalization (AdaLN) instead uses a condition to modulate feature channels. In a common conditioned residual block, timestep and context embeddings generate shift, scale, and gate vectors. These are input-dependent activations; the trained weight matrices are not rewritten."
+      ],
+      "equations": [
+        {
+          "label": "A conditioned MLP residual block",
+          "expression": [
+            "y = Etime(t) + Linear(c)",
+            "(shift, scale, gate) = ModulationMLP(y)",
+            "h = (1 + scale) ⊙ LN(u) + shift",
+            "u′ = u + gate ⊙ MLP(h)"
+          ],
+          "terms": [
+            "u is the noisy sample’s hidden feature, and ⊙ means elementwise multiplication. All modulation vectors match its width. This is one conditioning design, not a requirement of diffusion."
+          ]
+        }
+      ],
+      "docLinks": [
+        {
+          "label": "MAR — conditioned diffusion MLP",
+          "url": "https://github.com/LTH14/mar/blob/main/models/diffloss.py",
+          "note": "An author implementation of timestep/context embedding and adaptive normalization."
+        }
+      ]
+    },
+    {
+      "heading": "A Transformer can provide context or perform denoising",
+      "paragraphs": [
+        "In a Transformer-conditioned diffusion model, the Transformer encodes available information and a separate denoiser samples the output. Li et al. (NeurIPS 2024) use diffusion to model continuous image-token distributions, including masked autoregressive (MAR) models. This separates sequence context from the distribution of a token’s continuous value.",
+        "In DiT, introduced by Peebles and Xie (ICCV 2023), Transformer blocks are the denoising backbone. A noisy image latent is split into patches, processed with positional and conditioning information, and projected back to denoising outputs. The Transformer is evaluated again as the latent changes across sampling steps.",
+        "Latent diffusion performs this process in an autoencoder’s representation rather than directly on full-resolution pixels; a decoder maps the final latent back to an image. The encoder’s compression affects what can be recovered, while latent resolution and patch size affect token count and attention cost."
+      ],
+      "docLinks": [
+        {
+          "label": "Li et al. — Autoregressive Image Generation without Vector Quantization (NeurIPS, 2024)",
+          "url": "https://arxiv.org/abs/2406.11838",
+          "note": "Continuous token distributions modeled with diffusion loss."
+        },
+        {
+          "label": "Peebles and Xie — Scalable Diffusion Models with Transformers (ICCV, 2023)",
+          "url": "https://arxiv.org/abs/2212.09748",
+          "note": "Transformer denoising over latent patches and adaptive-normalization conditioning."
+        },
+        {
+          "label": "Rombach et al. — Latent Diffusion Models (CVPR, 2022)",
+          "url": "https://arxiv.org/abs/2112.10752",
+          "note": "Autoencoder latent-space generation and cross-attention conditioning."
+        }
+      ]
+    },
+    {
+      "heading": "Keep sequence generation and denoising steps separate",
+      "paragraphs": [
+        "An autoregressive system may have an outer loop that generates one token at a time and an inner loop that denoises that token’s value. A whole-image diffusion model can instead refine all spatial tokens together at each noise level. “More tokens” and “more diffusion steps” therefore increase different dimensions of work.",
+        "RigAnything (TOG 2025) is a compact application example: shape and skeleton history produce a Transformer condition, diffusion samples a three-dimensional joint position, and a connectivity head chooses its parent. Later self-parent candidates terminate generation; the root is exempt. The example shows how context, continuous sampling, and a task-specific output rule can cooperate without making any one of them synonymous with diffusion.",
+        "Causal key/value caching can reuse unchanged history during autoregressive inference. It does not transfer unchanged to an ordinary diffusion Transformer, where every noisy token may change each step. Practical cost depends on the architecture, token count, hidden width, and number of denoiser evaluations, not on the word “Transformer” alone."
+      ],
+      "docLinks": [
+        {
+          "label": "Liu et al. — RigAnything (TOG, 2025)",
+          "url": "https://arxiv.org/html/2502.09615",
+          "note": "An application combining autoregressive context and continuous joint diffusion."
+        },
+        {
+          "label": "RigAnything — generation loop",
+          "url": "https://github.com/Isabella98Liu/RigAnything/blob/main/model/ar_rig_diffusion.py",
+          "note": "Parent prediction and the root exception in the stopping rule."
+        }
+      ]
+    }
+  ],
+  "closing": "Attention determines how a network combines information. Diffusion determines how a learned prediction is used to generate a sample across noise levels. Keep token count, hidden width, conditioning, and sampling steps separate: each controls a different part of the model’s behavior and cost.",
+  "image": "/content/blog/Transformers and Diffusion - From Attention to Generation/hero.svg"
+}

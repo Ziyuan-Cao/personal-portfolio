@@ -533,19 +533,19 @@
       "keywordSourceGroups": [
         {
           "keywords": [
-            "正向与逆向运动学",
+            "FK与IK",
             "极向约束",
-            "雅可比逆向运动学",
-            "双骨骼逆向运动学",
+            "雅可比IK",
+            "双骨骼IK",
             "CCD",
             "FABRIK",
-            "全身逆向运动学"
+            "全身IK"
           ],
-          "summary": "控制指定目标，不同逆向运动学方法用不同方式满足目标。",
+          "summary": "控制指定目标，不同IK方法用不同方式满足目标。",
           "details": [
             {
-              "keyword": "正向与逆向运动学",
-              "explanation": "正向运动学直接设置关节旋转并沿层级计算；逆向运动学指定末端目标，再求中间关节。两者使用同一骨架，约束负责限制可接受的姿势。",
+              "keyword": "FK与IK",
+              "explanation": "FK直接设置关节旋转并沿层级计算；IK指定末端目标，再求中间关节。两者使用同一骨架，约束负责限制可接受的姿势。",
               "sourceIds": [
                 "aIkSolvers",
                 "aControlRigQuickStart"
@@ -560,7 +560,7 @@
               ]
             },
             {
-              "keyword": "雅可比逆向运动学",
+              "keyword": "雅可比IK",
               "explanation": "建立关节微小变化与末端运动之间的局部线性关系，再根据目标误差反求关节更新。适合冗余骨骼链，奇异姿态附近通常需要阻尼。",
               "sourceIds": [
                 "aJacobianIk"
@@ -574,7 +574,7 @@
               }
             },
             {
-              "keyword": "双骨骼逆向运动学",
+              "keyword": "双骨骼IK",
               "explanation": "适用于肩—肘—腕这类两段骨骼链。骨长和目标距离决定弯曲角，极向目标再指定弯曲平面。",
               "sourceIds": [
                 "aTwoBoneIk"
@@ -602,7 +602,7 @@
               ]
             },
             {
-              "keyword": "全身逆向运动学",
+              "keyword": "全身IK",
               "explanation": "协调多个末端和相连骨骼链，在目标误差、刚度、偏好角度、关节限制和根部移动之间折中。它描述求解范围，并非唯一固定算法。",
               "sourceIds": [
                 "aFullBodyIk"

@@ -1,0 +1,148 @@
+{
+  "slug": "mlp-linear-layers-activations-and-learning",
+  "title": "MLP: Linear Layers, Activations, and Learning",
+  "abstract": "How a multilayer perceptron transforms inputs, learns nonlinear relationships, and becomes a reusable building block for larger networks.",
+  "category": "Neural networks",
+  "publishedAt": "2026-09-06",
+  "imageAlt": "Three connected layers transform a small input vector into hidden features and an output vector.",
+  "lede": "A multilayer perceptron (MLP) is a feed-forward network built from learned linear transformations and nonlinear activations. Its basic operation is small enough to calculate by hand, yet the same pattern appears in classifiers, feature encoders, Transformer blocks, and diffusion denoisers. The useful starting point is to separate the input values, the learned parameters, and the intermediate features.",
+  "sections": [
+    {
+      "heading": "A linear layer forms weighted combinations",
+      "paragraphs": [
+        "For an input column vector x, a layer computes y = Wx + b. Each row of W defines one output: multiply the input values by learned weights, sum them, and add a bias. With a bias this is mathematically an affine map, although neural-network libraries call it a linear layer.",
+        "A 6 → 512 layer has a 512 × 6 weight matrix and, if enabled, 512 biases. It changes the number of channels. It does not require the input numbers to be words, pixels, or coordinates; their meaning comes from how the task represents its data."
+      ],
+      "equations": [
+        {
+          "label": "One input, three outputs",
+          "expression": [
+            "x = [1, 2]ᵀ",
+            "W = [[2, −1], [−1, 3], [1, 1]]",
+            "b = [0, 1, −2]ᵀ",
+            "Wx + b = [0, 6, 1]ᵀ"
+          ],
+          "terms": [
+            "These illustrative weights are chosen by hand. For example, the second output is −1 × 1 + 3 × 2 + 1 = 6."
+          ]
+        }
+      ],
+      "docLinks": [
+        {
+          "label": "PyTorch — Linear",
+          "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.Linear.html",
+          "note": "Weight layout, optional bias, and input/output shapes."
+        }
+      ]
+    },
+    {
+      "heading": "Activation prevents the layers from collapsing",
+      "paragraphs": [
+        "Stacking linear layers without a nonlinear activation still gives one affine map. Adding width or depth alone does not remove that restriction. An activation between layers changes the response according to the intermediate values, allowing the network to represent nonlinear relationships.",
+        "ReLU replaces negative values with zero: [−2, 0.5, 3] becomes [0, 0.5, 3]. LeakyReLU retains a small negative slope; with a = 0.01, −2 becomes −0.02. These functions act on individual features. They introduce numerical nonlinearity, not manually assigned semantic rules."
+      ],
+      "equations": [
+        {
+          "label": "Affine composition versus an MLP",
+          "expression": [
+            "W₂(W₁x + b₁) + b₂ = (W₂W₁)x + (W₂b₁ + b₂)",
+            "MLP(x) = W₂ φ(W₁x + b₁) + b₂"
+          ],
+          "terms": [
+            "φ is a nonlinear activation; subscripts identify layers. The second expression generally cannot be reduced to one affine map."
+          ]
+        }
+      ],
+      "docLinks": [
+        {
+          "label": "PyTorch — LeakyReLU",
+          "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.LeakyReLU.html",
+          "note": "Defines the activation and its configurable negative slope."
+        }
+      ]
+    },
+    {
+      "heading": "Hidden features are a learned representation",
+      "paragraphs": [
+        "The hidden vector h = φ(W₁x + b₁) is an intermediate representation. Its width determines how many feature channels the next layer receives. Expanding six measurements into 512 features creates useful transformations of those measurements; it does not create 506 new observations.",
+        "An encoder is defined by its role: mapping inputs into a representation used by another component. It can expand or compress the feature dimension. A classifier may turn the final hidden vector into class scores; a regressor may turn it into continuous values. The output activation and loss must match that task."
+      ]
+    },
+    {
+      "heading": "More input rows do not require more weights",
+      "paragraphs": [
+        "When examples are stored as rows, the same layer is written Y = XWᵀ + b, with the bias broadcast across rows. A shared MLP can process a batch of examples or a sequence of tokens independently along its final feature dimension. Changing the row count changes the amount of work, not the learned weight shapes.",
+        "For a concrete point-cloud example, L samples with XYZ and normals form L × 6 inputs. A 6 → 512 → 1024 MLP produces L × 1024 features. If L = 1024, the result has 1024 rows and 1024 columns: point count and feature width are different axes. Surface sampling determines the rows; encoding determines the columns."
+      ],
+      "codeBlocks": [
+        {
+          "file": "Shared feature encoder",
+          "language": "python",
+          "code": "import torch.nn as nn\n\nencoder = nn.Sequential(\n    nn.Linear(6, 512),\n    nn.LeakyReLU(negative_slope=0.01),\n    nn.Linear(512, 1024),\n)\nfeatures = encoder(inputs)  # [batch, L, 6] -> [batch, L, 1024]"
+        }
+      ],
+      "equations": [
+        {
+          "label": "Parameter count for this example",
+          "expression": "(6 × 512 + 512) + (512 × 1024 + 1024) = 528,896",
+          "terms": [
+            "Both layers include bias. The count is independent of batch size and L; activation storage and computation still grow with those dimensions."
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Training uses the loss to change the parameters",
+      "paragraphs": [
+        "Training performs a forward pass, compares the prediction with a target, and computes a loss. Backpropagation applies the chain rule through the network to obtain gradients. An optimizer then uses those gradients to update the weights and biases. The loss gives hidden features their purpose; individual channels do not need predetermined meanings.",
+        "During ordinary inference, learned parameters remain fixed while activations change with each input. A new input is not a new training step. A wider or deeper MLP can represent more complicated functions, but a low training loss alone does not establish that it generalizes to unseen examples; held-out data is needed to assess that."
+      ],
+      "equations": [
+        {
+          "label": "Gradient-descent principle",
+          "expression": "θ ← θ − η ∇θ L",
+          "terms": [
+            "θ collects learned parameters, L is the loss, and η is the learning rate. Other optimizers modify this basic update rule."
+          ]
+        }
+      ],
+      "docLinks": [
+        {
+          "label": "PyTorch — Autograd mechanics",
+          "url": "https://docs.pytorch.org/docs/stable/notes/autograd.html",
+          "note": "How automatic differentiation records operations and computes gradients."
+        }
+      ]
+    },
+    {
+      "heading": "Normalization and aggregation solve different problems",
+      "paragraphs": [
+        "Input standardization changes the scale or convention of the data, such as centering coordinates. Layer normalization rescales a token’s intermediate features using their statistics. Neither operation is synonymous with encoding, and neither replaces the nonlinear transformations learned by an MLP.",
+        "A shared pointwise MLP mixes channels within each input row. Holding one preprocessed row fixed while changing another row does not change its output. To combine points or tokens, the network needs an operation across that axis: pooling, attention, or an explicitly designed token-mixing layer. This limit belongs to the pointwise arrangement, not to every possible MLP architecture."
+      ],
+      "docLinks": [
+        {
+          "label": "Qi et al. — PointNet (CVPR, 2017)",
+          "url": "https://arxiv.org/abs/1612.00593",
+          "note": "An example of shared point features combined through symmetric pooling."
+        }
+      ]
+    },
+    {
+      "heading": "The same building block appears in larger models",
+      "paragraphs": [
+        "A Transformer uses attention to exchange information between tokens and an MLP to transform each token’s channels. A diffusion network can use an MLP to predict noise from a corrupted vector, conditioned on the noise level and other context. The learned mapping is determined by its inputs and objective, not by the name “MLP.”",
+        "RigAnything is one concrete application: its point tokenizer uses two bias-free linear layers around LeakyReLU, while a separate conditioned MLP participates in joint diffusion. These are two uses of the same family of operations, with different inputs and responsibilities."
+      ],
+      "docLinks": [
+        {
+          "label": "RigAnything — model implementation",
+          "url": "https://github.com/Isabella98Liu/RigAnything/blob/main/model/ar_rig_diffusion.py",
+          "note": "A practical example of MLP tokenizers and a separate diffusion module."
+        }
+      ]
+    }
+  ],
+  "closing": "An MLP learns a composition of channel transformations. Linear layers mix values, activations make the mapping nonlinear, and training shapes the parameters around a task. Track the feature axis separately from the sample or token axis to understand what the network changes—and where an additional aggregation mechanism is needed.",
+  "image": "/content/blog/MLP - Linear Layers, Activations, and Learning/hero.svg"
+}

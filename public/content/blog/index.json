@@ -1,5 +1,7 @@
 {
   "posts": [
+    "MLP - Linear Layers, Activations, and Learning/post.json",
+    "Transformers and Diffusion - From Attention to Generation/post.json",
     "Hardware, Computer Systems, GPU Architecture, CUDA, and RHI/post.json",
     "Physical Simulation - Particles, Wind, Volumes, Water, Cloth, and Collision/post.json",
     "Animation Systems - Vertices, Cages, Rigs, Deformation, and Motion/post.json",
