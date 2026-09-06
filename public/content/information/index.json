@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-06T09:51:55.446Z",
+  "generatedAt": "2026-09-06T22:55:33.256Z",
   "sources": [
     {
       "url": "https://www.unrealengine.com/rss?lang=en-US",
@@ -256,10 +256,31 @@
   ],
   "collection": {
     "attempted": 15,
-    "succeeded": 15,
-    "failed": 0,
-    "found": 190,
-    "inserted": 190,
-    "failures": []
+    "succeeded": 11,
+    "failed": 4,
+    "found": 150,
+    "inserted": 150,
+    "failures": [
+      {
+        "url": "https://blog.siggraph.org/feed",
+        "name": "ACM SIGGRAPH",
+        "error": "HTTP 403"
+      },
+      {
+        "url": "https://blog.neurips.cc/feed",
+        "name": "NeurIPS",
+        "error": "HTTP 403"
+      },
+      {
+        "url": "https://blog.icml.cc/feed",
+        "name": "ICML",
+        "error": "HTTP 403"
+      },
+      {
+        "url": "https://blog.iclr.cc/feed",
+        "name": "ICLR",
+        "error": "HTTP 403"
+      }
+    ]
   }
 }
