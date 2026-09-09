@@ -1,0 +1,14 @@
+{
+  "id": "c64647ef-4413-4a4a-be6b-dd7a9666cbd7",
+  "uid": "8045128f07d20e63d484aac43bde9adc21ce721e0f9881d2e182ef55f6ccf7b3",
+  "url": "https://developer.nvidia.com/blog/cuda-toolkit-13-4-adds-windows-on-arm-support-and-greater-control-over-shared-gpus",
+  "canonicalUrl": "https://developer.nvidia.com/blog/cuda-toolkit-13-4-adds-windows-on-arm-support-and-greater-control-over-shared-gpus",
+  "sourceUrl": "https://developer.nvidia.com/blog",
+  "sourceName": "NVIDIA",
+  "title": "CUDA Toolkit 13.4 Adds Windows on Arm Support and Greater Control over Shared GPUs",
+  "subtitle": null,
+  "imageUrl": "https://developer-blogs.nvidia.com/wp-content/uploads/2026/06/cuda-python.webp",
+  "publishedAt": "2026-09-09T20:24:12.000Z",
+  "firstSeenAt": "2026-09-09T23:18:55.827Z",
+  "lastSeenAt": "2026-09-09T23:18:55.827Z"
+}

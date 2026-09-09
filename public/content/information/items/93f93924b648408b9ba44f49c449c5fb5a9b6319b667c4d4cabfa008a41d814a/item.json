@@ -1,0 +1,14 @@
+{
+  "id": "724c63be-e6ec-4421-8a5a-2a20f0518787",
+  "uid": "93f93924b648408b9ba44f49c449c5fb5a9b6319b667c4d4cabfa008a41d814a",
+  "url": "https://gpuopen.com/learn/temporally-stable-generative-illumination",
+  "canonicalUrl": "https://gpuopen.com/learn/temporally-stable-generative-illumination",
+  "sourceUrl": "https://gpuopen.com/feed",
+  "sourceName": "AMD GPUOpen",
+  "title": "Temporally stable generative illumination with a one-step diffusion model",
+  "subtitle": "A generative method for real-time global illumination using a single-step latent diffusion model, delivering stable, high-quality lighting without costly iterative processing.",
+  "imageUrl": "https://gpuopen.com/images/temporally_stable_generative_illumination_fig1.B186zHZz.jpg",
+  "publishedAt": "2026-09-09T13:00:00.000Z",
+  "firstSeenAt": "2026-09-09T23:19:34.111Z",
+  "lastSeenAt": "2026-09-09T23:19:34.111Z"
+}
