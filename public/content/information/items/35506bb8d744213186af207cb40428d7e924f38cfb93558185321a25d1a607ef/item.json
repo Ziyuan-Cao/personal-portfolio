@@ -1,0 +1,14 @@
+{
+  "id": "d93bef89-d5b0-49ed-a5b4-8b7458e6acea",
+  "uid": "35506bb8d744213186af207cb40428d7e924f38cfb93558185321a25d1a607ef",
+  "url": "https://unity.com/blog/cicd-made-easier-with-unity-cli",
+  "canonicalUrl": "https://unity.com/blog/cicd-made-easier-with-unity-cli",
+  "sourceUrl": "https://blog.unity.com/feed",
+  "sourceName": "Unity",
+  "title": "CICD Made Easier with Unity CLI",
+  "subtitle": "Discover how the new Unity CLI simplifies CI/CD for game development. Learn how to replace complex custom scripts with a unified command-line interface to easily manage Unity installations, run tests, and execute builds across any CI provider.",
+  "imageUrl": null,
+  "publishedAt": "2026-09-30T00:00:00.000Z",
+  "firstSeenAt": "2026-09-15T23:32:50.209Z",
+  "lastSeenAt": "2026-09-15T23:32:50.209Z"
+}
