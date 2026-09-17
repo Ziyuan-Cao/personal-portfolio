@@ -1,0 +1,14 @@
+{
+  "id": "82d54f8c-888b-4dcd-81dd-246b34f33b00",
+  "uid": "37ff706dd4344e52cb5f0e6a809785079ff1c33ef85ecfdbde0bd049284c19bf",
+  "url": "https://gpuopen.com/learn/how-tetrahedral-cages-significantly-reduce-bvh-memory-usage",
+  "canonicalUrl": "https://gpuopen.com/learn/how-tetrahedral-cages-significantly-reduce-bvh-memory-usage",
+  "sourceUrl": "https://gpuopen.com/feed",
+  "sourceName": "AMD GPUOpen",
+  "title": "How tetrahedral cages significantly reduce BVH memory usage",
+  "subtitle": "The AMD tetrahedral cage technique ray traces 25,000 independently animated plants at 60+ FPS while slashing BVH memory and update costs for massive dynamic scenes.",
+  "imageUrl": "https://gpuopen.com/images/amd_tetrahedral_cage_approach_diagram.VMMff8Xc.jpg",
+  "publishedAt": "2026-09-17T13:00:00.000Z",
+  "firstSeenAt": "2026-09-17T23:34:47.756Z",
+  "lastSeenAt": "2026-09-17T23:34:47.756Z"
+}
