@@ -1,0 +1,14 @@
+{
+  "id": "fcfdcdd0-c635-47de-a1d0-d00bb543e330",
+  "uid": "22d96a76cf41a15ed79938911ea7577bf30b416c85cdf1946a108d8af0cc341e",
+  "url": "https://unity.com/blog/unity-plugin-codex",
+  "canonicalUrl": "https://unity.com/blog/unity-plugin-codex",
+  "sourceUrl": "https://blog.unity.com/feed",
+  "sourceName": "Unity",
+  "title": "The Official Unity Plugin for Codex",
+  "subtitle": "Unity's official plugin for Codex is an official plugin that gives OpenAI's Codex Unity-written skills, so the agent works from Unity's own guidance for jobs like sprite atlases, URP renderer features, in-app purchases, and localization instead of from whatever it absorbed about Unity elsewhere.",
+  "imageUrl": null,
+  "publishedAt": "2026-09-16T00:00:00.000Z",
+  "firstSeenAt": "2026-09-18T23:20:47.069Z",
+  "lastSeenAt": "2026-09-18T23:20:47.069Z"
+}
