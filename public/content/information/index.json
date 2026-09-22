@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-22T00:10:42.106Z",
+  "generatedAt": "2026-09-22T23:37:41.843Z",
   "sources": [
     {
       "url": "https://www.unrealengine.com/rss?lang=en-US",
@@ -64,6 +64,7 @@
   ],
   "items": [
     "items/2dd4f15e55592808b17aecc4b97e0df1baa57a63ab0b0220ab87a84a3823b9e2/item.json",
+    "items/c0cc9808e0b784d05c11605962b0a5f31b338bfb93b941d60fe68a6866de852e/item.json",
     "items/d7990860461616341c213ef81d4fa9f775a1813b970889a1ba1ddfaf4dc9cb33/item.json",
     "items/c2fd9a2d9c4fa9e0340e7b50cfb34fbab9ed42f3994bf424dfbb65118852768d/item.json",
     "items/93a30c403f2eb52689346060bf28dc83e6f7b0f4fcf72da2b7336528590661f4/item.json",
@@ -165,7 +166,6 @@
     "items/d11461ff44d49ee45b93584af7847908fc0cd982352a787438beb7daaf4e0cdd/item.json",
     "items/ef70f7baef900d0653bfd546a0404d57bb92c3ea67f0c733657ca2afb6285c37/item.json",
     "items/43760253113050b1b7905f5c1ece3683e4b8b528add6af432ffda83aee49d28b/item.json",
-    "items/29b531cea52269777949b064671c5eb69c692b69942c719c8fa2fec0c94b117b/item.json",
     "items/ad6e45895fd0d3690e2454f3d7f6cabf749985480a0850b76aaee2e9e8677d89/item.json",
     "items/0dd2677d68b97d826ed831fc9f59250ccadce985690487ec54ff57767cb2a43b/item.json",
     "items/b53bd8daed6c8bd3d4dfd2ddedcb3874c2b6c0ad0a2df5c69367fa073a3391a5/item.json",
@@ -255,10 +255,16 @@
   ],
   "collection": {
     "attempted": 15,
-    "succeeded": 15,
-    "failed": 0,
-    "found": 189,
-    "inserted": 189,
-    "failures": []
+    "succeeded": 14,
+    "failed": 1,
+    "found": 179,
+    "inserted": 179,
+    "failures": [
+      {
+        "url": "https://devblogs.microsoft.com/directx/feed",
+        "name": "DirectX",
+        "error": "fetch failed"
+      }
+    ]
   }
 }
