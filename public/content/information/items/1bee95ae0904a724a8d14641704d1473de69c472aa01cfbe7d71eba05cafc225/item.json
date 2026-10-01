@@ -1,0 +1,14 @@
+{
+  "id": "45647b47-198f-4246-aa9c-2426e9977b1a",
+  "uid": "1bee95ae0904a724a8d14641704d1473de69c472aa01cfbe7d71eba05cafc225",
+  "url": "https://devblogs.microsoft.com/directx/introducing-dxtimingcapturelibrary",
+  "canonicalUrl": "https://devblogs.microsoft.com/directx/introducing-dxtimingcapturelibrary",
+  "sourceUrl": "https://devblogs.microsoft.com/directx/feed",
+  "sourceName": "DirectX",
+  "title": "Introducing DxTimingCaptureLibrary",
+  "subtitle": "Today we released DxTimingCaptureLibrary, an open-source C++ library for DirectX developers. It is available on GitHub under the MIT license, and it works on all versions of Windows 10 and 11. DxTimingCaptureLibrary makes it easier to understand DirectX ETW events and bring their rich information into tools such as in-engine game profilers. What is […] The post Introducing DxTimingCaptureLibrary appeared first on DirectX Developer Blog.",
+  "imageUrl": "https://devblogs.microsoft.com/directx/wp-content/uploads/sites/42/2026/08/word-image-13979-1.webp",
+  "publishedAt": "2026-09-30T17:48:03.000Z",
+  "firstSeenAt": "2026-10-01T00:36:10.309Z",
+  "lastSeenAt": "2026-10-01T00:36:10.309Z"
+}
