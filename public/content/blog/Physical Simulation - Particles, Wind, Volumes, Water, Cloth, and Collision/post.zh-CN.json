@@ -1,12 +1,12 @@
 {
   "slug": "physical-simulation-particles-wind-volumes-water-cloth-collision",
-  "title": "Physical Simulation - Particles, Wind, Volumes, Water, Cloth, and Collision",
-  "abstract": "A mechanics-first guide to particles, wind, fog, clouds, water and oceans, fire and explosions, cloth and fibers, and the full collision pipeline—with equations, primary sources, and current AI research.",
-  "category": "Physical simulation research guide",
+  "title": "物理模拟：粒子、风、体积、水、布料与碰撞",
+  "abstract": "从粒子、网格和刚体的状态出发，理解水、雾与布料如何运动、保持约束并处理碰撞，以及并行计算和神经模型分别能加速什么。",
+  "category": "物理模拟",
   "publishedAt": "2026-08-20",
   "image": "/content/blog/Physical Simulation - Particles, Wind, Volumes, Water, Cloth, and Collision/physical-simulation.svg",
-  "imageAlt": "A particle stream crosses wind and cloud fields, becomes an ocean wave and fire plume, drapes into cloth, and reaches a collision boundary",
-  "lede": "Physical simulation turns authored state into motion by advancing conservation laws, forces, constraints, phase changes, and contacts through time. This guide follows eight production-scale domains without pretending one solver fits all of them. Every keyword has a short definition, an equation where it adds information, an honest AI-research note, and a shared source group only when the same papers or documentation truly support the concepts together.",
+  "imageAlt": "粒子、风场、体积介质、水面、布料与碰撞的物理模拟示意图",
+  "lede": "水花、雾和衣服看起来完全不同，底层却都要回答三个问题：状态存在哪里，下一步怎样运动，碰到边界后怎样修正。粒子跟着材料移动，网格在固定位置记录物理场，布料网格还保留顶点之间的连接关系。先分清这些表示，再看积分、材料、约束和碰撞，就能理解不同模拟器为什么采用不同的求解流程。",
   "sourceCatalog": {
     "pNiagara": {
       "label": "Unreal Engine Niagara overview",
@@ -22,11 +22,11 @@
     },
     "pNeuralMpm": {
       "label": "NeuralMPM (TMLR 2025)",
-      "url": "https://openreview.net/forum?id=zSK81A2hxQ"
+      "url": "https://neuralmpm.isach.be/"
     },
     "pWonder": {
       "label": "WonderPlay (ICCV 2025)",
-      "url": "https://openaccess.thecvf.com/content/ICCV2025/html/Li_WonderPlay_Dynamic_3D_Scene_Generation_from_a_Single_Image_and_ICCV_2025_paper.html"
+      "url": "https://arxiv.org/abs/2505.18151"
     },
     "pFluidGpu": {
       "label": "GPU Gems: Fast Fluid Dynamics Simulation",
@@ -41,7 +41,7 @@
       "url": "https://zju3dv.github.io/DiffWind/"
     },
     "pWinDiNet": {
-      "label": "WinDiNet: Wind Field Inference (2026)",
+      "label": "WinDiNet: Pretrained Video Models as Differentiable Physics Simulators for Urban Wind Flows (2026 preprint)",
       "url": "https://arxiv.org/abs/2603.21210"
     },
     "pSmoke": {
@@ -54,10 +54,10 @@
     },
     "pNeuralFluid": {
       "label": "Neural Fluid Simulation on Geometric Surfaces (ICLR 2025)",
-      "url": "https://openreview.net/forum?id=58lbAsXCoZ"
+      "url": "https://proceedings.iclr.cc/paper_files/paper/2025/hash/f58c24798220ba724fe05c0fa786227d-Abstract-Conference.html"
     },
     "pPinr": {
-      "label": "Physics-informed neural representation for fluid simulation (2025)",
+      "label": "PINR: A physics-integrated neural representation for dynamic fluid scenes (2025)",
       "url": "https://www.sciencedirect.com/science/article/pii/S0925231224020216"
     },
     "pCloudMl": {
@@ -90,7 +90,7 @@
     },
     "pWaterAi": {
       "label": "Unsupervised water-surface reconstruction (NeurIPS 2025)",
-      "url": "https://openreview.net/forum?id=4MKIaHbmGO"
+      "url": "https://papers.nips.cc/paper_files/paper/2025/hash/8a0d3ae989a382ce6e50312bc35bf7e1-Abstract-Conference.html"
     },
     "pRefrac": {
       "label": "RefracGS: Refractive Gaussian Splatting (2026)",
@@ -105,7 +105,7 @@
       "url": "https://pages.nist.gov/fds/manuals.html"
     },
     "pFireX": {
-      "label": "Fire-X: Differentiable Fire Simulation (SIGGRAPH Asia 2025)",
+      "label": "Fire-X: Extinguishing Fire with Stoichiometric Heat Release (SIGGRAPH Asia 2025)",
       "url": "https://helgewrede.github.io/firex/"
     },
     "pTorchFire": {
@@ -130,15 +130,15 @@
     },
     "pPgc": {
       "label": "PGC: Physics-Based Gaussian Cloth (CVPR 2025)",
-      "url": "https://openaccess.thecvf.com/content/CVPR2025/html/Guo_PGC_Physics-Based_Gaussian_Cloth_from_a_Single_Pose_CVPR_2025_paper.html"
+      "url": "https://phys-gaussian-cloth.github.io/"
     },
     "pSimAvatar": {
       "label": "SimAvatar (CVPR 2025)",
-      "url": "https://openaccess.thecvf.com/content/CVPR2025/html/Li_SimAvatar_Simulation-Ready_Avatars_with_Layered_Hair_and_Clothing_CVPR_2025_paper.html"
+      "url": "https://research.nvidia.com/labs/dair/simavatar/"
     },
     "pSaft": {
       "label": "SAFT: Differentiable fabric simulation (ICCV 2025)",
-      "url": "https://openaccess.thecvf.com/content/ICCV2025/html/Stotko_SAFT_Shape_and_Appearance_of_Fabrics_from_Template_via_Differentiable_ICCV_2025_paper.html"
+      "url": "https://arxiv.org/abs/2509.08828"
     },
     "pBox2d": {
       "label": "Box2D collision documentation",
@@ -163,103 +163,167 @@
     "pDiffSoft": {
       "label": "Differentiable soft robotics with frictional contact (2025)",
       "url": "https://arxiv.org/abs/2501.18956"
+    },
+    "pPhysxSimulation": {
+      "label": "PhysX 5.4.1: Simulation",
+      "url": "https://nvidia-omniverse.github.io/PhysX/physx/5.4.1/docs/Simulation.html"
+    },
+    "pPhysxRigid": {
+      "label": "PhysX 5.4.1: Rigid Body Dynamics",
+      "url": "https://nvidia-omniverse.github.io/PhysX/physx/5.4.1/docs/RigidBodyDynamics.html"
+    },
+    "pPhysxSoft": {
+      "label": "PhysX 5.4.1: Soft Bodies",
+      "url": "https://nvidia-omniverse.github.io/PhysX/physx/5.4.1/docs/SoftBodies.html"
+    },
+    "pSolver2d": {
+      "label": "Erin Catto: Solver2D (2024)",
+      "url": "https://box2d.org/posts/2024/02/solver2d/"
+    },
+    "pComplementarity": {
+      "label": "MuJoCo: Computation — constraints and complementarity",
+      "url": "https://mujoco.readthedocs.io/en/stable/computation/index.html"
+    },
+    "pChaosPanel": {
+      "label": "Unreal Engine: Panel Cloth Editor Overview",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/panel-cloth-editor-overview"
+    },
+    "pLbvh": {
+      "label": "Tero Karras: Thinking Parallel, Part III — Tree Construction on the GPU",
+      "url": "https://developer.nvidia.com/blog/thinking-parallel-part-iii-tree-construction-gpu/"
+    },
+    "pGpuScan": {
+      "label": "GPU Gems 3: Parallel Prefix Sum (Scan) with CUDA",
+      "url": "https://developer.nvidia.com/gpugems/gpugems3/part-vi-gpu-computing/chapter-39-parallel-prefix-sum-scan-cuda"
+    },
+    "pMpm": {
+      "label": "A Material Point Method for Snow Simulation (2013)",
+      "url": "https://disneyanimation.com/publications/a-material-point-method-for-snow-simulation/"
+    },
+    "pDem": {
+      "label": "LAMMPS: Granular models",
+      "url": "https://docs.lammps.org/Howto_granular.html"
+    },
+    "pGns": {
+      "label": "Learning to Simulate Complex Physics with Graph Networks (2020)",
+      "url": "https://arxiv.org/abs/2002.09405"
+    },
+    "pTransolver": {
+      "label": "Transolver: A Fast Transformer Solver for PDEs on General Geometries (2024)",
+      "url": "https://arxiv.org/abs/2402.02366"
+    },
+    "pFno": {
+      "label": "Fourier Neural Operator for Parametric Partial Differential Equations (2020/2021)",
+      "url": "https://arxiv.org/abs/2010.08895"
+    },
+    "pPinn": {
+      "label": "Raissi et al.: Physics Informed Deep Learning",
+      "url": "https://maziarraissi.github.io/PINNs/"
+    },
+    "pFemSurrogate": {
+      "label": "Bayesian neural networks for predicting uncertainty in full-field material response (2024 preprint)",
+      "url": "https://arxiv.org/abs/2406.14838"
+    },
+    "pJoltEpa": {
+      "label": "Jolt Physics: GJK/EPA penetration-depth implementation",
+      "url": "https://github.com/jrouwe/JoltPhysics/blob/master/Jolt/Geometry/EPAPenetrationDepth.h"
+    },
+    "pParallelCollision": {
+      "label": "GPU Gems 3: Broad-Phase Collision Detection with CUDA",
+      "url": "https://developer.nvidia.com/gpugems/gpugems3/part-v-physics-simulation/chapter-32-broad-phase-collision-detection-cuda"
     }
   },
   "sections": [
     {
-      "heading": "Particle simulation: state, integration, and constraints",
+      "heading": "粒子与物体：状态、运动和约束",
       "paragraphs": [
-        "A particle is a compact moving state, not a rendering primitive. Its position, velocity, mass, age, and custom attributes are advanced by forces or constraints; a separate renderer later chooses sprites, meshes, ribbons, strands, or volume splats.",
-        "The practical loop is spawn, accumulate forces, integrate, solve constraints and collisions, retire dead particles, then publish the state to rendering. A fixed or carefully bounded time step is essential because a visually plausible emitter can still become numerically unstable when frame time changes."
+        "刚体假设自身不形变，用整体位置、姿态、线速度和角速度描述运动；软体允许内部相对位置改变，需要更多自由度。粒子模型按点保存状态，布料常把网格顶点当粒子，再用边、三角形或相邻面建立约束。有限元进一步从单元形变和材料本构关系计算内部作用。",
+        "实时模拟可概括为：更新外力并预测运动，检测碰撞并生成接触，求解接触和内部约束，提交位置与姿态。实际实现会在子步内交错执行这些阶段。PBD 通常先预测位置，再反复修正材料约束和接触，最后从位移更新速度；检测也可以在投影前或迭代中刷新，因此不能用固定的前后顺序来定义所有求解器。"
       ],
       "flow": {
-        "label": "Particle update",
+        "label": "粒子子步的概念流程",
         "steps": [
-          "Emit and initialize state",
-          "Accumulate forces and drag",
-          "Integrate velocity and position",
-          "Project constraints and contacts",
-          "Cull, compact, and render"
+          "创建并初始化状态",
+          "累加外力并预测运动",
+          "检测碰撞并生成接触",
+          "迭代材料约束与接触并更新状态",
+          "回收或压缩粒子并提交渲染"
         ]
       },
       "equations": [
         {
-          "label": "Semi-implicit Euler",
+          "label": "半隐式欧拉积分",
           "expression": [
             "vₙ₊₁ = vₙ + Δt F(xₙ,vₙ)/m",
             "xₙ₊₁ = xₙ + Δt vₙ₊₁"
           ],
           "terms": [
-            "Updating position with the new velocity is usually more stable than explicit Euler for the same cost."
+            "Δt 为步长，F 为合力，m 为质量；先更新速度再更新位置。"
           ]
         },
         {
-          "label": "XPBD multiplier update",
+          "label": "XPBD 乘子更新",
           "expression": "Δλ = (-C(x) - α̃λ) / (Σᵢ wᵢ|∇Cᵢ|² + α̃),   α̃ = α/Δt²",
           "terms": [
-            "Compliance α gives a constraint a physical softness that is less dependent on iteration count and time step."
+            "C 为约束误差，wᵢ 为逆质量，∇Cᵢ 为对粒子位置的梯度，λ 为累积乘子；柔顺度 α 经步长缩放为 α̃，降低材料刚度对求解设置的依赖。"
           ]
         }
       ],
       "keywordSourceGroups": [
         {
           "keywords": [
-            "particle",
-            "particle state",
-            "emitter",
-            "lifetime"
+            "粒子",
+            "粒子状态",
+            "发射器",
+            "寿命"
           ],
-          "summary": "These terms define the data-oriented lifecycle shared by production particle systems.",
+          "summary": "粒子是状态的载体，发射与寿命属于管理这些状态的规则。",
           "sourceIds": [
             "pNiagara",
             "pPbd"
           ],
           "details": [
             {
-              "keyword": "particle",
-              "explanation": "A point sample carrying dynamic state such as position, velocity, mass, temperature, or phase.",
+              "keyword": "粒子",
+              "explanation": "携带位置、速度、质量等状态的运动采样点；也可以保存温度或材料相。粒子并不限定最后要画成点、网格还是体积。",
               "equation": {
                 "expression": "pᵢ = (xᵢ, vᵢ, mᵢ, …)",
-                "note": "The exact state vector depends on the phenomenon."
-              },
-              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+                "note": "状态向量按所模拟的现象选择。"
+              }
             },
             {
-              "keyword": "particle state",
-              "explanation": "The complete per-particle variables read and written during one simulation step.",
-              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+              "keyword": "粒子状态",
+              "explanation": "一个子步需要读取和更新的全部变量。刚体还要记录整体姿态与角速度，软体则需要许多粒子或节点的相对形变。"
             },
             {
-              "keyword": "emitter",
-              "explanation": "A rule that creates particles with an initial distribution of positions, velocities, ages, and attributes.",
+              "keyword": "发射器",
+              "explanation": "按规则创建粒子，设置位置分布、初速度和其他属性。",
               "equation": {
                 "expression": "Nspawn ≈ rate · Δt",
-                "note": "Fractional spawn counts are usually accumulated across frames."
-              },
-              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+                "note": "rate 是每秒发射数量，不足一个粒子的余数可跨帧累计。"
+              }
             },
             {
-              "keyword": "lifetime",
-              "explanation": "The simulated duration after which a particle is removed or recycled.",
+              "keyword": "寿命",
+              "explanation": "粒子从创建到回收的模拟时间；特效粒子可按寿命删除，承载流体质量的粒子不能随意删除而不处理质量变化。",
               "equation": {
                 "expression": "ageₙ₊₁ = ageₙ + Δt",
-                "note": "A particle dies when age reaches lifetime."
-              },
-              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+                "note": "age 达到寿命时触发回收。"
+              }
             }
           ]
         },
         {
           "keywords": [
-            "force accumulation",
-            "gravity",
-            "drag",
-            "fixed time step",
-            "explicit Euler",
-            "semi-implicit Euler",
-            "Verlet integration"
+            "合力与力矩",
+            "重力",
+            "阻力",
+            "固定时间步",
+            "显式欧拉积分",
+            "半隐式欧拉积分",
+            "Verlet 积分"
           ],
-          "summary": "Newtonian forces and discrete integrators determine how particle state advances.",
+          "summary": "先由力和力矩决定变化率，再用数值积分推进速度、位置与姿态。",
           "sourceIds": [
             "pPbd",
             "pXpbd",
@@ -267,76 +331,69 @@
           ],
           "details": [
             {
-              "keyword": "force accumulation",
-              "explanation": "The sum of gravity, drag, fields, contacts, and authored forces before integration.",
+              "keyword": "合力与力矩",
+              "explanation": "先累加外力。牛顿–欧拉动力学用合力求线加速度，用合力矩、惯性张量和角速度求旋转变化，再积分得到速度与姿态；三维旋转还可能需要陀螺项，不能只把力矩除以一个标量惯量。",
               "equation": {
                 "expression": "F = Σⱼ Fⱼ",
-                "note": "All forces must use consistent units."
-              },
-              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+                "note": "各项力需要使用一致的单位和坐标系。"
+              }
             },
             {
-              "keyword": "gravity",
-              "explanation": "A constant acceleration applied to massive particles.",
+              "keyword": "重力",
+              "explanation": "重力通常以固定加速度作用到有质量的粒子或刚体。",
               "equation": {
                 "expression": "F_g = m g",
-                "note": "Mass cancels when gravity is the only force."
-              },
-              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+                "note": "仅有重力时，由 F/m 求得的加速度与质量无关。"
+              }
             },
             {
-              "keyword": "drag",
-              "explanation": "Velocity-dependent resistance from a surrounding medium.",
+              "keyword": "阻力",
+              "explanation": "周围介质阻碍相对运动的力；物体与空气同速时，相对运动阻力为零。",
               "equation": {
                 "expression": "F_d = -½ρC_dA|v_rel|v_rel",
-                "note": "Quadratic drag opposes relative motion."
-              },
-              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+                "note": "ρ 是介质密度，C_d 是阻力系数，A 是迎风面积，v_rel 是物体相对介质的速度。"
+              }
             },
             {
-              "keyword": "fixed time step",
-              "explanation": "A constant simulation interval that makes stability and tuning predictable.",
-              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+              "keyword": "固定时间步",
+              "explanation": "用固定或有上限的步长推进模拟，避免帧率变化直接改变稳定性；高速运动和较硬材料往往还需要子步。"
             },
             {
-              "keyword": "explicit Euler",
-              "explanation": "An inexpensive first-order update that uses the old velocity for the new position and can inject energy.",
+              "keyword": "显式欧拉积分",
+              "explanation": "用当前状态估计变化率，再用旧速度更新位置。计算便宜，但对刚性弹簧等系统容易累积能量误差。",
               "equation": {
                 "expression": "xₙ₊₁=xₙ+Δt vₙ",
-                "note": "Simple but fragile for stiff forces."
-              },
-              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+                "note": "这是位置更新部分；速度另由当前加速度更新。"
+              }
             },
             {
-              "keyword": "semi-implicit Euler",
-              "explanation": "A first-order method that updates velocity before position, improving stability for many mechanical systems.",
+              "keyword": "半隐式欧拉积分",
+              "explanation": "先用加速度更新速度，再用新速度更新位置。它仍然是数值积分，只是用有限时间步近似连续积分，并不是“不积分”。",
               "equation": {
                 "expression": "v′=v+Δt a; x′=x+Δt v′",
-                "note": "Often the default real-time integrator."
-              },
-              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+                "note": "a 是当前加速度；与显式欧拉的关键区别是位置使用更新后的速度。"
+              }
             },
             {
-              "keyword": "Verlet integration",
-              "explanation": "A position-based update that implicitly stores velocity through consecutive positions.",
+              "keyword": "Verlet 积分",
+              "explanation": "利用当前和前一次位置推进下一位置，速度信息隐含在位置差中，常用于粒子与约束模型。",
               "equation": {
                 "expression": "xₙ₊₁=2xₙ-xₙ₋₁+aₙΔt²",
-                "note": "Convenient for constraints and simple damping."
-              },
-              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+                "note": "该形式假设固定时间步，aₙ 是当前加速度。"
+              }
             }
           ]
         },
         {
           "keywords": [
-            "constraint",
+            "约束",
             "PBD",
             "XPBD",
-            "neighbor search",
-            "spatial hash",
-            "GPU compute"
+            "邻域搜索",
+            "空间哈希",
+            "GPU 计算"
           ],
-          "summary": "Constraint projection and spatial acceleration turn independent points into interacting materials at scale.",
+          "summary": "约束描述允许的状态，邻域结构缩小计算范围，GPU 执行大量相似任务。",
           "sourceIds": [
             "pPbd",
             "pXpbd",
@@ -344,82 +401,178 @@
           ],
           "details": [
             {
-              "keyword": "constraint",
-              "explanation": "A scalar or vector condition that restricts allowed particle configurations.",
+              "keyword": "约束",
+              "explanation": "约束函数衡量当前状态相对目标的误差。距离、弯曲角、剪切、面积和体积约束限制不同形变；接触常写成不穿透的不等式。",
               "equation": {
                 "expression": "C(x)=0 or C(x)≥0",
-                "note": "Equality and inequality constraints cover joints and contacts."
-              },
-              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+                "note": "等式约束要求误差为零，不等式约束只限制允许的一侧。"
+              }
             },
             {
               "keyword": "PBD",
-              "explanation": "Position Based Dynamics iteratively projects positions to satisfy constraints, favoring robustness and direct control.",
-              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+              "explanation": "基于位置的动力学先用速度和外力预测位置，再按质量权重反复投影约束，最后由修正后的位移更新速度。它不是完全不考虑力，也不保证有限次迭代后所有约束都精确满足。"
             },
             {
               "keyword": "XPBD",
-              "explanation": "Extended PBD adds compliance and a persistent multiplier so stiffness behaves more consistently across time steps and iteration counts.",
-              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+              "explanation": "扩展 PBD 在约束投影中加入柔顺度和本时间步内累积的拉格朗日乘子，使材料软硬程度较少依赖步长和迭代数。乘子不是“预测位置时加一个系数”；它在每次约束修正时更新，跨步保留还需要明确的热启动策略。"
             },
             {
-              "keyword": "neighbor search",
-              "explanation": "A query that finds nearby particles for density, cohesion, collision, or constraint evaluation.",
-              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+              "keyword": "邻域搜索",
+              "explanation": "查找交互半径内的粒子，用于密度估计、接触或黏聚力。SPH、DEM 和布料自碰撞都可能用它，但邻域搜索本身并不规定求解哪种物理方程。"
             },
             {
-              "keyword": "spatial hash",
-              "explanation": "A grid-keyed table that places particles into cells so neighborhood queries avoid all-pairs work.",
+              "keyword": "空间哈希",
+              "explanation": "将位置除以格子宽度并向下取整，用整数格坐标建立索引，只访问交互范围覆盖的邻格。哈希碰撞需要核对真实格坐标；大物体不能只放入中心所在的一格。",
               "equation": {
                 "expression": "cell(x)=⌊x/h⌋",
-                "note": "Cell width h is chosen near the interaction radius."
-              },
-              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+                "note": "h 是格子宽度；需要查询的格子层数取决于实际交互半径。"
+              }
             },
             {
-              "keyword": "GPU compute",
-              "explanation": "Parallel kernels that update large particle arrays, usually with compaction and grid building between stages.",
-              "aiNote": "Neural surrogates can learn material motion or complete a coarse simulation, but stable integration, constraints, and collision handling remain explicit parts of a production particle system."
+              "keyword": "GPU 计算",
+              "explanation": "把粒子更新、网格建立和约束处理拆成并行阶段。一个线程计算一条约束时，多条约束可能写同一粒子，因此必须处理写入冲突；具体方法见本节的并行条目。"
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "刚体",
+            "软体",
+            "网格动力学"
+          ],
+          "summary": "先确定哪些自由度能够变化，再选择积分和求解方式。",
+          "sourceIds": [
+            "pPhysxRigid",
+            "pPhysxSoft",
+            "pPbd"
+          ],
+          "details": [
+            {
+              "keyword": "刚体",
+              "explanation": "刚体保持内部相对形状不变，但可以平移和旋转。质量决定平移响应，惯性张量决定旋转响应；运动更新使用牛顿–欧拉动力学，而不是给每个渲染顶点单独求变形。"
+            },
+            {
+              "keyword": "软体",
+              "explanation": "软体允许局部拉伸、压缩、剪切和弯曲。节点或物质点记录局部状态，弹簧、约束或连续体材料模型决定形变；四面体有限元见布料与软体章节。"
+            },
+            {
+              "keyword": "网格动力学",
+              "explanation": "网格顶点可以作为粒子，边、面和体单元保留连接关系。边能构造距离约束，邻面能构造弯曲约束；有限元还利用单元内部的形变与应力，因此不能把所有网格动力学都等同于边弹簧。"
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "模拟岛与任务拆分",
+            "SoA 数据布局与 SIMD",
+            "Jacobi 并行约束更新",
+            "约束图着色",
+            "前缀和与压缩"
+          ],
+          "summary": "多角色场景先减少候选和无效计算，再处理共享状态、数据布局与任务分配。",
+          "sourceIds": [
+            "pPbd",
+            "pPhysxSimulation",
+            "pGpuScan",
+            "pParallelCollision"
+          ],
+          "details": [
+            {
+              "keyword": "模拟岛与任务拆分",
+              "explanation": "用接触和关节连接关系拆成互不耦合的模拟岛，各岛可并行求解。简单按空间切块还需处理跨块接触。窄相物体对往往容易并行，但响应会写双方速度，不能把所有接触都当成互不影响的任务。"
+            },
+            {
+              "keyword": "SoA 数据布局与 SIMD",
+              "explanation": "SoA 把多个粒子的同类属性连续存储，例如分别存放 x、y、z 数组，方便批量读取。CPU 的 SIMD 用一条指令处理多个数值；GPU 也受益于连续访问，但实际效果仍取决于带宽、对齐和任务规模。"
+            },
+            {
+              "keyword": "Jacobi 并行约束更新",
+              "explanation": "所有约束读取同一轮的旧状态，各自计算修正，再归约并统一应用。累加、加权或松弛方式由求解器决定，不是随意取平均；原子操作或分组归约负责解决并发写入，但迭代收敛通常比顺序更新慢。"
+            },
+            {
+              "keyword": "约束图着色",
+              "explanation": "将共享可写粒子或刚体的约束分配到不同颜色。同色约束互不冲突，可同时执行；不同颜色按批次执行并同步。新接触可能改变依赖图，因此还要考虑重建或增量维护颜色的成本。"
+            },
+            {
+              "keyword": "前缀和与压缩",
+              "explanation": "先统计每项要输出多少数据，再做排他前缀和，得到各任务在输出数组中的起始偏移。这样可压缩活跃粒子、建立格子列表或分配接触缓冲区；它负责地址分配，不会自动解决约束依赖。"
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "LBVH 与 Morton 编码"
+          ],
+          "summary": "LBVH 把空间排序转换成适合并行构建的层次结构。",
+          "sourceIds": [
+            "pLbvh"
+          ],
+          "details": [
+            {
+              "keyword": "LBVH 与 Morton 编码",
+              "explanation": "把图元中心在场景包围盒内归一化，再量化到每轴 0～1023。交错三个 10 位坐标可得到 30 位 Morton 编码，存入 32 位整数；例如 z9 y9 x9 … z0 y0 x0，高位表示较大区域，低位表示更细区域。按编码排序后，根据公共前缀构建树，再自底向上合并包围盒。相同编码需要用图元编号等方式区分；排序本身还不是完整 BVH。"
             }
           ]
         }
       ],
       "aiResearch": {
-        "summary": "NeuralMPM learns material-point evolution as a fast surrogate, while WonderPlay uses coarse physics to condition generative video. Both retain an explicit notion of state and physical evolution rather than treating particles as decorative pixels.",
+        "summary": "神经物理模拟可以学习状态更新、力或某个求解步骤。NeuralMPM（2025）研究物质点模拟的代理，WonderPlay（2025）用粗物理运动控制视频生成；后者的生成画面不等于经过验证的物理状态。下文区分网络结构与它们承担的预测任务。",
         "sourceIds": [
           "pNeuralMpm",
-          "pWonder"
+          "pWonder",
+          "pGns",
+          "pTransolver"
+        ],
+        "explanations": [
+          {
+            "title": "MLP 代理：从状态向量预测更新",
+            "text": [
+              "多层感知机（MLP）把编码后的当前位置、速度和材料参数等作为输入，预测力、加速度或下一状态。离线用参考轨迹训练，运行时反复预测，或把预测的力交给常规积分器。固定长度输入不天然适应任意粒子数量；即使单步误差很小，连续运行也可能漂移。MLP 还可以只是 GNN 的节点或边更新组件，不一定单独承担整个模拟。"
+            ]
+          },
+          {
+            "title": "图神经网络：沿连接传播局部作用",
+            "text": [
+              "图神经网络（GNN）把粒子或网格节点作为节点，把网格连接或空间邻近关系作为边。先编码位置、速度、材料和边界，再沿边交换信息，多轮传播后解码出加速度或状态增量。GNS（2020）是这一思路的代表。训练使用参考模拟轨迹，运行时可随新接触重建邻接；有限传播范围与训练中未见的碰撞仍会影响泛化。"
+            ]
+          },
+          {
+            "title": "Transformer：点或区域之间的注意力",
+            "text": [
+              "将物理点、网格块或区域编码成词元，通过注意力交换较远位置的信息。全连接注意力可以关联任意词元，但计算和内存开销较高，并非所有实现都逐点全连接。Transolver（2024）先把点聚合成学习到的物理切片，在切片上做注意力，再映射回点并输出方程解；要用于逐帧模拟，还需明确时间输入、边界条件和滚动训练目标。"
+            ]
+          }
         ]
       }
     },
     {
-      "heading": "Wind: a velocity field coupled to objects",
+      "heading": "风：把速度场转换成物体受力",
       "paragraphs": [
-        "Wind is best represented as a time-varying velocity field. A procedural gust is sufficient for foliage or particles; smoke, sails, and dense crowds need spatial variation, turbulence, and a coupling law that converts relative air motion into drag and lift.",
-        "Grid solvers advect velocity, add viscosity and forces, and project the result to remove divergence. Artists often layer divergence-free noise and moving gust envelopes over a coarse flow because a fully resolved atmospheric simulation is rarely affordable."
+        "风可以表示成随位置和时间变化的速度场。树叶、粒子和布料读取当前位置的风速，再用空气与物体的相对速度计算阻力和升力。这样同一阵风既能吹动雾，也能掀起衣角，但两者的受力和状态更新方式不同。",
+        "网格流体通常先输运速度，加入黏性和外力，再通过压力投影消除不符合不可压缩条件的散度。大范围风场可使用低分辨率模拟，阵风与程序化细节负责补充变化；如果物体也会挡风或改变气流，就需要流固双向耦合。"
       ],
       "equations": [
         {
-          "label": "Incompressible Navier–Stokes",
+          "label": "不可压缩 Navier–Stokes 方程",
           "expression": [
             "∂u/∂t + (u·∇)u = -∇p/ρ + ν∇²u + f",
             "∇·u = 0"
           ],
           "terms": [
-            "u is velocity, p pressure, ν kinematic viscosity, and f external acceleration."
+            "u 为速度，p 为压力，ρ 为密度，ν 为运动黏度，f 为外部加速度。"
           ]
         }
       ],
       "keywordSourceGroups": [
         {
           "keywords": [
-            "wind",
-            "velocity field",
-            "gust",
-            "turbulence",
-            "vorticity confinement"
+            "风",
+            "速度场",
+            "阵风",
+            "湍流",
+            "涡量补偿"
           ],
-          "summary": "A wind model stores air motion and adds controlled variation across space and time.",
+          "summary": "风速场描述空气运动，阵风和涡流决定它如何随空间与时间变化。",
           "sourceIds": [
             "pFluidGpu",
             "pFluid3d",
@@ -427,51 +580,46 @@
           ],
           "details": [
             {
-              "keyword": "wind",
-              "explanation": "Moving air represented by a vector velocity sampled at each simulated point.",
-              "aiNote": "Differentiable and learned flow models can infer or optimize wind fields; conservation, boundary conditions, and force coupling still determine whether the result behaves physically."
+              "keyword": "风",
+              "explanation": "运动的空气，可用速度向量场描述；物体在当前位置采样该场获得局部风速。"
             },
             {
-              "keyword": "velocity field",
-              "explanation": "A function assigning a velocity vector to every position and time.",
+              "keyword": "速度场",
+              "explanation": "为空间位置和时间指定速度向量。",
               "equation": {
                 "expression": "u=u(x,t)",
-                "note": "Particles sample the field; Eulerian solvers store it on a grid."
-              },
-              "aiNote": "Differentiable and learned flow models can infer or optimize wind fields; conservation, boundary conditions, and force coupling still determine whether the result behaves physically."
+                "note": "粒子查询场值，欧拉求解器通常在网格上存储这些值。"
+              }
             },
             {
-              "keyword": "gust",
-              "explanation": "A localized, time-limited increase or redirection of wind speed.",
-              "aiNote": "Differentiable and learned flow models can infer or optimize wind fields; conservation, boundary conditions, and force coupling still determine whether the result behaves physically."
+              "keyword": "阵风",
+              "explanation": "在有限时间和空间范围内增强或改变方向的风。"
             },
             {
-              "keyword": "turbulence",
-              "explanation": "Multi-scale, irregular motion that transfers energy through eddies and creates rapidly varying forces.",
-              "aiNote": "Differentiable and learned flow models can infer or optimize wind fields; conservation, boundary conditions, and force coupling still determine whether the result behaves physically."
+              "keyword": "湍流",
+              "explanation": "包含多尺度涡旋的不规则流动，会让局部风速和物体受力快速变化。"
             },
             {
-              "keyword": "vorticity confinement",
-              "explanation": "A numerical force that restores small swirling motion lost to grid dissipation.",
+              "keyword": "涡量补偿",
+              "explanation": "加入数值力以补回粗网格耗散掉的旋转细节；它是一种建模近似。",
               "equation": {
                 "expression": "f_vort=εh(N×ω)",
-                "note": "ω=∇×u and N points toward increasing vorticity magnitude."
-              },
-              "aiNote": "Differentiable and learned flow models can infer or optimize wind fields; conservation, boundary conditions, and force coupling still determine whether the result behaves physically."
+                "note": "ω 是旋度，N 指向涡量幅值增大的方向，h 为网格尺度，ε 控制强度。"
+              }
             }
           ]
         },
         {
           "keywords": [
-            "advection",
-            "diffusion",
-            "pressure projection",
-            "divergence-free",
-            "drag force",
-            "lift force",
-            "fluid–structure interaction"
+            "平流",
+            "扩散",
+            "压力投影",
+            "无散度",
+            "空气阻力",
+            "升力",
+            "流固耦合"
           ],
-          "summary": "These operations transport wind, enforce incompressibility, and transfer momentum to solids.",
+          "summary": "输运、黏性和压力更新流场，阻力与升力把流场作用到物体上。",
           "sourceIds": [
             "pFluidGpu",
             "pFluid3d",
@@ -479,69 +627,62 @@
           ],
           "details": [
             {
-              "keyword": "advection",
-              "explanation": "Transport of velocity or another quantity by the flow itself.",
+              "keyword": "平流",
+              "explanation": "物理量被流动本身搬运，例如风带走雾密度，速度场也输运自身。",
               "equation": {
                 "expression": "Dq/Dt=∂q/∂t+u·∇q",
-                "note": "The material derivative follows the moving air."
-              },
-              "aiNote": "Differentiable and learned flow models can infer or optimize wind fields; conservation, boundary conditions, and force coupling still determine whether the result behaves physically."
+                "note": "物质导数表示跟随流体观察到的变化率。"
+              }
             },
             {
-              "keyword": "diffusion",
-              "explanation": "Viscous spreading that smooths velocity gradients.",
+              "keyword": "扩散",
+              "explanation": "由黏性等机制平滑空间差异；数值离散也可能产生额外耗散。",
               "equation": {
                 "expression": "∂u/∂t=ν∇²u",
-                "note": "Higher viscosity damps small-scale motion faster."
-              },
-              "aiNote": "Differentiable and learned flow models can infer or optimize wind fields; conservation, boundary conditions, and force coupling still determine whether the result behaves physically."
+                "note": "ν 为运动黏度，较大的 ν 会更快抹平速度差异。"
+              }
             },
             {
-              "keyword": "pressure projection",
-              "explanation": "A Poisson solve that subtracts a pressure gradient from provisional velocity to make it incompressible.",
+              "keyword": "压力投影",
+              "explanation": "对暂定速度求压力，再减去压力梯度对应的速度变化，使结果符合不可压缩条件和边界。",
               "equation": {
                 "expression": "∇²p=(ρ/Δt)∇·u*",
-                "note": "Then u=u*-(Δt/ρ)∇p."
-              },
-              "aiNote": "Differentiable and learned flow models can infer or optimize wind fields; conservation, boundary conditions, and force coupling still determine whether the result behaves physically."
+                "note": "u* 是暂定速度，ρ 为流体密度；修正为 u = u* − (Δt/ρ)∇p。"
+              }
             },
             {
-              "keyword": "divergence-free",
-              "explanation": "A velocity field with zero local volume expansion for incompressible flow.",
+              "keyword": "无散度",
+              "explanation": "不可压缩近似下，速度场不产生局部体积膨胀或收缩。",
               "equation": {
                 "expression": "∇·u=0",
-                "note": "This is enforced after advection and forces."
-              },
-              "aiNote": "Differentiable and learned flow models can infer or optimize wind fields; conservation, boundary conditions, and force coupling still determine whether the result behaves physically."
+                "note": "边界条件与压力求解共同决定修正后的速度。"
+              }
             },
             {
-              "keyword": "drag force",
-              "explanation": "Force parallel to relative airflow that pushes an object toward the local wind velocity.",
+              "keyword": "空气阻力",
+              "explanation": "沿相对气流方向推动物体，使其速度趋近局部空气速度；完整阻力形式见粒子章节。",
               "equation": {
                 "expression": "F_d∝|u-v|(u-v)",
-                "note": "Area and drag coefficient scale the result."
-              },
-              "aiNote": "Differentiable and learned flow models can infer or optimize wind fields; conservation, boundary conditions, and force coupling still determine whether the result behaves physically."
+                "note": "迎风面积和阻力系数决定比例大小。"
+              }
             },
             {
-              "keyword": "lift force",
-              "explanation": "Force largely perpendicular to relative flow, important for sheets, wings, and leaves.",
+              "keyword": "升力",
+              "explanation": "主要垂直于相对气流的力，对布面、翼面和叶片较重要。",
               "equation": {
                 "expression": "|F_l|=½ρC_lA|v_rel|²",
-                "note": "Its direction depends on surface orientation."
-              },
-              "aiNote": "Differentiable and learned flow models can infer or optimize wind fields; conservation, boundary conditions, and force coupling still determine whether the result behaves physically."
+                "note": "C_l 为升力系数，方向取决于表面朝向和气流方向。"
+              }
             },
             {
-              "keyword": "fluid–structure interaction",
-              "explanation": "Two-way coupling in which air moves an object and the object's motion changes the flow.",
-              "aiNote": "Differentiable and learned flow models can infer or optimize wind fields; conservation, boundary conditions, and force coupling still determine whether the result behaves physically."
+              "keyword": "流固耦合",
+              "explanation": "空气推动物体，物体的运动和边界也改变空气；只让物体读取预设风场属于单向驱动。"
             }
           ]
         }
       ],
       "aiResearch": {
-        "summary": "DiffWind differentiates through wind simulation so observed motion can optimize aerodynamic conditions; WinDiNet infers dense wind from sparse measurements. These methods target inverse estimation and acceleration, not the removal of boundary conditions or conservation constraints.",
+        "summary": "DiffWind（ICLR 2026）从视频联合重建风场和物体运动，并支持新风况下的模拟。WinDiNet（2026 年预印本）则用二维城市 CFD 数据微调视频扩散模型，预测风流并通过可微代理优化建筑布局。两者分别针对风物交互重建与城市流场代理，不能混称为稀疏风速测量补全。",
         "sourceIds": [
           "pDiffWind",
           "pWinDiNet"
@@ -549,38 +690,38 @@
       }
     },
     {
-      "heading": "Fog: transported density in a participating medium",
+      "heading": "雾：在网格上输运密度与温度",
       "paragraphs": [
-        "Fog simulation produces a density field; fog rendering converts that field into extinction and in-scattered light. Keeping those responsibilities separate matters: advection, diffusion, buoyancy, sources, and dissipation evolve the medium, while the renderer integrates transmittance along camera and light rays.",
-        "An Eulerian grid is natural for broad fog banks and smoke-like motion. Sparse volume storage avoids allocating empty space, and a simulation-to-render handoff records density, temperature, velocity, and optional emission without baking lighting into the physical state."
+        "雾模拟主要更新密度、速度和可选的温度场；雾渲染再把这些量转换成消光和散射。密度被气流带走，源项加入新的雾，扩散与耗散改变分布。这里的“密度”通常是雾滴浓度或视觉密度，不应直接等同于压力求解中的空气质量密度。",
+        "欧拉网格固定在空间中，每个格子保存场值。一个典型子步是：输运速度，加入浮力等外力，求解压力并修正速度，再用更新后的流场输运雾密度；不同分裂算法可调整顺序。它与水的 PIC/FLIP 共享网格速度和压力求解，但不必每帧把所有状态在粒子与网格之间往返搬运。稀疏体积只保存活跃区域，最终将物理场交给渲染器。"
       ],
       "equations": [
         {
-          "label": "Advection–diffusion with sources",
+          "label": "带源项的平流与扩散",
           "expression": "∂ρ_f/∂t + u·∇ρ_f = κ∇²ρ_f + S - dρ_f",
           "terms": [
-            "ρ_f is fog density, κ diffusion, S sources, and d dissipation."
+            "ρ_f 为雾密度，κ 为扩散系数，S 为源项，d 为耗散率；u 由流体速度求解得到。"
           ]
         },
         {
-          "label": "Beer–Lambert transmittance",
+          "label": "Beer–Lambert 透射率",
           "expression": "T(s)=exp(-∫₀ˢ σ_t(x) dx)",
           "terms": [
-            "Rendering maps simulated density to extinction σ_t."
+            "σ_t 是由模拟密度映射得到的消光系数；沿光线积分后得到透射率 T。"
           ]
         }
       ],
       "keywordSourceGroups": [
         {
           "keywords": [
-            "Fog",
-            "participating medium",
-            "density field",
-            "extinction",
-            "scattering",
-            "simulation-to-render handoff"
+            "雾",
+            "参与介质",
+            "密度场",
+            "消光",
+            "散射",
+            "模拟到渲染的交接"
           ],
-          "summary": "The simulated scalar density becomes optical coefficients only when the renderer evaluates the participating medium.",
+          "summary": "物理密度与光学系数分别属于模拟和渲染，通过明确的字段交接相连。",
           "sourceIds": [
             "pSmoke",
             "pOpenVdb",
@@ -588,55 +729,49 @@
           ],
           "details": [
             {
-              "keyword": "Fog",
-              "explanation": "A suspended aerosol represented in simulation by density and flow, and in rendering by absorption and scattering.",
-              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+              "keyword": "雾",
+              "explanation": "悬浮微滴构成的介质，模拟侧记录浓度和运动，渲染侧计算吸收与散射。"
             },
             {
-              "keyword": "participating medium",
-              "explanation": "A volume that can absorb, emit, or scatter light inside space rather than only at surfaces.",
-              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+              "keyword": "参与介质",
+              "explanation": "空间内部会吸收、发射或散射光的体积介质。"
             },
             {
-              "keyword": "density field",
-              "explanation": "A scalar value over space describing how much fog occupies each region.",
+              "keyword": "密度场",
+              "explanation": "描述各个位置雾的浓度或表现密度的标量场。",
               "equation": {
                 "expression": "ρ_f=ρ_f(x,t)",
-                "note": "Density is typically sampled from a grid or sparse volume."
-              },
-              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+                "note": "通常存储在规则网格或稀疏体积中。"
+              }
             },
             {
-              "keyword": "extinction",
-              "explanation": "Loss of radiance through absorption plus out-scattering.",
+              "keyword": "消光",
+              "explanation": "吸收和向观察方向以外的散射共同造成的光衰减。",
               "equation": {
                 "expression": "σ_t=σ_a+σ_s",
-                "note": "Optical coefficients may be proportional to simulated density."
-              },
-              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+                "note": "σ_a 为吸收系数，σ_s 为散射系数；它们可以由模拟密度映射得到。"
+              }
             },
             {
-              "keyword": "scattering",
-              "explanation": "Redirection of light by fog particles, producing visible shafts and ambient haze.",
-              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+              "keyword": "散射",
+              "explanation": "雾滴改变光的传播方向，形成光柱和朦胧的背景。"
             },
             {
-              "keyword": "simulation-to-render handoff",
-              "explanation": "Export of physical fields such as density, temperature, velocity, and emission into a renderable volume format.",
-              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+              "keyword": "模拟到渲染的交接",
+              "explanation": "输出密度、温度、速度以及可选的发光字段，再由渲染器计算光照，避免把光照烘焙进物理状态。"
             }
           ]
         },
         {
           "keywords": [
-            "Eulerian grid",
-            "advection–diffusion",
-            "buoyancy",
-            "dissipation",
-            "sparse volume",
+            "欧拉网格",
+            "平流与扩散",
+            "浮力",
+            "耗散",
+            "稀疏体积",
             "OpenVDB"
           ],
-          "summary": "Grid transport evolves fog while sparse storage carries only active regions.",
+          "summary": "固定网格负责输运，浮力改变速度，稀疏体积负责存储活跃区域。",
           "sourceIds": [
             "pSmoke",
             "pOpenVdb",
@@ -644,81 +779,91 @@
           ],
           "details": [
             {
-              "keyword": "Eulerian grid",
-              "explanation": "A fixed lattice whose cells store density, velocity, and other quantities as material flows through them.",
-              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+              "keyword": "欧拉网格",
+              "explanation": "格子固定在空间里，物质穿过格子时更新相应场值。速度和标量也可错开放置；网格不是一组随水滴移动的粒子。"
             },
             {
-              "keyword": "advection–diffusion",
-              "explanation": "Combined transport by bulk velocity and smoothing by molecular or numerical diffusion.",
-              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+              "keyword": "平流与扩散",
+              "explanation": "平流搬运分布，扩散平滑差异。半拉格朗日平流会从目标格子沿速度回溯，插值读取上一步的场，稳定性与数值耗散需要权衡。"
             },
             {
-              "keyword": "buoyancy",
-              "explanation": "Vertical force from density or temperature differences relative to the surrounding air.",
+              "keyword": "浮力",
+              "explanation": "温度或密度与环境的差异改变竖直加速度，推动热烟上升或重介质下沉。",
               "equation": {
                 "expression": "f_b≈(α(T-T₀)-βρ_f)g",
-                "note": "Coefficients are usually art-directed in graphics solvers."
-              },
-              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+                "note": "此式是视觉模拟的简化模型；g 的方向、温差项和密度项的符号必须采用一致约定。"
+              }
             },
             {
-              "keyword": "dissipation",
-              "explanation": "A controlled decay that prevents density and temperature from persisting forever.",
+              "keyword": "耗散",
+              "explanation": "使密度或温度随时间逐渐衰减的模型；这是显式建模的消失机制，不等于所有真实雾的自然演化。",
               "equation": {
                 "expression": "ρ′=ρe^{-dΔt}",
-                "note": "Exponential decay is stable and time-step aware."
-              },
-              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+                "note": "d 为衰减率，指数形式能正确反映步长变化。"
+              }
             },
             {
-              "keyword": "sparse volume",
-              "explanation": "A volume representation that allocates data only near active fog, smoke, or fire cells.",
-              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+              "keyword": "稀疏体积",
+              "explanation": "只为活跃区域分配体积数据，减少大片空白区域的存储和计算。"
             },
             {
               "keyword": "OpenVDB",
-              "explanation": "A hierarchical sparse volume structure and interchange library widely used for effects fields.",
-              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+              "explanation": "用于稀疏体积存储与交换的分层数据结构和库，本身并不自动完成流体求解。"
             }
           ]
         }
       ],
       "aiResearch": {
-        "summary": "Recent neural fluid representations compress continuous dynamics or learn evolution on complex surfaces. They can reduce storage or accelerate repeated solves, but the fog-specific meaning still comes from transported density and its optical mapping.",
+        "summary": "Neural Fluid Simulation on Geometric Surfaces（ICLR 2025）研究曲面上的连续流体表示，PINR（2025）从观测重建动态流体场。它们的维度、输入和输出与通用三维雾模拟不同。下文用神经算子和 PINN 区分“学习场映射”与“用方程残差训练”；WonderPlay 则属于相邻的物理条件生成研究。",
         "sourceIds": [
           "pNeuralFluid",
           "pPinr",
-          "pWonder"
+          "pWonder",
+          "pFno",
+          "pPinn"
+        ],
+        "explanations": [
+          {
+            "title": "神经算子：学习场到场的映射",
+            "text": [
+              "神经算子输入的是离散采样的整个场及条件，学习函数到函数的映射，例如初始速度场到一段流动，或当前场到下一时刻的场；并不只限于下一帧预测。FNO（2020/2021）在傅里叶模态中学习全局作用，再与局部变换组合。训练来自多组方程解，运行时直接输出场；换分辨率的能力不等于能适应任意新边界、湍流尺度或材料。用于雾时，应分别定义速度和密度输出。"
+            ]
+          },
+          {
+            "title": "PINN：用物理方程残差训练",
+            "text": [
+              "物理信息神经网络（PINN）常以空间坐标和时间为输入，输出速度、压力或密度。对输出自动求导，代入物理方程形成残差，再与初始条件、边界条件和可选观测误差共同训练。训练完成后查询网络得到场值；它不必逐帧推进，也不一定先生成大量监督数据。残差只是训练损失的一部分，采样不足或优化困难时仍可能违反物理，不能把“加入方程”理解成精确守恒。"
+            ]
+          }
         ]
       }
     },
     {
-      "heading": "Clouds: moisture, temperature, and phase change",
+      "heading": "云：水汽、温度与相变",
       "paragraphs": [
-        "A cloud is not only noise. A compact physical model transports water vapor and temperature, condenses vapor when local humidity exceeds saturation, evaporates cloud water when air becomes undersaturated, and feeds latent heat back into buoyancy.",
-        "Games often combine a coarse weather map with procedural detail because cloud microphysics spans scales that cannot be resolved in real time. The useful division is physical fields for evolution and coverage, then shaped noise for sub-grid structure—not noise pretending to be the entire simulation."
+        "云还需要考虑水的相变。模拟输运水汽和温度，超过局部饱和量的水汽凝结成云水，空气变干后云水又会蒸发；凝结释放的潜热会改变温度和浮力，进而影响上升与对流。",
+        "游戏通常用低分辨率天气场控制云的覆盖和演化，再用程序化噪声补充边缘与内部细节。物理场负责质量交换和大尺度运动，噪声负责未解析的外观结构；需要降水时，还要引入相应的云微物理近似。"
       ],
       "equations": [
         {
-          "label": "Condensation tendency",
+          "label": "凝结速率近似",
           "expression": "C = k_c max(q_v - q_sat(T,p), 0)",
           "terms": [
-            "q_v is vapor mixing ratio and q_sat is saturation at local temperature and pressure."
+            "q_v 为水汽混合比，q_sat 为当地温度 T 和压力 p 下的饱和值，k_c 控制凝结速率。"
           ]
         }
       ],
       "keywordSourceGroups": [
         {
           "keywords": [
-            "cloud",
-            "humidity",
-            "temperature",
-            "condensation",
-            "evaporation",
-            "cloud water content"
+            "云",
+            "湿度",
+            "温度",
+            "凝结",
+            "蒸发",
+            "云水含量"
           ],
-          "summary": "Thermodynamic state and reversible phase change decide where cloud mass appears and disappears.",
+          "summary": "水汽与云水之间的质量交换取决于温度、湿度和饱和条件。",
           "sourceIds": [
             "pFluidGpu",
             "pFluid3d",
@@ -726,51 +871,45 @@
           ],
           "details": [
             {
-              "keyword": "cloud",
-              "explanation": "A visible volume of condensed water droplets or ice crystals carried by atmospheric flow.",
-              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+              "keyword": "云",
+              "explanation": "被大气带动的凝结水滴或冰晶集合。"
             },
             {
-              "keyword": "humidity",
-              "explanation": "The amount of water vapor in air, often stored as a mixing ratio or relative humidity.",
-              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+              "keyword": "湿度",
+              "explanation": "空气中的水汽量，可用混合比或相对湿度描述；二者需要温度和压力等条件才能换算。"
             },
             {
-              "keyword": "temperature",
-              "explanation": "A transported thermodynamic field that changes saturation, density, and buoyancy.",
-              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+              "keyword": "温度",
+              "explanation": "影响饱和水汽量、空气密度和浮力的热力学场。"
             },
             {
-              "keyword": "condensation",
-              "explanation": "Conversion of excess vapor into cloud water when saturation is exceeded.",
+              "keyword": "凝结",
+              "explanation": "在过饱和条件下，将多余水汽转成云水，同时释放潜热。",
               "equation": {
                 "expression": "Δq_c=min(q_v-q_sat, available vapor)",
-                "note": "Condensed mass is removed from vapor and added to cloud water."
-              },
-              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+                "note": "此式用于过饱和分支；转移质量从水汽扣除并加入云水，不能产生负的凝结量。"
+              }
             },
             {
-              "keyword": "evaporation",
-              "explanation": "Conversion of cloud water back into vapor when the air is undersaturated.",
-              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+              "keyword": "蒸发",
+              "explanation": "空气未饱和时，云水转回水汽并吸收热量。"
             },
             {
-              "keyword": "cloud water content",
-              "explanation": "The mass or mixing ratio of condensed water stored in each cell.",
-              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+              "keyword": "云水含量",
+              "explanation": "格子中凝结水的质量或混合比，与仍处于气相的水汽分开记录。"
             }
           ]
         },
         {
           "keywords": [
-            "buoyancy",
-            "Eulerian solver",
-            "weather map",
-            "procedural noise",
-            "cloud microphysics",
-            "volumetric density"
+            "浮力",
+            "欧拉求解器",
+            "天气图",
+            "程序化噪声",
+            "云微物理",
+            "体积密度"
           ],
-          "summary": "Large-scale dynamics set coverage; procedural structure fills unresolved visual scales.",
+          "summary": "大尺度物理场决定演化，天气图与程序化细节决定可负担的表现层次。",
           "sourceIds": [
             "pFluidGpu",
             "pOpenVdb",
@@ -778,40 +917,34 @@
           ],
           "details": [
             {
-              "keyword": "buoyancy",
-              "explanation": "Acceleration from density differences, including temperature and moisture effects, that drives cloud rise and convection.",
-              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+              "keyword": "浮力",
+              "explanation": "温度与水分引起的密度差推动云团上升和对流；基本机制与雾章节相同。"
             },
             {
-              "keyword": "Eulerian solver",
-              "explanation": "A fixed-grid solver used to advect velocity, moisture, temperature, and condensed water.",
-              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+              "keyword": "欧拉求解器",
+              "explanation": "在固定网格上输运速度、温度、水汽和云水，并处理相变源项。"
             },
             {
-              "keyword": "weather map",
-              "explanation": "A low-resolution field controlling coverage, cloud type, precipitation, or storm movement over large areas.",
-              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+              "keyword": "天气图",
+              "explanation": "以低分辨率控制云覆盖、云型、降水或风暴移动的区域场。"
             },
             {
-              "keyword": "procedural noise",
-              "explanation": "Band-limited detail added below the simulation resolution to shape edges and internal density.",
-              "aiNote": "AI generators can synthesize plausible cloud texture, but procedural detail is still a controllable and temporally coherent production tool."
+              "keyword": "程序化噪声",
+              "explanation": "补充模拟分辨率以下的边缘和内部结构，本身并不保证质量守恒。"
             },
             {
-              "keyword": "cloud microphysics",
-              "explanation": "The unresolved processes governing droplet nucleation, growth, phase change, and precipitation.",
-              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+              "keyword": "云微物理",
+              "explanation": "描述微滴成核、增长、相变和降水等过程的模型，实时系统常使用简化参数化。"
             },
             {
-              "keyword": "volumetric density",
-              "explanation": "The final spatial field sampled by a volume renderer after dynamics and detail synthesis.",
-              "aiNote": "Neural fields can reconstruct or compress a volume, while the simulation still needs transport, sources, sinks, and thermodynamics when believable evolution matters."
+              "keyword": "体积密度",
+              "explanation": "物理场与表现细节结合后，供体积渲染器采样的空间分布。"
             }
           ]
         }
       ],
       "aiResearch": {
-        "summary": "Current AI work is strongest at observing and reconstructing clouds: machine-learning tomography estimates 3D structure, while light-transport-aware diffusion recovers volumes from images. These are inverse problems; they complement rather than replace moisture and phase-change simulation.",
+        "summary": "机器学习云层析成像（2025）和考虑光传播的扩散重建（2025）主要从观测恢复三维云结构。它们解决的是逆问题，可以提供模拟初态或外观，但不自动完成水汽输运、凝结和蒸发。",
         "sourceIds": [
           "pCloudMl",
           "pCloudDiff"
@@ -819,39 +952,39 @@
       }
     },
     {
-      "heading": "Water and ocean: free surfaces across scales",
+      "heading": "水与海洋：粒子、网格和自由表面",
       "paragraphs": [
-        "Water methods are chosen by scale. Spectral FFT oceans and Gerstner waves describe kilometers of deep-water surface efficiently; shallow-water equations capture coastlines and height-field flow; SPH and particle-in-cell families handle splashes, breaking waves, and strongly changing topology.",
-        "No single representation covers the whole shot. A practical ocean couples a large spectral surface to local free-surface simulation, then seeds foam and spray from curvature, vorticity, or breaking-wave criteria. Conservation and boundary exchange are more important than hiding the seam with extra noise."
+        "水的表示取决于尺度。远处海面可用波谱和逆 FFT 合成，浅水方程适合水平尺度远大于水深的流动；局部水花、卷浪和拓扑变化则常用 SPH 或 PIC/FLIP/APIC。SPH 直接查询邻近粒子，粒子网格混合法则把质量和动量传到背景网格，在网格上施加外力、处理边界并求解压力，再将结果传回粒子。",
+        "PIC 传回网格的新速度，FLIP 传回速度增量，APIC 还保存局部仿射速度信息。MPM 使用相似的传输框架，但通过材料应力描述弹性、塑性或其他连续介质；DEM 则通常直接计算颗粒接触力，空间格子可以只是找邻居的工具。不能把这些方法都理解成“在格子里算压力”。大海面与局部模拟衔接时，还要处理质量、动量以及泡沫和飞沫的交换。"
       ],
       "equations": [
         {
-          "label": "Spectral ocean synthesis",
+          "label": "波谱海面合成",
           "expression": "h(x,t)=Σ_k h̃(k,t)e^{i k·x}",
           "terms": [
-            "An inverse FFT evaluates many wave modes efficiently."
+            "h̃ 为波数 k 对应的复振幅，逆 FFT 可高效合成许多波模态。"
           ]
         },
         {
-          "label": "SPH density estimate",
+          "label": "SPH 密度估计",
           "expression": "ρᵢ=Σⱼ mⱼW(|xᵢ-xⱼ|,h)",
           "terms": [
-            "The smoothing kernel W reconstructs density from neighboring particles."
+            "mⱼ 为邻粒子质量，W 为平滑核函数，h 为核支持尺度。"
           ]
         }
       ],
       "keywordSourceGroups": [
         {
           "keywords": [
-            "water",
-            "ocean",
-            "free surface",
-            "height field",
-            "wave spectrum",
-            "FFT ocean",
-            "Gerstner waves"
+            "水",
+            "海洋",
+            "自由表面",
+            "高度场",
+            "波谱",
+            "FFT 海面",
+            "Gerstner 波"
           ],
-          "summary": "Surface models trade topological freedom for enormous spatial coverage and fast evaluation.",
+          "summary": "海面的波谱与高度场适合大尺度表面，但不能独自表示所有卷浪和水花。",
           "sourceIds": [
             "pOcean",
             "pWaterGpu",
@@ -859,65 +992,58 @@
           ],
           "details": [
             {
-              "keyword": "water",
-              "explanation": "An approximately incompressible fluid whose motion is governed by momentum, pressure, gravity, and boundaries.",
-              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+              "keyword": "水",
+              "explanation": "常被近似为不可压缩流体，其运动受重力、压力、黏性、表面张力和边界影响。"
             },
             {
-              "keyword": "ocean",
-              "explanation": "A large water domain where wind-driven waves span many wavelengths and often use a statistical spectrum.",
-              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+              "keyword": "海洋",
+              "explanation": "跨越许多波长的大水域，远景波动常用与风和海况相关的统计波谱描述。"
             },
             {
-              "keyword": "free surface",
-              "explanation": "The moving interface between water and air where pressure and kinematic boundary conditions apply.",
-              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+              "keyword": "自由表面",
+              "explanation": "水与空气之间移动的界面，需要满足运动学和压力等边界条件。"
             },
             {
-              "keyword": "height field",
-              "explanation": "A single-valued surface elevation over a horizontal plane; efficient but unable to represent overturning waves.",
+              "keyword": "高度场",
+              "explanation": "在水平位置上只记录一个高度，计算高效，但不能直接表示翻卷、悬垂或分离水滴。",
               "equation": {
                 "expression": "z=h(x,y,t)",
-                "note": "One height exists for each horizontal position."
-              },
-              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+                "note": "每个水平位置只有一个 z 值。"
+              }
             },
             {
-              "keyword": "wave spectrum",
-              "explanation": "A distribution of energy over wave number and direction derived from wind and sea state.",
-              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+              "keyword": "波谱",
+              "explanation": "描述不同波数和传播方向上的波浪能量分布。"
             },
             {
-              "keyword": "FFT ocean",
-              "explanation": "A spectral surface that evolves complex wave amplitudes and evaluates the height field with inverse FFTs.",
-              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+              "keyword": "FFT 海面",
+              "explanation": "随时间更新各个波模态的复振幅，再用逆快速傅里叶变换合成海面高度。"
             },
             {
-              "keyword": "Gerstner waves",
-              "explanation": "Analytic trochoidal waves that displace points horizontally and vertically, producing controllable sharp crests.",
+              "keyword": "Gerstner 波",
+              "explanation": "用解析曲线同时移动水面点的水平和竖直位置，方便控制尖锐波峰，但不是完整体积流体求解器。",
               "equation": {
                 "expression": "x′=x+Σ Q_iA_i d_i cosθ_i; z′=Σ A_i sinθ_i",
-                "note": "θ_i=k_i·x-ω_it+φ_i."
-              },
-              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+                "note": "A_i 为振幅，Q_i 控制陡峭程度，d_i 为水平传播方向，θ_i 为相位。"
+              }
             }
           ]
         },
         {
           "keywords": [
-            "shallow-water equations",
+            "浅水方程",
             "SPH",
             "PIC",
             "FLIP",
             "APIC",
-            "level set",
-            "pressure projection",
-            "surface tension",
-            "foam",
-            "spray",
-            "two-way coupling"
+            "水平集",
+            "压力投影",
+            "表面张力",
+            "泡沫",
+            "飞沫",
+            "双向耦合"
           ],
-          "summary": "Local solvers support boundaries, splashes, and topology changes that a height field cannot represent.",
+          "summary": "局部水体求解需要区分粒子邻域、粒子网格传输、自由表面以及边界耦合。",
           "sourceIds": [
             "pSph",
             "pApic",
@@ -925,81 +1051,101 @@
           ],
           "details": [
             {
-              "keyword": "shallow-water equations",
-              "explanation": "Depth-averaged conservation equations for flows whose horizontal scale is much larger than depth.",
+              "keyword": "浅水方程",
+              "explanation": "对水深方向平均后的守恒方程，适合水平尺度远大于水深的流动。",
               "equation": {
                 "expression": "∂h/∂t+∇·(hu)=0",
-                "note": "The momentum equation adds gravity and bed effects."
-              },
-              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+                "note": "h 为水深，u 为深度平均水平速度；动量方程还要处理重力与底床。"
+              }
             },
             {
               "keyword": "SPH",
-              "explanation": "Smoothed Particle Hydrodynamics reconstructs fluid quantities from moving particle neighborhoods.",
-              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+              "explanation": "光滑粒子流体动力学通过核函数汇总邻近粒子，估计密度并计算压力、黏性等作用。邻居可以用哈希寻找，但不必通过背景网格求解速度。"
             },
             {
               "keyword": "PIC",
-              "explanation": "Particle-In-Cell transfers particle momentum to a grid for solving, then interpolates grid velocity back to particles with strong damping.",
-              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+              "explanation": "粒子网格法把粒子质量与动量传到网格，完成网格求解后插值回新速度。反复平均通常较稳定，但容易损失运动细节。"
             },
             {
               "keyword": "FLIP",
-              "explanation": "A PIC variant that transfers grid velocity changes back to particles, preserving energy but allowing noise.",
+              "explanation": "将网格求解前后的速度增量加回粒子原速度，减少 PIC 的数值耗散，也更容易保留噪声；实际实现常混合 PIC 与 FLIP。",
               "equation": {
                 "expression": "v_p′=v_p+I(u_grid′-u_grid)",
-                "note": "I interpolates the grid update to the particle."
-              },
-              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+                "note": "I 表示把网格速度变化插值到粒子位置。"
+              }
             },
             {
               "keyword": "APIC",
-              "explanation": "Affine PIC augments each particle with a local affine velocity field to reduce both PIC damping and FLIP noise.",
-              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+              "explanation": "仿射粒子网格法为每个粒子保存局部仿射速度信息，使传输能表达局部旋转和剪切，并改善耗散与动量保持。"
             },
             {
-              "keyword": "level set",
-              "explanation": "A signed scalar field whose zero isosurface tracks the water–air interface.",
+              "keyword": "水平集",
+              "explanation": "用带符号标量场表示界面，零等值面对应水面；符号区分水和空气。",
               "equation": {
                 "expression": "φ(x)=0",
-                "note": "Negative and positive signs identify the two sides."
-              },
-              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+                "note": "负号和正号分别代表哪一侧由实现统一约定。"
+              }
             },
             {
-              "keyword": "pressure projection",
-              "explanation": "The incompressibility solve that removes divergent velocity and enforces solid boundaries.",
-              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+              "keyword": "压力投影",
+              "explanation": "在液体区域求解压力并修正速度，满足近似不可压缩性、固体边界和自由表面条件；基本机制见风章节。"
             },
             {
-              "keyword": "surface tension",
-              "explanation": "Interface force that minimizes surface area and dominates small droplets and capillary waves.",
+              "keyword": "表面张力",
+              "explanation": "由界面能产生、倾向缩小表面积的作用，对小水滴和毛细波尤其明显。",
               "equation": {
                 "expression": "Δp=σκ",
-                "note": "Pressure jump equals tension σ times curvature κ."
-              },
-              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+                "note": "σ 为表面张力系数，κ 为曲率，正负号随界面法线约定。"
+              }
             },
             {
-              "keyword": "foam",
-              "explanation": "Entrained air and bubbles produced near breaking, aerated, or turbulent water.",
-              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+              "keyword": "泡沫",
+              "explanation": "破碎和卷气区域产生的气泡集合，可用额外状态或二次粒子近似。"
             },
             {
-              "keyword": "spray",
-              "explanation": "Ballistic droplets detached from the main free surface and often simulated as secondary particles.",
-              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+              "keyword": "飞沫",
+              "explanation": "脱离主体水面的水滴，常以受到重力和空气阻力的二次粒子模拟。"
             },
             {
-              "keyword": "two-way coupling",
-              "explanation": "Momentum exchange in which water moves solids and solids displace or redirect the fluid.",
-              "aiNote": "Modern neural work often estimates water geometry or appearance from images. That is adjacent to simulation: it does not replace conservation laws or a free-surface solver."
+              "keyword": "双向耦合",
+              "explanation": "水推动固体，固体同时排开或改变水流；两侧动量交换需要一致处理，不能只做单边视觉推开。"
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "物质点法（MPM）"
+          ],
+          "summary": "MPM 将材料形变与应力纳入粒子网格框架。",
+          "sourceIds": [
+            "pMpm",
+            "pApic"
+          ],
+          "details": [
+            {
+              "keyword": "物质点法（MPM）",
+              "explanation": "物质点保存质量、形变和材料历史，将质量与动量传到背景网格，在网格上根据材料应力计算内力并更新运动，再传回粒子、更新形变。弹性、塑性、黏性或流体响应由本构模型决定；背景网格常在每步重置。"
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "离散元法（DEM）"
+          ],
+          "summary": "DEM 的主要相互作用来自离散颗粒接触，需与流体粒子法区分。",
+          "sourceIds": [
+            "pDem"
+          ],
+          "details": [
+            {
+              "keyword": "离散元法（DEM）",
+              "explanation": "逐个跟踪颗粒，按接触模型计算法向弹性、阻尼、切向摩擦以及可选的黏聚或滚动阻力。空间哈希可以帮助找邻居，但不要求像 PIC/FLIP 那样通过网格更新速度；湿沙等场景还可能另加流体耦合。"
             }
           ]
         }
       ],
       "aiResearch": {
-        "summary": "Recent learning methods infer water surfaces or reconstruct refractive scenes from observations. They are valuable for capture and inverse graphics, while SPH, FLIP/APIC, spectra, and shallow-water solvers remain the mechanisms for controllable forward dynamics.",
+        "summary": "水面重建（2025）与 RefracGS（2026）从观测推断表面或折射场景，NeuralMPM（2025）则属于动力学代理。重建出的水面不必然满足不可压缩性；可控的正向演化仍需要材料、边界和时间更新规则。",
         "sourceIds": [
           "pWaterAi",
           "pRefrac",
@@ -1008,42 +1154,42 @@
       }
     },
     {
-      "heading": "Fire and explosion: reacting flow and pressure",
+      "heading": "火焰与爆炸：反应流和压力",
       "paragraphs": [
-        "Fire is a reacting flow: fuel and oxidizer create heat and products, hot gas rises, soot carries visible emission, and radiation loses energy. An explosion adds a rapid energy release that can produce compressible flow, a shock front, and a pressure impulse before the later buoyant plume behaves more like ordinary fire and smoke.",
-        "Entertainment solvers often simplify chemistry into progress variables and artist controls. That is reasonable when the model keeps its bookkeeping clear: reaction consumes fuel, heat changes temperature and density, soot is transported, and an explosion's early pressure wave is not confused with a slow incompressible plume."
+        "火焰是反应流：燃料与氧化剂反应，释放热量和产物；热气体上升，烟炱影响吸收与发光，辐射和混合使系统冷却。爆炸早期还可能包含可压缩流和激波，之后的浮升烟羽才更接近日常的火焰与烟雾。",
+        "视觉特效常把复杂化学反应简化为少数反应变量和可调参数，但仍要区分燃料消耗、放热、温度和烟炱输运。低马赫数烟火模型不能自动解析爆炸激波；若只需要物体被推开的效果，可以明确使用单独设计的压力脉冲近似。"
       ],
       "equations": [
         {
-          "label": "Reaction progress",
+          "label": "反应物输运",
           "expression": "∂Y_f/∂t + u·∇Y_f = D∇²Y_f - ω̇",
           "terms": [
-            "Y_f is fuel fraction and ω̇ the reaction rate."
+            "Y_f 为燃料组分，D 为扩散系数，ω̇ 为反应消耗速率。"
           ]
         },
         {
-          "label": "Blast overpressure decay (conceptual)",
+          "label": "爆炸超压的概念近似",
           "expression": "Δp(r,t)=p_peak(r) f(t-t_arrival)",
           "terms": [
-            "Production models often use an authored pressure pulse unless a compressible solver resolves the shock."
+            "p_peak 为位置相关的峰值超压，f 描述脉冲形状；若没有可压缩求解器，这只是预设压力脉冲。"
           ]
         }
       ],
       "keywordSourceGroups": [
         {
           "keywords": [
-            "fire",
-            "fuel",
-            "oxidizer",
-            "temperature",
-            "reaction rate",
-            "combustion",
-            "heat release",
-            "soot",
-            "blackbody emission",
-            "pyro solver"
+            "火焰",
+            "燃料",
+            "氧化剂",
+            "温度",
+            "反应速率",
+            "燃烧",
+            "放热",
+            "烟炱",
+            "黑体辐射",
+            "烟火求解器"
           ],
-          "summary": "A reduced combustion model transports reactants and products while converting reaction progress into heat and visible fields.",
+          "summary": "反应模型将燃料与氧化剂转换成热量和产物，并与流动和可见场耦合。",
           "sourceIds": [
             "pFire",
             "pFds",
@@ -1051,78 +1197,68 @@
           ],
           "details": [
             {
-              "keyword": "fire",
-              "explanation": "Visible reacting gas whose motion, heat, soot, and radiation are coupled.",
-              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+              "keyword": "火焰",
+              "explanation": "反应气体的可见部分，流动、温度、烟炱与辐射相互影响。"
             },
             {
-              "keyword": "fuel",
-              "explanation": "A transported material fraction consumed by the combustion reaction.",
-              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+              "keyword": "燃料",
+              "explanation": "随流动输运并被反应消耗的物质组分。"
             },
             {
-              "keyword": "oxidizer",
-              "explanation": "Usually oxygen-bearing air required for combustion and mixed with fuel before reaction.",
-              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+              "keyword": "氧化剂",
+              "explanation": "与燃料反应的组分，常来自空气中的氧气。"
             },
             {
-              "keyword": "temperature",
-              "explanation": "Thermal state controlling buoyancy, reaction rates, emission color, and cooling.",
-              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+              "keyword": "温度",
+              "explanation": "控制浮力、反应速度、热辐射和冷却的状态。"
             },
             {
-              "keyword": "reaction rate",
-              "explanation": "The amount of reactant converted per unit time and volume.",
+              "keyword": "反应速率",
+              "explanation": "单位时间、单位体积内被转化的反应物数量。",
               "equation": {
                 "expression": "ω̇≈A e^{-E_a/(RT)}Y_f^aY_o^b",
-                "note": "Arrhenius kinetics are often reduced or art-directed in graphics."
-              },
-              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+                "note": "这是简化的 Arrhenius 形式：A 为前因子，E_a 为活化能，R 为气体常数，Y 为组分含量。"
+              }
             },
             {
-              "keyword": "combustion",
-              "explanation": "Exothermic conversion of fuel and oxidizer into products, heat, and sometimes soot.",
-              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+              "keyword": "燃烧",
+              "explanation": "燃料与氧化剂发生放热反应，生成产物，有时还产生烟炱。"
             },
             {
-              "keyword": "heat release",
-              "explanation": "Energy added by reaction, increasing temperature and driving expansion or buoyancy.",
+              "keyword": "放热",
+              "explanation": "反应释放能量，提高温度并推动膨胀或浮力运动。",
               "equation": {
                 "expression": "Q̇=H_c ω̇",
-                "note": "H_c is heat released per unit reacted fuel."
-              },
-              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+                "note": "H_c 为单位反应燃料的放热量。"
+              }
             },
             {
-              "keyword": "soot",
-              "explanation": "Carbonaceous particulate transported by the flow and used as a smoke and emission carrier.",
-              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+              "keyword": "烟炱",
+              "explanation": "随气流输运的碳质颗粒，影响烟的消光和高温发光。"
             },
             {
-              "keyword": "blackbody emission",
-              "explanation": "Thermal spectrum used to map hot soot temperature to emitted radiance and color.",
+              "keyword": "黑体辐射",
+              "explanation": "可用温度估计热辐射的光谱分布；真实烟炱还需要发射率等修正。",
               "equation": {
                 "expression": "B_λ(T)=2hc²/λ⁵ · 1/(e^{hc/(λkT)}-1)",
-                "note": "Planck's law gives spectral radiance."
-              },
-              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+                "note": "普朗克定律中的 λ 为波长，T 为温度，h、c、k 分别为普朗克常数、光速和玻尔兹曼常数。"
+              }
             },
             {
-              "keyword": "pyro solver",
-              "explanation": "A production effects solver combining grid fluid motion, combustion controls, temperature, fuel, soot, and sparse storage.",
-              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+              "keyword": "烟火求解器",
+              "explanation": "把流体运动、燃烧参数、温度、燃料、烟炱和稀疏存储组合起来的特效系统。"
             }
           ]
         },
         {
           "keywords": [
-            "explosion",
-            "compressible Euler equations",
-            "shock wave",
-            "blast pressure",
-            "sparse grid"
+            "爆炸",
+            "可压缩欧拉方程",
+            "激波",
+            "爆炸压力",
+            "稀疏网格"
           ],
-          "summary": "Explosions require compressibility during the fast pressure event, then often transition to a buoyant sparse-volume plume.",
+          "summary": "爆炸初期的快速压力传播与后期烟羽属于不同的时间和物理尺度。",
           "sourceIds": [
             "pFds",
             "pFireX",
@@ -1130,43 +1266,38 @@
           ],
           "details": [
             {
-              "keyword": "explosion",
-              "explanation": "A rapid energy release causing expansion, pressure loading, fragmentation, heat, and a subsequent plume.",
-              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+              "keyword": "爆炸",
+              "explanation": "快速释放能量，引发膨胀、压力载荷、破碎、热量和后续烟羽。"
             },
             {
-              "keyword": "compressible Euler equations",
-              "explanation": "Conservation of mass, momentum, and total energy for inviscid compressible flow.",
+              "keyword": "可压缩欧拉方程",
+              "explanation": "描述无黏可压缩流的质量、动量和总能量守恒；适合研究激波，但离散方法必须正确处理间断。",
               "equation": {
                 "expression": "∂U/∂t+∇·F(U)=S",
-                "note": "U contains density, momentum, and energy."
-              },
-              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+                "note": "U 包含密度、动量和总能量，F 为通量，S 为源项。"
+              }
             },
             {
-              "keyword": "shock wave",
-              "explanation": "A thin moving discontinuity with abrupt jumps in pressure, density, temperature, and velocity.",
-              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+              "keyword": "激波",
+              "explanation": "压力、密度、温度和速度在很薄区域内突变的传播波。"
             },
             {
-              "keyword": "blast pressure",
-              "explanation": "Transient overpressure that applies an outward impulse to nearby bodies before the slower gas flow arrives.",
+              "keyword": "爆炸压力",
+              "explanation": "短时超压作用于物体表面，产生冲量；身体的总响应还取决于受压面积、方向和作用点。",
               "equation": {
                 "expression": "J=∫Δp(t)dt",
-                "note": "Pressure impulse J drives the first rigid-body response."
-              },
-              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+                "note": "此处 J 是单位面积上的压力时间积分，量纲为 Pa·s；对表面积分后才得到物体所受的总冲量。"
+              }
             },
             {
-              "keyword": "sparse grid",
-              "explanation": "A grid allocating only active fire, smoke, or shock regions to reduce memory and compute.",
-              "aiNote": "Differentiable and neural fire models are useful for inverse problems and fast surrogates, but combustion inputs and conservation equations define the physical state they learn."
+              "keyword": "稀疏网格",
+              "explanation": "只分配有火、烟或其他活跃状态的格子；可传播的压力扰动还需要足够的计算域。"
             }
           ]
         }
       ],
       "aiResearch": {
-        "summary": "Fire-X makes visual fire simulation differentiable for parameter fitting; PyTorchFire and DeepFlame explore differentiable wildfire and neural combustion components. Their value is inverse control and acceleration, while reaction and conservation states remain explicit.",
+        "summary": "PyTorchFire（2025）用可微元胞自动机模拟野火蔓延；DeepFlame（2025）用神经组件加速详细燃烧计算。Fire-X（SIGGRAPH Asia 2025）是相关的非神经研究，重点是多组分热力学、粒子网格耦合与灭火过程。可微分、神经预测和传统多相模拟属于不同概念，不能把 Fire-X 标成神经或可微火焰模型。",
         "sourceIds": [
           "pFireX",
           "pTorchFire",
@@ -1175,43 +1306,43 @@
       }
     },
     {
-      "heading": "Cloth and fiber: shells, yarns, and contact",
+      "heading": "布料与软体：网格、材料和自碰撞",
       "paragraphs": [
-        "Cloth is a thin anisotropic structure: it resists stretching strongly, shears differently along warp and weft, bends easily, and develops detail through contact. Triangle-shell, FEM, mass–spring, PBD, and XPBD models approximate those energies at different cost and controllability.",
-        "Fiber or yarn-level simulation moves below the homogenized sheet and resolves interlocking loops and friction. It produces characteristic knit and weave behavior, but requires much more geometry and collision work. Most real-time systems therefore use shell dynamics plus material parameters measured or tuned for the fabric."
+        "布料是容易弯曲、较难拉长的薄结构。模拟网格顶点可作为粒子，边长控制拉伸，面内材料方向的夹角控制剪切，相邻三角形的二面角控制弯曲。斜向弹簧可以近似剪切，但剪切是布面内的角度变化，折叠主要对应面外弯曲；两者不能混为一谈。",
+        "质量弹簧模型从长度误差计算力，PBD/XPBD 直接迭代修正位置，有限元从形变、应力和能量导出节点力。三角形壳适合薄布，四面体有限元适合有内部体积的软体。面积约束可控制局部面积变化，体积约束用于封闭体或体单元；它们不能单独替代完整材料模型。角色布料还要处理身体碰撞、布料自碰撞，以及模拟网格到渲染网格的映射。"
       ],
       "equations": [
         {
-          "label": "Elastic energy",
+          "label": "布料弹性能",
           "expression": "E(x)=E_stretch+E_shear+E_bend",
           "terms": [
-            "Internal force follows f_int=-∂E/∂x."
+            "总能量由拉伸、剪切和弯曲贡献组成；各项刚度和材料方向决定响应。"
           ]
         },
         {
-          "label": "Implicit integration",
+          "label": "线性化隐式积分",
           "expression": "(M-Δt² ∂f/∂x)Δv = Δt(f+Δt(∂f/∂x)v)",
           "terms": [
-            "Solving a linearized system permits larger steps for stiff cloth."
+            "M 为质量矩阵，∂f/∂x 为力对位置的导数；求解线性化系统得到速度增量 Δv，此简化式省略速度相关力的导数。"
           ]
         }
       ],
       "keywordSourceGroups": [
         {
           "keywords": [
-            "cloth",
-            "mass–spring",
-            "triangle shell",
-            "FEM",
-            "stretching",
-            "shearing",
-            "bending",
-            "anisotropy",
-            "implicit integration",
-            "PBD",
-            "XPBD"
+            "布料",
+            "质量弹簧模型",
+            "三角形壳",
+            "有限元法（FEM）",
+            "拉伸与距离约束",
+            "剪切约束",
+            "弯曲约束",
+            "各向异性",
+            "隐式积分",
+            "PBD 布料",
+            "XPBD 布料"
           ],
-          "summary": "Sheet models encode cloth through elastic energies or constraints on a triangle mesh.",
+          "summary": "布料模型把拉伸、面内剪切与面外弯曲写成弹性力、能量或位置约束。",
           "sourceIds": [
             "pCloth",
             "pPbd",
@@ -1219,79 +1350,68 @@
           ],
           "details": [
             {
-              "keyword": "cloth",
-              "explanation": "A thin deformable surface with high in-plane stiffness, low bending stiffness, and frequent self-contact.",
-              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+              "keyword": "布料",
+              "explanation": "高面内刚度、低弯曲刚度的薄变形体，经常发生身体碰撞和自接触。"
             },
             {
-              "keyword": "mass–spring",
-              "explanation": "A network of point masses connected by stretch, shear, and bend springs.",
+              "keyword": "质量弹簧模型",
+              "explanation": "将有质量的节点用弹簧连接，按当前长度与静止长度的差求力。结构边控制拉伸，斜向连接可近似剪切，更远连接可近似弯曲；很硬的显式弹簧要求更小步长。",
               "equation": {
                 "expression": "F_s=-k(|x|-l₀)x/|x|",
-                "note": "Spring stiffness and rest length define the force."
-              },
-              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+                "note": "x 是弹簧两端的相对位移，l₀ 为静止长度，k 为弹簧刚度。"
+              }
             },
             {
-              "keyword": "triangle shell",
-              "explanation": "A discretized thin surface whose membrane and bending energies are evaluated on triangles and edges.",
-              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+              "keyword": "三角形壳",
+              "explanation": "用三角形表示薄表面，在面内计算拉伸与剪切，在相邻面间计算弯曲；无需把薄布内部填满四面体。"
             },
             {
-              "keyword": "FEM",
-              "explanation": "Finite Element Method discretizes continuum strain energy into elements and derives forces from material laws.",
+              "keyword": "有限元法（FEM）",
+              "explanation": "把连续材料划分成有节点的单元；由节点位置求单元形变和应变，通过材料本构关系得到应力，再组装成节点内力并更新状态。节点不是单元，力也不只是沿网格边逐段传递。",
               "equation": {
                 "expression": "f_int=-∂E/∂x",
-                "note": "The energy may be anisotropic and nonlinear."
-              },
-              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+                "note": "E 为总弹性势能，x 为节点位置；能量可以包含非线性与各向异性。"
+              }
             },
             {
-              "keyword": "stretching",
-              "explanation": "Resistance to length changes along the fabric surface.",
-              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+              "keyword": "拉伸与距离约束",
+              "explanation": "距离约束用两点当前距离减去静止长度作为误差，再按逆质量分配位置修正；固定点逆质量为零。它控制长度变化，不直接决定材料所有方向的应力。"
             },
             {
-              "keyword": "shearing",
-              "explanation": "Resistance to changes in the angle between material directions.",
-              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+              "keyword": "剪切约束",
+              "explanation": "限制布面内两条材料方向的夹角变化。矩形变成平行四边形属于剪切；斜向距离或基于应变的约束都可以近似这种响应。"
             },
             {
-              "keyword": "bending",
-              "explanation": "Resistance to curvature changes, commonly evaluated across adjacent triangle edges.",
-              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+              "keyword": "弯曲约束",
+              "explanation": "限制曲率或相邻三角形二面角相对静止值的变化，主要控制面外折叠，与面内剪切不同。"
             },
             {
-              "keyword": "anisotropy",
-              "explanation": "Direction-dependent behavior that distinguishes warp, weft, and bias response.",
-              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+              "keyword": "各向异性",
+              "explanation": "沿经向、纬向和斜向采用不同材料响应，使布料具有方向性。"
             },
             {
-              "keyword": "implicit integration",
-              "explanation": "A time update that solves for forces at the new state, enabling larger steps for stiff cloth.",
-              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+              "keyword": "隐式积分",
+              "explanation": "把新状态下的力纳入求解，通常能在较硬材料上使用较大步长，但每步求解成本也更高。"
             },
             {
-              "keyword": "PBD",
-              "explanation": "A robust projection method that enforces cloth constraints directly on positions.",
-              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+              "keyword": "PBD 布料",
+              "explanation": "将前文的位置投影用于距离、剪切、弯曲和接触约束；迭代次数会影响有效刚度。"
             },
             {
-              "keyword": "XPBD",
-              "explanation": "A compliant constraint formulation that makes material stiffness less dependent on solver settings.",
-              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+              "keyword": "XPBD 布料",
+              "explanation": "为不同布料约束设置柔顺度，并累积乘子修正，使材料参数更稳定；基础更新公式见粒子章节，增加柔顺度通常表示更软的约束。"
             }
           ]
         },
         {
           "keywords": [
-            "fiber",
-            "yarn-level simulation",
-            "friction",
-            "self-collision",
-            "tearing"
+            "纤维",
+            "纱线级模拟",
+            "摩擦",
+            "自碰撞",
+            "撕裂"
           ],
-          "summary": "Sub-structure and contact create the folds, locking, and failure modes that distinguish fabrics.",
+          "summary": "纱线结构、摩擦、自碰撞与撕裂决定褶皱如何锁住、滑动和分离。",
           "sourceIds": [
             "pYarn",
             "pClothCollision",
@@ -1299,207 +1419,248 @@
           ],
           "details": [
             {
-              "keyword": "fiber",
-              "explanation": "A slender material strand; many fibers form yarn and interlaced yarns form fabric.",
-              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+              "keyword": "纤维",
+              "explanation": "构成纱线的细长材料单元，多根纤维组成纱线，再由纱线织成布。"
             },
             {
-              "keyword": "yarn-level simulation",
-              "explanation": "Explicit simulation of knitted or woven yarn paths rather than a homogenized sheet.",
-              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+              "keyword": "纱线级模拟",
+              "explanation": "显式模拟针织线圈或编织纱线路径，可表现咬合与滑动，但几何和接触成本明显更高。"
             },
             {
-              "keyword": "friction",
-              "explanation": "Tangential contact resistance that controls sliding, fold locking, and yarn interaction.",
+              "keyword": "摩擦",
+              "explanation": "接触面之间阻碍相对切向滑动的作用，影响衣服滑动和褶皱锁定。",
               "equation": {
                 "expression": "|F_t|≤μ|F_n|",
-                "note": "Coulomb friction caps tangential force by normal load."
-              },
-              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+                "note": "μ 为摩擦系数，法向载荷决定切向摩擦上限。"
+              }
             },
             {
-              "keyword": "self-collision",
-              "explanation": "Detection and response preventing distant parts of the same cloth from passing through each other.",
-              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+              "keyword": "自碰撞",
+              "explanation": "用空间哈希或 BVH 找到同一块布上靠近的非邻接区域，再做点–面、边–边距离或连续检测；边界特征还会涉及点–边。排除同一三角形、共享边等天然相邻组合时要依据拓扑，避免把邻接结构推开，也不能屏蔽本该发生的折叠接触。只有粒子间排斥可能漏掉从大三角形内部穿过的情况。"
             },
             {
-              "keyword": "tearing",
-              "explanation": "Topological separation triggered when strain, stress, or a damage variable exceeds a threshold.",
-              "aiNote": "Neural cloth systems learn deformation or recover simulation-ready assets; robust constraints, material parameters, and contact remain central to generalization."
+              "keyword": "撕裂",
+              "explanation": "当应变、应力或损伤超过阈值时改变拓扑，分离节点或连接，并更新约束、邻接过滤和碰撞结构。"
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "面积约束",
+            "体积约束"
+          ],
+          "summary": "距离、弯曲与剪切之外，面积和体积约束控制不同的几何量。",
+          "sourceIds": [
+            "pPbd",
+            "pXpbd"
+          ],
+          "details": [
+            {
+              "keyword": "面积约束",
+              "explanation": "限制三角形或局部片区的面积相对静止面积的变化。面积不变仍可能发生剪切，或一个方向拉长、另一个方向缩短，所以通常要配合方向性的拉伸与剪切模型。"
+            },
+            {
+              "keyword": "体积约束",
+              "explanation": "限制四面体或封闭表面围成的体积相对目标的变化，适用于软体、充气物体等。普通开口布片没有封闭体积；体积不变也不代表形状和剪切刚度正确。"
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "四面体有限元"
+          ],
+          "summary": "四面体有限元在物体内部计算体积形变与材料应力。",
+          "sourceIds": [
+            "pPhysxSoft"
+          ],
+          "details": [
+            {
+              "keyword": "四面体有限元",
+              "explanation": "将内部划分为四面体单元，由静止和当前节点位置计算形变梯度，再经本构关系得到应力并组装节点内力。它能描述体积压缩和剪切，但效果取决于材料模型、网格质量与求解精度；提高分辨率会同时增加内部求解和接触成本。"
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "Chaos Cloth"
+          ],
+          "summary": "Chaos Cloth 的功能扩展需要同时考虑资产设置、材料约束和接触成本。",
+          "sourceIds": [
+            "pChaosPanel"
+          ],
+          "details": [
+            {
+              "keyword": "Chaos Cloth",
+              "explanation": "Panel Cloth 工作流可区分模拟网格和渲染网格，通过 Dataflow、权重图与碰撞资产配置角色布料，并提供可选 XPBD 约束和水平集体积碰撞（LSV）。扩展时要检查约束参数、身体碰撞、自碰撞厚度和过滤；底层优化则先定位候选检测、约束求解还是网格映射的瓶颈。自碰撞加速结构与可用约束应按所用引擎版本的源码和文档核对。"
             }
           ]
         }
       ],
       "aiResearch": {
-        "summary": "PGC reconstructs a simulation-ready garment with Gaussian appearance, SimAvatar generates separable garment and hair assets, and SAFT optimizes fabric dynamics through differentiable simulation. These systems increasingly connect learned capture to conventional physical assets.",
+        "summary": "PGC、SimAvatar 和 SAFT（均为 2025 年工作）连接服装重建、可模拟资产和可微布料拟合。它们与直接预测有限元结果的代理模型属于不同任务：前者常恢复资产或参数，后者学习给定条件下的力学响应。",
         "sourceIds": [
           "pPgc",
           "pSimAvatar",
-          "pSaft"
+          "pSaft",
+          "pFemSurrogate"
+        ],
+        "explanations": [
+          {
+            "title": "有限元代理：从离线求解学习响应",
+            "text": [
+              "先离线改变几何、载荷、材料和边界条件，运行有限元得到位移、形变或应力，再训练网络预测这些结果。运行时输入相应条件，直接近似响应，或给常规求解器提供初值。2024 年关于贝叶斯神经网络材料响应的预印本展示了应力场代理与不确定性估计。静态应力代理并不自动成为动态布料求解器；新拓扑、大形变和未见接触需要另外验证。它也可以使用 MLP、GNN 或其他网络，所以“有限元代理”描述的是任务和数据来源，而不是单独的网络结构。"
+            ]
+          }
         ]
       }
     },
     {
-      "heading": "Collision: broad phase, intersection, and push out",
+      "heading": "碰撞：候选筛选、精确检测与约束求解",
       "paragraphs": [
-        "Collision handling is a pipeline. The broad phase rejects obviously separated pairs with cheap bounding volumes; the narrow phase computes actual separation or penetration; continuous collision detection checks motion between frames; the response stage applies impulses, friction, or positional correction.",
-        "AABB and k-DOP are not competing full solvers. They are bounding volumes used to organize candidate tests, often inside a BVH. Push out is a positional repair based on contact normal and penetration depth; it should complement velocity response, not silently replace time-of-impact handling."
+        "碰撞处理分三层：宽相用包围体或空间索引筛出候选对；窄相对实际形状计算接触点、距离、法线和穿透；响应与求解阶段再改变速度或位置。SAT、GJK、EPA 属于凸体几何查询，接触冲量与 PGS/TGS 属于约束求解，窄相本身不是碰撞响应。",
+        "几何检测得到接触后，求解器需要同时考虑双方质量、惯性、接触点相对速度、恢复系数和摩擦。一次接触修正会影响同一物体的其他接触，因此通常要迭代求解整个连接系统。高速运动还要使用连续碰撞检测；已经穿透后的推出修正不能替代碰撞发生时间的检测。"
       ],
       "equations": [
         {
-          "label": "Normal impulse",
+          "label": "法向碰撞冲量",
           "expression": "j = -(1+e)(v_rel·n) / (m_A⁻¹+m_B⁻¹+rotational terms)",
           "terms": [
-            "Apply ±jn to change velocity; e is restitution."
+            "v_rel 为接触点相对速度，n 为法线，e 为恢复系数；分母还包括惯性张量和接触力臂的旋转贡献。"
           ]
         },
         {
-          "label": "Positional correction",
+          "label": "有限的位置修正",
           "expression": "Δx = β max(d-slop,0) n",
           "terms": [
-            "d is penetration depth and β limits aggressive push out."
+            "d 为穿透深度，slop 为允许误差，β 限制修正强度；双方还需按有效质量分配修正。"
           ]
         }
       ],
       "keywordSourceGroups": [
         {
           "keywords": [
-            "collision",
-            "broad phase",
-            "AABB",
-            "KDOP",
-            "k-DOP",
-            "BVH",
-            "spatial partitioning"
+            "碰撞处理",
+            "宽相检测",
+            "轴对齐包围盒（AABB）",
+            "KDOP 写法",
+            "离散方向包围多面体（k-DOP）",
+            "包围体层次结构（BVH）",
+            "空间划分"
           ],
-          "summary": "Bounding volumes and hierarchies cheaply reduce millions of possible object pairs to a manageable candidate set.",
+          "summary": "包围体、树和空间划分负责排除不可能接触的物体对。",
           "sourceIds": [
             "pBox2d",
             "pKdop",
-            "pCcd"
+            "pCcd",
+            "pParallelCollision"
           ],
           "details": [
             {
-              "keyword": "collision",
-              "explanation": "The detection and response process that prevents simulated bodies from occupying incompatible space.",
-              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+              "keyword": "碰撞处理",
+              "explanation": "检测形状是否接近或相交，再施加响应以限制不允许的相对运动。"
             },
             {
-              "keyword": "broad phase",
-              "explanation": "A conservative candidate search using cheap bounds before exact geometry tests.",
-              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+              "keyword": "宽相检测",
+              "explanation": "用保守而便宜的测试生成候选对，允许多报候选，但应避免漏掉真正的接触。"
             },
             {
-              "keyword": "AABB",
-              "explanation": "Axis-aligned bounding box stored as minimum and maximum coordinates; overlap is tested independently per axis.",
+              "keyword": "轴对齐包围盒（AABB）",
+              "explanation": "只保存 x、y、z 的最小值与最大值，逐轴比较区间是否重叠。扫描排序法可将区间端点排序，维护重叠候选，再检查其他轴。",
               "equation": {
                 "expression": "overlap ⇔ max_A≥min_B and max_B≥min_A on x,y,z",
-                "note": "Failure on any axis separates the boxes."
-              },
-              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+                "note": "任一轴不重叠即可排除这对包围盒。"
+              }
             },
             {
-              "keyword": "KDOP",
-              "explanation": "Common informal spelling of k-DOP, a convex bound defined by extrema along a fixed set of k plane-normal directions.",
-              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+              "keyword": "KDOP 写法",
+              "explanation": "KDOP 通常是 k-DOP 的另一种写法，并非另一个求解算法。"
             },
             {
-              "keyword": "k-DOP",
-              "explanation": "A discrete-orientation polytope that fits objects more tightly than an AABB while retaining interval overlap tests.",
+              "keyword": "离散方向包围多面体（k-DOP）",
+              "explanation": "使用若干固定方向上的投影上下界夹住物体，通常比 AABB 贴合，但每次重叠测试更贵。",
               "equation": {
                 "expression": "[min_i,max_i] for i=1…k/2",
-                "note": "Each direction pair defines one projection interval."
-              },
-              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+                "note": "k 个平面构成 k/2 对投影区间。"
+              }
             },
             {
-              "keyword": "BVH",
-              "explanation": "A bounding-volume hierarchy whose internal nodes enclose descendants so entire branches can be rejected.",
-              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+              "keyword": "包围体层次结构（BVH）",
+              "explanation": "父节点包住子节点和几何，两个节点不重叠就跳过整批图元；可用于物体间检测或布料自碰撞。LBVH 的并行构建见粒子章节。"
             },
             {
-              "keyword": "spatial partitioning",
-              "explanation": "A grid, tree, sweep, or hash that organizes objects by space to avoid all-pairs testing.",
-              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+              "keyword": "空间划分",
+              "explanation": "通过网格、哈希、树或区间扫描减少两两测试。均匀格适合尺度接近的对象，尺度悬殊时要考虑大物体跨格和密集区域负载。"
             }
           ]
         },
         {
           "keywords": [
-            "intersection",
-            "narrow phase",
-            "SAT",
-            "GJK",
+            "相交查询",
+            "窄相检测",
+            "分离轴定理（SAT）",
+            "GJK 与支撑映射",
             "EPA",
-            "discrete collision detection",
-            "CCD",
-            "time of impact"
+            "离散碰撞检测",
+            "连续碰撞检测（CCD）",
+            "首次碰撞时间（TOI）"
           ],
-          "summary": "The narrow phase asks whether actual shapes overlap and, for moving shapes, when contact first occurs.",
+          "summary": "窄相查询实际几何，连续检测再考虑一个时间步内的运动。",
           "sourceIds": [
             "pBox2d",
             "pCcd",
-            "pKdop"
+            "pJoltEpa"
           ],
           "details": [
             {
-              "keyword": "intersection",
-              "explanation": "A geometric query asking whether two shapes share any point or whether a ray crosses a primitive.",
-              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+              "keyword": "相交查询",
+              "explanation": "三角形–三角形查询判断两片几何是否相交，需要处理共面和退化情况；薄布接触还应考虑厚度距离，不能只等到面已经相交才响应。"
             },
             {
-              "keyword": "narrow phase",
-              "explanation": "Accurate pairwise testing that returns contact features, distance, normal, or penetration after broad-phase pruning.",
-              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+              "keyword": "窄相检测",
+              "explanation": "对宽相候选计算实际距离、接触特征、法线或穿透。球和胶囊可使用简单距离查询，凸体可用 SAT 或 GJK 等算法。"
             },
             {
-              "keyword": "SAT",
-              "explanation": "Separating Axis Theorem: two convex shapes are disjoint if any candidate axis has non-overlapping projection intervals.",
-              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+              "keyword": "分离轴定理（SAT）",
+              "explanation": "只要存在投影区间不重叠的轴，两个凸体就不相交。凸多面体通常检查面法线与两组边方向的叉积；随便选几个轴只能排除部分情况，不能保证正确判断相交。"
             },
             {
-              "keyword": "GJK",
-              "explanation": "An iterative support-mapping algorithm that computes separation or detects intersection between convex shapes via the Minkowski difference.",
-              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+              "keyword": "GJK 与支撑映射",
+              "explanation": "在闵可夫斯基差集 A−B = {a−b} 中迭代构造单纯形，判断原点是否在差集中或求到原点的距离。支撑点是沿方向 d 使点积最大的点，差集支撑映射由 A 在 d 上的支撑点减去 B 在 −d 上的支撑点得到；搜索方向由当前单纯形决定。三维各坐标分量都有正有负，并不足以证明差集包含原点。"
             },
             {
               "keyword": "EPA",
-              "explanation": "Expanding Polytope Algorithm extends an intersecting GJK simplex to estimate penetration normal and depth.",
-              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+              "explanation": "从包含原点的非退化 GJK 单纯形构造多面体，沿最近边界面的法线查询新的支撑点并扩展，收敛后估计穿透法线和深度；需要容差与退化处理。"
             },
             {
-              "keyword": "discrete collision detection",
-              "explanation": "Testing geometry only at sampled simulation states; fast objects can tunnel between states.",
-              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+              "keyword": "离散碰撞检测",
+              "explanation": "只检查若干离散状态，高速小物体可能从一侧移动到另一侧而没有任何采样状态相交。"
             },
             {
-              "keyword": "CCD",
-              "explanation": "Continuous collision detection checks swept motion over a time interval to prevent tunneling.",
-              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+              "keyword": "连续碰撞检测（CCD）",
+              "explanation": "检查时间区间内的运动。射线查询适合点沿线段运动，有限尺寸物体要做形状扫掠，并处理旋转。保守推进根据当前分离距离与闭合速度的保守上界计算安全步长，反复推进到接触容差；只用质心速度可能漏掉旋转扫过的碰撞。"
             },
             {
-              "keyword": "time of impact",
-              "explanation": "The earliest normalized time in a step at which two moving shapes touch.",
+              "keyword": "首次碰撞时间（TOI）",
+              "explanation": "沿约定运动轨迹首次接触的时间。求得后可先推进到事件，再求响应并处理剩余时间；不同 CCD 策略不一定显式求精确 TOI。",
               "equation": {
                 "expression": "t_hit=min{t∈[0,1] | distance(A(t),B(t))=0}",
-                "note": "A solver advances to this event before response."
-              },
-              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+                "note": "t 在本时间步内归一化为 0 到 1；实际算法使用接触容差。"
+              }
             }
           ]
         },
         {
           "keywords": [
-            "push out",
-            "contact normal",
-            "penetration depth",
-            "contact manifold",
-            "impulse",
-            "restitution",
-            "Coulomb friction",
-            "positional correction"
+            "推出修正",
+            "接触法线",
+            "穿透深度",
+            "接触流形",
+            "碰撞冲量",
+            "恢复系数",
+            "库仑摩擦",
+            "位置修正"
           ],
-          "summary": "Contact geometry drives velocity impulses and a limited positional repair.",
+          "summary": "接触几何为冲量、摩擦与有限的位置修正提供输入。",
           "sourceIds": [
             "pBox2d",
             "pClothCollision",
@@ -1507,62 +1668,125 @@
           ],
           "details": [
             {
-              "keyword": "push out",
-              "explanation": "A direct positional displacement along a contact normal used to reduce existing overlap.",
-              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+              "keyword": "推出修正",
+              "explanation": "沿接触法线改变位置，减小已经发生的穿透；修正过大可能造成跳动或引入额外能量。"
             },
             {
-              "keyword": "contact normal",
-              "explanation": "A unit direction along which the shapes should separate and normal impulse is applied.",
-              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+              "keyword": "接触法线",
+              "explanation": "表示局部分离方向的单位向量，确定法向冲量和位置修正的方向。"
             },
             {
-              "keyword": "penetration depth",
-              "explanation": "The minimum translation distance estimated to separate overlapping shapes along the chosen normal.",
-              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+              "keyword": "穿透深度",
+              "explanation": "沿所选分离方向将形状移开所需的距离估计，与法线和几何算法有关。"
             },
             {
-              "keyword": "contact manifold",
-              "explanation": "A compact set of persistent contact points representing an extended patch between two bodies.",
-              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+              "keyword": "接触流形",
+              "explanation": "用少量持续接触点近似一片接触区域，有助于稳定堆叠和热启动。"
             },
             {
-              "keyword": "impulse",
-              "explanation": "An instantaneous momentum change used to enforce non-penetrating velocity at contact.",
+              "keyword": "碰撞冲量",
+              "explanation": "先求接触点相对速度，其中包含线速度和角速度产生的局部速度，再结合质量、惯性与力臂计算冲量。线速度变化为 J/m，角速度变化为 I⁻¹(r×J)；双方受到大小相等、方向相反的冲量。",
               "equation": {
                 "expression": "Δp=J",
-                "note": "Linear velocity changes by J/m."
-              },
-              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+                "note": "J 为冲量，Δp 为线动量变化；接触点偏离质心还会改变角动量。"
+              }
             },
             {
-              "keyword": "restitution",
-              "explanation": "A coefficient controlling normal bounce by relating separating and approaching speeds.",
+              "keyword": "恢复系数",
+              "explanation": "控制碰撞法向回弹程度，用分离速度与接近速度的关系描述。",
               "equation": {
                 "expression": "v_sep=-e v_approach",
-                "note": "e=0 is inelastic; e=1 preserves normal speed."
-              },
-              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+                "note": "e = 0 表示该法向碰撞无回弹，e = 1 对应理想弹性法向响应。"
+              }
             },
             {
-              "keyword": "Coulomb friction",
-              "explanation": "A tangential impulse constrained by the normal impulse and friction coefficient.",
+              "keyword": "库仑摩擦",
+              "explanation": "切向接触冲量受法向冲量和摩擦系数限制；静摩擦在允许范围内抵消滑动趋势，动摩擦通常达到边界。",
               "equation": {
                 "expression": "|j_t|≤μj_n",
-                "note": "Static friction stays inside the cone; sliding reaches the limit."
-              },
-              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+                "note": "j_n 为非负法向冲量，μ 为摩擦系数。"
+              }
             },
             {
-              "keyword": "positional correction",
-              "explanation": "A bounded post-solve displacement that removes accumulated overlap without adding excessive energy.",
-              "aiNote": "Learned contact models can accelerate or differentiate response, but broad-phase pruning and geometric narrow-phase tests remain reliable safety boundaries."
+              "keyword": "位置修正",
+              "explanation": "有限度地减少累积穿透，通常与速度约束和允许误差配合，而不是每帧无限制地把所有物体强行推开。"
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "球与胶囊查询"
+          ],
+          "summary": "球和胶囊的精确距离查询适合简单碰撞形状。",
+          "sourceIds": [
+            "pBox2d"
+          ],
+          "details": [
+            {
+              "keyword": "球与胶囊查询",
+              "explanation": "球–球检测比较球心距离与两半径之和。点–胶囊先求点到中心线段的最近点，再比较半径；球–胶囊还要加上球半径，胶囊–胶囊则求两条线段的最近点。最近点必须限制在线段端点范围内，不能当作无限直线。"
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "投影高斯–赛德尔（PGS）",
+            "时间高斯–赛德尔（TGS）"
+          ],
+          "summary": "接触与关节约束相互影响，PGS 与 TGS 用不同的迭代安排减小误差。",
+          "sourceIds": [
+            "pSolver2d"
+          ],
+          "details": [
+            {
+              "keyword": "投影高斯–赛德尔（PGS）",
+              "explanation": "逐个处理接触或关节，计算冲量增量，将累积冲量投影到允许范围，再立即更新速度，后面的约束使用更新后的结果。多轮迭代降低误差；“投影”例如要求法向冲量不能为负，而不是直接把所有位置推到目标。"
+            },
+            {
+              "keyword": "时间高斯–赛德尔（TGS）",
+              "explanation": "把大时间步拆成小子步，在位姿变化后持续更新接触分离距离和约束误差。可复用局部接触锚点，避免每个子步都重新执行完整碰撞检测；它不只是换个顺序运行 PGS，也不表示新接触永远不需要刷新。"
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "线性互补问题（LCP）",
+            "混合线性互补问题（MLCP）"
+          ],
+          "summary": "互补条件描述单向接触；混合系统还包含关节等双向等式约束。",
+          "sourceIds": [
+            "pComplementarity"
+          ],
+          "details": [
+            {
+              "keyword": "线性互补问题（LCP）",
+              "explanation": "理想单向接触可写成间隙 g ≥ 0、法向推力 λ ≥ 0、gλ = 0：分离时不能靠接触力隔空推拉，接触时可以有非负推力。离散 LCP 常写成 w = Aλ + b，再要求 w ≥ 0、λ ≥ 0、wᵀλ = 0；其中 w 往往是含稳定化项的分离速度残差，不一定就是距离。摩擦还需相应的约束或近似。"
+            },
+            {
+              "keyword": "混合线性互补问题（MLCP）",
+              "explanation": "把关节等双向等式约束与接触等单向互补约束放进同一系统。落地物体可通过连接把作用传到悬空物体，这是约束耦合的结果；MLCP 的“混合”指约束类型混合，并不定义为“没接地的物体也受推力”。"
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "PhysX 的概念流程与休眠"
+          ],
+          "summary": "PhysX 将几何检测、约束组织和状态更新安排成可调度的任务。",
+          "sourceIds": [
+            "pPhysxSimulation",
+            "pPhysxRigid"
+          ],
+          "details": [
+            {
+              "keyword": "PhysX 的概念流程与休眠",
+              "explanation": "可概括为：更新外力与运动预测→碰撞检测→生成接触约束→按连接关系构建模拟岛→求解接触和关节等约束→提交位置与姿态→更新休眠状态。实际任务可重叠或在子步交错，具体取决于求解器、CCD 和执行路径。休眠会暂停足够静止对象的重复计算，受到新的作用或连接对象唤醒时再恢复。"
             }
           ]
         }
       ],
       "aiResearch": {
-        "summary": "Recent differentiable collision work focuses on stable gradients through contact, while few-shot neural simulators learn local contact behavior from sparse examples. Geometry-based broad and narrow phases remain essential for coverage and safety.",
+        "summary": "可微碰撞研究关心接触处的梯度，神经接触模型关心从数据预测响应。它们仍需面对新接触、摩擦和长时间累积误差；几何检测、约束可行性与学习预测应分别检查。",
         "sourceIds": [
           "pDiffCollision",
           "pNeuralContact",
@@ -1571,5 +1795,5 @@
       }
     }
   ],
-  "closing": "Particles provide moving samples; wind and volumetric solvers transport fields; clouds add phase change; oceans connect spectra to local free surfaces; fire couples reaction and flow; cloth turns thin-material energy into folds; collision keeps every representation mutually consistent. Modern AI is most useful as an inverse model, asset generator, or surrogate around these mechanisms—not as a reason to stop defining state, units, boundaries, conservation, and contact."
+  "closing": "粒子、固定网格和有限元决定状态如何表示，积分和材料模型决定状态如何演化，约束与碰撞负责限制不允许的运动。水、雾和布料共享这些基础，但保留的物理量和边界条件不同。并行计算改变任务如何执行；神经模型学习其中的映射，两者都需要明确输入、输出以及误差会在哪里累积。"
 }

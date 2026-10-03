@@ -1,12 +1,12 @@
 {
   "slug": "animation-systems-vertices-cages-rigs-deformation-motion",
   "title": "Animation Systems - Vertices, Cages, Rigs, Deformation, and Motion",
-  "abstract": "A representation-first guide to vertex and cage animation, rigs and skinning, FK/IK and retargeting, skin and muscle deformation, hair simulation, facial controls, and runtime transformations.",
+  "abstract": "Connect geometric deformation to character playback, blending, skeletal evaluation, interpolation, state machines, compression, and data-driven motion.",
   "category": "Animation research guide",
   "publishedAt": "2026-08-20",
   "image": "/content/blog/Animation Systems - Vertices, Cages, Rigs, Deformation, and Motion/animation-systems.svg",
   "imageAlt": "One character mesh progresses from vertex samples and a control cage through a skeleton, muscles, hair strands, facial shapes, and a motion trajectory",
-  "lede": "Animation systems differ mainly in what they control: final vertices, a surrounding cage, a joint hierarchy, physical tissue, strands, semantic facial shapes, or time-varying transforms. This guide preserves the supplied vocabulary—including the ambiguous term GX—adds the missing production concepts around it, and connects each group to foundational documentation, primary papers, equations, and current AI research without treating learned output as a substitute for runtime contracts.",
+  "lede": "Character animation needs both a shape representation and a way to produce motion over time. Vertex, cage, and rig methods define deformation; playback and state logic select motion; blending, FK/IK, skinning, and correctives produce the visible result. Compression changes how motion is stored, while learned methods can supply poses or control policies.",
   "sourceCatalog": {
     "aGltf": {
       "label": "glTF 2.0 specification: meshes, skins, and animation",
@@ -251,6 +251,98 @@
     "aBlendSpaces": {
       "label": "Unreal Engine: Blend Spaces",
       "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/blend-spaces-in-unreal-engine"
+    },
+    "aMontage": {
+      "label": "Unreal Engine: Animation Montage Editor",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/animation-montage-editor-in-unreal-engine"
+    },
+    "aRootMotion": {
+      "label": "Unreal Engine: Root Motion",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/root-motion-in-unreal-engine"
+    },
+    "aBlendNodes": {
+      "label": "Unreal Engine: Blend Nodes and Inertialization",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/animation-blueprint-blend-nodes-in-unreal-engine"
+    },
+    "aBlend2D": {
+      "label": "Godot: AnimationNodeBlendSpace2D",
+      "url": "https://docs.godotengine.org/en/stable/classes/class_animationnodeblendspace2d.html"
+    },
+    "aStateMachines": {
+      "label": "Unreal Engine: State Machines",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/state-machines-in-unreal-engine"
+    },
+    "aTransitions": {
+      "label": "Unreal Engine: Transition Rules",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/transition-rules-in-unreal-engine"
+    },
+    "aNestedStates": {
+      "label": "Unity: Sub-state machines",
+      "url": "https://docs.unity3d.com/Manual/NestedStateMachines.html"
+    },
+    "aSpring": {
+      "label": "Daniel Holden: Spring-It-On — The Game Developer’s Spring-Roll-Call",
+      "url": "https://theorangeduck.com/page/spring-roll-call"
+    },
+    "aBezier": {
+      "label": "W3C: CSS Easing Functions — cubic Bézier curves",
+      "url": "https://www.w3.org/TR/css-easing-1/"
+    },
+    "aCatmullRom": {
+      "label": "Yuksel, Schaefer, Keyser: Parameterization of Catmull–Rom Curves",
+      "url": "https://www.cemyuksel.com/research/catmullrom_param/"
+    },
+    "aCompression": {
+      "label": "Unreal Engine: Animation Compression",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/animation-compression-in-unreal-engine"
+    },
+    "aAcl": {
+      "label": "Animation Compression Library: reference implementation",
+      "url": "https://github.com/nfrechette/acl"
+    },
+    "aAclSampling": {
+      "label": "ACL author: Manipulating the sampling time for fun and profit (2022)",
+      "url": "https://nfrechette.github.io/2022/06/05/anim_compression_rounding_time/"
+    },
+    "aAclFormats": {
+      "label": "ACL: Rotation and vector formats",
+      "url": "https://github.com/nfrechette/acl/blob/develop/docs/rotation_and_vector_formats.md"
+    },
+    "aAclError": {
+      "label": "ACL: Error metrics",
+      "url": "https://github.com/nfrechette/acl/blob/develop/docs/error_metrics.md"
+    },
+    "aAclDatabase": {
+      "label": "ACL: Database and streaming support",
+      "url": "https://github.com/nfrechette/acl/blob/develop/docs/database_support.md"
+    },
+    "aRnn": {
+      "label": "Martinez et al.: On Human Motion Prediction Using Recurrent Neural Networks (CVPR 2017)",
+      "url": "https://arxiv.org/abs/1705.02445"
+    },
+    "aMotionTransformer": {
+      "label": "Aksan et al.: A Spatio-temporal Transformer for 3D Human Motion Prediction (3DV 2021)",
+      "url": "https://ait.ethz.ch/motiontransformer"
+    },
+    "aMdm": {
+      "label": "Tevet et al.: Human Motion Diffusion Model (ICLR 2023)",
+      "url": "https://arxiv.org/abs/2209.14916"
+    },
+    "aDeepMimic": {
+      "label": "Peng et al.: DeepMimic (SIGGRAPH 2018)",
+      "url": "https://xbpeng.github.io/projects/DeepMimic/index.html"
+    },
+    "aMotionVae": {
+      "label": "Ling et al.: Character Controllers Using Motion VAEs (SIGGRAPH 2020)",
+      "url": "https://www.cs.ubc.ca/~van/papers/2020-TOG-MVAE/2020-TOG-MVAE.pdf"
+    },
+    "aActor": {
+      "label": "Petrovich et al.: Action-Conditioned 3D Human Motion Synthesis with Transformer VAE (ICCV 2021)",
+      "url": "https://arxiv.org/abs/2104.05670"
+    },
+    "aLstm": {
+      "label": "Hochreiter and Schmidhuber: Long Short-Term Memory (1997)",
+      "url": "https://www.bioinf.jku.at/publications/older/2604.pdf"
     }
   },
   "sections": [
@@ -585,7 +677,7 @@
           "details": [
             {
               "keyword": "Forward and inverse kinematics",
-              "explanation": "FK sets joint rotations and evaluates the hierarchy. IK specifies an end-effector target and solves the intervening joints. Both use the same skeleton; constraints limit acceptable solutions.",
+              "explanation": "FK evaluates a pose from local joint transforms. With column vectors, G_j = G_parent L_j: each bone inherits its parent’s component-space transform. Row-vector conventions reverse the written product. IK instead sets an end-effector target and adjusts the intervening joints; both operate on the same hierarchy.",
               "sourceIds": [
                 "aIkSolvers",
                 "aControlRigQuickStart"
@@ -615,7 +707,7 @@
             },
             {
               "keyword": "Two Bone IK",
-              "explanation": "An analytic solution for limbs such as shoulder–elbow–wrist. Bone lengths and target distance determine the bend angle; a pole target supplies the bend plane.",
+              "explanation": "For a root–joint–end chain, use the two segment lengths and root-to-target distance to solve the middle angle analytically. A pole target supplies the bend plane. Clamp unreachable targets or explicitly permit stretching, and handle fully straight or folded singular configurations.",
               "sourceIds": [
                 "aTwoBoneIk"
               ],
@@ -629,14 +721,14 @@
             },
             {
               "keyword": "CCD",
-              "explanation": "Cyclic Coordinate Descent rotates one joint at a time, usually from tip to root, to bring the end effector closer to its target. Repeated passes are inexpensive but depend on joint order and limits.",
+              "explanation": "Cyclic Coordinate Descent usually starts at the end effector’s parent, rotates that joint to reduce end-point error, and moves toward the root. Repeated passes stop at a tolerance or iteration budget. Joint limits and update order affect convergence. This CCD is an IK method, not continuous collision detection.",
               "sourceIds": [
                 "aIkSolvers"
               ]
             },
             {
               "keyword": "FABRIK",
-              "explanation": "Alternates backward and forward position updates while preserving segment lengths. It solves for joint positions rather than directly updating angles; joint constraints require additional handling.",
+              "explanation": "FABRIK pins the end point to the target and repositions joints back toward the root at fixed segment lengths. It then restores the root anchor and rebuilds the chain outward. Repeat as needed, convert segment directions back into joint rotations, and enforce limits separately.",
               "sourceIds": [
                 "aFabrik"
               ]
@@ -660,7 +752,7 @@
           "details": [
             {
               "keyword": "Bind transforms",
-              "explanation": "The bind pose establishes the mesh–skeleton reference. An inverse bind matrix removes a bone’s reference transform before its current transform is applied, as in the skinning equation below.",
+              "explanation": "The skinning matrix is the current bone transform composed with its inverse bind transform. Both must use compatible frames: G_j B_j⁻¹ assumes a common reference frame for mesh and bones. World-space bone transforms need an additional inverse current mesh transform when the output vertex is required in mesh-local space.",
               "sourceIds": [
                 "aGltf",
                 "aSkinning"
@@ -668,7 +760,7 @@
             },
             {
               "keyword": "Linear Blend Skinning",
-              "explanation": "LBS averages the positions produced by each influencing bone. It is inexpensive, but large twists can collapse volume because the average need not remain a rigid transform.",
+              "explanation": "LBS transforms a bind-pose vertex with each influencing skinning matrix, then sums the results using normalized skin weights. Blending matrix results is inexpensive but not generally a rigid transformation, so twisting joints can lose volume. Pose blending happens earlier and is a different operation.",
               "sourceIds": [
                 "aSkinning"
               ],
@@ -682,7 +774,7 @@
             },
             {
               "keyword": "Dual Quaternion Skinning",
-              "explanation": "DQS blends rigid transforms before applying the result to a vertex, reducing the characteristic twisting collapse of LBS. It still needs corrections for some poses and does not directly represent general nonuniform scaling.",
+              "explanation": "DQS encodes each bind-relative rigid skinning transform as a dual quaternion, aligns equivalent signs, blends by skin weights, and normalizes before transforming the vertex. It reduces twist collapse but can bulge and does not directly encode general nonuniform scale or shear.",
               "sourceIds": [
                 "aDqs"
               ],
@@ -1373,44 +1465,131 @@
       ]
     },
     {
-      "heading": "Animation transformations: from keys to character motion",
+      "heading": "Playback: tracks, montages, layers, and root motion",
       "paragraphs": [
-        "Once a pose is represented in the skeletal hierarchy described above, animation playback must choose motion over time and connect it to interaction targets. The useful distinctions are rotation interpolation, curve shape, layered blending, root displacement, and database search.",
-        "Basic translation, rotation, and scale remain the underlying transform components. The methods below operate on curves, clips, or motion choices rather than introducing another hierarchy representation."
+        "Playback converts a clip time into a pose. It resolves the interval between stored keys, samples each track, and processes loops and playback rate. Montage routing, body masks, additive offsets, and root-motion extraction then determine how that pose contributes to the character.",
+        "An animation track is a time-varying channel; an animation pose is the collection of sampled joint transforms and other values. Keep their reference poses and coordinate spaces consistent before combining them."
       ],
       "keywordSourceGroups": [
         {
           "keywords": [
-            "Quaternion interpolation",
-            "Cubic spline interpolation"
+            "Animation tracks and key sampling",
+            "Montage: Sections and Slots"
           ],
-          "summary": "Interpolation controls the path between authored samples.",
+          "summary": "Sampling chooses values in time; a Montage organizes playback and graph routing.",
           "details": [
             {
-              "keyword": "Quaternion interpolation",
-              "explanation": "Unit quaternions avoid Euler-angle gimbal lock. Spherical interpolation follows a constant-angular-speed arc when its parameter changes linearly; equivalent signs must be aligned for the shortest path.",
-              "sourceIds": [
-                "aQuaternion"
-              ],
-              "equation": {
-                "expression": "slerp(q₀,q₁,α)=sin((1-α)Ω)/sinΩ q₀ + sin(αΩ)/sinΩ q₁",
-                "note": [
-                  "q₀ and q₁ are unit endpoints; α runs from 0 to 1 and Ω is their spherical angle after sign alignment.",
-                  "For nearly identical endpoints, use a stable small-angle limit such as normalized linear interpolation."
-                ]
-              }
-            },
-            {
-              "keyword": "Cubic spline interpolation",
-              "explanation": "Hermite segments use endpoint values and tangents to control timing and velocity. Matching tangents across segments gives smooth transitions; tangent magnitude depends on the time parameterization.",
+              "keyword": "Animation tracks and key sampling",
+              "explanation": "For t between key times t₀ and t₁, compute α = (t−t₀)/(t₁−t₀). Translation and scale may use linear or cubic interpolation; rotations need a rotation-aware rule. The neighboring keys belong to the clip, not necessarily adjacent rendered frames. Handle end points and looping explicitly.",
               "sourceIds": [
                 "aGltf"
               ],
               "equation": {
-                "expression": "p(t)=h₀₀p₀+h₁₀m₀+h₀₁p₁+h₁₁m₁",
+                "expression": "α = (t − t₀) / (t₁ − t₀)",
                 "note": [
-                  "p₀,p₁ are endpoint values and m₀,m₁ are endpoint tangents for normalized segment time t.",
-                  "h₀₀,h₁₀,h₀₁,h₁₁ are the cubic Hermite basis functions; scale tangents to the segment duration."
+                  "Assume t₀ < t₁ and clamp or wrap clip time according to playback policy."
+                ]
+              }
+            },
+            {
+              "keyword": "Montage: Sections and Slots",
+              "explanation": "Sections define named time ranges and links for jumping or looping. Slot tracks contain animation segments; matching Slot nodes route their evaluated poses into the animation graph. Blend-in/out weights and body layers still affect the result, so a Montage is more than selecting one clip by time.",
+              "sourceIds": [
+                "aMontage"
+              ]
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "Layered and additive animation",
+            "Root motion and motion warping"
+          ],
+          "summary": "Layering combines body regions or reference-relative changes; root motion moves the actor.",
+          "details": [
+            {
+              "keyword": "Layered and additive animation",
+              "explanation": "Masks can blend upper-body aiming over locomotion. Additive animation stores a change relative to a base pose and applies a weighted change to the current pose. Translation uses subtraction/addition, while rotations use relative quaternion composition; scale follows the codec’s delta or ratio convention. Local-space and mesh-space additives are not interchangeable.",
+              "sourceIds": [
+                "aAnimationLayers",
+                "aBlendNodes"
+              ],
+              "equation": {
+                "expression": "Δp = p_anim − p_base;   p_out = p_current + w Δp",
+                "note": [
+                  "This equation covers translation only; quaternion rotation is composed rather than added component-wise."
+                ]
+              }
+            },
+            {
+              "keyword": "Root motion and motion warping",
+              "explanation": "Extract the root transform change over the evaluated interval, convert it into the movement system’s space, and let that system apply actor displacement with collision and movement-mode rules. Avoid applying the same displacement again in the skeleton. Motion warping modifies an extraction window so an authored movement reaches a scene target.",
+              "sourceIds": [
+                "aRootMotion",
+                "aMotionWarping"
+              ]
+            }
+          ]
+        }
+      ],
+      "flow": {
+        "label": "Conceptual character-animation evaluation",
+        "steps": [
+          "Advance state and clip time",
+          "Sample tracks and blend poses",
+          "Extract and consume root-motion delta",
+          "Evaluate the rig and solve IK in the required spaces",
+          "Skin the mesh and apply corrective deformation"
+        ]
+      }
+    },
+    {
+      "heading": "Blending: parameter weights and transition continuity",
+      "paragraphs": [
+        "A blend tree composes pose-producing nodes. Parameters choose weights, per-bone operations combine transforms, and transition methods connect changing sources. These are separate from skin weights, which combine bone influences on a vertex.",
+        "A walk-to-run blend also needs compatible gait phase. A smoother weight curve alone does not guarantee planted feet or correct scene contact; synchronization and IK can supply those constraints."
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Linear pose blend",
+            "Blend Space 1D",
+            "Blend Space 2D and barycentric blending"
+          ],
+          "summary": "Blend spaces choose sample weights; pose blending evaluates each bone.",
+          "details": [
+            {
+              "keyword": "Linear pose blend",
+              "explanation": "Blend corresponding bone translations and scales with weights, while normalizing or spherically interpolating rotations with sign alignment. Use compatible skeletons and spaces. Blending full matrix entries indiscriminately can introduce unintended scale or shear.",
+              "sourceIds": [
+                "aBlendNodes",
+                "aQuaternion"
+              ]
+            },
+            {
+              "keyword": "Blend Space 1D",
+              "explanation": "Find the two samples bracketing a scalar input such as speed. The normalized interval position determines their weights. Outside the sample range, define clamping or another explicit boundary rule; coincident sample coordinates need special handling.",
+              "sourceIds": [
+                "aBlendSpaces"
+              ],
+              "equation": {
+                "expression": "w₁ = (s − s₀)/(s₁ − s₀);   w₀ = 1 − w₁",
+                "note": [
+                  "Assume s₀ < s₁ and s is inside the interval."
+                ]
+              }
+            },
+            {
+              "keyword": "Blend Space 2D and barycentric blending",
+              "explanation": "A two-parameter space can triangulate sample positions, locate the containing triangle, and use its barycentric coordinates as three animation weights. Nondegenerate interior weights sum to one and are nonnegative. Other 2D schemes exist; handle outside-hull queries and degenerate layouts explicitly.",
+              "sourceIds": [
+                "aBlendSpaces",
+                "aBlend2D"
+              ],
+              "equation": {
+                "expression": "p = w₀a + w₁b + w₂c;   w₀ + w₁ + w₂ = 1",
+                "note": [
+                  "p, a, b, c are points in parameter space, not mesh vertices undergoing skinning."
                 ]
               }
             }
@@ -1418,39 +1597,370 @@
         },
         {
           "keywords": [
-            "Layered and additive blending",
-            "Root motion and motion warping",
-            "Blend spaces",
-            "Motion matching"
+            "Crossfade",
+            "Inertialization and inertial transitions"
           ],
-          "summary": "Runtime composition connects motion clips to character control.",
+          "summary": "Crossfade evaluates two moving sources; inertialization decays a captured residual.",
           "details": [
             {
-              "keyword": "Layered and additive blending",
-              "explanation": "Blends complete poses by body region or overlays changes relative to a reference pose. This permits walking with independent aiming, recoil, or breathing, without duplicating every combination as a clip.",
+              "keyword": "Crossfade",
+              "explanation": "During a transition, continue evaluating old and new animations and vary their blend weights over time. It preserves both source evolutions but costs two evaluations and may mix incompatible contacts. State transitions can request this blend without defining the interpolation rule themselves.",
               "sourceIds": [
-                "aAnimationLayers"
+                "aBlendNodes",
+                "aTransitions"
               ]
             },
             {
-              "keyword": "Root motion and motion warping",
-              "explanation": "Extracts overall displacement from an animation, then adjusts the trajectory to reach an interaction target. It connects authored movement to scene placement, for example aligning a vault to an obstacle.",
+              "keyword": "Inertialization and inertial transitions",
+              "explanation": "At a switch, capture pose and velocity offsets between the displayed state and the new source. Continue evaluating the new animation and decay the stored residual with a continuity-aware function. Rotations need relative orientation offsets. An inertial transition requests this mechanism; the old source need not keep running.",
               "sourceIds": [
-                "aMotionWarping"
+                "aBlendNodes",
+                "aTransitions"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Interpolation: vectors, rotations, curves, and springs",
+      "paragraphs": [
+        "Interpolation computes values between samples; its path and timing are separate choices. A curve parameter moving at constant speed does not necessarily produce constant spatial speed. Quaternion interpolation also needs consistent signs because q and −q represent the same rotation.",
+        "Lerp, Nlerp, and Slerp combine endpoints. Hermite, Bézier, and Catmull–Rom describe curve shape using tangents or nearby controls. Spring interpolation is different: it advances a state with velocity toward a target, so previous motion influences the next result."
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Lerp",
+            "Nlerp",
+            "Slerp"
+          ],
+          "summary": "Choose interpolation according to the value’s geometry.",
+          "details": [
+            {
+              "keyword": "Lerp",
+              "explanation": "Use (1−α)a + αb for scalars or vectors. For α between zero and one, the result lies on the straight segment. Consecutive linear segments are position-continuous but their velocities can jump at keys. A raw quaternion lerp is not generally unit length.",
+              "sourceIds": [
+                "aGltf",
+                "aQuaternion"
               ]
             },
             {
-              "keyword": "Blend spaces",
-              "explanation": "Maps continuous parameters such as speed and direction to weighted motion samples. A state machine may select the active locomotion state while the blend space handles smooth variation within it.",
+              "keyword": "Nlerp",
+              "explanation": "Align quaternion signs, linearly interpolate, then normalize. It is inexpensive and follows the short rotation arc under that sign convention, but generally not at constant angular speed. Opposite quaternion signs must be resolved before interpolating to avoid a zero-length midpoint.",
               "sourceIds": [
-                "aBlendSpaces"
+                "aQuaternion",
+                "aGltf"
+              ],
+              "equation": {
+                "expression": "nlerp(q₀,q₁,α) = normalize((1−α)q₀ + α s q₁)",
+                "note": [
+                  "Use s = −1 when q₀·q₁ < 0, otherwise s = +1."
+                ]
+              }
+            },
+            {
+              "keyword": "Slerp",
+              "explanation": "Interpolate unit quaternions along a great-circle arc on the four-dimensional unit sphere. With aligned signs and a linear time parameter, the physical rotation follows the short arc at constant angular speed. Nearly identical endpoints need a stable small-angle fallback such as Nlerp.",
+              "sourceIds": [
+                "aQuaternion"
+              ],
+              "equation": {
+                "expression": "slerp(q₀,q₁,α)=sin((1−α)Ω)/sinΩ q₀ + sin(αΩ)/sinΩ q₁",
+                "note": [
+                  "Ω is the unit-quaternion angle after sign alignment; endpoints are normalized."
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "Hermite",
+            "Bézier",
+            "Catmull–Rom"
+          ],
+          "summary": "Cubic curves differ in how their controls specify endpoints and tangents.",
+          "details": [
+            {
+              "keyword": "Hermite",
+              "explanation": "A cubic Hermite segment uses two endpoint values and two endpoint tangents. Tangents are derivatives with respect to a parameter: if stored per second but evaluated on a normalized interval, scale them by the interval duration. Consistent joining derivatives provide velocity continuity.",
+              "sourceIds": [
+                "aGltf"
+              ],
+              "equation": {
+                "expression": "p(u) = h₀₀(u)p₀ + h₁₀(u)Δt v₀ + h₀₁(u)p₁ + h₁₁(u)Δt v₁",
+                "note": [
+                  "h terms are cubic Hermite basis functions; u is normalized time and v₀,v₁ are endpoint derivatives per second."
+                ]
+              }
+            },
+            {
+              "keyword": "Bézier",
+              "explanation": "A cubic Bézier curve uses four control points: it passes through the first and last, while the inner points control endpoint tangents. Evaluate with Bernstein polynomials or repeated interpolation through de Casteljau’s algorithm. An easing curve mapping time to progress may require solving its horizontal coordinate first.",
+              "sourceIds": [
+                "aBezier",
+                "aCatmullRom"
               ]
             },
             {
-              "keyword": "Motion matching",
-              "explanation": "Searches a motion database using current pose and desired trajectory, then transitions to the selected sample’s continuation. It selects recorded motion rather than generating each pose from scratch.",
+              "keyword": "Catmull–Rom",
+              "explanation": "Four neighboring controls define the segment through the middle two; the outer controls determine tangents. Uniform, chordal, and centripetal parameterizations produce different shapes when points are unevenly spaced. Passing through keys alone does not ensure constant speed or prevent all overshoot.",
+              "sourceIds": [
+                "aCatmullRom"
+              ]
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "Spring interpolation"
+          ],
+          "summary": "Spring interpolation evolves a state instead of selecting a fixed point between endpoints.",
+          "details": [
+            {
+              "keyword": "Spring interpolation",
+              "explanation": "Use displacement from a target and current velocity in a damped spring model. Stiffness controls response speed and damping controls oscillation; the target may move every frame. Integrate stably or use an analytic update for a fixed target over the step. Rotations require an orientation-error representation rather than raw quaternion component springs.",
+              "sourceIds": [
+                "aSpring"
+              ],
+              "equation": {
+                "expression": "m ẍ + c ẋ + k(x − x_target) = 0",
+                "note": [
+                  "This form uses a target treated as fixed during the step; m, c, k are mass, damping, and stiffness."
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "State machines: discrete decisions around continuous motion",
+      "paragraphs": [
+        "A state machine chooses which motion-producing branch is active; a blend space varies motion continuously inside that branch. For example, Grounded can contain Idle and Locomotion, while Airborne contains Jump and Fall.",
+        "Evaluate transition conditions from a consistent update snapshot, apply priority and interruption rules, then request a crossfade or inertial transition. The transition trigger and pose-smoothing method should remain separate concepts."
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Finite State Machine",
+            "Hierarchical State Machine",
+            "Transition Rule"
+          ],
+          "summary": "State hierarchy organizes decisions; rules decide when a transition is allowed.",
+          "details": [
+            {
+              "keyword": "Finite State Machine",
+              "explanation": "Maintain an active state and test its eligible outgoing transitions on updates. If a rule succeeds, choose a destination according to configured priorities and interruption behavior. The state can contain a clip player or an entire blend graph; a transition may temporarily evaluate both states.",
+              "sourceIds": [
+                "aStateMachines",
+                "aTransitions"
+              ]
+            },
+            {
+              "keyword": "Hierarchical State Machine",
+              "explanation": "A parent state contains a child machine, forming an active path through the hierarchy. Parent-level transitions can leave a whole subtree, while child transitions refine local behavior. Entry, exit, history, and transition priority depend on the engine and configuration; a hierarchy is not a set of unrelated machines.",
+              "sourceIds": [
+                "aNestedStates",
+                "aStateMachines"
+              ]
+            },
+            {
+              "keyword": "Transition Rule",
+              "explanation": "Compute whether a transition is allowed from inputs such as speed, grounded state, or remaining animation time. Threshold hysteresis prevents rapid toggling: entry and exit need not share the same speed threshold. A true rule permits the transition; its blend duration and smoothing are separate settings.",
+              "sourceIds": [
+                "aTransitions"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Compression and trimming: spend bits where motion needs them",
+      "paragraphs": [
+        "Trimming changes the intended clip; compression approximates the retained clip within an error budget. Fewer keys, fewer bits, compact rotation representations, and fitted curves reduce different parts of storage and have different decoding costs.",
+        "A small local rotation error near the root can move a hand substantially. Measure reconstructed motion in meaningful spaces and include end effectors, skin deformation, additive use, and root-motion continuity when selecting tolerances."
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Clip trimming",
+            "Key reduction"
+          ],
+          "summary": "Distinguish intentional edits from error-bounded temporal simplification.",
+          "details": [
+            {
+              "keyword": "Clip trimming",
+              "explanation": "Keep an intended time interval and update its local time origin, looping policy, and dependent events. Root-motion deltas, synchronization markers, and additive references need to remain consistent with the new boundaries. Removing unused content is an authoring decision rather than lossy reconstruction.",
+              "sourceIds": [
+                "aMontage",
+                "aRootMotion"
+              ]
+            },
+            {
+              "keyword": "Key reduction",
+              "explanation": "Test whether removing a key lets neighboring retained keys reconstruct the original motion within a tolerance. Evaluate interpolation error between keys, not only at retained samples, and protect important discontinuities or event timing. Constant and default tracks may be represented by one value or omitted under an explicit default rule.",
+              "sourceIds": [
+                "aCompression",
+                "aAclDatabase"
+              ]
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "Quantization",
+            "Quaternion compression",
+            "Curve fitting"
+          ],
+          "summary": "Quantization reduces value precision; fitting changes the time representation.",
+          "details": [
+            {
+              "keyword": "Quantization",
+              "explanation": "Map values in a known range to b-bit integers, then reconstruct approximate floating-point values during decoding. Per-track or per-segment ranges can improve precision, at the cost of metadata. Constant ranges require a special representation; clipping outside the range creates extra error.",
+              "sourceIds": [
+                "aAclFormats",
+                "aCompression"
+              ],
+              "equation": {
+                "expression": "Δ ≈ (v_max − v_min)/(2ᵇ − 1)",
+                "note": [
+                  "Δ is the step of uniform scalar quantization; this assumes a nonconstant range."
+                ]
+              }
+            },
+            {
+              "keyword": "Quaternion compression",
+              "explanation": "A unit quaternion has only three independent continuous components. One scheme makes the largest component positive, stores its index and the other three, then reconstructs the missing value from unit length. Fixed-component schemes such as drop-W also exist. Quantization, sign continuity, and renormalization still matter.",
+              "sourceIds": [
+                "aAclFormats",
+                "aQuaternion"
+              ]
+            },
+            {
+              "keyword": "Curve fitting",
+              "explanation": "Approximate many samples with fewer piecewise-curve coefficients or controls. Choose segment count and tangents from a reconstruction tolerance. Runtime evaluates the fitted curve, whose representation need not match the original DCC spline. This differs from merely reducing bits per sample.",
+              "sourceIds": [
+                "aCompression",
+                "aGltf"
+              ]
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "Animation Compression Library (ACL)",
+            "Per-bone compression and error metrics"
+          ],
+          "summary": "A codec combines representations and error metrics rather than assigning precision blindly.",
+          "details": [
+            {
+              "keyword": "Animation Compression Library (ACL)",
+              "explanation": "ACL emphasizes fast random-access decompression of uniformly sampled transform tracks, with range reduction, constant/default handling, and variable bit rates. Optional database or frame-stripping features remove less important samples under their own rules. Per-track precision or rounding does not mean arbitrary independent sampling rates for every bone.",
+              "sourceIds": [
+                "aAcl",
+                "aAclSampling",
+                "aAclDatabase"
+              ]
+            },
+            {
+              "keyword": "Per-bone compression and error metrics",
+              "explanation": "Allocate precision according to how a joint affects the reconstructed character, not merely its local curve amplitude. End-effector, object-space, or virtual-shell distances can expose amplified rotation error. Hands, feet, and contact-critical joints may need tighter budgets; additive clips should also be assessed in their intended composition.",
+              "sourceIds": [
+                "aAclError",
+                "aCompression"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Data-driven motion: retrieval, prediction, generation, and control",
+      "paragraphs": [
+        "Data-driven motion is broader than machine learning. Motion Matching searches recorded motion; neural sequence models predict or generate poses; reinforcement learning trains actions that a physics simulator executes. Their outputs enter different places in a runtime animation system.",
+        "These categories overlap. A Transformer can serve as a VAE decoder or a diffusion denoiser, and a VAE latent space can be controlled by an RL policy. Specify the input, learned objective, runtime output, and whether contact is enforced by geometry or a physical simulator."
+      ],
+      "keywordSourceGroups": [
+        {
+          "keywords": [
+            "Motion Matching"
+          ],
+          "summary": "Retrieval selects a recorded continuation using pose and trajectory features.",
+          "details": [
+            {
+              "keyword": "Motion Matching",
+              "explanation": "Build a query from the current pose, velocities, and desired trajectory, then search a feature-indexed database for a low-cost matching frame. Continue from that location and blend if a jump is selected. Cost weights, normalization, and continuation bias affect stability. Conventional Motion Matching needs no neural network.",
               "sourceIds": [
                 "aMotionMatch"
+              ]
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "RNN and LSTM motion models",
+            "Transformer motion model"
+          ],
+          "summary": "Sequence models use history to predict motion; architecture does not determine the output task.",
+          "details": [
+            {
+              "keyword": "RNN and LSTM motion models",
+              "explanation": "A recurrent network updates a hidden state from the current input and previous hidden state, then predicts a pose or pose increment. LSTM adds gated memory for longer dependencies. Train on reference sequences; runtime may feed predictions back recursively, which can accumulate drift. The carried state summarizes more than just the previous raw frame.",
+              "sourceIds": [
+                "aRnn",
+                "aLstm"
+              ]
+            },
+            {
+              "keyword": "Transformer motion model",
+              "explanation": "Encode frames, joints, or motion patches as tokens with time and spatial information, then use attention to combine context. A predictive model uses appropriate causal masking; a completion model may attend to known frames on both sides. Decode a future pose or whole sequence. Attention alone does not impose joint limits or ground contact.",
+              "sourceIds": [
+                "aMotionTransformer",
+                "aActor"
+              ]
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "Diffusion motion",
+            "Motion VAE"
+          ],
+          "summary": "Generative motion models learn distributions, with different latent and sampling procedures.",
+          "details": [
+            {
+              "keyword": "Diffusion motion",
+              "explanation": "Training corrupts motion at different noise levels and learns to recover noise, clean motion, or another parameterization. At runtime, denoise a noisy sequence under text, action, or keyframe conditions over multiple steps. MDM predicts clean samples rather than noise. The output is motion data; physical feasibility and sampling latency are separate concerns.",
+              "sourceIds": [
+                "aMdm",
+                "aMotionCraft"
+              ]
+            },
+            {
+              "keyword": "Motion VAE",
+              "explanation": "The encoder infers a latent distribution from motion and optional conditions; a sampled latent and conditions drive a decoder that reconstructs or generates motion. Reconstruction and prior regularization structure the latent space. Autoregressive conditional VAEs can generate one update at a time, so not every Motion VAE encodes a whole clip into one vector.",
+              "sourceIds": [
+                "aMotionVae",
+                "aActor"
+              ]
+            }
+          ]
+        },
+        {
+          "keywords": [
+            "Reinforcement learning"
+          ],
+          "summary": "A learned policy outputs controls; the simulator determines the resulting motion.",
+          "details": [
+            {
+              "keyword": "Reinforcement learning",
+              "explanation": "A policy reads simulated state and a task or reference-motion condition, then outputs torques, target joint angles, or other controls. The environment steps physics and produces reward signals. Training updates the policy from collected experience; deployment typically runs a fixed policy without learning every frame. DeepMimic combines task and imitation objectives.",
+              "sourceIds": [
+                "aDeepMimic",
+                "aPolicy"
               ]
             }
           ]
@@ -1564,5 +2074,5 @@
       }
     }
   ],
-  "closing": "Vertex caches preserve final geometry, cages and rigs provide editable controls, and correctives or physical models add complex deformation. Generated or captured assets and motion still need to match those representations and their playback constraints."
+  "closing": "Geometry defines the deformation domain; playback and blending produce a pose; state logic chooses transitions; skeletal evaluation and skinning move the surface. Compression must preserve reconstructed motion within an error budget. Retrieval, learned pose generation, and physical control can be combined, provided their timing, coordinate, reference-pose, and contact conventions agree."
 }
