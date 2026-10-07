@@ -1,0 +1,14 @@
+{
+  "id": "91220c13-418b-4d7b-b5a8-9a4bb4a6bfe0",
+  "uid": "f1a679430cc5a09f34d1dcab6f62e579e58c73d34b6993fd77c2d56e399ec16a",
+  "url": "https://gpuopen.com/learn/rga-source-to-isa-correlation-gpu-code-objects",
+  "canonicalUrl": "https://gpuopen.com/learn/rga-source-to-isa-correlation-gpu-code-objects",
+  "sourceUrl": "https://gpuopen.com/feed",
+  "sourceName": "AMD GPUOpen",
+  "title": "Source-to-ISA correlation for pre-compiled AMD GPU code objects with RGA 2.15",
+  "subtitle": "Learn how AMD Radeon GPU Analyzer 2.15 correlates pre-compiled AMD GPU code objects back to source lines, making ISA analysis and optimization far easier.",
+  "imageUrl": "https://gpuopen.com/images/rga_2_15_build-settings-search-paths.BR9wYegZ.png",
+  "publishedAt": "2026-10-06T17:00:00.000Z",
+  "firstSeenAt": "2026-10-07T00:46:33.612Z",
+  "lastSeenAt": "2026-10-07T00:46:33.612Z"
+}
