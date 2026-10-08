@@ -1,0 +1,14 @@
+{
+  "id": "040adffc-2ef8-4400-b0f6-1dc1c40dc844",
+  "uid": "3b31c130485ad58e87a40583ddc58203944677c3fe9e1c814d1180d0f426dd65",
+  "url": "https://developer.nvidia.com/blog/scaling-decision-optimization-to-100-million-variables-and-beyond-with-mpdlp-in-nvidia-cuopt",
+  "canonicalUrl": "https://developer.nvidia.com/blog/scaling-decision-optimization-to-100-million-variables-and-beyond-with-mpdlp-in-nvidia-cuopt",
+  "sourceUrl": "https://developer.nvidia.com/blog",
+  "sourceName": "NVIDIA",
+  "title": "Scaling Decision Optimization to 100 Million Variables and Beyond with mPDLP in NVIDIA cuOpt",
+  "subtitle": null,
+  "imageUrl": "https://developer-blogs.nvidia.com/wp-content/uploads/2026/10/geometric-structure-1.webp",
+  "publishedAt": "2026-10-07T15:45:00.000Z",
+  "firstSeenAt": "2026-10-08T01:02:58.613Z",
+  "lastSeenAt": "2026-10-08T01:02:58.613Z"
+}

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-07T00:46:38.058Z",
+  "generatedAt": "2026-10-08T01:03:59.968Z",
   "sources": [
     {
       "url": "https://www.unrealengine.com/rss?lang=en-US",
@@ -63,9 +63,12 @@
     }
   ],
   "items": [
-    "items/91eb713952d47ddd1e33a823a90e74e541450b51cec7da76a5f6c3a31e2f7d74/item.json",
+    "items/af831a2dab54dc446290ebda44f2c213866dbafd3df3a995b595a30d57fe4fa7/item.json",
+    "items/3b31c130485ad58e87a40583ddc58203944677c3fe9e1c814d1180d0f426dd65/item.json",
+    "items/13d16dc474d08a0f909d6fc402c24f04c2ca2d9d7ab8f436e3d892fe79630678/item.json",
     "items/f1a679430cc5a09f34d1dcab6f62e579e58c73d34b6993fd77c2d56e399ec16a/item.json",
     "items/4bdb44c29bbf2da7501827f66c287e66fa39cd9c6f428433d120cb999a061344/item.json",
+    "items/91eb713952d47ddd1e33a823a90e74e541450b51cec7da76a5f6c3a31e2f7d74/item.json",
     "items/9e43f1bca9191e68d22222351e8fe0217a5455e5e5b941d16548f06568d2600c/item.json",
     "items/2b8b6c2395c22036ab18ea4f14c92a899399972ca803520cc0344e8da9ba6303/item.json",
     "items/0684e365a832e6ef026441935f74c97b7008c00a8da7a4b6ad739907c846283c/item.json",
@@ -80,7 +83,6 @@
     "items/2bbb202e22cde88398c3b24cdb2a2ce79be670db1fb3a8cfe286e5645a03a4f9/item.json",
     "items/3de76f3363411ee9ff7dbb1be78ad6f986e7d5072d6cc127a89c1f67a1860049/item.json",
     "items/d1721140685dd934b3f256dbec9afeeccea1072936fd193ecadaf68c5e6a5cec/item.json",
-    "items/af831a2dab54dc446290ebda44f2c213866dbafd3df3a995b595a30d57fe4fa7/item.json",
     "items/6d19e6489ef43b2a67a0b30509cc170748639c1045c57e8556a419ddad697eb5/item.json",
     "items/68e3ef70ac590196ace2d8539c8c3625cf8da6d60f34a46995e71f209c95b5c7/item.json",
     "items/8a9f6c15b23d2db3181a3a87ede641055d46ff2041ee36eb51fa0e906888c364/item.json",
@@ -130,7 +132,6 @@
     "items/29151cc5bfecfac968fc4341f9ef64c3099e6ad5c5d8bcc56a65496e37a36b2c/item.json",
     "items/177276e92c71d9c514217700e601ce562aa45764536310ed21529b2e774ab948/item.json",
     "items/91d119a90abab87ca21b999ac3896256a2319eacc70de66e971a8871e30ab303/item.json",
-    "items/676f90ee5f88ebab3b504077820a946028d05c91eec256037f6b53fc6e28ed6d/item.json",
     "items/c4074b18c618b81a4d7e1d276ab3a21495c7b15f6c9379060dac1ab666a334fa/item.json",
     "items/600641e92db7227e884c0d9431c221ffb9bf5e8ea21c963cd45816bca721dc79/item.json",
     "items/667b512cb93f1360b2c9121165fe2238cf8ae0955f31406c9dbd6936c88fb378/item.json",
@@ -157,7 +158,6 @@
     "items/456a436c6e52316944a91911070595e95977baaac09b16f963dbc44d3466bbbe/item.json",
     "items/b8b6ca30d8dcdcca83e32ceb38ef19a45ef71e211ad8df96a9b6f5238c90458f/item.json",
     "items/6ca348acf2447dca9420899d2f6149d7798020e965164314cb12a4185bfeb172/item.json",
-    "items/a3ede95892b3e3ea1d5696a1838c1465880695fb09844ba1c733b098336dc146/item.json",
     "items/fb34f0f1dbf2489f9855b62dbcafe4efc3044f8379f5136648486893f2c7c000/item.json",
     "items/d816d233ab5c207ecbc76d2f92c7c6ccb7024f81d30d06e215e3ce1bc38b54b3/item.json",
     "items/74ed1e9db9280c7a297e2f97c30e44413fe28c1b45e96add554a1f882357d86e/item.json",
