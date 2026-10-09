@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-08T01:03:59.968Z",
+  "generatedAt": "2026-10-09T01:16:23.420Z",
   "sources": [
     {
       "url": "https://www.unrealengine.com/rss?lang=en-US",
@@ -64,6 +64,7 @@
   ],
   "items": [
     "items/af831a2dab54dc446290ebda44f2c213866dbafd3df3a995b595a30d57fe4fa7/item.json",
+    "items/dd426a076919d86da61f9b4c34bcccd4830dd0b871ac8fad705725bf1fba5ed4/item.json",
     "items/3b31c130485ad58e87a40583ddc58203944677c3fe9e1c814d1180d0f426dd65/item.json",
     "items/13d16dc474d08a0f909d6fc402c24f04c2ca2d9d7ab8f436e3d892fe79630678/item.json",
     "items/f1a679430cc5a09f34d1dcab6f62e579e58c73d34b6993fd77c2d56e399ec16a/item.json",
@@ -156,7 +157,6 @@
     "items/fa9cc364ac698bd392a3971535a72c088591325ac8b7499e80af76150836202f/item.json",
     "items/805e4d59e8055cd53ca1489ab6e9237ac9f9978daf7cedc2fefa893e6aefef40/item.json",
     "items/456a436c6e52316944a91911070595e95977baaac09b16f963dbc44d3466bbbe/item.json",
-    "items/b8b6ca30d8dcdcca83e32ceb38ef19a45ef71e211ad8df96a9b6f5238c90458f/item.json",
     "items/6ca348acf2447dca9420899d2f6149d7798020e965164314cb12a4185bfeb172/item.json",
     "items/fb34f0f1dbf2489f9855b62dbcafe4efc3044f8379f5136648486893f2c7c000/item.json",
     "items/d816d233ab5c207ecbc76d2f92c7c6ccb7024f81d30d06e215e3ce1bc38b54b3/item.json",
