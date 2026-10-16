@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-15T23:43:07.371Z",
+  "generatedAt": "2026-10-16T23:39:54.681Z",
   "sources": [
     {
       "url": "https://www.unrealengine.com/rss?lang=en-US",
@@ -63,6 +63,9 @@
     }
   ],
   "items": [
+    "items/6b19c4e5891377efbf2c32396b090facace7a7d4f4cd201c1696a7a8297c3af6/item.json",
+    "items/116355e39dfba6a655671b1e0954fae9e3cfff41c2ba344b67a32451ff409b6a/item.json",
+    "items/e9a0cc23443fe61e9e156fe8f95725bf99b125e0aecdd2995d36ac3fa489cdcc/item.json",
     "items/0860893ee217622dbc69061e9069ca79321d526769beabb02e8d44e87e83c738/item.json",
     "items/2180631f8c0c7c3de72160dbb00b6cc51d13c8a4a235605f6fdf4a1b904d853d/item.json",
     "items/c04bb70f1b05d38a0ca564972dc37d07f1a6b9fa87c35a77ad7a5b763b98c435/item.json",
@@ -128,7 +131,6 @@
     "items/ec9c0660e3fccab9eb77309eb58b37edd3324b0c16e876cc77190d568e507675/item.json",
     "items/83b77f8ba15ff8f0d66feef553fce93e11900d0d2ee2d2daca65bf86a9e64bc4/item.json",
     "items/2ffefeec1325471a45c9671341cf2b7bc081a1ff453a00073458928e4f3b1dd7/item.json",
-    "items/78e780e1fd25227167d9857bd918659053f7ed0d92ad0df3caaa1fb9d336ea81/item.json",
     "items/cf59d38a26d67e177c92d820a7e8649eb3460604fbbec53e60d34fe517ff5add/item.json",
     "items/52cf75002292c7ea8995e448d7086d667b958fe23bb527619a438f547495b995/item.json",
     "items/4532cd6f915738d14b25a861eece5ef8dca55fe5f783bff2dd9848762b4c60d6/item.json",
@@ -154,7 +156,6 @@
     "items/00972f0fbd9198459ce4395848302526b46d38ecdf3a1d34ec112588f8e2b1c2/item.json",
     "items/405eef72342308a8cc49443f44f70ecad081f3795f17dcd6a112d3388d2b8ce4/item.json",
     "items/67173d5c81c762cb9554d933ae3c2d7e52916c7bd9ef94ce0d5d8d03e2d44145/item.json",
-    "items/e360f244e6950be664efeb0077430e15ba6312e90a14d3e2472fc5fb600298b4/item.json",
     "items/fbd5a6191cbb21f62177b3f6cd58852fc871fb0ce4cd2a3449c0096346ea8c48/item.json",
     "items/4d01b525cbe3396fc64bd177316774f24d368739c686e5edc025039bc095dc1d/item.json",
     "items/26823a2cda1a1aefabe8f48948dab2076ca3126c6681360f2d07e9b43c4645e2/item.json",
@@ -257,8 +258,8 @@
     "attempted": 15,
     "succeeded": 15,
     "failed": 0,
-    "found": 189,
-    "inserted": 189,
+    "found": 190,
+    "inserted": 190,
     "failures": []
   }
 }
