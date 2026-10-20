@@ -1,0 +1,14 @@
+{
+  "id": "8ebb8ff5-e2d0-4dc8-882e-244c48f6f49e",
+  "uid": "0a1989be13280b3a4fd4e02841d775cf9ae13d4ff73bedd03759b6264210c458",
+  "url": "https://www.khronos.org/blog/openxr-spatial-containers",
+  "canonicalUrl": "https://www.khronos.org/blog/openxr-spatial-containers",
+  "sourceUrl": "https://www.khronos.org/feeds/blog_feed",
+  "sourceName": "Khronos",
+  "title": "OpenXR Spatial Containers Bring a Cross-Platform Spatial Windowing API to XR",
+  "subtitle": "The Khronos&reg; OpenXR&trade; Working Group has released a new set of extensions that establish an open, cross-platform API for spatial windowing systems. The extensions introduce \"spatial containers\" to OpenXR, which are system-managed spaces in which applications can display XR content, similar to how traditional applications draw 2D content within windows on a desktop. Spatial containers give developers a standardized way to create applications that can move between immersive experiences and multitasking with the real world or other apps across compatible XR platforms.",
+  "imageUrl": "https://www.khronos.org/images/jcogs_img/cache/openxr_blog_03_-_28de80_-_ade52cc9e2371411e2f6a5e18fb8664a9767175d.png",
+  "publishedAt": "2026-10-19T13:00:00.000Z",
+  "firstSeenAt": "2026-10-20T00:24:44.629Z",
+  "lastSeenAt": "2026-10-20T00:24:44.629Z"
+}
