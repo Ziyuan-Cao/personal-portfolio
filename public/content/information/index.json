@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-20T23:57:30.630Z",
+  "generatedAt": "2026-10-22T00:02:52.823Z",
   "sources": [
     {
       "url": "https://www.unrealengine.com/rss?lang=en-US",
@@ -63,6 +63,12 @@
     }
   ],
   "items": [
+    "items/014cd85c88007063a68bde73f87489ec91872ad8736265384d5339665e2195b7/item.json",
+    "items/c1913c4bc921d7e32c35b051f4ca5df499dfcce2d568a0b0e42ba71c4e74951a/item.json",
+    "items/844d2a2689f652be5a4597c23697c0c2a7903bfe624d7acd484087652c4e5855/item.json",
+    "items/24f50db3e043ed4cfdba86a179d5df20e51a4ec4d329798878fd01379657c83e/item.json",
+    "items/8ac8568d654cd43433b09fd988f2c1400127de1232f27c100b667856e91f127d/item.json",
+    "items/d6cc2dcdbfaa34bf43b6de1e8abc73722074891a2282f756b0dddfc29f5ce32b/item.json",
     "items/0a1989be13280b3a4fd4e02841d775cf9ae13d4ff73bedd03759b6264210c458/item.json",
     "items/6b19c4e5891377efbf2c32396b090facace7a7d4f4cd201c1696a7a8297c3af6/item.json",
     "items/116355e39dfba6a655671b1e0954fae9e3cfff41c2ba344b67a32451ff409b6a/item.json",
@@ -70,18 +76,15 @@
     "items/0860893ee217622dbc69061e9069ca79321d526769beabb02e8d44e87e83c738/item.json",
     "items/2180631f8c0c7c3de72160dbb00b6cc51d13c8a4a235605f6fdf4a1b904d853d/item.json",
     "items/c04bb70f1b05d38a0ca564972dc37d07f1a6b9fa87c35a77ad7a5b763b98c435/item.json",
-    "items/93a3c6a05f584f10feb6e119b2166c2f1e808d3c8180996d8ca237599031ea1a/item.json",
     "items/233c89766025535710900ed9fad39f38e21a3c12efeb024931e63d5feeea7ef0/item.json",
     "items/c67c435600f54649eebe8dd3b659faf1338bc13709e1e7ddceed110a90c81119/item.json",
     "items/505f54531b3b5d526a3aab66c81510320e94fc646416ed88e3d0d1d06e63bc29/item.json",
     "items/49e1184edd7757f26db68d69eb65e432f16498f2a0cd9837cde2e9655501970b/item.json",
-    "items/709864dc2d811aa2ce748dfff3d83694850fecea870b84df1aade89afde6a96c/item.json",
     "items/c9b7b3fb6355a0c971c337d74c4270416853f02881de8b717a433902cffdb0d0/item.json",
     "items/2f122b51a4b44dd4d00eca3645b434e9513482edef8f70c416547b9a5bddb0cf/item.json",
     "items/a5155d29147f3b6c07ce1ab92ba8ed8c0839b10eee80ab336dc13b27ee0d8780/item.json",
     "items/833d9c4c72971ab9dbebf093ef71ee79251041f73395983caebc066276b725f0/item.json",
     "items/dd426a076919d86da61f9b4c34bcccd4830dd0b871ac8fad705725bf1fba5ed4/item.json",
-    "items/3b31c130485ad58e87a40583ddc58203944677c3fe9e1c814d1180d0f426dd65/item.json",
     "items/13d16dc474d08a0f909d6fc402c24f04c2ca2d9d7ab8f436e3d892fe79630678/item.json",
     "items/f1a679430cc5a09f34d1dcab6f62e579e58c73d34b6993fd77c2d56e399ec16a/item.json",
     "items/4bdb44c29bbf2da7501827f66c287e66fa39cd9c6f428433d120cb999a061344/item.json",
@@ -98,7 +101,6 @@
     "items/309d276efe733af0c67506281062a9718cb767d6b70844819e239f15177d17e7/item.json",
     "items/eefbba2abc3b08ea64496940cbc65f217924f8a9d9e99beebe0551fa5a1dcb7d/item.json",
     "items/2bbb202e22cde88398c3b24cdb2a2ce79be670db1fb3a8cfe286e5645a03a4f9/item.json",
-    "items/3de76f3363411ee9ff7dbb1be78ad6f986e7d5072d6cc127a89c1f67a1860049/item.json",
     "items/af831a2dab54dc446290ebda44f2c213866dbafd3df3a995b595a30d57fe4fa7/item.json",
     "items/6d19e6489ef43b2a67a0b30509cc170748639c1045c57e8556a419ddad697eb5/item.json",
     "items/68e3ef70ac590196ace2d8539c8c3625cf8da6d60f34a46995e71f209c95b5c7/item.json",
@@ -157,7 +159,6 @@
     "items/00972f0fbd9198459ce4395848302526b46d38ecdf3a1d34ec112588f8e2b1c2/item.json",
     "items/405eef72342308a8cc49443f44f70ecad081f3795f17dcd6a112d3388d2b8ce4/item.json",
     "items/67173d5c81c762cb9554d933ae3c2d7e52916c7bd9ef94ce0d5d8d03e2d44145/item.json",
-    "items/fbd5a6191cbb21f62177b3f6cd58852fc871fb0ce4cd2a3449c0096346ea8c48/item.json",
     "items/4d01b525cbe3396fc64bd177316774f24d368739c686e5edc025039bc095dc1d/item.json",
     "items/26823a2cda1a1aefabe8f48948dab2076ca3126c6681360f2d07e9b43c4645e2/item.json",
     "items/1ad1a8e3ded3c7c4d324128cfdacf4f68d0ceaf2521ff42400db1852fdcda2df/item.json",
@@ -217,7 +218,6 @@
     "items/a4238a3f95f74a2e8e463f2bd507d5fa13b28c3cb662c0f22809115ed6873580/item.json",
     "items/53b0fa29178a10c23795a2abcfa06f92c61dca695b093e51dee9df3ff52affb9/item.json",
     "items/fda44a93eefe721630cc238778f9503f8e0b14b9e4e891a4c259ad300d720d15/item.json",
-    "items/00d48b43772bd613d72ea6b92e6bc48a14548744110320f25fd09d02647c7236/item.json",
     "items/eeab1f87602c47b60d15f0152588b4faedef0359eaab7899db5f03ed8360c9a7/item.json",
     "items/30d6f40a110976cb7d90b42b7de1509b8e43015087f5f84a9527378245403345/item.json",
     "items/d4adcb81df3f516b7f667f4bcea980333a0e751b3a0e4f088b3ffac122ad7765/item.json",
@@ -256,10 +256,16 @@
   ],
   "collection": {
     "attempted": 15,
-    "succeeded": 15,
-    "failed": 0,
-    "found": 190,
-    "inserted": 190,
-    "failures": []
+    "succeeded": 14,
+    "failed": 1,
+    "found": 180,
+    "inserted": 180,
+    "failures": [
+      {
+        "url": "https://www.eg.org/wp/category/news/feed",
+        "name": "Eurographics",
+        "error": "This operation was aborted"
+      }
+    ]
   }
 }
