@@ -1,0 +1,14 @@
+{
+  "id": "66eab128-5267-4670-ae73-577fd5d4bded",
+  "uid": "69c5f20c833a2251b7126e85bb189d8ed6345b62aa08ce97c972c97cb3708fd2",
+  "url": "https://unity.com/blog/skipping-domain-reload-faster-iteration-using-the-methodreload-feature",
+  "canonicalUrl": "https://unity.com/blog/skipping-domain-reload-faster-iteration-using-the-methodreload-feature",
+  "sourceUrl": "https://blog.unity.com/feed",
+  "sourceName": "Unity",
+  "title": "Skipping domain reload: faster iteration using the MethodReload feature",
+  "subtitle": "Stop waiting on domain reloads! Learn how MethodReload speeds up Unity iteration time, explore its limitations, and compare it to existing hot reload tools.",
+  "imageUrl": null,
+  "publishedAt": "2026-10-22T00:00:00.000Z",
+  "firstSeenAt": "2026-10-23T00:00:34.967Z",
+  "lastSeenAt": "2026-10-23T00:00:34.967Z"
+}

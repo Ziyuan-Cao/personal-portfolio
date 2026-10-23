@@ -1,0 +1,14 @@
+{
+  "id": "4c8b3381-39f1-4b3a-b15a-163af43e0e7f",
+  "uid": "be6e1cb677c99e2ee50082a295175a8f4cb5a943014f6ac8055220daca7d4969",
+  "url": "https://research.adobe.com/news/slideredit-at-cvpr-2026",
+  "canonicalUrl": "https://research.adobe.com/news/slideredit-at-cvpr-2026",
+  "sourceUrl": "https://research.adobe.com/news",
+  "sourceName": "Adobe Research",
+  "title": "Giving Image Editors Adjustable Control Over Editing Instructions: SliderEdit at CVPR 2026",
+  "subtitle": "SliderEdit introduces continuous, adjustable control over individual editing instructions in instruction-based image editing models, turning each instruction into a smooth slider.",
+  "imageUrl": "https://research.adobe.com/wp-content/uploads/2026/05/SliderEdit.png",
+  "publishedAt": "2026-05-27T00:00:00.000Z",
+  "firstSeenAt": "2026-10-23T00:01:34.889Z",
+  "lastSeenAt": "2026-10-23T00:01:34.889Z"
+}
