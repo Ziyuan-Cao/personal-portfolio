@@ -1,0 +1,14 @@
+{
+  "id": "843c83c9-2c14-4f5a-be7a-6eae654a8f29",
+  "uid": "53e02609df1179de64843ca988cf60d21766d3fd589b3440bae53edab76875b9",
+  "url": "https://devblogs.microsoft.com/directx/clas-ptlas-preview",
+  "canonicalUrl": "https://devblogs.microsoft.com/directx/clas-ptlas-preview",
+  "sourceUrl": "https://devblogs.microsoft.com/directx/feed",
+  "sourceName": "DirectX",
+  "title": "[PREVIEW] Raytracing: Clustered Geometry, Partitioned TLAS, Indirect Acceleration Structure Builds",
+  "subtitle": "Today we’re introducing a preview of DirectX Raytracing (DXR) Clustered Geometry and Partitioned Top-Level Acceleration Structures (PTLAS), with a unified GPU-driven API for building and updating them. This is part of a larger AgilitySDK release described in the parent post: https://devblogs.microsoft.com/directx/agilitysdk-1-620-retail-and-1-722-preview/ For DXR this is the most significant update since its debut in 2018. Mar […] The post [PREVIEW] Raytracing: Clustered Geometry, Partitioned TLAS, Indirect Acceleration Structure Builds appeared first on DirectX Developer Blog.",
+  "imageUrl": "https://devblogs.microsoft.com/directx/wp-content/uploads/sites/42/2026/10/forest_ray_tracing.webp",
+  "publishedAt": "2026-10-28T16:54:13.000Z",
+  "firstSeenAt": "2026-10-29T01:02:11.225Z",
+  "lastSeenAt": "2026-10-29T01:02:11.225Z"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "07153bf8-50d0-42b2-aec2-a62b45b2cc89",
+  "uid": "f8909cea323c6d73780bb3b1ed87892e8566dd8c8acfcab90129a827f7f91cdb",
+  "url": "https://devblogs.microsoft.com/directx/async-commands-fallback-layer",
+  "canonicalUrl": "https://devblogs.microsoft.com/directx/async-commands-fallback-layer",
+  "sourceUrl": "https://devblogs.microsoft.com/directx/feed",
+  "sourceName": "DirectX",
+  "title": "Async Commands Fallback Layer",
+  "subtitle": "We’re pleased to announce that Agility SDK 1.620.1 includes a fallback layer for Batched Async Commands, letting developers use the new commands on hardware that doesn’t support them natively. You can find the NuGet package here. Background Batched Async Commands were introduced in the Agility SDK 1.720 Preview as a new set of copy, fill, […] The post Async Commands Fallback Layer appeared first on DirectX Developer Blog.",
+  "imageUrl": "https://devblogs.microsoft.com/directx/wp-content/uploads/sites/42/2026/10/blog-cpu-time-by-batch.webp",
+  "publishedAt": "2026-10-28T16:52:19.000Z",
+  "firstSeenAt": "2026-10-29T01:02:11.225Z",
+  "lastSeenAt": "2026-10-29T01:02:11.225Z"
+}
