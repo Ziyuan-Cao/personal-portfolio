@@ -1,0 +1,14 @@
+{
+  "id": "4b25296e-7dbe-4915-9df4-0ac004619753",
+  "uid": "a2a9917494ea34ef6eb3a7b280d5213a81499b25625d69aaee09fde9006da745",
+  "url": "https://unity.com/blog/ares-interactive-live-service-games",
+  "canonicalUrl": "https://unity.com/blog/ares-interactive-live-service-games",
+  "sourceUrl": "https://blog.unity.com/feed",
+  "sourceName": "Unity",
+  "title": "How Ares Interactive runs live ops without waiting on client updates",
+  "subtitle": "How Baseball Hits 26 and The Walking Dead: Aftermath use remote config, versioned bundles, and CI to ship live ops changes without a client release.",
+  "imageUrl": null,
+  "publishedAt": "2026-11-04T00:00:00.000Z",
+  "firstSeenAt": "2026-11-05T01:29:28.343Z",
+  "lastSeenAt": "2026-11-05T01:29:28.343Z"
+}
