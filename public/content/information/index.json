@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-05T01:30:24.356Z",
+  "generatedAt": "2026-11-06T01:36:42.782Z",
   "sources": [
     {
       "url": "https://www.unrealengine.com/rss?lang=en-US",
@@ -63,6 +63,8 @@
     }
   ],
   "items": [
+    "items/ff5d1423f642b69ef2c23a53bb9289bb0d338d153639d6f0dacccd5021ac7d18/item.json",
+    "items/57720881f739c393703ce20dd71c680c74cf4deb245bc440de8bb4cdcbb05243/item.json",
     "items/e57f40cc5794b4a29778d6596e971388fd8d7eaa440b368197e84a0ca517646a/item.json",
     "items/e9986a7a507625fef9523d3a99e8462c03e99c90520a75ab3396fd5c21a87703/item.json",
     "items/a2a9917494ea34ef6eb3a7b280d5213a81499b25625d69aaee09fde9006da745/item.json",
@@ -167,7 +169,6 @@
     "items/bd0791a8937b7e0bf2df89ad9606684b587e4097b3c874a8aa540058f216324d/item.json",
     "items/d74dfc0e6364a35c103d77125f43f734520764649d38f6b26445bcd495bc04ca/item.json",
     "items/f7ea28ee6acd5ed75034db80c52f6e9656864ba501675ff9c4e138d557b6aa4a/item.json",
-    "items/e9cb5c9575df40bb6e79de7cba4775184c3258bdd8174dc46ff81ce498781c5c/item.json",
     "items/26823a2cda1a1aefabe8f48948dab2076ca3126c6681360f2d07e9b43c4645e2/item.json",
     "items/fa9cc364ac698bd392a3971535a72c088591325ac8b7499e80af76150836202f/item.json",
     "items/fb34f0f1dbf2489f9855b62dbcafe4efc3044f8379f5136648486893f2c7c000/item.json",
@@ -181,6 +182,7 @@
     "items/6d82c44a4afb79955633e140a09bbe56d12bb433fd0902c4f5165c4079d46122/item.json",
     "items/2210eb83d3f8864a835713a6db91d90347c53c74e08e267d136696b0e60c011f/item.json",
     "items/120c4a7ff20a4451b6c88a4260fd1fc5c83b6bdd7118a36930bed85a4a5545a2/item.json",
+    "items/ead941f71ffdbffa83461e83c246649efea21ce91f915822794eed8e86cb9e49/item.json",
     "items/059dc33f75316c6efe3aae973b1dabc78293774608218cbbe9066b104bd79af0/item.json",
     "items/04a98eedf7b1b0e32cd97fcacacf54b970b390cca11230a03b71887608df2220/item.json",
     "items/d11461ff44d49ee45b93584af7847908fc0cd982352a787438beb7daaf4e0cdd/item.json",
@@ -236,7 +238,6 @@
     "items/33baafe05ed9ce31c5a7469d701e5cd095b89780f6009f6f69a1f29fec0e1fae/item.json",
     "items/4e076fb0e6d792321734ef29726195cbf7fe1a3d4394b52e4d7ca3b2bc4636bb/item.json",
     "items/755c0de83d2a71821c15246ffaecb167ad3c08103188e896d2baca6162b2f8ac/item.json",
-    "items/d030832186c953ed980dc04fafa866389585d6efff0d1371e6caa33d8f4014d5/item.json",
     "items/e1fb9621ae7f140734b4a2667df8da6ef95249cfd020b0ee7af47c94c324102d/item.json",
     "items/a68879a92ed3a1d3e24c2fdd84ac578f1aab5a704b81db783fdcf864a08a71a2/item.json",
     "items/de50159c0113b85eb6a3f162a5302d19f9debc4312607c74970845461cfd38bb/item.json",
@@ -245,7 +246,6 @@
     "items/fa4871b4317761b57e02412fffa650c523c8b62f50867b3d40e85ce661544cdb/item.json",
     "items/efb1572a4f566b3ec73da2c83ccc769d83555f885df88b955dcfb81ce1b81d94/item.json",
     "items/4ee6fd884a2a0664260051ae13a95513b044e9bd2bca21a86eff171fe4acb5b3/item.json",
-    "items/8ba5ef41612646eefaa68087f04ee53e95501f2d0d4d8cec2007b43d196c033e/item.json",
     "items/8d6fc3f66f341b161090bae314e1ba68a0054ef116320ae81039765337e6cbf2/item.json",
     "items/7ea0bb7246bc02bbc6eeb5d3d886c861520f36af96e1b081805e7d9d0ee2cf3f/item.json",
     "items/5b7713237edf1a536c700f829972348b57685af64b0fe94aaae8be375fd43e6d/item.json",
@@ -278,16 +278,10 @@
   ],
   "collection": {
     "attempted": 15,
-    "succeeded": 14,
-    "failed": 1,
-    "found": 202,
-    "inserted": 202,
-    "failures": [
-      {
-        "url": "https://www.eg.org/wp/category/news/feed",
-        "name": "Eurographics",
-        "error": "This operation was aborted"
-      }
-    ]
+    "succeeded": 15,
+    "failed": 0,
+    "found": 212,
+    "inserted": 212,
+    "failures": []
   }
 }
