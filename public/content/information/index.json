@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-06T01:36:42.782Z",
+  "generatedAt": "2026-11-07T00:58:58.239Z",
   "sources": [
     {
       "url": "https://www.unrealengine.com/rss?lang=en-US",
@@ -63,6 +63,8 @@
     }
   ],
   "items": [
+    "items/43825f25dee6e831c6910e3d37ffb0bd8a33136e6474a3be746575fc425bbf8e/item.json",
+    "items/5d4e51820d5d40c92bb78d740f0d7457ae1d5c03b48133d77f33ea5779784674/item.json",
     "items/ff5d1423f642b69ef2c23a53bb9289bb0d338d153639d6f0dacccd5021ac7d18/item.json",
     "items/57720881f739c393703ce20dd71c680c74cf4deb245bc440de8bb4cdcbb05243/item.json",
     "items/e57f40cc5794b4a29778d6596e971388fd8d7eaa440b368197e84a0ca517646a/item.json",
@@ -131,8 +133,6 @@
     "items/9e43f1bca9191e68d22222351e8fe0217a5455e5e5b941d16548f06568d2600c/item.json",
     "items/2b8b6c2395c22036ab18ea4f14c92a899399972ca803520cc0344e8da9ba6303/item.json",
     "items/0684e365a832e6ef026441935f74c97b7008c00a8da7a4b6ad739907c846283c/item.json",
-    "items/06dbb6a9316bd9d5a020f765b18f1ea364fb98883b5992468f9e1e23105556aa/item.json",
-    "items/fc7c11f9a8d19579757eece3c7c9b6ccbcdce705f5ed0d8c03c93ba628e4dc87/item.json",
     "items/76b8dc3e7306222c706269a0d96c4fc9050c2269f97a3273a4315c726b552b95/item.json",
     "items/1bee95ae0904a724a8d14641704d1473de69c472aa01cfbe7d71eba05cafc225/item.json",
     "items/309d276efe733af0c67506281062a9718cb767d6b70844819e239f15177d17e7/item.json",
@@ -278,10 +278,16 @@
   ],
   "collection": {
     "attempted": 15,
-    "succeeded": 15,
-    "failed": 0,
-    "found": 212,
-    "inserted": 212,
-    "failures": []
+    "succeeded": 14,
+    "failed": 1,
+    "found": 182,
+    "inserted": 182,
+    "failures": [
+      {
+        "url": "https://research.adobe.com/news",
+        "name": "Adobe Research",
+        "error": "This operation was aborted"
+      }
+    ]
   }
 }
