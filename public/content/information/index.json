@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-07T00:58:58.239Z",
+  "generatedAt": "2026-11-08T00:43:09.528Z",
   "sources": [
     {
       "url": "https://www.unrealengine.com/rss?lang=en-US",
@@ -278,16 +278,10 @@
   ],
   "collection": {
     "attempted": 15,
-    "succeeded": 14,
-    "failed": 1,
-    "found": 182,
-    "inserted": 182,
-    "failures": [
-      {
-        "url": "https://research.adobe.com/news",
-        "name": "Adobe Research",
-        "error": "This operation was aborted"
-      }
-    ]
+    "succeeded": 15,
+    "failed": 0,
+    "found": 212,
+    "inserted": 212,
+    "failures": []
   }
 }
