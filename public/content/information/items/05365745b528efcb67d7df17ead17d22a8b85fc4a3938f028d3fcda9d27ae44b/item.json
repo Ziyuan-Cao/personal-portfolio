@@ -1,0 +1,14 @@
+{
+  "id": "e91754c1-01e7-4f93-b62f-066a5040ff7e",
+  "uid": "05365745b528efcb67d7df17ead17d22a8b85fc4a3938f028d3fcda9d27ae44b",
+  "url": "https://devblogs.microsoft.com/directx/machine-learning-compilers-challenges-hardware",
+  "canonicalUrl": "https://devblogs.microsoft.com/directx/machine-learning-compilers-challenges-hardware",
+  "sourceUrl": "https://devblogs.microsoft.com/directx/feed",
+  "sourceName": "DirectX",
+  "title": "Challenges of building machine learning compilers across varying hardware architecture",
+  "subtitle": "Contributors: Justin Stoecker, Sheil Kumar Overview One of the biggest challenges in building AI/ML platform stacks for mobile, client, or server is creating a machine learning (ML) compiler that is both scalable yet performant. A common approach is to build specialized compilers for specific AI hardware, frameworks, or workload types. For example, independent hardware vendors […] The post Challenges of building machine learning compilers across varying hardware architecture appeared first on DirectX Developer Blog.",
+  "imageUrl": "https://devblogs.microsoft.com/directx/wp-content/uploads/sites/42/2026/11/compiler_challenge-scaled.webp",
+  "publishedAt": "2026-11-13T20:03:38.000Z",
+  "firstSeenAt": "2026-11-14T01:29:07.629Z",
+  "lastSeenAt": "2026-11-14T01:29:07.629Z"
+}

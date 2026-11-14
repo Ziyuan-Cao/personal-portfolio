@@ -1,14 +1,14 @@
 {
-  "id": "d793257b-a6fe-4454-81ec-6929b2c5308c",
-  "uid": "5885777da1682a33ecc1468dfd669c662269b4b8d9c3f0164162b45d1b2e2186",
-  "url": "https://www.khronos.org/blog/sycl-revision-13",
-  "canonicalUrl": "https://www.khronos.org/blog/sycl-revision-13",
+  "id": "810bcbb1-4002-4ec7-8bc1-f7c633c1f24d",
+  "uid": "0f1063788cfb4dbf275e0d401b476778b2be15c65f18791fb6eece65f6ad2f69",
+  "url": "https://www.khronos.org/blog/cmake-now-speaks-sycl",
+  "canonicalUrl": "https://www.khronos.org/blog/cmake-now-speaks-sycl",
   "sourceUrl": "https://www.khronos.org/feeds/blog_feed",
   "sourceName": "Khronos",
   "title": "CMake Now Speaks SYCL",
   "subtitle": "SYCL is now supported as a native CMake language (experimental and opt-in in CMake 4.5), cutting the custom build logic each project has had to maintain and working across AdaptiveCpp, upstream Clang, and both DPC++ distributions. A new SYCLAcademy lesson walks through the CMake workflow, and SYCL 2020 Revision 13 adds split headers that can reduce compile times.",
   "imageUrl": "https://www.khronos.org/images/jcogs_img/cache/cmake_speaks_sycl_-_28de80_-_ade52cc9e2371411e2f6a5e18fb8664a9767175d.png",
   "publishedAt": "2026-11-12T18:09:00.000Z",
-  "firstSeenAt": "2026-11-13T01:53:42.901Z",
-  "lastSeenAt": "2026-11-13T01:53:42.901Z"
+  "firstSeenAt": "2026-11-14T01:28:34.146Z",
+  "lastSeenAt": "2026-11-14T01:28:34.146Z"
 }
