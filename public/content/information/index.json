@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-17T03:57:57.444Z",
+  "generatedAt": "2026-11-18T02:56:48.374Z",
   "sources": [
     {
       "url": "https://www.unrealengine.com/rss?lang=en-US",
@@ -64,6 +64,8 @@
   ],
   "items": [
     "items/49c87f07f83bc60b9a038bcf8be1ff5d67267997781ea1c68f9363742101c5a7/item.json",
+    "items/50aaa00f5153dfef8517cace443f65ec81bd3d8cd486e0b86fe0c5518d31e68a/item.json",
+    "items/e971f5b9c432c4615ffd2ca582084ab606b66573f930aa0c21ee5b9a0ea3232e/item.json",
     "items/988786f729038c14db996c5309d4f5dcc816266bfe628b3e4cb2093d85034fe2/item.json",
     "items/7ec90737528b7237217e720513f21322afae611f7f41243ae1332cbfc0140e90/item.json",
     "items/bd4930e0839976d3ed7ae4ae4e5c5125f600cbee13ee2ddb01419df241a4863a/item.json",
@@ -114,7 +116,6 @@
     "items/3cd9fe4c82b95f5ba656a520a529eb8300613ee166c7e810fa4b7a86aba6bf80/item.json",
     "items/7deb6c9616457b6e6b00703f2d664864b5dc27ca9f1e3bee5b7abad387aa3704/item.json",
     "items/e65be44dffaa3c525bef728052e46ef3304b6563d447f123555ad70920ea6054/item.json",
-    "items/f74f72376a4be8cb47926cafeacf6f8fdb9d3ea904ab2c5fdf7f26b1efad175b/item.json",
     "items/149e86333f8af553bf3794fb9325a34bd79e87c3cc9ea10e6ca0645ed8c7a268/item.json",
     "items/41c8bfef82173073f493cfea573bcef96a6ae182d191b191b5e20322525389bf/item.json",
     "items/79b0f7e29d6a220065e2bd22810a1fe889d6e7e70c419d36691225e772cabcaa/item.json",
@@ -136,7 +137,6 @@
     "items/17662d50b543b7ab1dbd57a58faefa5891e59ec39bdbba20028f666dad06fe6e/item.json",
     "items/0a1989be13280b3a4fd4e02841d775cf9ae13d4ff73bedd03759b6264210c458/item.json",
     "items/6b19c4e5891377efbf2c32396b090facace7a7d4f4cd201c1696a7a8297c3af6/item.json",
-    "items/fb9dafb3a282325e229371f8b33829d1ba1c8c478bd59473b10098d40a095c25/item.json",
     "items/0860893ee217622dbc69061e9069ca79321d526769beabb02e8d44e87e83c738/item.json",
     "items/2180631f8c0c7c3de72160dbb00b6cc51d13c8a4a235605f6fdf4a1b904d853d/item.json",
     "items/c67c435600f54649eebe8dd3b659faf1338bc13709e1e7ddceed110a90c81119/item.json",
