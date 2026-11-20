@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-19T02:38:04.086Z",
+  "generatedAt": "2026-11-20T02:22:45.730Z",
   "sources": [
     {
       "url": "https://www.unrealengine.com/rss?lang=en-US",
@@ -63,8 +63,10 @@
     }
   ],
   "items": [
+    "items/e1d485be0309a50123c7a180e94c0e96f9a60352e91c7ab48eb120bc5446a7e1/item.json",
     "items/2a81e31501fa5abbcd93645378fe0389ebd217e38a71b227d8adf5cc5102ba52/item.json",
     "items/abe46d6d57486b1ebdfcb82da80df994198bee92e7800e18915867d6e828111f/item.json",
+    "items/9c3642ddb5a6e54ea081d1bb45c35aede5ff27bd557fb37245545796fc1a808e/item.json",
     "items/ac27d23c6223de5c931a251d4dc75670e643469570106dd77258d89b22535ed8/item.json",
     "items/c45013f3b54f0d18216ae06ec0937d07185e02ad1fb43dde9c51637da46cb6c0/item.json",
     "items/49c87f07f83bc60b9a038bcf8be1ff5d67267997781ea1c68f9363742101c5a7/item.json",
@@ -157,7 +159,6 @@
     "items/68e3ef70ac590196ace2d8539c8c3625cf8da6d60f34a46995e71f209c95b5c7/item.json",
     "items/256c862b28ef1ceb0ed1d469b688e2aeb5ee67399bb88ceb1f8ea51dbb7ed672/item.json",
     "items/4c547894489e345e1d8fcf73b44fe4579f6dd2c3a7b4afcb1cd9511bf2123051/item.json",
-    "items/4b0c402f0505f4af2078bd9d193c049fd53e3034d01e7db49a9750ce927a8706/item.json",
     "items/bd21855bbc98d2688f33120297b72250db07d27fa0c6a4342fcf5b300df40757/item.json",
     "items/d7990860461616341c213ef81d4fa9f775a1813b970889a1ba1ddfaf4dc9cb33/item.json",
     "items/37ff706dd4344e52cb5f0e6a809785079ff1c33ef85ecfdbde0bd049284c19bf/item.json",
@@ -216,7 +217,6 @@
     "items/a25dd27b3c73889b184e615efa921a87d8fc7367a4a04e6f05b7a94ce4a2531c/item.json",
     "items/47554cea99a9daad6f2aef2ac584b595b39a0b9e557660494643c84ffa22c026/item.json",
     "items/9fa2475c3c423cc9e927defa87cca4b1a89fb6ea4952bdf95df38ba82a65d4f9/item.json",
-    "items/846205bec90baa05fb0866bc706cc8f3637cdc079b256106c4ed250b94ec40ad/item.json",
     "items/87920dbec1fb60a266e38238a2e989ad84431c49e7a8c9b5edd2ded25bebbfb5/item.json",
     "items/68b6d9a73d47abb60d92221f9b072fa9d8654898ab5b9a545124973da50648d3/item.json",
     "items/87865b98549847769445ad5c6e44c2dfc5260be9a4debd2d1912920630df348e/item.json",
