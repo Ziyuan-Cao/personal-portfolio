@@ -1,0 +1,14 @@
+{
+  "id": "60e0ff4c-7706-4e28-8327-a56f84356388",
+  "uid": "c49f7f64cf3045f8647d8db6348c986ec7cde50d5fb5b6f9642f95be7ff50dd1",
+  "url": "https://www.unrealengine.com/news/an-update-on-blueprints-and-the-path-to-ue6",
+  "canonicalUrl": "https://www.unrealengine.com/news/an-update-on-blueprints-and-the-path-to-ue6",
+  "sourceUrl": "https://www.unrealengine.com/rss?lang=en-US",
+  "sourceName": "Unreal",
+  "title": "An update on Blueprints and the path to UE6",
+  "subtitle": "UE6 projects won’t include Blueprints or the Actor Gameplay Framework. Gameplay will be built in Verse and on the new Scene Graph framework. Epic Games’ EVP of Development Marcus Wassmer explains why, and what it means for your UE5 project.",
+  "imageUrl": null,
+  "publishedAt": "2026-11-20T00:00:00.000Z",
+  "firstSeenAt": "2026-11-21T02:23:55.494Z",
+  "lastSeenAt": "2026-11-21T02:23:55.494Z"
+}
