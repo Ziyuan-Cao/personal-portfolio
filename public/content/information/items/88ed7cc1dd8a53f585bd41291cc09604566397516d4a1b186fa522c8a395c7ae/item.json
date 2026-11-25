@@ -1,0 +1,14 @@
+{
+  "id": "8f154bc8-7e11-4ed7-b94e-9159001fc4a5",
+  "uid": "88ed7cc1dd8a53f585bd41291cc09604566397516d4a1b186fa522c8a395c7ae",
+  "url": "https://gpuopen.com/learn/amd-rt-mlas-vulkan",
+  "canonicalUrl": "https://gpuopen.com/learn/amd-rt-mlas-vulkan",
+  "sourceUrl": "https://gpuopen.com/feed",
+  "sourceName": "AMD GPUOpen",
+  "title": "Ray tracing large, dynamic worlds with RT-MLAS",
+  "subtitle": "Learn how RT-MLAS, a new AMD Vulkan® extension, lets you reuse acceleration structures to cut memory use and rebuild time in large, dynamic ray traced scenes, then try it on AMD Radeon™ GPUs with our new sample app.",
+  "imageUrl": "https://gpuopen.com/images/holger_gruen_graphics_programming_conference_2026.BY2Xpt2J.jpg",
+  "publishedAt": "2026-11-24T18:00:00.000Z",
+  "firstSeenAt": "2026-11-25T04:16:41.014Z",
+  "lastSeenAt": "2026-11-25T04:16:41.014Z"
+}
