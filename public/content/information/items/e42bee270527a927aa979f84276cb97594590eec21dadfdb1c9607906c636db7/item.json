@@ -1,0 +1,14 @@
+{
+  "id": "f426a085-7ee9-4cc6-aace-c92c131417e7",
+  "uid": "e42bee270527a927aa979f84276cb97594590eec21dadfdb1c9607906c636db7",
+  "url": "https://www.khronos.org/blog/from-portability-to-conformance-a-new-chapter-for-layered-vulkan-on-apple",
+  "canonicalUrl": "https://www.khronos.org/blog/from-portability-to-conformance-a-new-chapter-for-layered-vulkan-on-apple",
+  "sourceUrl": "https://www.khronos.org/feeds/blog_feed",
+  "sourceName": "Khronos",
+  "title": "From Portability to Conformance: A New Chapter for Layered Vulkan on Apple",
+  "subtitle": "The Vulkan® Portability Initiative has done its job. It helped bring Vulkan to Apple platforms through MoltenVK, but now that LunarG’s KosmicKrisp driver is Vulkan 1.4 conformant on Apple silicon, The Khronos® Group is deprecating the Initiative and removing its provisional extension from the Vulkan specification. This post explains what MoltenVK has achieved, how KosmicKrisp reached full conformance, and what that means if you are using Vulkan on Apple platforms.",
+  "imageUrl": "https://www.khronos.org/images/jcogs_img/cache/a3561357-8cd0-4332-aa5d-30ebb514add7_-_28de80_-_ade52cc9e2371411e2f6a5e18fb8664a9767175d.png",
+  "publishedAt": "2026-11-25T14:00:00.000Z",
+  "firstSeenAt": "2026-11-26T03:37:10.680Z",
+  "lastSeenAt": "2026-11-26T03:37:10.680Z"
+}
